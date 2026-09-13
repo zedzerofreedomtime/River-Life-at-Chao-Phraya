@@ -1,0 +1,510 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+:root {
+  font-family: "Noto Sans Thai", Arial, sans-serif;
+  color: #101e32;
+  background: #fff;
+  font-synthesis: none;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+button,
+input {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid #b89152;
+  outline-offset: 3px;
+}
+h2 {
+  font-size: 21px;
+  font-weight: 700;
+  margin: 0 0 5px;
+}
+h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 10px 0 16px;
+}
+p {
+  line-height: 1.7;
+}
+.site-header {
+  min-height: 94px;
+  max-width: 1400px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 34px;
+  gap: 24px;
+}
+.brand {
+  color: #101e32;
+  text-decoration: none;
+  font:
+    34px Georgia,
+    serif;
+  letter-spacing: 3px;
+}
+.brand small {
+  display: block;
+  font:
+    9px Arial,
+    sans-serif;
+  letter-spacing: 4px;
+  text-align: center;
+  margin-top: 6px;
+}
+nav {
+  display: flex;
+  gap: 32px;
+}
+nav button {
+  border: 0;
+  background: none;
+  padding: 16px 2px;
+  font-weight: 600;
+  position: relative;
+}
+nav .active:after {
+  content: "";
+  height: 3px;
+  background: #aa8040;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.title-band {
+  background: #101e32;
+  color: white;
+  padding: 30px max(34px, calc((100vw - 1332px) / 2));
+  display: flex;
+  align-items: center;
+  gap: 60px;
+}
+.title-band h1 {
+  font:
+    clamp(30px, 3.4vw, 50px) Georgia,
+    serif;
+  margin: 0;
+}
+.title-band p {
+  margin: 6px 0 0;
+  font-size: 23px;
+}
+.title-band > span {
+  color: #adc4da;
+  font-size: 15px;
+  letter-spacing: 2px;
+}
+main {
+  max-width: 1400px;
+  margin: auto;
+  padding: 0 30px 30px;
+  min-height: 62vh;
+}
+.demo-note {
+  text-align: center;
+  padding: 13px 0;
+  color: #766039;
+  font-size: 13px;
+}
+.booking-steps {
+  padding: 20px 0 27px;
+  max-width: 1050px;
+  margin: auto;
+}
+.booking-layout {
+  display: grid;
+  grid-template-columns: 1.45fr 1fr;
+  gap: 20px;
+}
+.map-panel,
+.booking-panel,
+.content-panel {
+  border: 1px solid #d9dee5;
+  border-radius: 8px;
+  padding: 24px;
+  background: white;
+}
+.muted {
+  color: #6d7788;
+  font-size: 14px;
+  margin: 0 0 20px;
+}
+.boat-scene {
+  height: 330px;
+  display: flex;
+  align-items: center;
+  padding: 15px 0;
+}
+.boat-hull {
+  width: 100%;
+  height: 225px;
+  border: 3px solid #8190a0;
+  border-radius: 46% 10% 10% 46% / 50%;
+  padding: 9px;
+  display: flex;
+  gap: 6px;
+  background: #f2f5f8;
+  overflow: hidden;
+}
+.boat-zone {
+  background: #dfe9f1;
+  color: #294c6c;
+  border: 1px solid #abbecf;
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.boat-zone:first-child {
+  border-radius: 85% 0 0 85%;
+  padding-left: 12px;
+}
+.boat-zone:last-child {
+  border-radius: 0 18% 18% 0;
+}
+.boat-zone.selected {
+  background: #ecdfbc;
+  border-color: #aa8040;
+  color: #705320;
+}
+.boat-zone strong {
+  font-size: 20px;
+  z-index: 1;
+}
+.boat-zone small {
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+.zone-count {
+  font-size: 12px;
+}
+.seat-pattern {
+  position: absolute;
+  inset: 14px 18px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-content: space-between;
+  gap: 8px;
+  pointer-events: none;
+}
+.seat-pattern i {
+  height: 17px;
+  border: 1px solid currentColor;
+  opacity: 0.2;
+  border-radius: 3px;
+}
+.map-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  color: #6d7788;
+}
+.map-note {
+  font-size: 13px;
+  color: #6d7788;
+  border-top: 1px solid #e7eaf0;
+  margin-top: 26px;
+  padding-top: 18px;
+}
+.field-label {
+  display: block;
+  font-size: 14px;
+  margin: 14px 0 8px;
+  font-weight: 600;
+}
+.zone-options {
+  display: flex;
+  gap: 8px;
+}
+.zone-options button {
+  flex: 1;
+  text-align: left;
+  border: 1px solid #d9dee5;
+  background: white;
+  padding: 10px;
+  border-radius: 6px;
+  min-width: 0;
+}
+.zone-options button.active {
+  border-color: #aa8040;
+  background: #fffcf6;
+  box-shadow: inset 0 0 0 1px #aa8040;
+}
+.zone-options strong,
+.zone-options small,
+.zone-options b {
+  display: block;
+}
+.zone-options strong {
+  font-size: 14px;
+}
+.zone-options small {
+  font-size: 12px;
+  color: #6d7788;
+  margin-top: 4px;
+}
+.zone-options b {
+  font-size: 17px;
+  font-weight: 600;
+}
+.quantity-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.counter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.counter button {
+  border: 1px solid #d9dee5;
+  min-width: 36px;
+  color: #101e32;
+}
+.counter output {
+  min-width: 30px;
+  text-align: center;
+}
+.price {
+  color: #987134;
+  font-size: 24px;
+}
+hr {
+  border: 0;
+  border-top: 1px solid #e1e5eb;
+  margin: 18px 0;
+}
+.consent {
+  font-size: 12px;
+  color: #586273;
+}
+.form-foot {
+  text-align: center;
+  font-size: 12px;
+  color: #6d7788;
+  margin: 12px 0 0;
+}
+.trip-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: #f5f7fa;
+  margin-top: 20px;
+  padding: 22px;
+  border-radius: 7px;
+  gap: 14px;
+}
+.trip-strip > div {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.trip-strip span {
+  font-size: 13px;
+}
+.trip-strip strong {
+  display: block;
+  color: #927033;
+  font-size: 17px;
+  margin-top: 4px;
+}
+footer {
+  background: #101e32;
+  color: #c3cfdd;
+  padding: 25px 34px;
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  font-size: 12px;
+}
+.footer-brand {
+  font:
+    23px Georgia,
+    serif;
+  color: white;
+  letter-spacing: 3px;
+}
+footer span:last-child {
+  margin-left: auto;
+}
+.content-panel {
+  margin-top: 24px;
+}
+.booking-detail {
+  margin-top: 25px;
+}
+.ticket-grid {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+.ticket {
+  border: 1px dashed #aa8040;
+  padding: 22px;
+  max-width: 245px;
+  text-align: center;
+  border-radius: 10px;
+}
+.ticket details {
+  font-size: 12px;
+  text-align: left;
+}
+.table-wrap {
+  overflow-x: auto;
+  margin-top: 25px;
+}
+table {
+  border-collapse: collapse;
+  min-width: 680px;
+  width: 100%;
+  font-size: 14px;
+}
+th,
+td {
+  padding: 14px 10px;
+  text-align: left;
+  border-bottom: 1px solid #e1e5eb;
+}
+th {
+  color: #6d7788;
+}
+td small {
+  display: block;
+  font-size: 11px;
+  color: #6d7788;
+  margin-top: 3px;
+}
+.slip-preview img {
+  max-width: 100%;
+  max-height: 500px;
+  display: block;
+}
+.slip-preview {
+  padding-top: 20px;
+}
+@media (max-width: 1000px) {
+  .booking-layout {
+    grid-template-columns: 1fr;
+  }
+  .boat-scene {
+    height: 270px;
+  }
+  .boat-hull {
+    max-width: 700px;
+    margin: auto;
+  }
+  .title-band > span {
+    display: none;
+  }
+  .booking-panel {
+    max-width: none;
+  }
+  .trip-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .site-header {
+    padding: 16px;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .brand {
+    font-size: 28px;
+  }
+  nav {
+    gap: 24px;
+  }
+  nav button {
+    padding: 8px 0;
+    font-size: 14px;
+  }
+  .title-band {
+    padding: 24px 18px;
+  }
+  .title-band p {
+    font-size: 18px;
+  }
+  main {
+    padding: 0 14px 20px;
+  }
+  .map-panel,
+  .booking-panel,
+  .content-panel {
+    padding: 17px;
+  }
+  .demo-note {
+    font-size: 11px;
+  }
+  .boat-scene {
+    height: 215px;
+  }
+  .boat-hull {
+    height: 165px;
+  }
+  .boat-zone strong {
+    font-size: 15px;
+  }
+  .boat-zone small {
+    font-size: 7px;
+  }
+  .zone-count {
+    font-size: 10px;
+  }
+  .seat-pattern {
+    inset: 10px;
+  }
+  .map-caption {
+    font-size: 10px;
+  }
+  .trip-strip {
+    padding: 16px;
+    gap: 20px;
+  }
+  .trip-strip > div {
+    gap: 8px;
+  }
+  .trip-strip strong {
+    font-size: 15px;
+  }
+  .booking-steps .MuiStepLabel-label {
+    font-size: 11px;
+  }
+  footer {
+    padding: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  footer span:last-child {
+    margin: 0;
+    width: 100%;
+  }
+  .zone-options {
+    gap: 5px;
+  }
+  .zone-options button {
+    padding: 8px;
+  }
+  .zone-options b {
+    font-size: 15px;
+  }
+}
