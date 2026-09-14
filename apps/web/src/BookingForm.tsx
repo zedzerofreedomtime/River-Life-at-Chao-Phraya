@@ -21,6 +21,7 @@ export default function BookingForm({
     [name, setName] = useState(""),
     [email, setEmail] = useState(""),
     [agent, setAgent] = useState(""),
+    [proof, setProof] = useState<File | null>(null),
     [accepted, setAccepted] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
@@ -32,7 +33,7 @@ export default function BookingForm({
   const zone = zones.find((z) => z.id === selected);
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!zone || !accepted) return;
+    if (!zone || !accepted || !proof) return;
     setBusy(true);
     setError("");
     const body = {
@@ -58,7 +59,14 @@ export default function BookingForm({
         },
         a.token,
       );
-      onBooked(b, a.token);
+      const form = new FormData();
+      form.append("slip", proof);
+      await api(
+        `/bookings/${b.id}/slip`,
+        { method: "POST", body: form },
+        a.token,
+      );
+      onBooked(await api<Booking>(`/bookings/${b.id}`, {}, a.token), a.token);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -153,6 +161,32 @@ export default function BookingForm({
           </span>
         }
       />
+      <div className="checkout-proof">
+        <strong>หลักฐานการชำระเงิน</strong>
+        <span>แนบครั้งเดียวก่อนยืนยันการจอง · PNG/JPG ไม่เกิน 5 MB</span>
+        <Button component="label" variant="outlined" disabled={busy}>
+          {proof ? "เปลี่ยนรูปหลักฐาน" : "เลือกรูปหลักฐาน"}
+          <input
+            hidden
+            aria-label="หลักฐานการชำระเงิน"
+            type="file"
+            accept="image/png,image/jpeg"
+            onChange={(event) => {
+              const next = event.target.files?.[0] ?? null;
+              if (next && next.size > 5 * 1024 * 1024) {
+                setProof(null);
+                setError("รูปหลักฐานต้องมีขนาดไม่เกิน 5 MB");
+                return;
+              }
+              setError("");
+              setProof(next);
+            }}
+          />
+        </Button>
+        <small className={proof ? "selected" : ""}>
+          {proof ? `เลือกแล้ว: ${proof.name}` : "ยังไม่ได้เลือกรูปหลักฐาน"}
+        </small>
+      </div>
       {error && (
         <Alert severity="error" className="mb-3">
           {error}
@@ -164,12 +198,14 @@ export default function BookingForm({
         size="large"
         type="submit"
         startIcon={<Ticket size={19} />}
-        disabled={busy || !accepted || !zone || quantity > zone.available}
+        disabled={
+          busy || !accepted || !proof || !zone || quantity > zone.available
+        }
       >
-        {busy ? "กำลังกันโควตา…" : "จองบัตร"}
+        {busy ? "กำลังออก QR Ticket…" : "ยืนยันการจองและรับ QR"}
       </Button>
       <p className="form-foot">
-        กันโควตา 15 นาที • ออกบัตรหลังเจ้าหน้าที่ตรวจหลักฐาน
+        แนบหลักฐานเพียงครั้งเดียว • ระบบจะออก QR Ticket ทันที
       </p>
     </form>
   );

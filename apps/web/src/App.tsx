@@ -127,7 +127,7 @@ export default function App() {
                     "riverlife.booking.token",
                     accessToken,
                   );
-                  go("orders");
+                  go("tickets");
                 }}
               />
             </div>

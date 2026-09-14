@@ -1068,6 +1068,32 @@ td small {
   color: #1c6b4c;
   font-weight: 600;
 }
+.checkout-proof {
+  display: grid;
+  gap: 8px;
+  margin: 18px 0;
+  padding: 16px;
+  border: 1px solid #e1e7ee;
+  border-radius: 10px;
+  background: #fbfcfd;
+}
+.checkout-proof strong {
+  color: #102641;
+}
+.checkout-proof span,
+.checkout-proof small {
+  color: #64758a;
+  font-size: 13px;
+}
+.checkout-proof small.selected {
+  color: #18724f;
+  font-weight: 700;
+}
+.checkout-proof .MuiButton-outlined {
+  width: fit-content;
+  border-color: #bd9048;
+  color: #8e672c;
+}
 
 /* Production interpretation of the approved event and ticket-wallet screens. */
 .market-header {
