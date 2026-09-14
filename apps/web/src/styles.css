@@ -1604,6 +1604,106 @@ td small {
   color: #fff;
   font-weight: 700;
 }
+.payment-journey {
+  max-width: 1040px;
+  margin-bottom: 18px;
+  padding: 19px 22px;
+  border: 1px solid #dce5ed;
+  border-radius: 12px;
+  background: #fbfcfd;
+}
+.payment-journey.confirmed {
+  border-color: #b9dfce;
+  background: #f4fbf7;
+}
+.payment-journey-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+}
+.payment-journey-head div {
+  display: grid;
+  gap: 3px;
+}
+.payment-journey-head small {
+  color: #61738a;
+  font-size: 12px;
+}
+.payment-journey-head strong {
+  color: #102641;
+  font-size: 18px;
+}
+.payment-journey-head > span {
+  color: #1b6c4c;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: right;
+}
+.payment-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 18px 0 14px;
+  padding: 0;
+  list-style: none;
+  counter-reset: journey;
+}
+.payment-steps li {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  color: #78879a;
+  font-size: 12px;
+  font-weight: 700;
+}
+.payment-steps li::before {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border: 1px solid #b8c5d1;
+  border-radius: 50%;
+  background: #fff;
+  color: #77879a;
+  content: counter(journey);
+  counter-increment: journey;
+}
+.payment-steps li.done,
+.payment-steps li.current {
+  color: #145e44;
+}
+.payment-steps li.done::before {
+  border-color: #16805d;
+  background: #16805d;
+  color: #fff;
+  content: "✓";
+}
+.payment-steps li.current::before {
+  border: 5px solid #bd9048;
+  color: #8d682b;
+}
+.payment-next-step {
+  margin: 0;
+  color: #536b85;
+  font-size: 13px;
+}
+.boarding-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  color: #245a45;
+  font-size: 13px;
+}
+.boarding-details span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.boarding-details svg {
+  width: 16px;
+  height: 16px;
+}
 .wallet-ticket-workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 390px;
@@ -1936,6 +2036,18 @@ td small {
   }
   .slip-status-card {
     padding: 17px;
+  }
+  .payment-journey {
+    padding: 17px;
+  }
+  .payment-journey-head {
+    display: grid;
+  }
+  .payment-journey-head > span {
+    text-align: left;
+  }
+  .payment-steps {
+    grid-template-columns: repeat(2, 1fr);
   }
   .wallet-ticket-stack {
     padding: 12px;

@@ -3,7 +3,15 @@ import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import { QRCodeSVG } from "qrcode.react";
-import { ChevronRight, CircleHelp, Copy, Ticket } from "lucide-react";
+import {
+  CalendarClock,
+  ChevronRight,
+  CircleHelp,
+  Copy,
+  MapPin,
+  ShieldAlert,
+  Ticket,
+} from "lucide-react";
 import { api, labels, type Booking } from "./api";
 
 type Props = { initial: Booking | null; initialToken: string };
@@ -174,75 +182,133 @@ export default function TicketWallet({ initial, initialToken }: Props) {
               }}
               onUpload={() => void uploadSlip()}
             />
+            <PaymentJourney status={booking.status} />
           </div>
         ) : (
-          <div className="wallet-ticket-workspace">
-            <section className="wallet-ticket-stack">
-              <div className="wallet-order-summary">
-                <span>
-                  <strong>Concert on the River</strong>
-                  <small>ICONSIAM · 19:00</small>
-                </span>
-                <span>
-                  คำสั่งซื้อ #{shortId(booking.id)}
-                  <b>ยืนยันแล้ว</b>
-                  <small>จำนวน {tickets.length} บัตร</small>
-                </span>
-              </div>
-              {tickets.map((ticket, index) => (
-                <button
-                  key={ticket.id}
-                  className={`wallet-ticket ${selected === index ? "selected" : ""}`}
-                  onClick={() => setSelected(index)}
-                >
-                  <img src="/images/boat/unicorn-night-exterior.jpg" alt="" />
+          <>
+            <PaymentJourney status={booking.status} />
+            <div className="wallet-ticket-workspace">
+              <section className="wallet-ticket-stack">
+                <div className="wallet-order-summary">
                   <span>
-                    <small>
-                      บัตรที่ {index + 1} จาก {tickets.length}
-                    </small>
+                    <strong>Concert on the River</strong>
+                    <small>ICONSIAM · 19:00</small>
+                  </span>
+                  <span>
+                    คำสั่งซื้อ #{shortId(booking.id)}
+                    <b>ยืนยันแล้ว</b>
+                    <small>จำนวน {tickets.length} บัตร</small>
+                  </span>
+                </div>
+                {tickets.map((ticket, index) => (
+                  <button
+                    key={ticket.id}
+                    className={`wallet-ticket ${selected === index ? "selected" : ""}`}
+                    onClick={() => setSelected(index)}
+                  >
+                    <img src="/images/boat/unicorn-night-exterior.jpg" alt="" />
+                    <span>
+                      <small>
+                        บัตรที่ {index + 1} จาก {tickets.length}
+                      </small>
+                      <strong>
+                        {zoneName[booking.zone_id] ?? `โซน ${booking.zone_id}`}
+                      </strong>
+                      <em>
+                        Concert on the River
+                        <br />
+                        ICONSIAM · 19:00
+                      </em>
+                    </span>
+                    <span className="ticket-quantity">
+                      <small>จำนวน</small>
+                      <b>1</b>
+                      <em>ใบ</em>
+                    </span>
+                    <span className="show-qr">แสดง QR</span>
+                  </button>
+                ))}
+                <div className="wallet-help">
+                  <Ticket aria-hidden="true" />
+                  <span>
                     <strong>
-                      {zoneName[booking.zone_id] ?? `โซน ${booking.zone_id}`}
+                      ทั้ง {tickets.length} บัตรอยู่ในคำสั่งซื้อเดียวกัน
                     </strong>
-                    <em>
-                      Concert on the River
-                      <br />
-                      ICONSIAM · 19:00
-                    </em>
+                    <small>กรุณาแสดงบัตรแต่ละใบเมื่อเข้างาน</small>
                   </span>
-                  <span className="ticket-quantity">
-                    <small>จำนวน</small>
-                    <b>1</b>
-                    <em>ใบ</em>
+                  <span>
+                    <CircleHelp aria-hidden="true" />
+                    <strong>มีคำถามเกี่ยวกับบัตร?</strong>
+                    <small>ดูคำแนะนำการใช้งาน →</small>
                   </span>
-                  <span className="show-qr">แสดง QR</span>
-                </button>
-              ))}
-              <div className="wallet-help">
-                <Ticket aria-hidden="true" />
-                <span>
-                  <strong>
-                    ทั้ง {tickets.length} บัตรอยู่ในคำสั่งซื้อเดียวกัน
-                  </strong>
-                  <small>กรุณาแสดงบัตรแต่ละใบเมื่อเข้างาน</small>
-                </span>
-                <span>
-                  <CircleHelp aria-hidden="true" />
-                  <strong>มีคำถามเกี่ยวกับบัตร?</strong>
-                  <small>ดูคำแนะนำการใช้งาน →</small>
-                </span>
-              </div>
-            </section>
-            {active && (
-              <TicketPreview
-                booking={booking}
-                ticketId={active.id}
-                index={selected}
-                count={tickets.length}
-              />
-            )}
-          </div>
+                </div>
+              </section>
+              {active && (
+                <TicketPreview
+                  booking={booking}
+                  ticketId={active.id}
+                  index={selected}
+                  count={tickets.length}
+                />
+              )}
+            </div>
+          </>
         )}
       </main>
+    </section>
+  );
+}
+
+function PaymentJourney({ status }: { status: string }) {
+  const confirmed = status === "confirmed";
+  const reviewing = status === "review";
+  return (
+    <section className={`payment-journey ${confirmed ? "confirmed" : ""}`}>
+      <div className="payment-journey-head">
+        <div>
+          <small>สถานะการเดินทาง</small>
+          <strong>
+            {confirmed
+              ? "บัตรของคุณพร้อมใช้งานแล้ว"
+              : reviewing
+                ? "ได้รับหลักฐานแล้ว · รอยืนยันการชำระเงิน"
+                : "แนบหลักฐานเพื่อดำเนินการต่อ"}
+          </strong>
+        </div>
+        <span>
+          {confirmed
+            ? "ขั้นตอนสุดท้าย: แสดง QR หน้างาน"
+            : "QR จะแสดงหลังยืนยัน"}
+        </span>
+      </div>
+      <ol className="payment-steps">
+        <li className="done">ส่งหลักฐาน</li>
+        <li className={confirmed ? "done" : reviewing ? "current" : ""}>
+          ยืนยันการชำระเงิน
+        </li>
+        <li className={confirmed ? "current" : ""}>รับ QR Ticket</li>
+        <li>สแกนเข้างาน</li>
+      </ol>
+      {confirmed ? (
+        <div className="boarding-details">
+          <span>
+            <MapPin aria-hidden="true" /> ICONSIAM · จุดขึ้นเรือ
+          </span>
+          <span>
+            <CalendarClock aria-hidden="true" /> ขึ้นเรือก่อน 18:45 · ออกเรือ
+            19:00
+          </span>
+          <span>
+            <ShieldAlert aria-hidden="true" /> มาสายจนไม่ทันเรือถือเป็น No-show
+          </span>
+        </div>
+      ) : (
+        <p className="payment-next-step">
+          {reviewing
+            ? "เจ้าหน้าที่จะตรวจสอบและยืนยันการชำระเงิน เมื่อยืนยันแล้ว QR Ticket จะปรากฏในหน้านี้ทันที"
+            : "เลือกรูปหลักฐานด้านบน แล้วส่งเพื่อให้ระบบบันทึกรายการของคุณ"}
+        </p>
+      )}
     </section>
   );
 }
