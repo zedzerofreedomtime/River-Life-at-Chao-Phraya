@@ -91,9 +91,6 @@ func TestInventoryLifecycle(t *testing.T) {
 	if _, err = s.Get(ctx, first.ID, "wrong", false); err == nil {
 		t.Fatal("unauthorized booking access")
 	}
-	if err = s.Submit(ctx, first.ID, auth, "fixture.png"); err != nil {
-		t.Fatal(err)
-	}
 	b, err := s.Get(ctx, first.ID, auth, false)
 	if err != nil || b.Status != "confirmed" || len(b.Tickets) != 1 {
 		t.Fatal("ticket issuance failed", err)
@@ -106,13 +103,5 @@ func TestInventoryLifecycle(t *testing.T) {
 	}
 	if err = s.Decide(ctx, first.ID, "no_show"); !errors.Is(err, ErrConflict) {
 		t.Fatal("checked in marked no show")
-	}
-	_, err = db.Exec(ctx, "UPDATE bookings SET expires_at=now()-interval '1 minute' WHERE zone_id=$1 AND status='held'", zone)
-	if err != nil {
-		t.Fatal(err)
-	}
-	replacement, err := s.Hold(ctx, Input{ZoneID: zone, Name: "New", Email: "new@example.com", Quantity: 2}, Token(), Token())
-	if err != nil || replacement.Quantity != 2 {
-		t.Fatal("expired capacity not reclaimed", err)
 	}
 }

@@ -14,8 +14,7 @@ export default function Admin() {
     [message, setMessage] = useState(""),
     [busy, setBusy] = useState(false),
     [ticket, setTicket] = useState(""),
-    [search, setSearch] = useState(""),
-    [slip, setSlip] = useState("");
+    [search, setSearch] = useState("");
   async function run(fn: () => Promise<void>) {
     setBusy(true);
     setError("");
@@ -51,16 +50,6 @@ export default function Admin() {
         token,
       );
       await refresh();
-    });
-  }
-  async function showSlip(id: string) {
-    await run(async () => {
-      const r = await fetch(`/api/v1/admin/bookings/${id}/slip`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!r.ok) throw new Error("เปิดหลักฐานไม่ได้");
-      if (slip) URL.revokeObjectURL(slip);
-      setSlip(URL.createObjectURL(await r.blob()));
     });
   }
   return (
@@ -164,14 +153,6 @@ export default function Admin() {
                       <td>{money(b.total)}</td>
                       <td>{labels[b.status]}</td>
                       <td>
-                        {b.has_slip && (
-                          <Button
-                            onClick={() => showSlip(b.id)}
-                            disabled={busy}
-                          >
-                            ดูหลักฐาน
-                          </Button>
-                        )}
                         {b.status === "confirmed" && (
                           <Button
                             disabled={busy}
@@ -191,19 +172,6 @@ export default function Admin() {
               </p>
             )}
           </div>
-          {slip && (
-            <div className="slip-preview">
-              <Button
-                onClick={() => {
-                  URL.revokeObjectURL(slip);
-                  setSlip("");
-                }}
-              >
-                ปิดหลักฐาน
-              </Button>
-              <img src={slip} alt="หลักฐานการชำระเงิน" />
-            </div>
-          )}
         </>
       )}
       {error && (

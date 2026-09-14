@@ -9,8 +9,7 @@ CREATE TABLE IF NOT EXISTS bookings (
  name text NOT NULL, email text NOT NULL, quantity integer NOT NULL CHECK(quantity BETWEEN 1 AND 10),
  total integer NOT NULL CHECK(total>=0), agent_code text NOT NULL DEFAULT '',
  status text NOT NULL CHECK(status IN ('held','review','confirmed','cancelled','expired','no_show')),
- expires_at timestamptz NOT NULL, created_at timestamptz NOT NULL DEFAULT now(),
- slip_path text NOT NULL DEFAULT ''
+ expires_at timestamptz NOT NULL, created_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS bookings_zone_status ON bookings(zone_id,status,expires_at);
 CREATE TABLE IF NOT EXISTS tickets (

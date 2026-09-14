@@ -21,7 +21,6 @@ export default function BookingForm({
     [name, setName] = useState(""),
     [email, setEmail] = useState(""),
     [agent, setAgent] = useState(""),
-    [proof, setProof] = useState<File | null>(null),
     [accepted, setAccepted] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
@@ -33,7 +32,7 @@ export default function BookingForm({
   const zone = zones.find((z) => z.id === selected);
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!zone || !accepted || !proof) return;
+    if (!zone || !accepted) return;
     setBusy(true);
     setError("");
     const body = {
@@ -59,14 +58,7 @@ export default function BookingForm({
         },
         a.token,
       );
-      const form = new FormData();
-      form.append("slip", proof);
-      await api(
-        `/bookings/${b.id}/slip`,
-        { method: "POST", body: form },
-        a.token,
-      );
-      onBooked(await api<Booking>(`/bookings/${b.id}`, {}, a.token), a.token);
+      onBooked(b, a.token);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -76,9 +68,7 @@ export default function BookingForm({
   return (
     <form className="booking-panel" onSubmit={submit}>
       <h2>จองบัตรคอนเสิร์ตบนเรือ</h2>
-      <p className="muted">
-        เลือกโซน จำนวนบัตร กรอกข้อมูล และแนบสลิปเพียงครั้งเดียว
-      </p>
+      <p className="muted">เลือกโซน จำนวนบัตร และกรอกข้อมูลผู้จอง</p>
       <label className="field-label">โซน</label>
       <div className="zone-options">
         {zones.map((z) => (
@@ -163,32 +153,6 @@ export default function BookingForm({
           </span>
         }
       />
-      <div className="checkout-proof">
-        <strong>แนบสลิปการชำระเงิน</strong>
-        <span>แนบครั้งเดียวก่อนยืนยันการจอง · PNG/JPG ไม่เกิน 5 MB</span>
-        <Button component="label" variant="outlined" disabled={busy}>
-          {proof ? "เปลี่ยนรูปสลิป" : "เลือกรูปสลิป"}
-          <input
-            hidden
-            aria-label="หลักฐานการชำระเงิน"
-            type="file"
-            accept="image/png,image/jpeg"
-            onChange={(event) => {
-              const next = event.target.files?.[0] ?? null;
-              if (next && next.size > 5 * 1024 * 1024) {
-                setProof(null);
-                setError("รูปหลักฐานต้องมีขนาดไม่เกิน 5 MB");
-                return;
-              }
-              setError("");
-              setProof(next);
-            }}
-          />
-        </Button>
-        <small className={proof ? "selected" : ""}>
-          {proof ? `เลือกแล้ว: ${proof.name}` : "ยังไม่ได้เลือกรูปสลิป"}
-        </small>
-      </div>
       {error && (
         <Alert severity="error" className="mb-3">
           {error}
@@ -200,15 +164,11 @@ export default function BookingForm({
         size="large"
         type="submit"
         startIcon={<Ticket size={19} />}
-        disabled={
-          busy || !accepted || !proof || !zone || quantity > zone.available
-        }
+        disabled={busy || !accepted || !zone || quantity > zone.available}
       >
         {busy ? "กำลังออก QR Ticket…" : "ยืนยันการจองและรับ QR"}
       </Button>
-      <p className="form-foot">
-        แนบหลักฐานเพียงครั้งเดียว • ระบบจะออก QR Ticket ทันที
-      </p>
+      <p className="form-foot">ยืนยันการจองแล้ว • ระบบจะออก QR Ticket ทันที</p>
     </form>
   );
 }

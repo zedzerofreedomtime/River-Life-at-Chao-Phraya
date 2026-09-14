@@ -1033,67 +1033,6 @@ td small {
   color: #6d7788;
   margin-top: 3px;
 }
-.slip-preview img {
-  max-width: 100%;
-  max-height: 500px;
-  display: block;
-}
-.slip-preview {
-  padding-top: 20px;
-}
-.order-proof-upload {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  margin-top: 18px;
-}
-.order-proof-upload .MuiButton-outlined {
-  border-color: #bd9048;
-  color: #8e672c;
-}
-.order-proof-upload .MuiButton-contained {
-  background: #bd9048;
-}
-.order-proof-name {
-  flex: 1 1 260px;
-  min-width: 0;
-  color: #66758a;
-  font-size: 14px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.order-proof-name.selected {
-  color: #1c6b4c;
-  font-weight: 600;
-}
-.checkout-proof {
-  display: grid;
-  gap: 8px;
-  margin: 18px 0;
-  padding: 16px;
-  border: 1px solid #e1e7ee;
-  border-radius: 10px;
-  background: #fbfcfd;
-}
-.checkout-proof strong {
-  color: #102641;
-}
-.checkout-proof span,
-.checkout-proof small {
-  color: #64758a;
-  font-size: 13px;
-}
-.checkout-proof small.selected {
-  color: #18724f;
-  font-weight: 700;
-}
-.checkout-proof .MuiButton-outlined {
-  width: fit-content;
-  border-color: #bd9048;
-  color: #8e672c;
-}
 
 /* Production interpretation of the approved event and ticket-wallet screens. */
 .market-header {
@@ -1569,67 +1508,6 @@ td small {
   display: grid;
   gap: 16px;
 }
-.slip-status-card {
-  display: grid;
-  gap: 14px;
-  padding: 22px;
-  border: 1px solid #dbe4ed;
-  border-radius: 12px;
-  background: #fff;
-  color: #102641;
-}
-.slip-status-card strong {
-  font-size: 18px;
-}
-.slip-status-card p {
-  margin: 4px 0 0;
-  color: #62728a;
-  font-size: 13px;
-}
-.slip-file-control {
-  display: flex;
-  align-items: center;
-  width: fit-content;
-  max-width: 100%;
-  border: 1px dashed #a8b8c9;
-  border-radius: 7px;
-  color: #24496f;
-  cursor: pointer;
-  overflow: hidden;
-}
-.slip-file-control input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-}
-.slip-file-control span {
-  padding: 10px 14px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.slip-status-card .MuiButton-contained {
-  justify-self: start;
-  background: #bd9048;
-}
-.slip-received {
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  border-color: #b9dfce;
-  background: #f3fbf7;
-}
-.slip-received > span {
-  display: grid;
-  width: 32px;
-  height: 32px;
-  place-items: center;
-  border-radius: 50%;
-  background: #16805d;
-  color: #fff;
-  font-weight: 700;
-}
 .payment-journey {
   max-width: 1040px;
   margin-bottom: 18px;
@@ -2059,9 +1937,6 @@ td small {
   }
   .wallet-ticket-workspace {
     grid-template-columns: 1fr;
-  }
-  .slip-status-card {
-    padding: 17px;
   }
   .payment-journey {
     padding: 17px;

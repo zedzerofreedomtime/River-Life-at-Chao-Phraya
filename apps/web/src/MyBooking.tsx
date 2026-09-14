@@ -20,8 +20,7 @@ export default function MyBooking({
       initialToken || sessionStorage.getItem("riverlife.booking.token") || "",
     ),
     [error, setError] = useState(""),
-    [busy, setBusy] = useState(false),
-    [now, setNow] = useState(Date.now());
+    [busy, setBusy] = useState(false);
   const load = async () => {
     setBusy(true);
     setError("");
@@ -41,10 +40,6 @@ export default function MyBooking({
     }
   };
   useEffect(() => {
-    const i = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(i);
-  }, []);
-  useEffect(() => {
     const savedId =
       initial?.id || sessionStorage.getItem("riverlife.booking.id");
     const savedToken =
@@ -62,15 +57,12 @@ export default function MyBooking({
       active = false;
     };
   }, [initial?.id, initialToken]);
-  const seconds = b
-    ? Math.max(0, Math.floor((Date.parse(b.expires_at) - now) / 1000))
-    : 0;
   return (
     <section className="content-panel">
       <div className="orders-heading">
         <div>
           <h1>คำสั่งซื้อของฉัน</h1>
-          <p>ตรวจสอบสถานะการชำระเงินและรายละเอียดคำสั่งซื้อ</p>
+          <p>ตรวจสอบสถานะและรายละเอียดคำสั่งซื้อ</p>
         </div>
       </div>
       <div className="grid gap-4 md:grid-cols-3">
@@ -110,11 +102,7 @@ export default function MyBooking({
             <h3>
               โซน {b.zone_id} · {b.quantity} ใบ · {money(b.total)}
             </h3>
-            <strong>
-              {b.status === "held" && seconds === 0
-                ? "หมดเวลาจอง"
-                : labels[b.status]}
-            </strong>
+            <strong>{labels[b.status]}</strong>
           </div>
           <p className="order-person">
             ผู้สั่งซื้อ: {b.name} · {b.email}
@@ -127,21 +115,13 @@ export default function MyBooking({
             <summary>แสดงรหัสเข้าถึงสำหรับเก็บรักษา</summary>
             <code className="break-all">{token}</code>
           </details>
-          {b.status === "held" && seconds > 0 && (
-            <Alert severity="warning">
-              รายการนี้ยังไม่มีหลักฐานจากขั้นตอนซื้อ จึงยังออก QR ไม่ได้
-              กรุณาเริ่มรายการใหม่และแนบรูปหลักฐานในขั้นตอนยืนยันการจอง
-            </Alert>
-          )}
           {b.status === "review" && (
-            <Alert severity="info">
-              ได้รับหลักฐานแล้ว ระบบกำลังออก QR Ticket ให้คุณ
-            </Alert>
+            <Alert severity="info">ระบบกำลังออก QR Ticket ให้คุณ</Alert>
           )}
           {b.status === "confirmed" && (
             <div className="order-success">
               <div>
-                <strong>ชำระเงินยืนยันแล้ว</strong>
+                <strong>ยืนยันการจองแล้ว</strong>
                 <span>บัตรอิเล็กทรอนิกส์ {b.tickets.length} ใบพร้อมใช้งาน</span>
               </div>
               <Button variant="contained" onClick={onOpenTickets}>

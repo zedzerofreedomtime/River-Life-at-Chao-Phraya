@@ -6,11 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
 	"github.com/redis/go-redis/v9"
-	"io"
 	"log/slog"
 	"net/http"
-	"os"
-	"path/filepath"
 	"riverlife/api/internal/service"
 	"strings"
 	"time"
@@ -19,7 +16,7 @@ import (
 type Server struct {
 	Service                  *service.Service
 	Redis                    *redis.Client
-	AdminPassword, UploadDir string
+	AdminPassword string
 	Demo                     bool
 }
 
@@ -120,7 +117,6 @@ func (s *Server) Router() *gin.Engine {
 		}
 		c.JSON(200, b)
 	})
-	api.POST("/bookings/:id/slip", s.limiter(20), s.slip)
 	api.POST("/admin/login", s.limiter(5), func(c *gin.Context) {
 		var in struct {
 			Password string `json:"password"`
@@ -156,19 +152,6 @@ func (s *Server) Router() *gin.Engine {
 			return
 		}
 		c.JSON(200, bs)
-	})
-	admin.GET("/bookings/:id/slip", func(c *gin.Context) {
-		var path string
-		err := s.Service.DB.QueryRow(c.Request.Context(), "SELECT slip_path FROM bookings WHERE id=$1", c.Param("id")).Scan(&path)
-		if err != nil {
-			fail(c, err)
-			return
-		}
-		if path == "" {
-			c.Status(404)
-			return
-		}
-		c.File(filepath.Join(s.UploadDir, path))
 	})
 	admin.POST("/bookings/:id/decision", func(c *gin.Context) {
 		var in struct {
@@ -211,57 +194,4 @@ func (s *Server) Router() *gin.Engine {
 		c.Status(204)
 	})
 	return r
-}
-func (s *Server) slip(c *gin.Context) {
-	b, err := s.Service.Get(c.Request.Context(), c.Param("id"), token(c), false)
-	if err != nil {
-		fail(c, err)
-		return
-	}
-	if b.Status != "held" {
-		fail(c, service.ErrConflict)
-		return
-	}
-	f, err := c.FormFile("slip")
-	if err != nil || f.Size > 5<<20 {
-		bad(c)
-		return
-	}
-	file, err := f.Open()
-	if err != nil {
-		fail(c, err)
-		return
-	}
-	defer file.Close()
-	data, err := io.ReadAll(io.LimitReader(file, (5<<20)+1))
-	if err != nil {
-		fail(c, err)
-		return
-	}
-	if len(data) > 5<<20 {
-		bad(c)
-		return
-	}
-	mime := http.DetectContentType(data)
-	ext := ""
-	switch mime {
-	case "image/jpeg":
-		ext = ".jpg"
-	case "image/png":
-		ext = ".png"
-	default:
-		bad(c)
-		return
-	}
-	path := service.Token() + ext
-	if err = os.WriteFile(filepath.Join(s.UploadDir, path), data, 0600); err != nil {
-		fail(c, err)
-		return
-	}
-	if err = s.Service.Submit(c.Request.Context(), b.ID, token(c), path); err != nil {
-		_ = os.Remove(filepath.Join(s.UploadDir, path))
-		fail(c, err)
-		return
-	}
-	c.JSON(200, gin.H{"status": "confirmed"})
 }
