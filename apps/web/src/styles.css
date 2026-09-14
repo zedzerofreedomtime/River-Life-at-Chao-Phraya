@@ -1062,6 +1062,36 @@ td small {
 .order-proof-upload .MuiButton-contained {
   background: #bd9048;
 }
+.qr-dialog-content {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 34px !important;
+  text-align: center;
+  color: #102641;
+}
+.qr-dialog-content h2,
+.qr-dialog-content p {
+  margin: 0;
+}
+.qr-dialog-content h2 {
+  font-size: 25px;
+}
+.qr-dialog-content p,
+.qr-dialog-content small {
+  color: #62728a;
+}
+.qr-dialog-content .available {
+  color: #137251;
+}
+.qr-dialog-content .used {
+  color: #9b5f20;
+}
+.qr-dialog-close {
+  position: absolute !important;
+  top: 8px;
+  right: 8px;
+}
 
 /* Production interpretation of the approved event and ticket-wallet screens. */
 .market-header {

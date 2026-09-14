@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import IconButton from "@mui/material/IconButton";
 import TextField from "@mui/material/TextField";
 import { QRCodeSVG } from "qrcode.react";
 import {
@@ -11,6 +14,7 @@ import {
   MapPin,
   ShieldAlert,
   Ticket,
+  X,
 } from "lucide-react";
 import { api, labels, type Booking } from "./api";
 
@@ -32,6 +36,7 @@ export default function TicketWallet({ initial, initialToken }: Props) {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [selected, setSelected] = useState(0);
+  const [qrOpen, setQrOpen] = useState(false);
   const load = async () => {
     if (!id || !token) return;
     setBusy(true);
@@ -171,7 +176,10 @@ export default function TicketWallet({ initial, initialToken }: Props) {
                   <button
                     key={ticket.id}
                     className={`wallet-ticket ${selected === index ? "selected" : ""}`}
-                    onClick={() => setSelected(index)}
+                    onClick={() => {
+                      setSelected(index);
+                      setQrOpen(true);
+                    }}
                   >
                     <img src="/images/boat/unicorn-night-exterior.jpg" alt="" />
                     <span>
@@ -219,10 +227,61 @@ export default function TicketWallet({ initial, initialToken }: Props) {
                 />
               )}
             </div>
+            {active && (
+              <QrDialog
+                open={qrOpen}
+                onClose={() => setQrOpen(false)}
+                booking={booking}
+                ticketId={active.id}
+                index={selected}
+                count={tickets.length}
+              />
+            )}
           </>
         )}
       </main>
     </section>
+  );
+}
+
+function QrDialog({
+  open,
+  onClose,
+  booking,
+  ticketId,
+  index,
+  count,
+}: {
+  open: boolean;
+  onClose: () => void;
+  booking: Booking;
+  ticketId: string;
+  index: number;
+  count: number;
+}) {
+  const checkedIn = booking.tickets[index]?.checked_in_at;
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+      <DialogContent className="qr-dialog-content">
+        <IconButton
+          aria-label="ปิด QR"
+          className="qr-dialog-close"
+          onClick={onClose}
+        >
+          <X />
+        </IconButton>
+        <span>
+          บัตรที่ {index + 1} จาก {count}
+        </span>
+        <h2>{zoneName[booking.zone_id] ?? `โซน ${booking.zone_id}`}</h2>
+        <p>Concert on the River · ICONSIAM · 19:00</p>
+        <QRCodeSVG value={ticketId} size={250} />
+        <strong className={checkedIn ? "used" : "available"}>
+          ● {checkedIn ? "เช็กอินแล้ว" : "พร้อมใช้เข้างาน"}
+        </strong>
+        <small>แสดง QR นี้ให้เจ้าหน้าที่สแกนที่จุด Check-in</small>
+      </DialogContent>
+    </Dialog>
   );
 }
 
