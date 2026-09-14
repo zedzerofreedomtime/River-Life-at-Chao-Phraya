@@ -1041,6 +1041,33 @@ td small {
 .slip-preview {
   padding-top: 20px;
 }
+.order-proof-upload {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+.order-proof-upload .MuiButton-outlined {
+  border-color: #bd9048;
+  color: #8e672c;
+}
+.order-proof-upload .MuiButton-contained {
+  background: #bd9048;
+}
+.order-proof-name {
+  flex: 1 1 260px;
+  min-width: 0;
+  color: #66758a;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.order-proof-name.selected {
+  color: #1c6b4c;
+  font-weight: 600;
+}
 
 /* Production interpretation of the approved event and ticket-wallet screens. */
 .market-header {

@@ -77,6 +77,19 @@ export default function MyBooking({
       setBusy(false);
     }
   }
+  function chooseFile(next: File | null) {
+    setError("");
+    if (!next) {
+      setFile(null);
+      return;
+    }
+    if (next.size > 5 * 1024 * 1024) {
+      setFile(null);
+      setError("รูปหลักฐานต้องมีขนาดไม่เกิน 5 MB");
+      return;
+    }
+    setFile(next);
+  }
   const seconds = b
     ? Math.max(0, Math.floor((Date.parse(b.expires_at) - now) / 1000))
     : 0;
@@ -154,20 +167,34 @@ export default function MyBooking({
               <Alert severity="warning">
                 ระบบทดลอง — ไม่ต้องโอนเงินจริง ใช้ภาพทดสอบ PNG/JPG ไม่เกิน 5 MB
               </Alert>
-              <input
-                aria-label="อัปโหลดหลักฐาน"
-                type="file"
-                accept="image/png,image/jpeg"
-                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                className="my-4 block max-w-full"
-              />
-              <Button
-                variant="contained"
-                disabled={busy || !file || file.size > 5 * 1024 * 1024}
-                onClick={upload}
-              >
-                ส่งหลักฐานให้เจ้าหน้าที่ตรวจ
-              </Button>
+              <div className="order-proof-upload">
+                <Button component="label" variant="outlined" disabled={busy}>
+                  {file ? "เปลี่ยนรูปหลักฐาน" : "เลือกรูปหลักฐาน"}
+                  <input
+                    hidden
+                    aria-label="อัปโหลดหลักฐาน"
+                    type="file"
+                    accept="image/png,image/jpeg"
+                    onChange={(e) => chooseFile(e.target.files?.[0] ?? null)}
+                  />
+                </Button>
+                <span
+                  className={
+                    file ? "order-proof-name selected" : "order-proof-name"
+                  }
+                >
+                  {file
+                    ? `เลือกแล้ว: ${file.name}`
+                    : "รองรับไฟล์ PNG หรือ JPG ขนาดไม่เกิน 5 MB"}
+                </span>
+                <Button
+                  variant="contained"
+                  disabled={busy || !file}
+                  onClick={upload}
+                >
+                  {busy ? "กำลังอัปโหลด…" : "ส่งรูปหลักฐาน"}
+                </Button>
+              </div>
             </>
           )}
           {b.status === "review" && (
