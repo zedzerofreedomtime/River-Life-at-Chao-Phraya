@@ -35,7 +35,7 @@ export default function EventDetail({
     <>
       <section className="event-hero">
         <img
-          src="/images/boat/unicorn-night-hero-premium.png"
+          src="/images/boat/unicorn-night-hero-gold.png"
           alt="เรือ Unicorn Cruise ล่องแม่น้ำเจ้าพระยายามค่ำคืน"
         />
         <div className="event-hero-copy">
