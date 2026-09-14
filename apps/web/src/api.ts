@@ -36,7 +36,7 @@ export const money = (n: number) =>
   }).format(n / 100);
 export const labels: Record<string, string> = {
   held: "รอส่งหลักฐาน",
-  review: "รอตรวจสอบ",
+  review: "กำลังออกบัตร",
   confirmed: "ยืนยันแล้ว",
   expired: "หมดเวลาจอง",
   cancelled: "ไม่อนุมัติ",

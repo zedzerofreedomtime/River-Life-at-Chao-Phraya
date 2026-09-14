@@ -172,23 +172,6 @@ export default function Admin() {
                             ดูหลักฐาน
                           </Button>
                         )}
-                        {b.status === "review" && (
-                          <>
-                            <Button
-                              disabled={busy}
-                              onClick={() => decide(b.id, "approve")}
-                            >
-                              อนุมัติ
-                            </Button>
-                            <Button
-                              color="error"
-                              disabled={busy}
-                              onClick={() => decide(b.id, "reject")}
-                            >
-                              ไม่อนุมัติ
-                            </Button>
-                          </>
-                        )}
                         {b.status === "confirmed" && (
                           <Button
                             disabled={busy}

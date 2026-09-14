@@ -27,9 +27,14 @@ export default function MyBooking({
     setBusy(true);
     setError("");
     try {
-      setB(
-        await api<Booking>(`/bookings/${encodeURIComponent(id)}`, {}, token),
+      const latest = await api<Booking>(
+        `/bookings/${encodeURIComponent(id)}`,
+        {},
+        token,
       );
+      setB(latest);
+      sessionStorage.setItem("riverlife.booking.id", latest.id);
+      sessionStorage.setItem("riverlife.booking.token", token);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -199,8 +204,7 @@ export default function MyBooking({
           )}
           {b.status === "review" && (
             <Alert severity="info">
-              ได้รับหลักฐานแล้ว เจ้าหน้าที่กำลังตรวจสอบการชำระเงิน
-              โควตาของคุณยังถูกกันไว้ระหว่างรอตรวจสอบ
+              ได้รับหลักฐานแล้ว ระบบกำลังออก QR Ticket ให้คุณ
             </Alert>
           )}
           {b.status === "confirmed" && (

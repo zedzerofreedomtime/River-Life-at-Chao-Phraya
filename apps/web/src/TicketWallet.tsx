@@ -158,8 +158,8 @@ export default function TicketWallet({ initial, initialToken }: Props) {
               : 0}
             )
           </span>
-          <span className={booking.status === "review" ? "active" : ""}>
-            รอชำระเงิน ({booking.status === "review" ? 1 : 0})
+          <span className={!confirmed ? "active" : ""}>
+            กำลังดำเนินการ ({confirmed ? 0 : 1})
           </span>
           <span>
             ใช้แล้ว ({tickets.filter((ticket) => ticket.checked_in_at).length})
@@ -169,7 +169,7 @@ export default function TicketWallet({ initial, initialToken }: Props) {
           <div className="wallet-pending-state">
             <Alert severity="info" className="wallet-status-alert">
               คำสั่งซื้อ #{shortId(booking.id)} อยู่ในสถานะ:{" "}
-              {labels[booking.status]}. QR จะปรากฏหลังยืนยันการชำระเงิน
+              {labels[booking.status]}. QR จะปรากฏทันทีหลังอัปโหลดรูปหลักฐาน
             </Alert>
             <SlipUpload
               booking={booking}
@@ -261,7 +261,7 @@ export default function TicketWallet({ initial, initialToken }: Props) {
 
 function PaymentJourney({ status }: { status: string }) {
   const confirmed = status === "confirmed";
-  const reviewing = status === "review";
+  const proofSubmitted = status !== "held";
   return (
     <section className={`payment-journey ${confirmed ? "confirmed" : ""}`}>
       <div className="payment-journey-head">
@@ -270,22 +270,17 @@ function PaymentJourney({ status }: { status: string }) {
           <strong>
             {confirmed
               ? "บัตรของคุณพร้อมใช้งานแล้ว"
-              : reviewing
-                ? "ได้รับหลักฐานแล้ว · รอยืนยันการชำระเงิน"
-                : "แนบหลักฐานเพื่อดำเนินการต่อ"}
+              : "แนบรูปหลักฐานเพื่อรับ QR Ticket"}
           </strong>
         </div>
         <span>
           {confirmed
             ? "ขั้นตอนสุดท้าย: แสดง QR หน้างาน"
-            : "QR จะแสดงหลังยืนยัน"}
+            : "QR จะแสดงทันทีหลังอัปโหลดรูป"}
         </span>
       </div>
       <ol className="payment-steps">
-        <li className="done">ส่งหลักฐาน</li>
-        <li className={confirmed ? "done" : reviewing ? "current" : ""}>
-          ยืนยันการชำระเงิน
-        </li>
+        <li className={proofSubmitted ? "done" : "current"}>แนบรูปหลักฐาน</li>
         <li className={confirmed ? "current" : ""}>รับ QR Ticket</li>
         <li>สแกนเข้างาน</li>
       </ol>
@@ -304,9 +299,7 @@ function PaymentJourney({ status }: { status: string }) {
         </div>
       ) : (
         <p className="payment-next-step">
-          {reviewing
-            ? "เจ้าหน้าที่จะตรวจสอบและยืนยันการชำระเงิน เมื่อยืนยันแล้ว QR Ticket จะปรากฏในหน้านี้ทันที"
-            : "เลือกรูปหลักฐานด้านบน แล้วส่งเพื่อให้ระบบบันทึกรายการของคุณ"}
+          เลือกรูปหลักฐานด้านบน แล้วระบบจะออก QR Ticket ให้ในหน้านี้ทันที
         </p>
       )}
     </section>
@@ -334,7 +327,7 @@ function SlipUpload({
         <span aria-hidden="true">✓</span>
         <div>
           <strong>ได้รับรูปหลักฐานแล้ว</strong>
-          <p>ระบบตรวจพบไฟล์แนบแล้ว และกำลังรอเจ้าหน้าที่ตรวจสอบ</p>
+          <p>ระบบตรวจพบไฟล์แนบแล้ว และกำลังออก QR Ticket ให้คุณ</p>
         </div>
       </section>
     );

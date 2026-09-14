@@ -152,14 +152,69 @@ func (s *Service) Get(ctx context.Context, id, token string, admin bool) (Bookin
 	return b, rows.Err()
 }
 func (s *Service) Submit(ctx context.Context, id, token, path string) error {
-	tag, err := s.DB.Exec(ctx, "UPDATE bookings SET status='review',slip_path=$3 WHERE id=$1 AND token_hash=$2 AND status='held' AND expires_at>now()", id, Hash(token), path)
+	tx, err := s.DB.Begin(ctx)
 	if err != nil {
 		return err
 	}
-	if tag.RowsAffected() != 1 {
+	defer tx.Rollback(ctx)
+	var quantity int
+	err = tx.QueryRow(ctx, "UPDATE bookings SET status='confirmed',slip_path=$3 WHERE id=$1 AND token_hash=$2 AND status='held' AND expires_at>now() RETURNING quantity", id, Hash(token), path).Scan(&quantity)
+	if errors.Is(err, pgx.ErrNoRows) {
 		return ErrConflict
 	}
-	return nil
+	if err != nil {
+		return err
+	}
+	for i := 0; i < quantity; i++ {
+		if _, err = tx.Exec(ctx, "INSERT INTO tickets(id,booking_id) VALUES($1,$2)", Token(), id); err != nil {
+			return err
+		}
+	}
+	if _, err = tx.Exec(ctx, "INSERT INTO audit_log(booking_id,action) VALUES($1,'proof_uploaded_auto_confirmed')", id); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
+}
+
+// AutoConfirmReviews upgrades bookings created before proof upload issued tickets directly.
+func (s *Service) AutoConfirmReviews(ctx context.Context) error {
+	tx, err := s.DB.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+	rows, err := tx.Query(ctx, "SELECT id,quantity FROM bookings WHERE status='review' FOR UPDATE")
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	type pending struct{ id string; quantity int }
+	bookings := []pending{}
+	for rows.Next() {
+		var booking pending
+		if err = rows.Scan(&booking.id, &booking.quantity); err != nil {
+			return err
+		}
+		bookings = append(bookings, booking)
+	}
+	if err = rows.Err(); err != nil {
+		return err
+	}
+	rows.Close()
+	for _, booking := range bookings {
+		if _, err = tx.Exec(ctx, "UPDATE bookings SET status='confirmed' WHERE id=$1", booking.id); err != nil {
+			return err
+		}
+		for i := 0; i < booking.quantity; i++ {
+			if _, err = tx.Exec(ctx, "INSERT INTO tickets(id,booking_id) VALUES($1,$2)", Token(), booking.id); err != nil {
+				return err
+			}
+		}
+		if _, err = tx.Exec(ctx, "INSERT INTO audit_log(booking_id,action) VALUES($1,'legacy_review_auto_confirmed')", booking.id); err != nil {
+			return err
+		}
+	}
+	return tx.Commit(ctx)
 }
 func (s *Service) Decide(ctx context.Context, id, action string) error {
 	tx, err := s.DB.Begin(ctx)

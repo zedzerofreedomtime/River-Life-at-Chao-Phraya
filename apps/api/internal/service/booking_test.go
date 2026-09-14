@@ -94,14 +94,8 @@ func TestInventoryLifecycle(t *testing.T) {
 	if err = s.Submit(ctx, first.ID, auth, "fixture.png"); err != nil {
 		t.Fatal(err)
 	}
-	if err = s.Decide(ctx, first.ID, "approve"); err != nil {
-		t.Fatal(err)
-	}
-	if err = s.Decide(ctx, first.ID, "approve"); !errors.Is(err, ErrConflict) {
-		t.Fatal("double approval accepted")
-	}
 	b, err := s.Get(ctx, first.ID, auth, false)
-	if err != nil || len(b.Tickets) != 1 {
+	if err != nil || b.Status != "confirmed" || len(b.Tickets) != 1 {
 		t.Fatal("ticket issuance failed", err)
 	}
 	if err = s.CheckIn(ctx, b.Tickets[0].ID); err != nil {

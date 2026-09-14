@@ -172,7 +172,7 @@ func (s *Server) Router() *gin.Engine {
 	})
 	admin.POST("/bookings/:id/decision", func(c *gin.Context) {
 		var in struct {
-			Action string `json:"action" binding:"required,oneof=approve reject no_show"`
+		Action string `json:"action" binding:"required,oneof=no_show"`
 		}
 		if c.ShouldBindJSON(&in) != nil {
 			bad(c)
@@ -263,5 +263,5 @@ func (s *Server) slip(c *gin.Context) {
 		fail(c, err)
 		return
 	}
-	c.JSON(200, gin.H{"status": "review"})
+	c.JSON(200, gin.H{"status": "confirmed"})
 }
