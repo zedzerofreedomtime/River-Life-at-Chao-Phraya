@@ -76,7 +76,9 @@ export default function BookingForm({
   return (
     <form className="booking-panel" onSubmit={submit}>
       <h2>จองบัตรคอนเสิร์ตบนเรือ</h2>
-      <p className="muted">เลือกโซน จำนวนบัตร และกรอกข้อมูลผู้จอง</p>
+      <p className="muted">
+        เลือกโซน จำนวนบัตร กรอกข้อมูล และแนบสลิปเพียงครั้งเดียว
+      </p>
       <label className="field-label">โซน</label>
       <div className="zone-options">
         {zones.map((z) => (
@@ -162,10 +164,10 @@ export default function BookingForm({
         }
       />
       <div className="checkout-proof">
-        <strong>หลักฐานการชำระเงิน</strong>
+        <strong>แนบสลิปการชำระเงิน</strong>
         <span>แนบครั้งเดียวก่อนยืนยันการจอง · PNG/JPG ไม่เกิน 5 MB</span>
         <Button component="label" variant="outlined" disabled={busy}>
-          {proof ? "เปลี่ยนรูปหลักฐาน" : "เลือกรูปหลักฐาน"}
+          {proof ? "เปลี่ยนรูปสลิป" : "เลือกรูปสลิป"}
           <input
             hidden
             aria-label="หลักฐานการชำระเงิน"
@@ -184,7 +186,7 @@ export default function BookingForm({
           />
         </Button>
         <small className={proof ? "selected" : ""}>
-          {proof ? `เลือกแล้ว: ${proof.name}` : "ยังไม่ได้เลือกรูปหลักฐาน"}
+          {proof ? `เลือกแล้ว: ${proof.name}` : "ยังไม่ได้เลือกรูปสลิป"}
         </small>
       </div>
       {error && (

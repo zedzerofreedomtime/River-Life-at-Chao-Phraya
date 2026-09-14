@@ -141,13 +141,19 @@ export default function TicketWallet({ initial, initialToken }: Props) {
           <div className="wallet-pending-state">
             <Alert severity="info" className="wallet-status-alert">
               คำสั่งซื้อ #{shortId(booking.id)} อยู่ในสถานะ:{" "}
-              {labels[booking.status]}. หลักฐานต้องแนบในขั้นตอนยืนยันการจอง
+              {labels[booking.status]}. สลิปต้องแนบในขั้นตอนยืนยันการจอง
             </Alert>
-            <PaymentJourney status={booking.status} />
+            <PaymentJourney
+              status={booking.status}
+              ticketCount={tickets.length}
+            />
           </div>
         ) : (
           <>
-            <PaymentJourney status={booking.status} />
+            <PaymentJourney
+              status={booking.status}
+              ticketCount={tickets.length}
+            />
             <div className="wallet-ticket-workspace">
               <section className="wallet-ticket-stack">
                 <div className="wallet-order-summary">
@@ -220,7 +226,13 @@ export default function TicketWallet({ initial, initialToken }: Props) {
   );
 }
 
-function PaymentJourney({ status }: { status: string }) {
+function PaymentJourney({
+  status,
+  ticketCount,
+}: {
+  status: string;
+  ticketCount: number;
+}) {
   const confirmed = status === "confirmed";
   const proofSubmitted = status !== "held";
   return (
@@ -231,17 +243,17 @@ function PaymentJourney({ status }: { status: string }) {
           <strong>
             {confirmed
               ? "บัตรของคุณพร้อมใช้งานแล้ว"
-              : "แนบรูปหลักฐานเพื่อรับ QR Ticket"}
+              : "แนบสลิปเพื่อรับ QR Ticket"}
           </strong>
         </div>
         <span>
           {confirmed
-            ? "ขั้นตอนสุดท้าย: แสดง QR หน้างาน"
-            : "QR จะแสดงทันทีหลังอัปโหลดรูป"}
+            ? `มี ${ticketCount} QR — แสดงทีละใบเมื่อเข้างาน`
+            : "QR จะแสดงทันทีหลังแนบสลิป"}
         </span>
       </div>
       <ol className="payment-steps">
-        <li className={proofSubmitted ? "done" : "current"}>แนบรูปหลักฐาน</li>
+        <li className={proofSubmitted ? "done" : "current"}>แนบสลิป</li>
         <li className={confirmed ? "current" : ""}>รับ QR Ticket</li>
         <li>สแกนเข้างาน</li>
       </ol>
@@ -260,7 +272,7 @@ function PaymentJourney({ status }: { status: string }) {
         </div>
       ) : (
         <p className="payment-next-step">
-          เลือกรูปหลักฐานด้านบน แล้วระบบจะออก QR Ticket ให้ในหน้านี้ทันที
+          กลับไปเริ่มคำสั่งซื้อใหม่และแนบสลิปในหน้าจอง เพื่อรับ QR Ticket
         </p>
       )}
     </section>
