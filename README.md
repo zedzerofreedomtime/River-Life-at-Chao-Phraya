@@ -25,3 +25,5 @@ With Docker services running, `npm run test:smoke` checks the web, same-origin A
 Docker may be used instead of installing Go. Use the same Go version as apps/api/Dockerfile. CI runs frontend build and real PostgreSQL/Redis integration tests.
 
 See [architecture](docs/architecture.md) for implemented scope and production gaps, and [API contract](docs/api.md) for frontend/backend mapping. Database and uploads persist across `docker compose down`; do not use `down -v` unless you intend to remove them.
+
+The customer UI now follows a ticket-marketplace flow: Event Detail → Checkout → My Orders → Ticket Wallet. See [ticket marketplace flow](docs/ticket-marketplace-flow.md) for the current lifecycle and the boundary before real payment automation.

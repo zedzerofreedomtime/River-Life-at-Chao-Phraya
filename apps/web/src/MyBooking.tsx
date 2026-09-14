@@ -2,14 +2,15 @@ import { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Alert from "@mui/material/Alert";
-import { QRCodeSVG } from "qrcode.react";
 import { api, labels, money, type Booking } from "./api";
 export default function MyBooking({
   initial,
   initialToken,
+  onOpenTickets,
 }: {
   initial: Booking | null;
   initialToken: string;
+  onOpenTickets?: () => void;
 }) {
   const [b, setB] = useState(initial),
     [id, setId] = useState(
@@ -81,7 +82,12 @@ export default function MyBooking({
     : 0;
   return (
     <section className="content-panel">
-      <h2>การจองของฉัน</h2>
+      <div className="orders-heading">
+        <div>
+          <h1>คำสั่งซื้อของฉัน</h1>
+          <p>ตรวจสอบสถานะการชำระเงินและรายละเอียดคำสั่งซื้อ</p>
+        </div>
+      </div>
       <div className="grid gap-4 md:grid-cols-3">
         <TextField
           label="รหัสการจอง"
@@ -115,7 +121,7 @@ export default function MyBooking({
       )}
       {b && (
         <div className="booking-detail">
-          <div className="flex flex-wrap justify-between gap-3">
+          <div className="order-status-bar">
             <h3>
               โซน {b.zone_id} · {b.quantity} ใบ · {money(b.total)}
             </h3>
@@ -125,8 +131,8 @@ export default function MyBooking({
                 : labels[b.status]}
             </strong>
           </div>
-          <p>
-            {b.name} · {b.email}
+          <p className="order-person">
+            ผู้สั่งซื้อ: {b.name} · {b.email}
           </p>
           <Alert severity="info">
             เก็บรหัสการจองและรหัสเข้าถึงนี้ไว้เพื่อเปิดบัตรจากเครื่องอื่น
@@ -165,25 +171,20 @@ export default function MyBooking({
             </>
           )}
           {b.status === "review" && (
-            <p>ได้รับหลักฐานแล้ว โควตาของคุณยังถูกกันไว้ระหว่างรอตรวจสอบ</p>
+            <Alert severity="info">
+              ได้รับหลักฐานแล้ว เจ้าหน้าที่กำลังตรวจสอบการชำระเงิน
+              โควตาของคุณยังถูกกันไว้ระหว่างรอตรวจสอบ
+            </Alert>
           )}
           {b.status === "confirmed" && (
-            <div className="ticket-grid">
-              {b.tickets.map((t, i) => (
-                <article className="ticket" key={t.id}>
-                  <h3>
-                    บัตร {i + 1} / {b.quantity}
-                  </h3>
-                  <QRCodeSVG value={t.id} size={160} />
-                  <p>
-                    {t.checked_in_at ? "เช็กอินแล้ว" : "แสดง QR ที่จุดเช็กอิน"}
-                  </p>
-                  <details>
-                    <summary>รหัสสำหรับเจ้าหน้าที่</summary>
-                    <code className="break-all">{t.id}</code>
-                  </details>
-                </article>
-              ))}
+            <div className="order-success">
+              <div>
+                <strong>ชำระเงินยืนยันแล้ว</strong>
+                <span>บัตรอิเล็กทรอนิกส์ {b.tickets.length} ใบพร้อมใช้งาน</span>
+              </div>
+              <Button variant="contained" onClick={onOpenTickets}>
+                ไปที่บัตรของฉัน
+              </Button>
             </div>
           )}
         </div>
