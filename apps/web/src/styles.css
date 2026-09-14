@@ -1511,6 +1511,72 @@ td small {
 .wallet-status-alert {
   max-width: 1040px;
 }
+.wallet-pending-state {
+  max-width: 740px;
+  display: grid;
+  gap: 16px;
+}
+.slip-status-card {
+  display: grid;
+  gap: 14px;
+  padding: 22px;
+  border: 1px solid #dbe4ed;
+  border-radius: 12px;
+  background: #fff;
+  color: #102641;
+}
+.slip-status-card strong {
+  font-size: 18px;
+}
+.slip-status-card p {
+  margin: 4px 0 0;
+  color: #62728a;
+  font-size: 13px;
+}
+.slip-file-control {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  border: 1px dashed #a8b8c9;
+  border-radius: 7px;
+  color: #24496f;
+  cursor: pointer;
+  overflow: hidden;
+}
+.slip-file-control input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+.slip-file-control span {
+  padding: 10px 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.slip-status-card .MuiButton-contained {
+  justify-self: start;
+  background: #bd9048;
+}
+.slip-received {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  border-color: #b9dfce;
+  background: #f3fbf7;
+}
+.slip-received > span {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 50%;
+  background: #16805d;
+  color: #fff;
+  font-weight: 700;
+}
 .wallet-ticket-workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 390px;
@@ -1840,6 +1906,9 @@ td small {
   }
   .wallet-ticket-workspace {
     grid-template-columns: 1fr;
+  }
+  .slip-status-card {
+    padding: 17px;
   }
   .wallet-ticket-stack {
     padding: 12px;

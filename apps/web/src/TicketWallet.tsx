@@ -24,6 +24,9 @@ export default function TicketWallet({ initial, initialToken }: Props) {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [selected, setSelected] = useState(0);
+  const [slipFile, setSlipFile] = useState<File | null>(null);
+  const [slipError, setSlipError] = useState("");
+  const [slipBusy, setSlipBusy] = useState(false);
   const load = async () => {
     if (!id || !token) return;
     setBusy(true);
@@ -42,6 +45,31 @@ export default function TicketWallet({ initial, initialToken }: Props) {
   useEffect(() => {
     if (!initial && id && token) void load();
   }, []);
+
+  const uploadSlip = async () => {
+    if (!booking || !slipFile) return;
+    if (slipFile.size > 5 * 1024 * 1024) {
+      setSlipError("รูปหลักฐานต้องมีขนาดไม่เกิน 5 MB");
+      return;
+    }
+    setSlipBusy(true);
+    setSlipError("");
+    try {
+      const form = new FormData();
+      form.append("slip", slipFile);
+      await api(
+        `/bookings/${booking.id}/slip`,
+        { method: "POST", body: form },
+        token,
+      );
+      setBooking(await api<Booking>(`/bookings/${booking.id}`, {}, token));
+      setSlipFile(null);
+    } catch (e) {
+      setSlipError((e as Error).message);
+    } finally {
+      setSlipBusy(false);
+    }
+  };
 
   if (!booking) {
     return (
@@ -130,10 +158,23 @@ export default function TicketWallet({ initial, initialToken }: Props) {
           </span>
         </div>
         {!confirmed ? (
-          <Alert severity="info" className="wallet-status-alert">
-            คำสั่งซื้อ #{shortId(booking.id)} อยู่ในสถานะ:{" "}
-            {labels[booking.status]}. QR จะปรากฏหลังยืนยันการชำระเงิน
-          </Alert>
+          <div className="wallet-pending-state">
+            <Alert severity="info" className="wallet-status-alert">
+              คำสั่งซื้อ #{shortId(booking.id)} อยู่ในสถานะ:{" "}
+              {labels[booking.status]}. QR จะปรากฏหลังยืนยันการชำระเงิน
+            </Alert>
+            <SlipUpload
+              booking={booking}
+              file={slipFile}
+              busy={slipBusy}
+              error={slipError}
+              onFileChange={(next) => {
+                setSlipFile(next);
+                setSlipError("");
+              }}
+              onUpload={() => void uploadSlip()}
+            />
+          </div>
         ) : (
           <div className="wallet-ticket-workspace">
             <section className="wallet-ticket-stack">
@@ -202,6 +243,58 @@ export default function TicketWallet({ initial, initialToken }: Props) {
           </div>
         )}
       </main>
+    </section>
+  );
+}
+
+function SlipUpload({
+  booking,
+  file,
+  busy,
+  error,
+  onFileChange,
+  onUpload,
+}: {
+  booking: Booking;
+  file: File | null;
+  busy: boolean;
+  error: string;
+  onFileChange: (file: File | null) => void;
+  onUpload: () => void;
+}) {
+  if (booking.has_slip) {
+    return (
+      <section className="slip-status-card slip-received">
+        <span aria-hidden="true">✓</span>
+        <div>
+          <strong>ได้รับรูปหลักฐานแล้ว</strong>
+          <p>ระบบตรวจพบไฟล์แนบแล้ว และกำลังรอเจ้าหน้าที่ตรวจสอบ</p>
+        </div>
+      </section>
+    );
+  }
+  if (booking.status !== "held") return null;
+  return (
+    <section className="slip-status-card">
+      <div>
+        <strong>แนบรูปหลักฐานการชำระเงิน</strong>
+        <p>
+          รองรับ PNG หรือ JPG ไม่เกิน 5 MB · ระบบเช็กเพียงว่ามีไฟล์แนบ
+          ไม่ได้ตรวจสลิปอัตโนมัติ
+        </p>
+      </div>
+      <label className="slip-file-control">
+        <input
+          type="file"
+          accept="image/png,image/jpeg"
+          onChange={(event) => onFileChange(event.target.files?.[0] ?? null)}
+        />
+        <span>{file ? file.name : "เลือกรูปหลักฐาน"}</span>
+      </label>
+      {error && <Alert severity="error">{error}</Alert>}
+      <Button variant="contained" disabled={!file || busy} onClick={onUpload}>
+        {busy ? "กำลังอัปโหลด…" : "อัปโหลดหลักฐาน"}
+      </Button>
     </section>
   );
 }
