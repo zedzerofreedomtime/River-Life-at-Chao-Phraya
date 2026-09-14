@@ -40,6 +40,7 @@ type Booking struct {
 	Status    string    `json:"status"`
 	ExpiresAt time.Time `json:"expires_at"`
 	AgentCode string    `json:"agent_code"`
+	HasSlip   bool      `json:"has_slip"`
 	Tickets   []Ticket  `json:"tickets"`
 }
 type Ticket struct {
@@ -56,10 +57,10 @@ func Token() string {
 }
 func Hash(v string) string { h := sha256.Sum256([]byte(v)); return hex.EncodeToString(h[:]) }
 
-const columns = "id,zone_id,name,email,quantity,total,CASE WHEN status='held' AND expires_at<=now() THEN 'expired' ELSE status END,expires_at,agent_code"
+const columns = "id,zone_id,name,email,quantity,total,CASE WHEN status='held' AND expires_at<=now() THEN 'expired' ELSE status END,expires_at,agent_code,(slip_path<>'')"
 
 func scan(row pgx.Row) (b Booking, err error) {
-	err = row.Scan(&b.ID, &b.ZoneID, &b.Name, &b.Email, &b.Quantity, &b.Total, &b.Status, &b.ExpiresAt, &b.AgentCode)
+	err = row.Scan(&b.ID, &b.ZoneID, &b.Name, &b.Email, &b.Quantity, &b.Total, &b.Status, &b.ExpiresAt, &b.AgentCode, &b.HasSlip)
 	b.Tickets = []Ticket{}
 	return
 }
@@ -121,20 +122,41 @@ func (s *Service) Hold(ctx context.Context, in Input, key, token string) (Bookin
 		return Booking{}, ErrConflict
 	}
 	id := Token()[:20]
-	b, err := scan(tx.QueryRow(ctx, "INSERT INTO bookings(id,token_hash,request_key,request_hash,zone_id,name,email,quantity,total,agent_code,status,expires_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'confirmed',now()) RETURNING "+columns, id, Hash(token), key, fingerprint, in.ZoneID, in.Name, in.Email, in.Quantity, price*in.Quantity, in.AgentCode))
+	b, err := scan(tx.QueryRow(ctx, "INSERT INTO bookings(id,token_hash,request_key,request_hash,zone_id,name,email,quantity,total,agent_code,status,expires_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'held',now()+interval '15 minutes') RETURNING "+columns, id, Hash(token), key, fingerprint, in.ZoneID, in.Name, in.Email, in.Quantity, price*in.Quantity, in.AgentCode))
 	if err != nil {
 		return b, err
 	}
-	for i := 0; i < in.Quantity; i++ {
-		if _, err = tx.Exec(ctx, "INSERT INTO tickets(id,booking_id) VALUES($1,$2)", Token(), id); err != nil {
-			return b, err
-		}
-	}
-	_, err = tx.Exec(ctx, "INSERT INTO audit_log(booking_id,action) VALUES($1,'booking_confirmed_qr_issued')", id)
+	_, err = tx.Exec(ctx, "INSERT INTO audit_log(booking_id,action) VALUES($1,'hold_created')", id)
 	if err == nil {
 		err = tx.Commit(ctx)
 	}
 	return b, err
+}
+
+// Submit confirms a held booking and issues one ticket per requested admission.
+func (s *Service) Submit(ctx context.Context, id, token, path string) error {
+	tx, err := s.DB.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+	var quantity int
+	err = tx.QueryRow(ctx, "UPDATE bookings SET status='confirmed',slip_path=$3 WHERE id=$1 AND token_hash=$2 AND status='held' AND expires_at>now() RETURNING quantity", id, Hash(token), path).Scan(&quantity)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return ErrConflict
+	}
+	if err != nil {
+		return err
+	}
+	for i := 0; i < quantity; i++ {
+		if _, err = tx.Exec(ctx, "INSERT INTO tickets(id,booking_id) VALUES($1,$2)", Token(), id); err != nil {
+			return err
+		}
+	}
+	if _, err = tx.Exec(ctx, "INSERT INTO audit_log(booking_id,action) VALUES($1,'slip_uploaded_qr_issued')", id); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
 }
 func (s *Service) Get(ctx context.Context, id, token string, admin bool) (Booking, error) {
 	b, err := scan(s.DB.QueryRow(ctx, "SELECT "+columns+" FROM bookings WHERE id=$1 AND ($2 OR token_hash=$3)", id, admin, Hash(token)))

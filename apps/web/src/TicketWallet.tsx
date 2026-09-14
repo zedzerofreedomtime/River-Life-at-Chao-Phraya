@@ -141,7 +141,7 @@ export default function TicketWallet({ initial, initialToken }: Props) {
           <div className="wallet-pending-state">
             <Alert severity="info" className="wallet-status-alert">
               คำสั่งซื้อ #{shortId(booking.id)} อยู่ในสถานะ:{" "}
-              {labels[booking.status]}. QR Ticket จะแสดงเมื่อรายการเสร็จสมบูรณ์
+              {labels[booking.status]}. กรุณาแนบสลิปในหน้าคำสั่งซื้อเพื่อรับ QR
             </Alert>
             <PaymentJourney
               status={booking.status}
@@ -240,17 +240,19 @@ function PaymentJourney({
         <div>
           <small>สถานะการเดินทาง</small>
           <strong>
-            {confirmed ? "บัตรของคุณพร้อมใช้งานแล้ว" : "ระบบกำลังออก QR Ticket"}
+            {confirmed
+              ? "บัตรของคุณพร้อมใช้งานแล้ว"
+              : "แนบสลิปเพื่อรับ QR Ticket"}
           </strong>
         </div>
         <span>
           {confirmed
             ? `มี ${ticketCount} QR — แสดงทีละใบเมื่อเข้างาน`
-            : "QR Ticket จะแสดงทันทีเมื่อรายการเสร็จสมบูรณ์"}
+            : "QR Ticket จะแสดงทันทีหลังแนบสลิป"}
         </span>
       </div>
       <ol className="payment-steps">
-        <li className="done">ยืนยันการจอง</li>
+        <li className={confirmed ? "done" : "current"}>แนบสลิป</li>
         <li className={confirmed ? "current" : ""}>รับ QR Ticket</li>
         <li>สแกนเข้างาน</li>
       </ol>
@@ -269,7 +271,7 @@ function PaymentJourney({
         </div>
       ) : (
         <p className="payment-next-step">
-          QR Ticket จะแสดงทันทีเมื่อระบบดำเนินการเสร็จสมบูรณ์
+          กลับไปที่หน้าคำสั่งซื้อ แล้วแนบสลิปเพื่อรับ QR Ticket
         </p>
       )}
     </section>

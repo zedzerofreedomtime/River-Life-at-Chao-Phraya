@@ -35,6 +35,14 @@ func main() {
 	}
 	cache := redis.NewClient(opt)
 	defer cache.Close()
+	dir := os.Getenv("UPLOAD_DIR")
+	if dir == "" {
+		dir = "uploads"
+	}
+	if err = os.MkdirAll(dir, 0700); err != nil {
+		slog.Error("upload directory unavailable")
+		os.Exit(1)
+	}
 	demo := os.Getenv("DEMO_MODE") == "true"
 	if demo {
 		_, err = db.Exec(ctx, "INSERT INTO zones(id,name,capacity,price) VALUES('A','หัวเรือ',76,150000),('B','กลางแจ้ง',118,180000),('C','ห้องแอร์',56,120000) ON CONFLICT DO NOTHING")
@@ -48,7 +56,7 @@ func main() {
 		slog.Error("automatic confirmation migration failed")
 		os.Exit(1)
 	}
-	app := &server.Server{Service: bookingService, Redis: cache, AdminPassword: password, Demo: demo}
+	app := &server.Server{Service: bookingService, Redis: cache, AdminPassword: password, UploadDir: dir, Demo: demo}
 	srv := &http.Server{Addr: ":8080", Handler: app.Router(), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 20 * time.Second, WriteTimeout: 30 * time.Second, IdleTimeout: 60 * time.Second}
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {

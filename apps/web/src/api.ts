@@ -24,6 +24,7 @@ export type Booking = {
   total: number;
   status: string;
   expires_at: string;
+  has_slip: boolean;
   agent_code: string;
   tickets: { id: string; checked_in_at: string | null }[];
 };
@@ -34,7 +35,7 @@ export const money = (n: number) =>
     maximumFractionDigits: 0,
   }).format(n / 100);
 export const labels: Record<string, string> = {
-  held: "กำลังดำเนินการ",
+  held: "รอแนบสลิป",
   review: "กำลังดำเนินการ",
   confirmed: "ยืนยันแล้ว",
   expired: "หมดเวลาจอง",

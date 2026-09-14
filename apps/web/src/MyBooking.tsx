@@ -10,7 +10,7 @@ export default function MyBooking({
 }: {
   initial: Booking | null;
   initialToken: string;
-  onOpenTickets?: () => void;
+  onOpenTickets?: (booking: Booking) => void;
 }) {
   const [b, setB] = useState(initial),
     [id, setId] = useState(
@@ -19,6 +19,7 @@ export default function MyBooking({
     [token, setToken] = useState(
       initialToken || sessionStorage.getItem("riverlife.booking.token") || "",
     ),
+    [proof, setProof] = useState<File | null>(null),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   const load = async () => {
@@ -57,12 +58,33 @@ export default function MyBooking({
       active = false;
     };
   }, [initial?.id, initialToken]);
+  async function uploadProof() {
+    if (!b || !proof) return;
+    setBusy(true);
+    setError("");
+    try {
+      const form = new FormData();
+      form.append("slip", proof);
+      await api(
+        `/bookings/${b.id}/slip`,
+        { method: "POST", body: form },
+        token,
+      );
+      const latest = await api<Booking>(`/bookings/${b.id}`, {}, token);
+      setB(latest);
+      onOpenTickets?.(latest);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
   return (
     <section className="content-panel">
       <div className="orders-heading">
         <div>
           <h1>คำสั่งซื้อของฉัน</h1>
-          <p>ตรวจสอบสถานะและรายละเอียดคำสั่งซื้อ</p>
+          <p>ตรวจสอบสถานะการชำระเงินและรายละเอียดคำสั่งซื้อ</p>
         </div>
       </div>
       <div className="grid gap-4 md:grid-cols-3">
@@ -115,6 +137,42 @@ export default function MyBooking({
             <summary>แสดงรหัสเข้าถึงสำหรับเก็บรักษา</summary>
             <code className="break-all">{token}</code>
           </details>
+          {b.status === "held" && (
+            <section
+              className="order-proof-upload"
+              aria-label="แนบสลิปการชำระเงิน"
+            >
+              <h3>แนบสลิปการชำระเงิน</h3>
+              <p>แนบสลิปเพียงครั้งเดียว ระบบจะออก QR Ticket ทันที</p>
+              <Button component="label" variant="outlined" disabled={busy}>
+                {proof ? "เปลี่ยนรูปสลิป" : "เลือกรูปสลิป"}
+                <input
+                  hidden
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  onChange={(event) => {
+                    const next = event.target.files?.[0] ?? null;
+                    if (next && next.size > 5 * 1024 * 1024) {
+                      setProof(null);
+                      setError("รูปสลิปต้องมีขนาดไม่เกิน 5 MB");
+                      return;
+                    }
+                    setProof(next);
+                  }}
+                />
+              </Button>
+              <small className={proof ? "selected" : ""}>
+                {proof ? `เลือกแล้ว: ${proof.name}` : "ยังไม่ได้เลือกรูปสลิป"}
+              </small>
+              <Button
+                variant="contained"
+                disabled={busy || !proof}
+                onClick={() => void uploadProof()}
+              >
+                {busy ? "กำลังออก QR Ticket…" : "ยืนยันสลิปและรับ QR"}
+              </Button>
+            </section>
+          )}
           {b.status === "review" && (
             <Alert severity="info">ระบบกำลังออก QR Ticket ให้คุณ</Alert>
           )}
@@ -124,7 +182,7 @@ export default function MyBooking({
                 <strong>ยืนยันการจองแล้ว</strong>
                 <span>บัตรอิเล็กทรอนิกส์ {b.tickets.length} ใบพร้อมใช้งาน</span>
               </div>
-              <Button variant="contained" onClick={onOpenTickets}>
+              <Button variant="contained" onClick={() => onOpenTickets?.(b)}>
                 ไปที่บัตรของฉัน
               </Button>
             </div>

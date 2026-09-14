@@ -20,7 +20,7 @@ const nav: [Page, string][] = [
   ["orders", "คำสั่งซื้อ"],
   ["admin", "เจ้าหน้าที่"],
 ];
-const checkoutSteps = ["เลือกบัตร", "ข้อมูลผู้จอง", "รับ QR Ticket"];
+const checkoutSteps = ["เลือกบัตร", "ข้อมูลผู้จอง", "แนบสลิป", "รับ QR Ticket"];
 
 export default function App() {
   const [page, setPage] = useState<Page>("event");
@@ -111,7 +111,7 @@ export default function App() {
             </Stepper>
             <div className="checkout-heading">
               <h1>เลือกบัตร</h1>
-              <p>เลือกโซน จำนวนบัตร และกรอกข้อมูลก่อนรับ QR Ticket</p>
+              <p>เลือกโซน จำนวนบัตร และกรอกข้อมูลเพื่อสร้างคำสั่งซื้อ</p>
             </div>
             <div className="booking-layout">
               <BoatMap zones={event.zones} selected={zone} onSelect={setZone} />
@@ -127,7 +127,7 @@ export default function App() {
                     "riverlife.booking.token",
                     accessToken,
                   );
-                  go("tickets");
+                  go("orders");
                 }}
               />
             </div>
@@ -137,7 +137,10 @@ export default function App() {
           <MyBooking
             initial={booking}
             initialToken={token}
-            onOpenTickets={() => go("tickets")}
+            onOpenTickets={(updated) => {
+              if (updated) setBooking(updated);
+              go("tickets");
+            }}
           />
         )}
         {page === "tickets" && (

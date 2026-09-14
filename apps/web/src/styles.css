@@ -1033,6 +1033,35 @@ td small {
   color: #6d7788;
   margin-top: 3px;
 }
+.order-proof-upload {
+  display: grid;
+  gap: 10px;
+  margin: 20px 0;
+  padding: 20px;
+  border: 1px solid #dbe4ed;
+  border-radius: 12px;
+  background: #fbfcfd;
+}
+.order-proof-upload h3,
+.order-proof-upload p {
+  margin: 0;
+}
+.order-proof-upload p,
+.order-proof-upload small {
+  color: #64758a;
+  font-size: 14px;
+}
+.order-proof-upload small.selected {
+  color: #18724f;
+  font-weight: 700;
+}
+.order-proof-upload .MuiButton-outlined,
+.order-proof-upload .MuiButton-contained {
+  justify-self: start;
+}
+.order-proof-upload .MuiButton-contained {
+  background: #bd9048;
+}
 
 /* Production interpretation of the approved event and ticket-wallet screens. */
 .market-header {
