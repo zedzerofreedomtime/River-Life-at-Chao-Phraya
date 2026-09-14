@@ -3,10 +3,15 @@ import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import { QRCodeSVG } from "qrcode.react";
-import { CheckCircle2, Ticket } from "lucide-react";
+import { ChevronRight, CircleHelp, Copy, Ticket } from "lucide-react";
 import { api, labels, type Booking } from "./api";
 
 type Props = { initial: Booking | null; initialToken: string };
+const zoneName: Record<string, string> = {
+  A: "โซนหัวเรือ (Head Boat)",
+  B: "โซนกลางแจ้ง (Outdoor)",
+  C: "โซนห้องแอร์ (Indoor)",
+};
 
 export default function TicketWallet({ initial, initialToken }: Props) {
   const [booking, setBooking] = useState<Booking | null>(initial);
@@ -37,122 +42,237 @@ export default function TicketWallet({ initial, initialToken }: Props) {
   useEffect(() => {
     if (!initial && id && token) void load();
   }, []);
-  const tickets = booking?.tickets ?? [];
-  const active = tickets[selected];
-  return (
-    <section className="wallet-shell">
-      <div className="wallet-heading">
-        <div>
+
+  if (!booking) {
+    return (
+      <section className="wallet-access-shell">
+        <div className="wallet-heading">
           <h1>บัตรของฉัน</h1>
-          <p>ตรวจสอบบัตรและแสดง QR ที่จุดเช็กอิน</p>
+          <p>กรอกรหัสคำสั่งซื้อและรหัสเข้าถึงส่วนตัวเพื่อเปิดบัตรของคุณ</p>
         </div>
-      </div>
-      <div className="access-panel">
-        <TextField
-          label="รหัสคำสั่งซื้อ"
-          value={id}
-          onChange={(e) => setId(e.target.value)}
-        />
-        <TextField
-          label="รหัสเข้าถึงส่วนตัว"
-          type="password"
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
-        />
-        <Button
-          variant="outlined"
-          onClick={load}
-          disabled={busy || !id || !token}
+        <div className="access-panel">
+          <TextField
+            label="รหัสคำสั่งซื้อ"
+            value={id}
+            onChange={(e) => setId(e.target.value)}
+          />
+          <TextField
+            label="รหัสเข้าถึงส่วนตัว"
+            type="password"
+            value={token}
+            onChange={(e) => setToken(e.target.value)}
+          />
+          <Button
+            variant="contained"
+            onClick={load}
+            disabled={busy || !id || !token}
+          >
+            เปิดบัตรของฉัน
+          </Button>
+        </div>
+        {error && <Alert severity="error">{error}</Alert>}
+      </section>
+    );
+  }
+
+  const tickets = booking.tickets ?? [];
+  const active = tickets[selected];
+  const confirmed = booking.status === "confirmed";
+  return (
+    <section className="wallet-dashboard">
+      <aside className="wallet-orders">
+        <div className="wallet-orders-head">
+          <h2>คำสั่งซื้อของฉัน</h2>
+          <span>
+            ดูทั้งหมด <ChevronRight size={17} />
+          </span>
+        </div>
+        <button
+          className="wallet-order-card selected"
+          onClick={() => setSelected(0)}
         >
-          เปิดบัตรของฉัน
-        </Button>
-      </div>
-      {error && <Alert severity="error">{error}</Alert>}
-      {booking && (
-        <>
-          <div className="wallet-tabs">
-            <span className={booking.status === "confirmed" ? "active" : ""}>
-              บัตรที่ใช้งานได้ ({tickets.filter((t) => !t.checked_in_at).length}
-              )
-            </span>
-            <span>รอตรวจสอบ ({booking.status === "review" ? 1 : 0})</span>
-            <span>
-              ใช้แล้ว ({tickets.filter((t) => t.checked_in_at).length})
-            </span>
-          </div>
-          {booking.status !== "confirmed" ? (
-            <Alert severity="info">
-              คำสั่งซื้อ {booking.id} อยู่ในสถานะ: {labels[booking.status]}. QR
-              จะปรากฏหลังยืนยันการชำระเงิน
-            </Alert>
-          ) : (
-            <div className="wallet-layout">
-              <div className="ticket-list">
-                <div className="wallet-order-head">
-                  <div>
-                    <strong>Concert on the River</strong>
-                    <span>ICONSIAM · 19:00</span>
-                  </div>
-                  <span>คำสั่งซื้อ #{booking.id}</span>
-                </div>
-                {tickets.map((ticket, index) => (
-                  <button
-                    key={ticket.id}
-                    className={`wallet-ticket ${selected === index ? "selected" : ""}`}
-                    onClick={() => setSelected(index)}
-                  >
-                    <Ticket size={24} />
-                    <span>
-                      <small>
-                        บัตร {index + 1} จาก {tickets.length}
-                      </small>
-                      <strong>โซน {booking.zone_id}</strong>
-                      <em>Concert on the River · ICONSIAM 19:00</em>
-                    </span>
-                    <b>{ticket.checked_in_at ? "ใช้แล้ว" : "แสดง QR"}</b>
-                  </button>
-                ))}
+          <img
+            src="/images/boat/unicorn-upper-deck.jpg"
+            alt="เรือ Unicorn Cruise"
+          />
+          <span>
+            <strong>Concert on the River</strong>
+            <small>คำสั่งซื้อ #{shortId(booking.id)}</small>
+            <em>{tickets.length} บัตร</em>
+            <b className={confirmed ? "confirmed" : "review"}>
+              {confirmed ? "ยืนยันแล้ว" : labels[booking.status]}
+            </b>
+          </span>
+          <ChevronRight aria-hidden="true" size={23} />
+        </button>
+      </aside>
+      <main className="wallet-main">
+        <div className="wallet-title">
+          <h1>บัตรของฉัน</h1>
+          <p>
+            ตรวจสอบบัตร เข้างาน
+            และเพลิดเพลินกับประสบการณ์คอนเสิร์ตบนแม่น้ำเจ้าพระยา
+          </p>
+        </div>
+        <div className="wallet-tabs">
+          <span className={confirmed ? "active" : ""}>
+            บัตรที่ใช้งานได้ (
+            {confirmed
+              ? tickets.filter((ticket) => !ticket.checked_in_at).length
+              : 0}
+            )
+          </span>
+          <span className={booking.status === "review" ? "active" : ""}>
+            รอชำระเงิน ({booking.status === "review" ? 1 : 0})
+          </span>
+          <span>
+            ใช้แล้ว ({tickets.filter((ticket) => ticket.checked_in_at).length})
+          </span>
+        </div>
+        {!confirmed ? (
+          <Alert severity="info" className="wallet-status-alert">
+            คำสั่งซื้อ #{shortId(booking.id)} อยู่ในสถานะ:{" "}
+            {labels[booking.status]}. QR จะปรากฏหลังยืนยันการชำระเงิน
+          </Alert>
+        ) : (
+          <div className="wallet-ticket-workspace">
+            <section className="wallet-ticket-stack">
+              <div className="wallet-order-summary">
+                <span>
+                  <strong>Concert on the River</strong>
+                  <small>ICONSIAM · 19:00</small>
+                </span>
+                <span>
+                  คำสั่งซื้อ #{shortId(booking.id)}
+                  <b>ยืนยันแล้ว</b>
+                  <small>จำนวน {tickets.length} บัตร</small>
+                </span>
               </div>
-              {active && (
-                <aside className="qr-ticket">
-                  <span className="ticket-state">
-                    <CheckCircle2 size={16} />
-                    {active.checked_in_at ? "เช็กอินแล้ว" : "ใช้งานได้"}
+              {tickets.map((ticket, index) => (
+                <button
+                  key={ticket.id}
+                  className={`wallet-ticket ${selected === index ? "selected" : ""}`}
+                  onClick={() => setSelected(index)}
+                >
+                  <img src="/images/boat/unicorn-night-exterior.jpg" alt="" />
+                  <span>
+                    <small>
+                      บัตรที่ {index + 1} จาก {tickets.length}
+                    </small>
+                    <strong>
+                      {zoneName[booking.zone_id] ?? `โซน ${booking.zone_id}`}
+                    </strong>
+                    <em>
+                      Concert on the River
+                      <br />
+                      ICONSIAM · 19:00
+                    </em>
                   </span>
-                  <h2>โซน {booking.zone_id}</h2>
-                  <p>
-                    Concert on the River
-                    <br />
-                    ICONSIAM · 19:00
-                  </p>
-                  <QRCodeSVG value={active.id} size={204} />
-                  <p className="qr-note">
-                    แสดง QR Code นี้ที่จุด Check-in
-                    <br />
-                    หนึ่ง QR ใช้เข้าเรือได้หนึ่งครั้ง
-                  </p>
-                  <dl>
-                    <div>
-                      <dt>หมายเลขบัตร</dt>
-                      <dd>{active.id.slice(0, 14).toUpperCase()}</dd>
-                    </div>
-                    <div>
-                      <dt>หมายเลขคำสั่งซื้อ</dt>
-                      <dd>#{booking.id}</dd>
-                    </div>
-                    <div>
-                      <dt>สถานะ</dt>
-                      <dd>
-                        {active.checked_in_at ? "เช็กอินแล้ว" : "ใช้งานได้"}
-                      </dd>
-                    </div>
-                  </dl>
-                </aside>
-              )}
-            </div>
-          )}
-        </>
-      )}
+                  <span className="ticket-quantity">
+                    <small>จำนวน</small>
+                    <b>1</b>
+                    <em>ใบ</em>
+                  </span>
+                  <span className="show-qr">แสดง QR</span>
+                </button>
+              ))}
+              <div className="wallet-help">
+                <Ticket aria-hidden="true" />
+                <span>
+                  <strong>
+                    ทั้ง {tickets.length} บัตรอยู่ในคำสั่งซื้อเดียวกัน
+                  </strong>
+                  <small>กรุณาแสดงบัตรแต่ละใบเมื่อเข้างาน</small>
+                </span>
+                <span>
+                  <CircleHelp aria-hidden="true" />
+                  <strong>มีคำถามเกี่ยวกับบัตร?</strong>
+                  <small>ดูคำแนะนำการใช้งาน →</small>
+                </span>
+              </div>
+            </section>
+            {active && (
+              <TicketPreview
+                booking={booking}
+                ticketId={active.id}
+                index={selected}
+                count={tickets.length}
+              />
+            )}
+          </div>
+        )}
+      </main>
     </section>
   );
+}
+
+function TicketPreview({
+  booking,
+  ticketId,
+  index,
+  count,
+}: {
+  booking: Booking;
+  ticketId: string;
+  index: number;
+  count: number;
+}) {
+  const checkedIn = booking.tickets[index]?.checked_in_at;
+  return (
+    <aside className="qr-ticket">
+      <span className="qr-ticket-count">
+        บัตรที่ {index + 1} จาก {count}
+      </span>
+      <span className="ticket-state">
+        ● {checkedIn ? "เช็กอินแล้ว" : "ใช้งานได้"}
+      </span>
+      <h2>{zoneName[booking.zone_id] ?? `โซน ${booking.zone_id}`}</h2>
+      <p>
+        Concert on the River
+        <br />
+        ICONSIAM · 19:00
+      </p>
+      <QRCodeSVG value={ticketId} size={188} />
+      <p className="qr-note">
+        <CircleHelp aria-hidden="true" size={20} /> แสดง QR Code นี้ที่จุด
+        Check-in
+        <br />
+        <small>เพื่อสแกนเข้างาน</small>
+      </p>
+      <dl>
+        <div>
+          <dt>หมายเลขบัตร</dt>
+          <dd>
+            {ticketId.slice(0, 14).toUpperCase()} <Copy size={16} />
+          </dd>
+        </div>
+        <div>
+          <dt>หมายเลขคำสั่งซื้อ</dt>
+          <dd>#{shortId(booking.id)}</dd>
+        </div>
+        <div>
+          <dt>จำนวน</dt>
+          <dd>1 ใบ</dd>
+        </div>
+        <div>
+          <dt>สถานะ</dt>
+          <dd className="available">
+            ● {checkedIn ? "เช็กอินแล้ว" : "ใช้งานได้"}
+          </dd>
+        </div>
+      </dl>
+      <div className="ticket-rules">
+        <strong>เงื่อนไขการใช้งาน</strong>
+        <ul>
+          <li>บัตรนี้ใช้เข้าร่วมงาน Concert on the River เท่านั้น</li>
+          <li>กรุณาแสดง QR Code จากหน้าจอนี้ ไม่อนุญาตให้ใช้ภาพถ่าย</li>
+          <li>1 บัตร ต่อ 1 ท่าน</li>
+        </ul>
+      </div>
+    </aside>
+  );
+}
+
+function shortId(id: string) {
+  return id.slice(0, 8).toUpperCase();
 }

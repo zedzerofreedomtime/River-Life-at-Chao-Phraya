@@ -4,6 +4,7 @@ import Button from "@mui/material/Button";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Stepper from "@mui/material/Stepper";
+import { CircleUserRound, Search } from "lucide-react";
 import EventDetail from "./EventDetail";
 import BoatMap from "./BoatMap";
 import BookingForm from "./BookingForm";
@@ -50,7 +51,9 @@ export default function App() {
   };
   return (
     <>
-      <header className="market-header">
+      <header
+        className={`market-header ${page === "tickets" ? "market-header-dark" : ""}`}
+      >
         <button
           className="river-brand"
           onClick={() => go("event")}
@@ -69,6 +72,12 @@ export default function App() {
             </button>
           ))}
         </nav>
+        <div className="market-tools" aria-label="เครื่องมือผู้ใช้">
+          {page === "tickets" ? null : <Search aria-hidden="true" size={22} />}
+          <button aria-label="บัตรของฉัน" onClick={() => go("tickets")}>
+            <CircleUserRound aria-hidden="true" size={29} />
+          </button>
+        </div>
       </header>
       {event?.demo && (
         <div className="demo-banner">
