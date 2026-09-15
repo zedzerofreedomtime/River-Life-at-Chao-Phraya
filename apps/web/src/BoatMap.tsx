@@ -21,34 +21,82 @@ export default function BoatMap({
     <section className="map-panel">
       <h2>เลือกโซนที่นั่งบนเรือ</h2>
       <p className="muted">เลือกพื้นที่บนผังเพื่อดูราคาและจำนวนคงเหลือ</p>
-      <div className="boat-scene">
-        <div className="boat-hull">
-          <img
-            className="boat-profile-image"
-            src="/images/boat/unicorn-night-exterior.jpg"
-            alt="เรือ Unicorn Cruise มุมมองด้านข้าง"
+      <div className="vessel-side" aria-label="ผังเรือด้านข้าง">
+        <svg
+          className="vessel-outline"
+          viewBox="0 0 900 440"
+          aria-hidden="true"
+        >
+          <path d="M42 405 H858" stroke="#d9e7ef" strokeWidth="2" />
+          <path
+            d="M72 418 H290 M340 418 H740"
+            stroke="#e5edf3"
+            strokeWidth="2"
           />
-          <div className="boat-upper-deck" aria-label="ดาดฟ้าชั้นบน">
-            {upperDeckZones.map((zone, index) => (
-              <ZoneButton
-                key={zone.id}
-                zone={zone}
-                index={index}
-                selected={selected}
-                onSelect={onSelect}
-              />
-            ))}
-          </div>
-          {lowerDeckZone && (
+          <path
+            d="M190 103 L224 57 H311 L334 103"
+            fill="#edf3f7"
+            stroke="#8190a0"
+            strokeWidth="3"
+          />
+          <path
+            d="M228 68 L208 94 H248 V68 Z M260 68 H302 L320 94 H260 Z"
+            fill="#c7dbe8"
+            stroke="#9fb7c9"
+          />
+          <path d="M575 90 V61 M565 61 H585" stroke="#8190a0" strokeWidth="3" />
+          <path
+            d="M155 108 H818 L849 147 V335 H112 V219 L155 205 Z"
+            fill="#f3f6f9"
+            stroke="#8190a0"
+            strokeWidth="3"
+          />
+          <path
+            d="M132 105 H830 M128 204 H853 M112 215 H853"
+            stroke="#8190a0"
+            strokeWidth="3"
+          />
+          <path
+            d="M350 80 H810 Q830 80 837 102"
+            fill="none"
+            stroke="#8190a0"
+            strokeWidth="4"
+          />
+          <path
+            d="M356 82 V103 M440 82 V103 M525 82 V103 M610 82 V103 M695 82 V103 M780 82 V103"
+            stroke="#a6b6c5"
+            strokeWidth="2"
+          />
+          <path
+            d="M32 319 L118 333 H858 L838 373 Q832 386 806 388 H183 Q110 386 75 362 Z"
+            fill="#e1eaf1"
+            stroke="#8190a0"
+            strokeWidth="3"
+          />
+          <path d="M92 355 H847" stroke="#b99453" strokeWidth="3" />
+          <circle cx="151" cy="357" r="7" fill="#b4c8d8" />
+          <circle cx="183" cy="357" r="7" fill="#b4c8d8" />
+        </svg>
+        <div className="vessel-upper" aria-label="ดาดฟ้าชั้นบน">
+          {upperDeckZones.map((zone, index) => (
             <ZoneButton
-              zone={lowerDeckZone}
-              index={2}
+              key={zone.id}
+              zone={zone}
+              index={index}
               selected={selected}
               onSelect={onSelect}
-              lowerDeck
             />
-          )}
+          ))}
         </div>
+        {lowerDeckZone && (
+          <ZoneButton
+            zone={lowerDeckZone}
+            index={2}
+            selected={selected}
+            onSelect={onSelect}
+            lowerDeck
+          />
+        )}
       </div>
       <div className="map-caption">
         <span>← หัวเรือ</span>
@@ -81,9 +129,9 @@ function ZoneButton({
       type="button"
       onClick={() => onSelect(zone.id)}
       aria-pressed={zone.id === selected}
-      className={`boat-zone ${lowerDeck ? "boat-zone-lower" : ""} ${zone.id === selected ? "selected" : ""}`}
+      className={`vessel-zone ${lowerDeck ? "vessel-lower" : ""} ${zone.id === selected ? "selected" : ""}`}
     >
-      <span className="seat-pattern" aria-hidden="true">
+      <span className="vessel-windows" aria-hidden="true">
         {Array.from({ length: 6 }, (_, seat) => (
           <i key={seat} />
         ))}
