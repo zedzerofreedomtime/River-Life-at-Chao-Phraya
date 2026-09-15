@@ -791,42 +791,47 @@ main {
 .boat-hull {
   width: 100%;
   height: 245px;
-  border: 3px solid #8190a0;
-  border-radius: 72px 34px 58px 94px / 42px 34px 52px 64px;
-  padding: 32px 20px 22px;
-  display: grid;
-  grid-template-rows: 0.9fr 1.1fr;
-  gap: 9px;
-  background: linear-gradient(180deg, #eef4f8 0%, #dbe6ee 100%);
+  border: 2px solid #8190a0;
+  border-radius: 14px;
+  background: #0a1624;
   overflow: hidden;
   position: relative;
 }
-.boat-hull::before {
+.boat-profile-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 61%;
+  filter: brightness(0.78) saturate(0.9);
+}
+.boat-hull::after {
   content: "";
   position: absolute;
-  top: 7px;
-  left: 9%;
-  width: 15%;
-  height: 27px;
-  border: 3px solid #8190a0;
-  border-bottom: 0;
-  border-radius: 30px 30px 0 0;
-  background: #edf4f9;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(6, 18, 34, 0.2),
+    transparent 45%,
+    rgba(6, 18, 34, 0.22)
+  );
+  pointer-events: none;
 }
 .boat-upper-deck {
+  position: absolute;
+  top: 16%;
+  left: 7%;
+  right: 5%;
+  height: 31%;
   display: flex;
-  gap: 6px;
-  margin-left: 12%;
-  margin-right: 3%;
-  padding-top: 5px;
-  border-top: 4px solid #8190a0;
-  position: relative;
-  z-index: 1;
+  gap: 8px;
+  z-index: 2;
 }
 .boat-zone {
-  background: rgba(223, 233, 241, 0.95);
-  color: #294c6c;
-  border: 1px solid #abbecf;
+  background: rgba(7, 27, 49, 0.68);
+  color: #ffffff;
+  border: 1px solid rgba(202, 219, 232, 0.86);
   flex: 1;
   position: relative;
   display: flex;
@@ -838,20 +843,25 @@ main {
   z-index: 1;
 }
 .boat-upper-deck .boat-zone:first-child {
-  border-radius: 24px 0 0 18px;
+  border-radius: 12px 6px 6px 12px;
 }
 .boat-upper-deck .boat-zone:last-child {
-  border-radius: 0 20px 16px 0;
+  border-radius: 6px 12px 12px 6px;
 }
 .boat-zone-lower {
-  margin: 0 4% 0 1%;
-  border-radius: 16px 18px 38px 58px;
-  background: rgba(211, 225, 236, 0.98);
+  position: absolute;
+  left: 22%;
+  right: 5%;
+  top: 55%;
+  bottom: 13%;
+  border-radius: 10px;
+  background: rgba(7, 27, 49, 0.68);
 }
 .boat-zone.selected {
-  background: #ecdfbc;
-  border-color: #aa8040;
-  color: #705320;
+  background: rgba(176, 125, 43, 0.86);
+  border-color: #f6d38b;
+  color: #ffffff;
+  box-shadow: inset 0 0 0 1px rgba(255, 245, 216, 0.75);
 }
 .boat-zone strong {
   font-size: 20px;
@@ -876,7 +886,7 @@ main {
 .seat-pattern i {
   height: 17px;
   border: 1px solid currentColor;
-  opacity: 0.2;
+  opacity: 0.34;
   border-radius: 3px;
 }
 .map-caption {

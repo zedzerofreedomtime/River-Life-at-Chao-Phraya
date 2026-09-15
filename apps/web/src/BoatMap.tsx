@@ -23,6 +23,11 @@ export default function BoatMap({
       <p className="muted">เลือกพื้นที่บนผังเพื่อดูราคาและจำนวนคงเหลือ</p>
       <div className="boat-scene">
         <div className="boat-hull">
+          <img
+            className="boat-profile-image"
+            src="/images/boat/unicorn-night-exterior.jpg"
+            alt="เรือ Unicorn Cruise มุมมองด้านข้าง"
+          />
           <div className="boat-upper-deck" aria-label="ดาดฟ้าชั้นบน">
             {upperDeckZones.map((zone, index) => (
               <ZoneButton
@@ -52,7 +57,7 @@ export default function BoatMap({
       </div>
       <p className="map-note">
         เลือกดาดฟ้าบน (หัวเรือ/ท้ายเรือ) หรือชั้นล่าง 100 ใบ
-        การเลือกโซนยังไม่ใช่การระบุเลขที่นั่ง
+        ภาพใช้ระบุตำแหน่งโซนโดยประมาณ ไม่ใช่ผังเลขที่นั่ง
       </p>
     </section>
   );
