@@ -783,29 +783,48 @@ main {
   margin: 0 0 20px;
 }
 .boat-scene {
-  height: 330px;
+  height: 340px;
   display: flex;
   align-items: center;
   padding: 15px 0;
 }
 .boat-hull {
   width: 100%;
-  height: 225px;
+  height: 245px;
   border: 3px solid #8190a0;
-  border-radius: 46% 10% 10% 46% / 50%;
-  padding: 9px;
+  border-radius: 72px 34px 58px 94px / 42px 34px 52px 64px;
+  padding: 32px 20px 22px;
   display: grid;
-  grid-template-rows: 2fr 1fr;
-  gap: 6px;
-  background: #f2f5f8;
+  grid-template-rows: 0.9fr 1.1fr;
+  gap: 9px;
+  background: linear-gradient(180deg, #eef4f8 0%, #dbe6ee 100%);
   overflow: hidden;
+  position: relative;
+}
+.boat-hull::before {
+  content: "";
+  position: absolute;
+  top: 7px;
+  left: 9%;
+  width: 15%;
+  height: 27px;
+  border: 3px solid #8190a0;
+  border-bottom: 0;
+  border-radius: 30px 30px 0 0;
+  background: #edf4f9;
 }
 .boat-upper-deck {
   display: flex;
   gap: 6px;
+  margin-left: 12%;
+  margin-right: 3%;
+  padding-top: 5px;
+  border-top: 4px solid #8190a0;
+  position: relative;
+  z-index: 1;
 }
 .boat-zone {
-  background: #dfe9f1;
+  background: rgba(223, 233, 241, 0.95);
   color: #294c6c;
   border: 1px solid #abbecf;
   flex: 1;
@@ -816,16 +835,18 @@ main {
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+  z-index: 1;
 }
 .boat-upper-deck .boat-zone:first-child {
-  border-radius: 85% 0 0 85%;
-  padding-left: 12px;
+  border-radius: 24px 0 0 18px;
 }
 .boat-upper-deck .boat-zone:last-child {
-  border-radius: 0 18% 0 0;
+  border-radius: 0 20px 16px 0;
 }
 .boat-zone-lower {
-  border-radius: 0 0 18% 45%;
+  margin: 0 4% 0 1%;
+  border-radius: 16px 18px 38px 58px;
+  background: rgba(211, 225, 236, 0.98);
 }
 .boat-zone.selected {
   background: #ecdfbc;
