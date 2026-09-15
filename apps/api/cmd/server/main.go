@@ -45,7 +45,7 @@ func main() {
 	}
 	demo := os.Getenv("DEMO_MODE") == "true"
 	if demo {
-		_, err = db.Exec(ctx, "INSERT INTO zones(id,name,capacity,price) VALUES('A','หัวเรือ',76,150000),('B','กลางแจ้ง',118,180000),('C','ห้องแอร์',56,120000) ON CONFLICT DO NOTHING")
+		_, err = db.Exec(ctx, "INSERT INTO zones(id,name,capacity,price) VALUES('A','หัวเรือ',100,180000),('B','ท้ายเรือ',150,150000),('C','ชั้นล่าง',100,120000) ON CONFLICT DO NOTHING")
 		if err != nil {
 			slog.Error("demo seed failed")
 			os.Exit(1)

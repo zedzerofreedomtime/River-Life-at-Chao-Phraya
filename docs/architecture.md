@@ -2,7 +2,7 @@
 
 ## Product scope
 
-One cruise-concert booking workflow: zone selection, customer information, 15-minute inventory hold, PNG/JPEG proof upload, staff review, one QR ticket per guest, single-use check-in, agent attribution, and staff zone price/quota editing. This is a functional local demo, not a live paid event. The 76/118/56 split and prices are explicitly test data. No event date is invented.
+One cruise-concert booking workflow: zone selection, customer information, 15-minute inventory hold, PNG/JPEG proof upload, staff review, one QR ticket per guest, single-use check-in, agent attribution, and staff zone price/quota editing. This is a functional local demo, not a live paid event. The current provisional inventory is 100 head-boat tickets plus 150 rear-boat tickets on the upper deck (250 total), and 100 lower-deck tickets (350 total). Prices are explicitly temporary. No event date is invented.
 
 The frontend contract drives Gin endpoints, with PostgreSQL as the durable authority and Redis for ephemeral staff sessions and rate limiting. Browser session storage holds access credentials only, never the authoritative booking state. Frontend and API share one origin through nginx or the Vite proxy.
 
@@ -35,4 +35,4 @@ Proofs: max 5 MB, sniffed PNG/JPEG only, random filenames, private persistent vo
 
 Confirm actual event date, per-zone capacity, views and prices with the operator; replace demo mode with an explicit event publishing workflow and real payment instructions. Add named staff accounts/roles, customer account or email/OTP recovery, provider-backed notifications and reconciliation, camera scanner UI (current check-in accepts scanner/pasted token), agent verification/commission settlement, refund/cancellation policies, pagination/export reports, multi-event management, configured trusted reverse proxy, TLS, retention/backups and secret rotation. Lower-deck use is unverified and is not sold here.
 
-The current migration is a transactional version-1 bootstrap guarded by a PostgreSQL advisory lock. Future revisions must be new versioned migrations rather than changing existing deployed columns in place.
+The current migration is a transactional version-2 bootstrap guarded by a PostgreSQL advisory lock. Future revisions must be new versioned migrations rather than changing existing deployed columns in place.

@@ -19,9 +19,9 @@ const programme = [
 ];
 
 const zoneMeta: Record<string, { icon: typeof Anchor; description: string }> = {
-  A: { icon: Anchor, description: "สัมผัสวิวสวยที่สุด ใกล้ชิดแม่น้ำ" },
-  B: { icon: Sun, description: "รับลม ชมวิว แบบพาโนรามา" },
-  C: { icon: Snowflake, description: "เย็นสบาย ตลอดการเดินทาง" },
+  A: { icon: Anchor, description: "ดาดฟ้าบน • โซนพรีเมียมบริเวณหัวเรือ" },
+  B: { icon: Sun, description: "ดาดฟ้าบน • ชมวิวริมแม่น้ำบริเวณท้ายเรือ" },
+  C: { icon: Snowflake, description: "ชั้นล่าง • โซนราคาสบาย ๆ บนเรือ" },
 };
 
 export default function EventDetail({
@@ -119,11 +119,7 @@ export default function EventDetail({
           <button className="gold-action" onClick={() => onStartCheckout()}>
             เลือกบัตร <ArrowRight aria-hidden="true" size={22} />
           </button>
-          <small>
-            ราคาและจำนวนบัตรอยู่ระหว่างการยืนยัน
-            <br />
-            กรุณาตรวจสอบอีกครั้งในขั้นตอนถัดไป
-          </small>
+          <small>ราคาเป็นข้อมูลชั่วคราว รอยืนยันก่อนเปิดขายจริง</small>
         </aside>
       </section>
     </>
@@ -166,7 +162,7 @@ function ZoneRow({
         <strong>{zone.name}</strong>
         <small>{meta.description}</small>
       </span>
-      <em>ราคาและโควตารอยืนยัน</em>
+      <em>ราคาเริ่มต้นชั่วคราว</em>
       <ArrowRight aria-hidden="true" size={19} />
     </button>
   );

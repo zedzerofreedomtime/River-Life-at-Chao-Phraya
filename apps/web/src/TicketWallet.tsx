@@ -21,8 +21,8 @@ import { api, labels, type Booking } from "./api";
 type Props = { initial: Booking | null; initialToken: string };
 const zoneName: Record<string, string> = {
   A: "โซนหัวเรือ (Head Boat)",
-  B: "โซนกลางแจ้ง (Outdoor)",
-  C: "โซนห้องแอร์ (Indoor)",
+  B: "โซนท้ายเรือ (Rear Boat)",
+  C: "โซนชั้นล่าง (Lower Deck)",
 };
 
 export default function TicketWallet({ initial, initialToken }: Props) {

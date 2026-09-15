@@ -794,10 +794,15 @@ main {
   border: 3px solid #8190a0;
   border-radius: 46% 10% 10% 46% / 50%;
   padding: 9px;
-  display: flex;
+  display: grid;
+  grid-template-rows: 2fr 1fr;
   gap: 6px;
   background: #f2f5f8;
   overflow: hidden;
+}
+.boat-upper-deck {
+  display: flex;
+  gap: 6px;
 }
 .boat-zone {
   background: #dfe9f1;
@@ -812,12 +817,15 @@ main {
   gap: 4px;
   min-width: 0;
 }
-.boat-zone:first-child {
+.boat-upper-deck .boat-zone:first-child {
   border-radius: 85% 0 0 85%;
   padding-left: 12px;
 }
-.boat-zone:last-child {
-  border-radius: 0 18% 18% 0;
+.boat-upper-deck .boat-zone:last-child {
+  border-radius: 0 18% 0 0;
+}
+.boat-zone-lower {
+  border-radius: 0 0 18% 45%;
 }
 .boat-zone.selected {
   background: #ecdfbc;

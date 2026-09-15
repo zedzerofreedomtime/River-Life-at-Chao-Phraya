@@ -81,7 +81,7 @@ export default function BookingForm({
             onClick={() => onSelect(z.id)}
           >
             <strong>{z.name}</strong>
-            <small>ราคาทดลอง</small>
+            <small>ราคาชั่วคราว</small>
             <b>{money(z.price)}</b>
           </button>
         ))}
