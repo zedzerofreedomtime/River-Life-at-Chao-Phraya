@@ -138,67 +138,86 @@ export default function MyBooking({
             <code className="break-all">{token}</code>
           </details>
           {b.status === "held" && (
-            <section
-              className="order-proof-upload"
-              aria-label="แนบสลิปการชำระเงิน"
-            >
-              <h3>แนบสลิปการชำระเงิน</h3>
-              <p>
-                ระบบ AI จะอ่านยอดเงินและรายละเอียดที่มองเห็น ตรวจสลิปซ้ำ
-                และประเมินความผิดปกติก่อนออก QR Ticket
-              </p>
-              {b.verification.status && (
-                <Alert
-                  severity={
-                    b.verification.status === "pass"
-                      ? "success"
-                      : b.verification.status === "suspicious"
-                        ? "warning"
-                        : "error"
-                  }
-                >
-                  <strong>
-                    {b.verification.status === "suspicious"
-                      ? "สลิปนี้ตรวจไม่ผ่านแบบอัตโนมัติ"
-                      : "ไม่สามารถยืนยันสลิปนี้ได้"}
-                  </strong>
-                  {b.verification.reason && ` — ${b.verification.reason}`}
-                  <small className="slip-risk-score">
-                    คะแนนความเสี่ยง {b.verification.score}/100
-                  </small>
-                </Alert>
-              )}
-              <Button component="label" variant="outlined" disabled={busy}>
-                {proof ? "เปลี่ยนรูปสลิป" : "เลือกรูปสลิป"}
-                <input
-                  hidden
-                  type="file"
-                  accept="image/png,image/jpeg"
-                  onChange={(event) => {
-                    const next = event.target.files?.[0] ?? null;
-                    if (next && next.size > 5 * 1024 * 1024) {
-                      setProof(null);
-                      setError("รูปสลิปต้องมีขนาดไม่เกิน 5 MB");
-                      return;
-                    }
-                    setProof(next);
-                  }}
-                />
-              </Button>
-              <small className={proof ? "selected" : ""}>
-                {proof ? `เลือกแล้ว: ${proof.name}` : "ยังไม่ได้เลือกรูปสลิป"}
-              </small>
-              <Button
-                variant="contained"
-                disabled={busy || !proof}
-                onClick={() => void uploadProof()}
+            <div className="payment-proof-flow">
+              <section
+                className="payment-qr-card"
+                aria-label="สแกน QR เพื่อชำระเงิน"
               >
-                {busy ? "กำลังตรวจสลิปด้วย AI…" : "ตรวจสลิปและรับ QR"}
-              </Button>
-              <small>
-                ผลการตรวจภาพไม่ใช่การยืนยันว่าเงินเข้าบัญชีผู้รับแล้ว
-              </small>
-            </section>
+                <div className="payment-qr-copy">
+                  <span>ขั้นตอนที่ 1</span>
+                  <h3>สแกน QR เพื่อชำระเงิน</h3>
+                  <p>โอนเงินตามยอดคำสั่งซื้อนี้ แล้วแนบสลิปในขั้นตอนถัดไป</p>
+                  <strong>{money(b.total)}</strong>
+                  <small>โปรดตรวจสอบชื่อบัญชีและยอดเงินก่อนยืนยันการโอน</small>
+                </div>
+                <img
+                  src="/images/payment/krungthai-promptpay.png"
+                  alt="QR PromptPay สำหรับชำระเงิน"
+                />
+              </section>
+              <section
+                className="order-proof-upload"
+                aria-label="แนบสลิปการชำระเงิน"
+              >
+                <span>ขั้นตอนที่ 2</span>
+                <h3>แนบสลิปการชำระเงิน</h3>
+                <p>
+                  ระบบ AI จะอ่านยอดเงินและรายละเอียดที่มองเห็น ตรวจสลิปซ้ำ
+                  และประเมินความผิดปกติก่อนออก QR Ticket
+                </p>
+                {b.verification.status && (
+                  <Alert
+                    severity={
+                      b.verification.status === "pass"
+                        ? "success"
+                        : b.verification.status === "suspicious"
+                          ? "warning"
+                          : "error"
+                    }
+                  >
+                    <strong>
+                      {b.verification.status === "suspicious"
+                        ? "สลิปนี้ตรวจไม่ผ่านแบบอัตโนมัติ"
+                        : "ไม่สามารถยืนยันสลิปนี้ได้"}
+                    </strong>
+                    {b.verification.reason && ` — ${b.verification.reason}`}
+                    <small className="slip-risk-score">
+                      คะแนนความเสี่ยง {b.verification.score}/100
+                    </small>
+                  </Alert>
+                )}
+                <Button component="label" variant="outlined" disabled={busy}>
+                  {proof ? "เปลี่ยนรูปสลิป" : "เลือกรูปสลิป"}
+                  <input
+                    hidden
+                    type="file"
+                    accept="image/png,image/jpeg"
+                    onChange={(event) => {
+                      const next = event.target.files?.[0] ?? null;
+                      if (next && next.size > 5 * 1024 * 1024) {
+                        setProof(null);
+                        setError("รูปสลิปต้องมีขนาดไม่เกิน 5 MB");
+                        return;
+                      }
+                      setProof(next);
+                    }}
+                  />
+                </Button>
+                <small className={proof ? "selected" : ""}>
+                  {proof ? `เลือกแล้ว: ${proof.name}` : "ยังไม่ได้เลือกรูปสลิป"}
+                </small>
+                <Button
+                  variant="contained"
+                  disabled={busy || !proof}
+                  onClick={() => void uploadProof()}
+                >
+                  {busy ? "กำลังตรวจสลิปด้วย AI…" : "ตรวจสลิปและรับ QR"}
+                </Button>
+                <small>
+                  ผลการตรวจภาพไม่ใช่การยืนยันว่าเงินเข้าบัญชีผู้รับแล้ว
+                </small>
+              </section>
+            </div>
           )}
           {b.status === "review" && (
             <Alert severity="info">ระบบกำลังออก QR Ticket ให้คุณ</Alert>
