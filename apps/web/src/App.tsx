@@ -14,6 +14,18 @@ import Admin from "./Admin";
 import { api, type Booking, type EventInfo } from "./api";
 
 type Page = "event" | "checkout" | "orders" | "tickets" | "admin";
+const pagePaths: Record<Page, string> = {
+  event: "/",
+  checkout: "/checkout",
+  orders: "/orders",
+  tickets: "/tickets",
+  admin: "/admin",
+};
+const pathPages: Record<string, Page> = Object.fromEntries(
+  Object.entries(pagePaths).map(([page, path]) => [path, page as Page]),
+) as Record<string, Page>;
+const pageFromLocation = (): Page =>
+  pathPages[window.location.pathname] ?? "event";
 const nav: [Page, string][] = [
   ["event", "งานแสดง"],
   ["tickets", "บัตรของฉัน"],
@@ -28,7 +40,7 @@ const checkoutSteps = [
 ];
 
 export default function App() {
-  const [page, setPage] = useState<Page>("event");
+  const [page, setPage] = useState<Page>(pageFromLocation);
   const [event, setEvent] = useState<EventInfo | null>(null);
   const [error, setError] = useState("");
   const [zone, setZone] = useState("A");
@@ -46,13 +58,22 @@ export default function App() {
   useEffect(() => {
     void loadEvent();
   }, []);
-  const goCheckout = (preferredZone?: string) => {
-    if (preferredZone) setZone(preferredZone);
-    setPage("checkout");
-  };
+  useEffect(() => {
+    const handlePopState = () => setPage(pageFromLocation());
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
   const go = (next: Page) => {
+    const nextPath = pagePaths[next];
+    if (window.location.pathname !== nextPath) {
+      window.history.pushState(null, "", nextPath);
+    }
     setPage(next);
     if (next === "event") void loadEvent();
+  };
+  const goCheckout = (preferredZone?: string) => {
+    if (preferredZone) setZone(preferredZone);
+    go("checkout");
   };
   return (
     <>
