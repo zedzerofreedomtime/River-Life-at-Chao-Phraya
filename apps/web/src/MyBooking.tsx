@@ -65,14 +65,14 @@ export default function MyBooking({
     try {
       const form = new FormData();
       form.append("slip", proof);
-      await api(
+      const updated = await api<Booking>(
         `/bookings/${b.id}/slip`,
         { method: "POST", body: form },
         token,
       );
-      const latest = await api<Booking>(`/bookings/${b.id}`, {}, token);
-      setB(latest);
-      onOpenTickets?.(latest);
+      setB(updated);
+      setProof(null);
+      if (updated.status === "confirmed") onOpenTickets?.(updated);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -143,7 +143,31 @@ export default function MyBooking({
               aria-label="แนบสลิปการชำระเงิน"
             >
               <h3>แนบสลิปการชำระเงิน</h3>
-              <p>แนบสลิปเพียงครั้งเดียว ระบบจะออก QR Ticket ทันที</p>
+              <p>
+                ระบบ AI จะอ่านยอดเงินและรายละเอียดที่มองเห็น ตรวจสลิปซ้ำ
+                และประเมินความผิดปกติก่อนออก QR Ticket
+              </p>
+              {b.verification.status && (
+                <Alert
+                  severity={
+                    b.verification.status === "pass"
+                      ? "success"
+                      : b.verification.status === "suspicious"
+                        ? "warning"
+                        : "error"
+                  }
+                >
+                  <strong>
+                    {b.verification.status === "suspicious"
+                      ? "สลิปนี้ตรวจไม่ผ่านแบบอัตโนมัติ"
+                      : "ไม่สามารถยืนยันสลิปนี้ได้"}
+                  </strong>
+                  {b.verification.reason && ` — ${b.verification.reason}`}
+                  <small className="slip-risk-score">
+                    คะแนนความเสี่ยง {b.verification.score}/100
+                  </small>
+                </Alert>
+              )}
               <Button component="label" variant="outlined" disabled={busy}>
                 {proof ? "เปลี่ยนรูปสลิป" : "เลือกรูปสลิป"}
                 <input
@@ -169,8 +193,11 @@ export default function MyBooking({
                 disabled={busy || !proof}
                 onClick={() => void uploadProof()}
               >
-                {busy ? "กำลังออก QR Ticket…" : "ยืนยันสลิปและรับ QR"}
+                {busy ? "กำลังตรวจสลิปด้วย AI…" : "ตรวจสลิปและรับ QR"}
               </Button>
+              <small>
+                ผลการตรวจภาพไม่ใช่การยืนยันว่าเงินเข้าบัญชีผู้รับแล้ว
+              </small>
             </section>
           )}
           {b.status === "review" && (

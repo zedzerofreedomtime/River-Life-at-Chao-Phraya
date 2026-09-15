@@ -25,6 +25,14 @@ export type Booking = {
   status: string;
   expires_at: string;
   has_slip: boolean;
+  verification: {
+    status: "" | "pass" | "suspicious" | "reject";
+    score: number;
+    reason: string;
+    amount_satang?: number;
+    reference?: string;
+    checked_at?: string;
+  };
   agent_code: string;
   tickets: { id: string; checked_in_at: string | null }[];
 };

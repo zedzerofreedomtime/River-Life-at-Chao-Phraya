@@ -56,7 +56,7 @@ func main() {
 		slog.Error("automatic confirmation migration failed")
 		os.Exit(1)
 	}
-	app := &server.Server{Service: bookingService, Redis: cache, AdminPassword: password, UploadDir: dir, Demo: demo}
+	app := &server.Server{Service: bookingService, Redis: cache, AdminPassword: password, UploadDir: dir, Demo: demo, SlipAI: &service.SlipAI{APIKey: os.Getenv("OPENAI_API_KEY"), Model: os.Getenv("OPENAI_SLIP_MODEL")}}
 	srv := &http.Server{Addr: ":8080", Handler: app.Router(), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 20 * time.Second, WriteTimeout: 30 * time.Second, IdleTimeout: 60 * time.Second}
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {

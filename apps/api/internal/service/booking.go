@@ -31,17 +31,18 @@ type Input struct {
 	AgentCode string `json:"agent_code" binding:"max=40"`
 }
 type Booking struct {
-	ID        string    `json:"id"`
-	ZoneID    string    `json:"zone_id"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	Quantity  int       `json:"quantity"`
-	Total     int       `json:"total"`
-	Status    string    `json:"status"`
-	ExpiresAt time.Time `json:"expires_at"`
-	AgentCode string    `json:"agent_code"`
-	HasSlip   bool      `json:"has_slip"`
-	Tickets   []Ticket  `json:"tickets"`
+	ID           string           `json:"id"`
+	ZoneID       string           `json:"zone_id"`
+	Name         string           `json:"name"`
+	Email        string           `json:"email"`
+	Quantity     int              `json:"quantity"`
+	Total        int              `json:"total"`
+	Status       string           `json:"status"`
+	ExpiresAt    time.Time        `json:"expires_at"`
+	AgentCode    string           `json:"agent_code"`
+	HasSlip      bool             `json:"has_slip"`
+	Verification SlipVerification `json:"verification"`
+	Tickets      []Ticket         `json:"tickets"`
 }
 type Ticket struct {
 	ID          string     `json:"id"`
@@ -57,10 +58,14 @@ func Token() string {
 }
 func Hash(v string) string { h := sha256.Sum256([]byte(v)); return hex.EncodeToString(h[:]) }
 
-const columns = "id,zone_id,name,email,quantity,total,CASE WHEN status='held' AND expires_at<=now() THEN 'expired' ELSE status END,expires_at,agent_code,(slip_path<>'')"
+const columns = "id,zone_id,name,email,quantity,total,CASE WHEN status='held' AND expires_at<=now() THEN 'expired' ELSE status END,expires_at,agent_code,(slip_path<>''),slip_verification::text"
 
 func scan(row pgx.Row) (b Booking, err error) {
-	err = row.Scan(&b.ID, &b.ZoneID, &b.Name, &b.Email, &b.Quantity, &b.Total, &b.Status, &b.ExpiresAt, &b.AgentCode, &b.HasSlip)
+	var verification string
+	err = row.Scan(&b.ID, &b.ZoneID, &b.Name, &b.Email, &b.Quantity, &b.Total, &b.Status, &b.ExpiresAt, &b.AgentCode, &b.HasSlip, &verification)
+	if err == nil && verification != "" {
+		err = json.Unmarshal([]byte(verification), &b.Verification)
+	}
 	b.Tickets = []Ticket{}
 	return
 }
@@ -158,6 +163,58 @@ func (s *Service) Submit(ctx context.Context, id, token, path string) error {
 	}
 	return tx.Commit(ctx)
 }
+
+// SlipHashUsed prevents a payment image from being reused to unlock another booking.
+func (s *Service) SlipHashUsed(ctx context.Context, hash, bookingID string) (bool, error) {
+	var used bool
+	err := s.DB.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM bookings WHERE slip_hash=$1 AND id<>$2)", hash, bookingID).Scan(&used)
+	return used, err
+}
+
+// RecordSlipVerification stores the automated image assessment. Tickets are created
+// only when the assessment passes every deterministic and AI check.
+func (s *Service) RecordSlipVerification(ctx context.Context, id, token, path, hash string, verification SlipVerification) error {
+	tx, err := s.DB.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+	encoded, err := json.Marshal(verification)
+	if err != nil {
+		return err
+	}
+	if verification.Status != "pass" {
+		tag, err := tx.Exec(ctx, "UPDATE bookings SET slip_path=$3,slip_hash=$4,slip_verification=$5 WHERE id=$1 AND token_hash=$2 AND status='held' AND expires_at>now()", id, Hash(token), path, hash, encoded)
+		if err != nil {
+			return err
+		}
+		if tag.RowsAffected() != 1 {
+			return ErrConflict
+		}
+		_, err = tx.Exec(ctx, "INSERT INTO audit_log(booking_id,action) VALUES($1,$2)", id, "slip_"+verification.Status)
+		if err != nil {
+			return err
+		}
+		return tx.Commit(ctx)
+	}
+	var quantity int
+	err = tx.QueryRow(ctx, "UPDATE bookings SET status='confirmed',slip_path=$3,slip_hash=$4,slip_verification=$5 WHERE id=$1 AND token_hash=$2 AND status='held' AND expires_at>now() RETURNING quantity", id, Hash(token), path, hash, encoded).Scan(&quantity)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return ErrConflict
+	}
+	if err != nil {
+		return err
+	}
+	for i := 0; i < quantity; i++ {
+		if _, err = tx.Exec(ctx, "INSERT INTO tickets(id,booking_id) VALUES($1,$2)", Token(), id); err != nil {
+			return err
+		}
+	}
+	if _, err = tx.Exec(ctx, "INSERT INTO audit_log(booking_id,action) VALUES($1,'slip_ai_passed_qr_issued')", id); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
+}
 func (s *Service) Get(ctx context.Context, id, token string, admin bool) (Booking, error) {
 	b, err := scan(s.DB.QueryRow(ctx, "SELECT "+columns+" FROM bookings WHERE id=$1 AND ($2 OR token_hash=$3)", id, admin, Hash(token)))
 	if err != nil {
@@ -177,6 +234,7 @@ func (s *Service) Get(ctx context.Context, id, token string, admin bool) (Bookin
 	}
 	return b, rows.Err()
 }
+
 // AutoConfirmReviews upgrades bookings created by the legacy review workflow.
 func (s *Service) AutoConfirmReviews(ctx context.Context) error {
 	tx, err := s.DB.Begin(ctx)
@@ -189,7 +247,10 @@ func (s *Service) AutoConfirmReviews(ctx context.Context) error {
 		return err
 	}
 	defer rows.Close()
-	type pending struct{ id string; quantity int }
+	type pending struct {
+		id       string
+		quantity int
+	}
 	bookings := []pending{}
 	for rows.Next() {
 		var booking pending

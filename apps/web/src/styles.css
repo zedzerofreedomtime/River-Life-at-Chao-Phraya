@@ -1062,6 +1062,14 @@ td small {
 .order-proof-upload .MuiButton-contained {
   background: #bd9048;
 }
+.order-proof-upload .MuiAlert-message {
+  display: grid;
+  gap: 4px;
+}
+.slip-risk-score {
+  color: #61738a;
+  font-weight: 500;
+}
 .qr-dialog-content {
   display: grid;
   justify-items: center;

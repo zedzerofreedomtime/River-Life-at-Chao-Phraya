@@ -20,7 +20,12 @@ const nav: [Page, string][] = [
   ["orders", "คำสั่งซื้อ"],
   ["admin", "เจ้าหน้าที่"],
 ];
-const checkoutSteps = ["เลือกบัตร", "ข้อมูลผู้จอง", "แนบสลิป", "รับ QR Ticket"];
+const checkoutSteps = [
+  "เลือกบัตร",
+  "ข้อมูลผู้จอง",
+  "ตรวจสลิป AI",
+  "รับ QR Ticket",
+];
 
 export default function App() {
   const [page, setPage] = useState<Page>("event");

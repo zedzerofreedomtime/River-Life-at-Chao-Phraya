@@ -20,6 +20,7 @@ type Server struct {
 	Service                  *service.Service
 	Redis                    *redis.Client
 	AdminPassword, UploadDir string
+	SlipAI                   *service.SlipAI
 	Demo                     bool
 }
 
@@ -159,7 +160,7 @@ func (s *Server) Router() *gin.Engine {
 	})
 	admin.POST("/bookings/:id/decision", func(c *gin.Context) {
 		var in struct {
-		Action string `json:"action" binding:"required,oneof=no_show"`
+			Action string `json:"action" binding:"required,oneof=no_show"`
 		}
 		if c.ShouldBindJSON(&in) != nil {
 			bad(c)
@@ -237,15 +238,39 @@ func (s *Server) slip(c *gin.Context) {
 		bad(c)
 		return
 	}
+	hash := service.Hash(string(data))
+	used, err := s.Service.SlipHashUsed(c.Request.Context(), hash, b.ID)
+	if err != nil {
+		fail(c, err)
+		return
+	}
+	if used {
+		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{"error": "สลิปนี้เคยถูกใช้กับคำสั่งซื้ออื่นแล้ว กรุณาใช้หลักฐานการโอนใหม่"})
+		return
+	}
+	verification, err := s.SlipAI.Verify(c.Request.Context(), data, mime, b.Total)
+	if errors.Is(err, service.ErrVerificationUnavailable) {
+		c.AbortWithStatusJSON(http.StatusServiceUnavailable, gin.H{"error": "ระบบตรวจสลิปอัตโนมัติยังไม่พร้อม กรุณาลองใหม่ภายหลัง"})
+		return
+	}
+	if err != nil {
+		fail(c, err)
+		return
+	}
 	path := service.Token() + ext
 	if err = os.WriteFile(filepath.Join(s.UploadDir, path), data, 0600); err != nil {
 		fail(c, err)
 		return
 	}
-	if err = s.Service.Submit(c.Request.Context(), b.ID, token(c), path); err != nil {
+	if err = s.Service.RecordSlipVerification(c.Request.Context(), b.ID, token(c), path, hash, verification); err != nil {
 		_ = os.Remove(filepath.Join(s.UploadDir, path))
 		fail(c, err)
 		return
 	}
-	c.JSON(200, gin.H{"status": "confirmed"})
+	updated, err := s.Service.Get(c.Request.Context(), b.ID, token(c), false)
+	if err != nil {
+		fail(c, err)
+		return
+	}
+	c.JSON(200, updated)
 }
