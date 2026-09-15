@@ -1085,11 +1085,13 @@ td small {
   font-size: 30px;
 }
 .payment-qr-card img {
-  width: 210px;
+  width: 260px;
   aspect-ratio: 1;
   object-fit: contain;
-  border-radius: 8px;
+  border: 8px solid #fff;
+  border-radius: 4px;
   background: #fff;
+  box-shadow: 0 5px 16px rgba(16, 38, 65, 0.12);
 }
 .order-proof-upload h3,
 .order-proof-upload p {

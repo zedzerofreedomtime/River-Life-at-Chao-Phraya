@@ -151,7 +151,7 @@ export default function MyBooking({
                   <small>โปรดตรวจสอบชื่อบัญชีและยอดเงินก่อนยืนยันการโอน</small>
                 </div>
                 <img
-                  src="/images/payment/krungthai-promptpay.png"
+                  src="/images/payment/promptpay-qr.png"
                   alt="QR PromptPay สำหรับชำระเงิน"
                 />
               </section>
