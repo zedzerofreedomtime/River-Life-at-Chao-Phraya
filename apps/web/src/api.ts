@@ -25,6 +25,7 @@ export type Booking = {
   status: string;
   expires_at: string;
   agent_code: string;
+  has_attachment: boolean;
   tickets: { id: string; checked_in_at: string | null }[];
 };
 export const money = (n: number) =>

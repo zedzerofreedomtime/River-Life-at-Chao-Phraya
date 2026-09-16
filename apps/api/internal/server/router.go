@@ -6,8 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
 	"github.com/redis/go-redis/v9"
+	"io"
 	"log/slog"
 	"net/http"
+	"os"
+	"path/filepath"
 	"riverlife/api/internal/service"
 	"strings"
 	"time"
@@ -16,6 +19,7 @@ import (
 type Server struct {
 	Service       *service.Service
 	Redis         *redis.Client
+	UploadDir     string
 	AdminPassword string
 	Demo          bool
 }
@@ -116,6 +120,48 @@ func (s *Server) Router() *gin.Engine {
 			return
 		}
 		c.JSON(200, b)
+	})
+	api.POST("/bookings/:id/attachment", s.limiter(10), func(c *gin.Context) {
+		file, err := c.FormFile("attachment")
+		if err != nil || file.Size < 1 || file.Size > 5<<20 {
+			bad(c)
+			return
+		}
+		ext := strings.ToLower(filepath.Ext(file.Filename))
+		if ext != ".png" && ext != ".jpg" && ext != ".jpeg" {
+			bad(c)
+			return
+		}
+		input, err := file.Open()
+		if err != nil {
+			fail(c, err)
+			return
+		}
+		defer input.Close()
+		path := filepath.Join(s.UploadDir, service.Token()+ext)
+		output, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
+		if err != nil {
+			fail(c, err)
+			return
+		}
+		_, copyErr := io.Copy(output, input)
+		closeErr := output.Close()
+		if copyErr != nil || closeErr != nil {
+			_ = os.Remove(path)
+			fail(c, errors.Join(copyErr, closeErr))
+			return
+		}
+		if err = s.Service.SubmitAttachment(c.Request.Context(), c.Param("id"), token(c), path); err != nil {
+			_ = os.Remove(path)
+			fail(c, err)
+			return
+		}
+		b, err := s.Service.Get(c.Request.Context(), c.Param("id"), token(c), false)
+		if err != nil {
+			fail(c, err)
+			return
+		}
+		c.JSON(http.StatusOK, b)
 	})
 	api.POST("/admin/login", s.limiter(5), func(c *gin.Context) {
 		var in struct {

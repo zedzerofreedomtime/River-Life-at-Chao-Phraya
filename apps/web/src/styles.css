@@ -1154,6 +1154,41 @@ footer span:last-child {
 .booking-detail {
   margin-top: 25px;
 }
+.order-attachment {
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #dbe4ed;
+  border-radius: 12px;
+  background: #fbfcfd;
+}
+.order-attachment > span {
+  color: #a9782d;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.order-attachment h3,
+.order-attachment p {
+  margin: 0;
+}
+.order-attachment p,
+.order-attachment small {
+  color: #64758a;
+  font-size: 14px;
+}
+.order-attachment small.selected {
+  color: #18724f;
+  font-weight: 700;
+}
+.order-attachment .MuiButton-outlined,
+.order-attachment .MuiButton-contained {
+  justify-self: start;
+}
+.order-attachment .MuiButton-contained {
+  background: #bd9048;
+}
 .ticket-grid {
   display: flex;
   gap: 20px;

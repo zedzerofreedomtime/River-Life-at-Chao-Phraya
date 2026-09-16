@@ -289,6 +289,7 @@ function TicketJourney({ ticketCount }: { ticketCount: number }) {
       </div>
       <ol className="booking-steps">
         <li className="done">ยืนยันการจอง</li>
+        <li className="done">แนบรูปประกอบ</li>
         <li className="current">รับ QR Ticket</li>
         <li>สแกนเข้างาน</li>
       </ol>

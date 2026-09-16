@@ -2,7 +2,7 @@
 
 ## Product scope
 
-One cruise-concert booking workflow: zone selection, customer information, immediate booking confirmation, one QR ticket per guest, single-use check-in, agent attribution, and staff zone price/quota editing. This is a functional local demo, not a live paid event. The current provisional inventory is 100 head-boat tickets plus 150 rear-boat tickets on the upper deck (250 total), and 100 lower-deck tickets (350 total). Prices are explicitly temporary. No event date is invented.
+One cruise-concert booking workflow: zone selection, customer information, image attachment, one QR ticket per guest, single-use check-in, agent attribution, and staff zone price/quota editing. This is a functional local demo, not a live paid event. The current provisional inventory is 100 head-boat tickets plus 150 rear-boat tickets on the upper deck (250 total), and 100 lower-deck tickets (350 total). Prices are explicitly temporary. No event date is invented.
 
 The frontend contract drives Gin endpoints, with PostgreSQL as the durable authority and Redis for ephemeral staff sessions and rate limiting. Browser session storage holds access credentials only, never the authoritative booking state. Frontend and API share one origin through nginx or the Vite proxy.
 
@@ -17,9 +17,9 @@ The frontend contract drives Gin endpoints, with PostgreSQL as the durable autho
 
 ## Inventory and lifecycle
 
-`confirmed -> per-ticket checked in`
+`held -> image attached -> confirmed -> per-ticket checked in`
 
-Booking confirmation creates the order and all per-guest tickets in one PostgreSQL transaction. No-show is a staff decision, allowed only for confirmed bookings without any checked-in ticket. No-show does not release sold inventory.
+Creating a booking holds inventory for 15 minutes. Uploading a PNG/JPG attachment confirms the booking and creates all per-guest tickets in one PostgreSQL transaction. No-show is a staff decision, allowed only for confirmed bookings without any checked-in ticket. No-show does not release sold inventory.
 
 Row locks on the zone serialize competing holds and capacity edits. Inventory is counted inside the PostgreSQL transaction. Redis locks are deliberately not the source of truth. Idempotency key + payload fingerprint + booking access token allow safe retries without duplicating a booking. Money is integer satang; the API snapshots the price when holding and ignores client totals. Approval creates tickets and audit entries in one transaction. Checking in locks the booking and conditionally updates one unused ticket; concurrent scans cannot succeed twice.
 
@@ -29,7 +29,7 @@ Customer booking access uses a cryptographically random 256-bit bearer secret; P
 
 Rate limiting uses atomic INCR + EXPIRE via Redis Lua, a 60-second TTL, and fails closed if Redis is unavailable. Reverse proxy deployment must configure trusted proxy addresses explicitly; default Gin does not trust forwarded IP headers. Behind the supplied nginx, rate limits currently group requests by proxy IP (conservative shared limit).
 
-There is intentionally no payment collection, payment QR, proof upload, OCR, AI verification, or bank settlement in the current flow. The stored temporary price is a booking reference only and must not be represented as a completed payment.
+There is intentionally no payment collection, payment QR, OCR, AI verification, or bank settlement in the current flow. Customers can upload one image as a booking attachment, but the system stores it without inspecting it or using it as proof of payment. The stored temporary price is a booking reference only and must not be represented as a completed payment.
 
 ## Before production
 

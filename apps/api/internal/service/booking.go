@@ -31,16 +31,17 @@ type Input struct {
 	AgentCode string `json:"agent_code" binding:"max=40"`
 }
 type Booking struct {
-	ID        string    `json:"id"`
-	ZoneID    string    `json:"zone_id"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	Quantity  int       `json:"quantity"`
-	Total     int       `json:"total"`
-	Status    string    `json:"status"`
-	ExpiresAt time.Time `json:"expires_at"`
-	AgentCode string    `json:"agent_code"`
-	Tickets   []Ticket  `json:"tickets"`
+	ID            string    `json:"id"`
+	ZoneID        string    `json:"zone_id"`
+	Name          string    `json:"name"`
+	Email         string    `json:"email"`
+	Quantity      int       `json:"quantity"`
+	Total         int       `json:"total"`
+	Status        string    `json:"status"`
+	ExpiresAt     time.Time `json:"expires_at"`
+	AgentCode     string    `json:"agent_code"`
+	HasAttachment bool      `json:"has_attachment"`
+	Tickets       []Ticket  `json:"tickets"`
 }
 type Ticket struct {
 	ID          string     `json:"id"`
@@ -56,10 +57,10 @@ func Token() string {
 }
 func Hash(v string) string { h := sha256.Sum256([]byte(v)); return hex.EncodeToString(h[:]) }
 
-const columns = "id,zone_id,name,email,quantity,total,CASE WHEN status='held' AND expires_at<=now() THEN 'expired' ELSE status END,expires_at,agent_code"
+const columns = "id,zone_id,name,email,quantity,total,CASE WHEN status='held' AND expires_at<=now() THEN 'expired' ELSE status END,expires_at,agent_code,(attachment_path<>'')"
 
 func scan(row pgx.Row) (b Booking, err error) {
-	err = row.Scan(&b.ID, &b.ZoneID, &b.Name, &b.Email, &b.Quantity, &b.Total, &b.Status, &b.ExpiresAt, &b.AgentCode)
+	err = row.Scan(&b.ID, &b.ZoneID, &b.Name, &b.Email, &b.Quantity, &b.Total, &b.Status, &b.ExpiresAt, &b.AgentCode, &b.HasAttachment)
 	b.Tickets = []Ticket{}
 	return
 }
@@ -80,7 +81,7 @@ func (s *Service) Zones(ctx context.Context) ([]Zone, error) {
 	return out, rows.Err()
 }
 
-// Create confirms a demo reservation and issues one QR ticket per admission.
+// Create reserves a booking until the customer attaches an image.
 func (s *Service) Create(ctx context.Context, in Input, key, token string) (Booking, error) {
 	tx, err := s.DB.Begin(ctx)
 	if err != nil {
@@ -123,23 +124,42 @@ func (s *Service) Create(ctx context.Context, in Input, key, token string) (Book
 		return Booking{}, ErrConflict
 	}
 	id := Token()[:20]
-	b, err := scan(tx.QueryRow(ctx, "INSERT INTO bookings(id,token_hash,request_key,request_hash,zone_id,name,email,quantity,total,agent_code,status,expires_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'confirmed',now()) RETURNING "+columns, id, Hash(token), key, fingerprint, in.ZoneID, in.Name, in.Email, in.Quantity, price*in.Quantity, in.AgentCode))
+	b, err := scan(tx.QueryRow(ctx, "INSERT INTO bookings(id,token_hash,request_key,request_hash,zone_id,name,email,quantity,total,agent_code,status,expires_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'held',now()+interval '15 minutes') RETURNING "+columns, id, Hash(token), key, fingerprint, in.ZoneID, in.Name, in.Email, in.Quantity, price*in.Quantity, in.AgentCode))
 	if err != nil {
 		return b, err
 	}
-	for i := 0; i < in.Quantity; i++ {
-		if _, err = tx.Exec(ctx, "INSERT INTO tickets(id,booking_id) VALUES($1,$2)", Token(), id); err != nil {
-			return b, err
-		}
-	}
-	if _, err = tx.Exec(ctx, "INSERT INTO audit_log(booking_id,action) VALUES($1,'booking_confirmed_qr_issued')", id); err != nil {
+	if _, err = tx.Exec(ctx, "INSERT INTO audit_log(booking_id,action) VALUES($1,'booking_created')", id); err != nil {
 		return b, err
 	}
 	err = tx.Commit(ctx)
-	if err == nil {
-		return s.Get(ctx, id, token, false)
-	}
 	return b, err
+}
+
+// SubmitAttachment accepts an image as booking evidence only. It deliberately does
+// not validate, inspect, or infer whether a payment slip is genuine.
+func (s *Service) SubmitAttachment(ctx context.Context, id, token, path string) error {
+	tx, err := s.DB.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+	var quantity int
+	err = tx.QueryRow(ctx, "UPDATE bookings SET status='confirmed',attachment_path=$3 WHERE id=$1 AND token_hash=$2 AND status='held' AND expires_at>now() RETURNING quantity", id, Hash(token), path).Scan(&quantity)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return ErrConflict
+	}
+	if err != nil {
+		return err
+	}
+	for i := 0; i < quantity; i++ {
+		if _, err = tx.Exec(ctx, "INSERT INTO tickets(id,booking_id) VALUES($1,$2)", Token(), id); err != nil {
+			return err
+		}
+	}
+	if _, err = tx.Exec(ctx, "INSERT INTO audit_log(booking_id,action) VALUES($1,'attachment_received_qr_issued')", id); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
 }
 
 func (s *Service) Get(ctx context.Context, id, token string, admin bool) (Booking, error) {

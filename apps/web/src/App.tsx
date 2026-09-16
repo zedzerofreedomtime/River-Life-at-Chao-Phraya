@@ -33,9 +33,9 @@ const nav: [Page, string][] = [
   ["admin", "เจ้าหน้าที่"],
 ];
 const checkoutSteps = [
-  "เลือกบัตร",
-  "ข้อมูลผู้จอง",
+  "เลือกโซน",
   "ยืนยันการจอง",
+  "แนบรูปประกอบ",
   "รับ QR Ticket",
 ];
 
@@ -153,7 +153,7 @@ export default function App() {
                     "riverlife.booking.token",
                     accessToken,
                   );
-                  go("tickets");
+                  go("orders");
                 }}
               />
             </div>

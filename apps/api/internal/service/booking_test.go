@@ -92,8 +92,15 @@ func TestInventoryLifecycle(t *testing.T) {
 		t.Fatal("unauthorized booking access")
 	}
 	b, err := s.Get(ctx, first.ID, auth, false)
-	if err != nil || b.Status != "confirmed" || len(b.Tickets) != 1 {
-		t.Fatal("ticket issuance failed", err)
+	if err != nil || b.Status != "held" || len(b.Tickets) != 0 {
+		t.Fatal("booking hold failed", err)
+	}
+	if err = s.SubmitAttachment(ctx, first.ID, auth, "test.png"); err != nil {
+		t.Fatal("attachment submission failed", err)
+	}
+	b, err = s.Get(ctx, first.ID, auth, false)
+	if err != nil || b.Status != "confirmed" || len(b.Tickets) != 1 || !b.HasAttachment {
+		t.Fatal("ticket issuance after attachment failed", err)
 	}
 	if err = s.CheckIn(ctx, b.Tickets[0].ID); err != nil {
 		t.Fatal(err)

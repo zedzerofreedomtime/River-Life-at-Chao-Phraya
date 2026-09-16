@@ -9,10 +9,10 @@ The UI is organized around the same product separation used by established ticke
    - The event date, zones, capacity and prices remain visibly marked as awaiting confirmation in demo mode.
 2. **เลือกบัตร / Checkout**
    - Customer selects a zone and quantity, supplies name/email and accepts the no-show condition.
-   - PostgreSQL locks inventory while confirming the booking. The server calculates the displayed total from its price snapshot.
+   - PostgreSQL locks inventory while creating a 15-minute booking hold. The server calculates the displayed total from its price snapshot.
 3. **คำสั่งซื้อของฉัน / My Orders**
    - Customer opens the order with booking ID plus the private access secret.
-   - A `confirmed` order has its own ticket count and links to the ticket wallet immediately.
+   - Customer uploads one PNG/JPG attachment. It is stored only, without any slip/transaction/AI validation; after the attachment arrives, the order is confirmed and links to the ticket wallet.
 4. **บัตรของฉัน / Ticket Wallet**
    - Shows an individual ticket card for every ticket created by the confirmed order.
    - Each card has its own QR payload and a one-time check-in state. An order that is not confirmed cannot display a QR.
@@ -21,7 +21,7 @@ The UI is organized around the same product separation used by established ticke
 
 ## Current payment boundary
 
-Payment collection is disabled. The current demo creates a confirmed reservation and QR Tickets immediately after booking, so it must not be used to collect real money. When payment is reintroduced, confirmation must only happen after a provider webhook verifies signature, payment amount, destination account, duplicate transaction reference and final payment state.
+Payment collection is disabled. The current demo issues QR Tickets after receiving an image attachment, so it must not be used to collect real money. The attachment is not payment evidence and is never inspected. When payment is reintroduced, confirmation must only happen after a provider webhook verifies signature, payment amount, destination account, duplicate transaction reference and final payment state.
 
 ## Security and inventory invariants
 

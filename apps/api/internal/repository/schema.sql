@@ -10,10 +10,12 @@ CREATE TABLE IF NOT EXISTS bookings (
  total integer NOT NULL CHECK(total>=0), agent_code text NOT NULL DEFAULT '',
  status text NOT NULL CHECK(status IN ('held','review','confirmed','cancelled','expired','no_show')),
  expires_at timestamptz NOT NULL, created_at timestamptz NOT NULL DEFAULT now(),
+ attachment_path text NOT NULL DEFAULT '',
  slip_path text NOT NULL DEFAULT '',
  slip_hash text NOT NULL DEFAULT '',
  slip_verification jsonb NOT NULL DEFAULT '{}'::jsonb
 );
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS attachment_path text NOT NULL DEFAULT '';
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS slip_hash text NOT NULL DEFAULT '';
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS slip_verification jsonb NOT NULL DEFAULT '{}'::jsonb;
 CREATE INDEX IF NOT EXISTS bookings_zone_status ON bookings(zone_id,status,expires_at);

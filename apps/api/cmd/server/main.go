@@ -35,6 +35,14 @@ func main() {
 	}
 	cache := redis.NewClient(opt)
 	defer cache.Close()
+	uploadDir := os.Getenv("UPLOAD_DIR")
+	if uploadDir == "" {
+		uploadDir = "/data/uploads"
+	}
+	if err = os.MkdirAll(uploadDir, 0o750); err != nil {
+		slog.Error("attachment directory startup failed")
+		os.Exit(1)
+	}
 	demo := os.Getenv("DEMO_MODE") == "true"
 	if demo {
 		_, err = db.Exec(ctx, "INSERT INTO zones(id,name,capacity,price) VALUES('A','หัวเรือ',100,180000),('B','ท้ายเรือ',150,150000),('C','ชั้นล่าง',100,120000) ON CONFLICT DO NOTHING")
@@ -48,7 +56,7 @@ func main() {
 		slog.Error("automatic confirmation migration failed")
 		os.Exit(1)
 	}
-	app := &server.Server{Service: bookingService, Redis: cache, AdminPassword: password, Demo: demo}
+	app := &server.Server{Service: bookingService, Redis: cache, UploadDir: uploadDir, AdminPassword: password, Demo: demo}
 	srv := &http.Server{Addr: ":8080", Handler: app.Router(), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 20 * time.Second, WriteTimeout: 30 * time.Second, IdleTimeout: 60 * time.Second}
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
