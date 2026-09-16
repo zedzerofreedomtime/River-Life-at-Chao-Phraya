@@ -53,7 +53,7 @@ func TestInventoryLifecycle(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			tk, k := Token(), Token()
-			b, e := s.Hold(ctx, Input{ZoneID: zone, Name: "Test", Email: "test@example.com", Quantity: 1}, k, tk)
+			b, e := s.Create(ctx, Input{ZoneID: zone, Name: "Test", Email: "test@example.com", Quantity: 1}, k, tk)
 			if e == nil {
 				success.Add(1)
 				mu.Lock()
@@ -68,7 +68,7 @@ func TestInventoryLifecycle(t *testing.T) {
 	if success.Load() != 3 {
 		t.Fatalf("oversell or missing inventory: %d", success.Load())
 	}
-	again, err := s.Hold(ctx, Input{ZoneID: zone, Name: "Test", Email: "test@example.com", Quantity: 1}, key, auth)
+	again, err := s.Create(ctx, Input{ZoneID: zone, Name: "Test", Email: "test@example.com", Quantity: 1}, key, auth)
 	if err != nil || again.ID != first.ID {
 		t.Fatal("idempotency failed", err)
 	}
@@ -82,7 +82,7 @@ func TestInventoryLifecycle(t *testing.T) {
 	retryCtx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
 	narrowService := Service{DB: narrow}
-	if _, err = narrowService.Hold(retryCtx, Input{ZoneID: zone, Name: "Test", Email: "test@example.com", Quantity: 1}, key, auth); err != nil {
+	if _, err = narrowService.Create(retryCtx, Input{ZoneID: zone, Name: "Test", Email: "test@example.com", Quantity: 1}, key, auth); err != nil {
 		t.Fatal("idempotent retry exhausted single-connection pool", err)
 	}
 	if err = s.UpdateZone(ctx, zone, ZoneUpdate{Name: "Test", Capacity: 2, Price: 10000}); !errors.Is(err, ErrConflict) {
@@ -92,13 +92,6 @@ func TestInventoryLifecycle(t *testing.T) {
 		t.Fatal("unauthorized booking access")
 	}
 	b, err := s.Get(ctx, first.ID, auth, false)
-	if err != nil || b.Status != "held" || len(b.Tickets) != 0 {
-		t.Fatal("booking hold failed", err)
-	}
-	if err = s.Submit(ctx, first.ID, auth, "fixture.png"); err != nil {
-		t.Fatal(err)
-	}
-	b, err = s.Get(ctx, first.ID, auth, false)
 	if err != nil || b.Status != "confirmed" || len(b.Tickets) != 1 {
 		t.Fatal("ticket issuance failed", err)
 	}

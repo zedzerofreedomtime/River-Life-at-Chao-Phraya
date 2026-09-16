@@ -2,7 +2,7 @@
 
 ## Product scope
 
-One cruise-concert booking workflow: zone selection, customer information, 15-minute inventory hold, PNG/JPEG proof upload, automated AI assessment, one QR ticket per guest, single-use check-in, agent attribution, and staff zone price/quota editing. This is a functional local demo, not a live paid event. The current provisional inventory is 100 head-boat tickets plus 150 rear-boat tickets on the upper deck (250 total), and 100 lower-deck tickets (350 total). Prices are explicitly temporary. No event date is invented.
+One cruise-concert booking workflow: zone selection, customer information, immediate booking confirmation, one QR ticket per guest, single-use check-in, agent attribution, and staff zone price/quota editing. This is a functional local demo, not a live paid event. The current provisional inventory is 100 head-boat tickets plus 150 rear-boat tickets on the upper deck (250 total), and 100 lower-deck tickets (350 total). Prices are explicitly temporary. No event date is invented.
 
 The frontend contract drives Gin endpoints, with PostgreSQL as the durable authority and Redis for ephemeral staff sessions and rate limiting. Browser session storage holds access credentials only, never the authoritative booking state. Frontend and API share one origin through nginx or the Vite proxy.
 
@@ -17,9 +17,9 @@ The frontend contract drives Gin endpoints, with PostgreSQL as the durable autho
 
 ## Inventory and lifecycle
 
-`held -> review -> confirmed -> per-ticket checked in`
+`confirmed -> per-ticket checked in`
 
-Expired holds stop consuming quota automatically by database timestamp, even without a cleanup worker. Review does not expire automatically. Rejecting a review cancels the booking and releases inventory. No-show is a staff decision, allowed only for confirmed bookings without any checked-in ticket. No-show does not release sold inventory.
+Booking confirmation creates the order and all per-guest tickets in one PostgreSQL transaction. No-show is a staff decision, allowed only for confirmed bookings without any checked-in ticket. No-show does not release sold inventory.
 
 Row locks on the zone serialize competing holds and capacity edits. Inventory is counted inside the PostgreSQL transaction. Redis locks are deliberately not the source of truth. Idempotency key + payload fingerprint + booking access token allow safe retries without duplicating a booking. Money is integer satang; the API snapshots the price when holding and ignores client totals. Approval creates tickets and audit entries in one transaction. Checking in locks the booking and conditionally updates one unused ticket; concurrent scans cannot succeed twice.
 
@@ -29,11 +29,11 @@ Customer booking access uses a cryptographically random 256-bit bearer secret; P
 
 Rate limiting uses atomic INCR + EXPIRE via Redis Lua, a 60-second TTL, and fails closed if Redis is unavailable. Reverse proxy deployment must configure trusted proxy addresses explicitly; default Gin does not trust forwarded IP headers. Behind the supplied nginx, rate limits currently group requests by proxy IP (conservative shared limit).
 
-Proofs: max 5 MB, sniffed PNG/JPEG only, random filenames, private persistent volume, no public static route. Only authenticated staff can view a proof. Unsuccessful submissions delete only their newly created orphan file. No payment processor, OCR or bank settlement is implied by uploading an image.
+There is intentionally no payment collection, payment QR, proof upload, OCR, AI verification, or bank settlement in the current flow. The stored temporary price is a booking reference only and must not be represented as a completed payment.
 
 ## Before production
 
-Confirm actual event date, per-zone capacity, views and prices with the operator; replace demo mode with an explicit event publishing workflow and real payment instructions. Add named staff accounts/roles, customer account or email/OTP recovery, provider-backed notifications and reconciliation, camera scanner UI (current check-in accepts scanner/pasted token), agent verification/commission settlement, refund/cancellation policies, pagination/export reports, configured trusted reverse proxy, TLS, retention/backups and secret rotation.
+Confirm actual event date, per-zone capacity, views and prices with the operator; replace demo mode with an explicit event publishing workflow and real payment instructions. Add named staff accounts/roles, customer account or email/OTP recovery, a real payment provider and reconciliation before collecting money, camera scanner UI (current check-in accepts scanner/pasted token), agent verification/commission settlement, refund/cancellation policies, pagination/export reports, configured trusted reverse proxy, TLS, retention/backups and secret rotation.
 
 Before a second boat can be sold, add durable `vessels`, `sailings`, and `zone_templates` entities and make bookings reference a sailing-specific zone; never share the current `zones` inventory between different departures.
 

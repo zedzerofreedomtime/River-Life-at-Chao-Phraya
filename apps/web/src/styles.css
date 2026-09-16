@@ -1196,94 +1196,6 @@ td small {
   color: #6d7788;
   margin-top: 3px;
 }
-.order-proof-upload {
-  display: grid;
-  gap: 10px;
-  margin: 20px 0;
-  padding: 20px;
-  border: 1px solid #dbe4ed;
-  border-radius: 12px;
-  background: #fbfcfd;
-}
-.payment-proof-flow {
-  display: grid;
-  gap: 16px;
-  margin: 20px 0;
-}
-.payment-qr-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 210px;
-  align-items: center;
-  gap: 24px;
-  padding: 22px;
-  border: 1px solid #cbd9e8;
-  border-radius: 12px;
-  background: linear-gradient(120deg, #f4f9ff, #fff);
-}
-.payment-qr-copy {
-  display: grid;
-  gap: 7px;
-}
-.payment-qr-copy > span,
-.order-proof-upload > span {
-  color: #a9782d;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-.payment-qr-copy h3 {
-  margin: 0;
-  color: #102641;
-  font-size: 22px;
-}
-.payment-qr-copy p,
-.payment-qr-copy small {
-  margin: 0;
-  color: #62728a;
-  font-size: 14px;
-  line-height: 1.55;
-}
-.payment-qr-copy strong {
-  color: #a9782d;
-  font-size: 30px;
-}
-.payment-qr-card img {
-  width: 260px;
-  aspect-ratio: 1;
-  object-fit: contain;
-  border: 8px solid #fff;
-  border-radius: 4px;
-  background: #fff;
-  box-shadow: 0 5px 16px rgba(16, 38, 65, 0.12);
-}
-.order-proof-upload h3,
-.order-proof-upload p {
-  margin: 0;
-}
-.order-proof-upload p,
-.order-proof-upload small {
-  color: #64758a;
-  font-size: 14px;
-}
-.order-proof-upload small.selected {
-  color: #18724f;
-  font-weight: 700;
-}
-.order-proof-upload .MuiButton-outlined,
-.order-proof-upload .MuiButton-contained {
-  justify-self: start;
-}
-.order-proof-upload .MuiButton-contained {
-  background: #bd9048;
-}
-.order-proof-upload .MuiAlert-message {
-  display: grid;
-  gap: 4px;
-}
-.slip-risk-score {
-  color: #61738a;
-  font-weight: 500;
-}
 .qr-dialog-content {
   display: grid;
   justify-items: center;
@@ -2053,7 +1965,7 @@ td small {
   display: grid;
   gap: 16px;
 }
-.payment-journey {
+.booking-journey {
   max-width: 1040px;
   margin-bottom: 18px;
   padding: 19px 22px;
@@ -2061,35 +1973,35 @@ td small {
   border-radius: 12px;
   background: #fbfcfd;
 }
-.payment-journey.confirmed {
+.booking-journey.confirmed {
   border-color: #b9dfce;
   background: #f4fbf7;
 }
-.payment-journey-head {
+.booking-journey-head {
   display: flex;
   align-items: end;
   justify-content: space-between;
   gap: 18px;
 }
-.payment-journey-head div {
+.booking-journey-head div {
   display: grid;
   gap: 3px;
 }
-.payment-journey-head small {
+.booking-journey-head small {
   color: #61738a;
   font-size: 12px;
 }
-.payment-journey-head strong {
+.booking-journey-head strong {
   color: #102641;
   font-size: 18px;
 }
-.payment-journey-head > span {
+.booking-journey-head > span {
   color: #1b6c4c;
   font-size: 13px;
   font-weight: 700;
   text-align: right;
 }
-.payment-steps {
+.booking-steps {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
@@ -2098,7 +2010,7 @@ td small {
   list-style: none;
   counter-reset: journey;
 }
-.payment-steps li {
+.booking-steps li {
   position: relative;
   display: grid;
   gap: 6px;
@@ -2106,7 +2018,7 @@ td small {
   font-size: 12px;
   font-weight: 700;
 }
-.payment-steps li::before {
+.booking-steps li::before {
   display: grid;
   width: 24px;
   height: 24px;
@@ -2118,24 +2030,19 @@ td small {
   content: counter(journey);
   counter-increment: journey;
 }
-.payment-steps li.done,
-.payment-steps li.current {
+.booking-steps li.done,
+.booking-steps li.current {
   color: #145e44;
 }
-.payment-steps li.done::before {
+.booking-steps li.done::before {
   border-color: #16805d;
   background: #16805d;
   color: #fff;
   content: "✓";
 }
-.payment-steps li.current::before {
+.booking-steps li.current::before {
   border: 5px solid #bd9048;
   color: #8d682b;
-}
-.payment-next-step {
-  margin: 0;
-  color: #536b85;
-  font-size: 13px;
 }
 .boarding-details {
   display: flex;
@@ -2483,25 +2390,17 @@ td small {
   .wallet-ticket-workspace {
     grid-template-columns: 1fr;
   }
-  .payment-journey {
+  .booking-journey {
     padding: 17px;
   }
-  .payment-journey-head {
+  .booking-journey-head {
     display: grid;
   }
-  .payment-journey-head > span {
+  .booking-journey-head > span {
     text-align: left;
   }
-  .payment-steps {
+  .booking-steps {
     grid-template-columns: repeat(2, 1fr);
-  }
-  .payment-qr-card {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    text-align: center;
-  }
-  .payment-qr-copy {
-    justify-items: center;
   }
   .wallet-ticket-stack {
     padding: 12px;

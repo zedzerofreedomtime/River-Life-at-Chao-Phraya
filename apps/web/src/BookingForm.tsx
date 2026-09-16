@@ -169,7 +169,7 @@ export default function BookingForm({
         {busy ? "กำลังสร้างคำสั่งซื้อ…" : "ยืนยันการจอง"}
       </Button>
       <p className="form-foot">
-        หลังยืนยันการจอง กรุณาแนบสลิปในหน้าคำสั่งซื้อเพื่อรับ QR Ticket
+        เมื่อยืนยันการจอง ระบบจะออก QR Ticket ให้ทันที
       </p>
     </form>
   );

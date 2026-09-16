@@ -7,7 +7,6 @@ import IconButton from "@mui/material/IconButton";
 import TextField from "@mui/material/TextField";
 import { QRCodeSVG } from "qrcode.react";
 import {
-  CalendarClock,
   ChevronRight,
   CircleHelp,
   Copy,
@@ -146,19 +145,12 @@ export default function TicketWallet({ initial, initialToken }: Props) {
           <div className="wallet-pending-state">
             <Alert severity="info" className="wallet-status-alert">
               คำสั่งซื้อ #{shortId(booking.id)} อยู่ในสถานะ:{" "}
-              {labels[booking.status]}. กรุณาแนบสลิปในหน้าคำสั่งซื้อเพื่อรับ QR
+              {labels[booking.status]}
             </Alert>
-            <PaymentJourney
-              status={booking.status}
-              ticketCount={tickets.length}
-            />
           </div>
         ) : (
           <>
-            <PaymentJourney
-              status={booking.status}
-              ticketCount={tickets.length}
-            />
+            <TicketJourney ticketCount={tickets.length} />
             <div className="wallet-ticket-workspace">
               <section className="wallet-ticket-stack">
                 <div className="wallet-order-summary">
@@ -285,54 +277,30 @@ function QrDialog({
   );
 }
 
-function PaymentJourney({
-  status,
-  ticketCount,
-}: {
-  status: string;
-  ticketCount: number;
-}) {
-  const confirmed = status === "confirmed";
+function TicketJourney({ ticketCount }: { ticketCount: number }) {
   return (
-    <section className={`payment-journey ${confirmed ? "confirmed" : ""}`}>
-      <div className="payment-journey-head">
+    <section className="booking-journey confirmed">
+      <div className="booking-journey-head">
         <div>
-          <small>สถานะการเดินทาง</small>
-          <strong>
-            {confirmed
-              ? "บัตรของคุณพร้อมใช้งานแล้ว"
-              : "แนบสลิปเพื่อรับ QR Ticket"}
-          </strong>
+          <small>สถานะการจอง</small>
+          <strong>บัตรของคุณพร้อมใช้งานแล้ว</strong>
         </div>
-        <span>
-          {confirmed
-            ? `มี ${ticketCount} QR — แสดงทีละใบเมื่อเข้างาน`
-            : "QR Ticket จะแสดงทันทีหลังแนบสลิป"}
-        </span>
+        <span>มี {ticketCount} QR — แสดงทีละใบเมื่อเข้างาน</span>
       </div>
-      <ol className="payment-steps">
-        <li className={confirmed ? "done" : "current"}>แนบสลิป</li>
-        <li className={confirmed ? "current" : ""}>รับ QR Ticket</li>
+      <ol className="booking-steps">
+        <li className="done">ยืนยันการจอง</li>
+        <li className="current">รับ QR Ticket</li>
         <li>สแกนเข้างาน</li>
       </ol>
-      {confirmed ? (
-        <div className="boarding-details">
-          <span>
-            <MapPin aria-hidden="true" /> ICONSIAM · จุดขึ้นเรือ
-          </span>
-          <span>
-            <CalendarClock aria-hidden="true" /> ขึ้นเรือก่อน 18:45 · ออกเรือ
-            19:00
-          </span>
-          <span>
-            <ShieldAlert aria-hidden="true" /> มาสายจนไม่ทันเรือถือเป็น No-show
-          </span>
-        </div>
-      ) : (
-        <p className="payment-next-step">
-          กลับไปที่หน้าคำสั่งซื้อ แล้วแนบสลิปเพื่อรับ QR Ticket
-        </p>
-      )}
+      <div className="boarding-details">
+        <span>
+          <MapPin aria-hidden="true" /> ICONSIAM · จุดขึ้นเรือ
+        </span>
+        <span>ขึ้นเรือก่อน 18:45 · ออกเรือ 19:00</span>
+        <span>
+          <ShieldAlert aria-hidden="true" /> มาสายจนไม่ทันเรือถือเป็น No-show
+        </span>
+      </div>
     </section>
   );
 }

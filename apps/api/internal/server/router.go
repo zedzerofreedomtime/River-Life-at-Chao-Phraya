@@ -6,22 +6,18 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
 	"github.com/redis/go-redis/v9"
-	"io"
 	"log/slog"
 	"net/http"
-	"os"
-	"path/filepath"
 	"riverlife/api/internal/service"
 	"strings"
 	"time"
 )
 
 type Server struct {
-	Service                  *service.Service
-	Redis                    *redis.Client
-	AdminPassword, UploadDir string
-	SlipAI                   *service.SlipAI
-	Demo                     bool
+	Service       *service.Service
+	Redis         *redis.Client
+	AdminPassword string
+	Demo          bool
 }
 
 func token(c *gin.Context) string { return strings.TrimPrefix(c.GetHeader("Authorization"), "Bearer ") }
@@ -106,7 +102,7 @@ func (s *Server) Router() *gin.Engine {
 			bad(c)
 			return
 		}
-		b, err := s.Service.Hold(c.Request.Context(), in, c.GetHeader("Idempotency-Key"), token(c))
+		b, err := s.Service.Create(c.Request.Context(), in, c.GetHeader("Idempotency-Key"), token(c))
 		if err != nil {
 			fail(c, err)
 			return
@@ -121,7 +117,6 @@ func (s *Server) Router() *gin.Engine {
 		}
 		c.JSON(200, b)
 	})
-	api.POST("/bookings/:id/slip", s.limiter(20), s.slip)
 	api.POST("/admin/login", s.limiter(5), func(c *gin.Context) {
 		var in struct {
 			Password string `json:"password"`
@@ -199,78 +194,4 @@ func (s *Server) Router() *gin.Engine {
 		c.Status(204)
 	})
 	return r
-}
-
-func (s *Server) slip(c *gin.Context) {
-	b, err := s.Service.Get(c.Request.Context(), c.Param("id"), token(c), false)
-	if err != nil {
-		fail(c, err)
-		return
-	}
-	if b.Status != "held" {
-		fail(c, service.ErrConflict)
-		return
-	}
-	f, err := c.FormFile("slip")
-	if err != nil || f.Size > 5<<20 {
-		bad(c)
-		return
-	}
-	file, err := f.Open()
-	if err != nil {
-		fail(c, err)
-		return
-	}
-	defer file.Close()
-	data, err := io.ReadAll(io.LimitReader(file, (5<<20)+1))
-	if err != nil || len(data) > 5<<20 {
-		bad(c)
-		return
-	}
-	mime := http.DetectContentType(data)
-	ext := ""
-	switch mime {
-	case "image/jpeg":
-		ext = ".jpg"
-	case "image/png":
-		ext = ".png"
-	default:
-		bad(c)
-		return
-	}
-	hash := service.Hash(string(data))
-	used, err := s.Service.SlipHashUsed(c.Request.Context(), hash, b.ID)
-	if err != nil {
-		fail(c, err)
-		return
-	}
-	if used {
-		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{"error": "สลิปนี้เคยถูกใช้กับคำสั่งซื้ออื่นแล้ว กรุณาใช้หลักฐานการโอนใหม่"})
-		return
-	}
-	verification, err := s.SlipAI.Verify(c.Request.Context(), data, mime, b.Total)
-	if errors.Is(err, service.ErrVerificationUnavailable) {
-		c.AbortWithStatusJSON(http.StatusServiceUnavailable, gin.H{"error": "ระบบตรวจสลิปอัตโนมัติยังไม่พร้อม กรุณาลองใหม่ภายหลัง"})
-		return
-	}
-	if err != nil {
-		fail(c, err)
-		return
-	}
-	path := service.Token() + ext
-	if err = os.WriteFile(filepath.Join(s.UploadDir, path), data, 0600); err != nil {
-		fail(c, err)
-		return
-	}
-	if err = s.Service.RecordSlipVerification(c.Request.Context(), b.ID, token(c), path, hash, verification); err != nil {
-		_ = os.Remove(filepath.Join(s.UploadDir, path))
-		fail(c, err)
-		return
-	}
-	updated, err := s.Service.Get(c.Request.Context(), b.ID, token(c), false)
-	if err != nil {
-		fail(c, err)
-		return
-	}
-	c.JSON(200, updated)
 }

@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
+import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import Alert from "@mui/material/Alert";
 import { api, labels, money, type Booking } from "./api";
+
 export default function MyBooking({
   initial,
   initialToken,
@@ -12,16 +13,16 @@ export default function MyBooking({
   initialToken: string;
   onOpenTickets?: (booking: Booking) => void;
 }) {
-  const [b, setB] = useState(initial),
-    [id, setId] = useState(
-      initial?.id ?? sessionStorage.getItem("riverlife.booking.id") ?? "",
-    ),
-    [token, setToken] = useState(
-      initialToken || sessionStorage.getItem("riverlife.booking.token") || "",
-    ),
-    [proof, setProof] = useState<File | null>(null),
-    [error, setError] = useState(""),
-    [busy, setBusy] = useState(false);
+  const [booking, setBooking] = useState(initial);
+  const [id, setId] = useState(
+    initial?.id ?? sessionStorage.getItem("riverlife.booking.id") ?? "",
+  );
+  const [token, setToken] = useState(
+    initialToken || sessionStorage.getItem("riverlife.booking.token") || "",
+  );
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
   const load = async () => {
     setBusy(true);
     setError("");
@@ -31,86 +32,61 @@ export default function MyBooking({
         {},
         token,
       );
-      setB(latest);
+      setBooking(latest);
       sessionStorage.setItem("riverlife.booking.id", latest.id);
       sessionStorage.setItem("riverlife.booking.token", token);
-    } catch (e) {
-      setError((e as Error).message);
+    } catch (cause) {
+      setError((cause as Error).message);
     } finally {
       setBusy(false);
     }
   };
+
   useEffect(() => {
-    const savedId =
+    const savedID =
       initial?.id || sessionStorage.getItem("riverlife.booking.id");
     const savedToken =
       initialToken || sessionStorage.getItem("riverlife.booking.token");
-    if (!savedId || !savedToken) return;
-    let active = true;
-    api<Booking>(`/bookings/${encodeURIComponent(savedId)}`, {}, savedToken)
-      .then((latest) => {
-        if (active) setB(latest);
-      })
-      .catch((e: Error) => {
-        if (active) setError(e.message);
-      });
-    return () => {
-      active = false;
-    };
+    if (!savedID || !savedToken) return;
+    void api<Booking>(
+      `/bookings/${encodeURIComponent(savedID)}`,
+      {},
+      savedToken,
+    )
+      .then(setBooking)
+      .catch((cause: Error) => setError(cause.message));
   }, [initial?.id, initialToken]);
-  async function uploadProof() {
-    if (!b || !proof) return;
-    setBusy(true);
-    setError("");
-    try {
-      const form = new FormData();
-      form.append("slip", proof);
-      const updated = await api<Booking>(
-        `/bookings/${b.id}/slip`,
-        { method: "POST", body: form },
-        token,
-      );
-      setB(updated);
-      setProof(null);
-      if (updated.status === "confirmed") onOpenTickets?.(updated);
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  }
+
   return (
     <section className="content-panel">
       <div className="orders-heading">
-        <div>
-          <h1>คำสั่งซื้อของฉัน</h1>
-          <p>ตรวจสอบสถานะการชำระเงินและรายละเอียดคำสั่งซื้อ</p>
-        </div>
+        <h1>คำสั่งซื้อของฉัน</h1>
+        <p>ตรวจสอบรายละเอียดการจอง และเปิด QR Ticket ของคุณ</p>
       </div>
       <div className="grid gap-4 md:grid-cols-3">
         <TextField
           label="รหัสการจอง"
           value={id}
-          onChange={(e) => {
-            setId(e.target.value);
-            setB(null);
+          onChange={(event) => {
+            setId(event.target.value);
+            setBooking(null);
           }}
         />
         <TextField
           label="รหัสเข้าถึงส่วนตัว"
           type="password"
           value={token}
-          onChange={(e) => {
-            setToken(e.target.value);
-            setB(null);
+          onChange={(event) => {
+            setToken(event.target.value);
+            setBooking(null);
           }}
         />
         <Button
           variant="outlined"
-          onClick={load}
+          onClick={() => void load()}
           disabled={busy || !id || !token}
         >
-          ตรวจสอบ / อัปเดตสถานะ
+          เปิดคำสั่งซื้อ
         </Button>
       </div>
       {error && (
@@ -118,16 +94,17 @@ export default function MyBooking({
           {error}
         </Alert>
       )}
-      {b && (
+      {booking && (
         <div className="booking-detail">
           <div className="order-status-bar">
             <h3>
-              โซน {b.zone_id} · {b.quantity} ใบ · {money(b.total)}
+              โซน {booking.zone_id} · {booking.quantity} ใบ ·{" "}
+              {money(booking.total)}
             </h3>
-            <strong>{labels[b.status]}</strong>
+            <strong>{labels[booking.status]}</strong>
           </div>
           <p className="order-person">
-            ผู้สั่งซื้อ: {b.name} · {b.email}
+            ผู้สั่งซื้อ: {booking.name} · {booking.email}
           </p>
           <Alert severity="info">
             เก็บรหัสการจองและรหัสเข้าถึงนี้ไว้เพื่อเปิดบัตรจากเครื่องอื่น
@@ -137,101 +114,25 @@ export default function MyBooking({
             <summary>แสดงรหัสเข้าถึงสำหรับเก็บรักษา</summary>
             <code className="break-all">{token}</code>
           </details>
-          {b.status === "held" && (
-            <div className="payment-proof-flow">
-              <section
-                className="payment-qr-card"
-                aria-label="สแกน QR เพื่อชำระเงิน"
-              >
-                <div className="payment-qr-copy">
-                  <span>ขั้นตอนที่ 1</span>
-                  <h3>สแกน QR เพื่อชำระเงิน</h3>
-                  <p>โอนเงินตามยอดคำสั่งซื้อนี้ แล้วแนบสลิปในขั้นตอนถัดไป</p>
-                  <strong>{money(b.total)}</strong>
-                  <small>โปรดตรวจสอบชื่อบัญชีและยอดเงินก่อนยืนยันการโอน</small>
-                </div>
-                <img
-                  src="/images/payment/promptpay-qr.png"
-                  alt="QR PromptPay สำหรับชำระเงิน"
-                />
-              </section>
-              <section
-                className="order-proof-upload"
-                aria-label="แนบสลิปการชำระเงิน"
-              >
-                <span>ขั้นตอนที่ 2</span>
-                <h3>แนบสลิปการชำระเงิน</h3>
-                <p>
-                  ระบบ AI จะอ่านยอดเงินและรายละเอียดที่มองเห็น ตรวจสลิปซ้ำ
-                  และประเมินความผิดปกติก่อนออก QR Ticket
-                </p>
-                {b.verification.status && (
-                  <Alert
-                    severity={
-                      b.verification.status === "pass"
-                        ? "success"
-                        : b.verification.status === "suspicious"
-                          ? "warning"
-                          : "error"
-                    }
-                  >
-                    <strong>
-                      {b.verification.status === "suspicious"
-                        ? "สลิปนี้ตรวจไม่ผ่านแบบอัตโนมัติ"
-                        : "ไม่สามารถยืนยันสลิปนี้ได้"}
-                    </strong>
-                    {b.verification.reason && ` — ${b.verification.reason}`}
-                    <small className="slip-risk-score">
-                      คะแนนความเสี่ยง {b.verification.score}/100
-                    </small>
-                  </Alert>
-                )}
-                <Button component="label" variant="outlined" disabled={busy}>
-                  {proof ? "เปลี่ยนรูปสลิป" : "เลือกรูปสลิป"}
-                  <input
-                    hidden
-                    type="file"
-                    accept="image/png,image/jpeg"
-                    onChange={(event) => {
-                      const next = event.target.files?.[0] ?? null;
-                      if (next && next.size > 5 * 1024 * 1024) {
-                        setProof(null);
-                        setError("รูปสลิปต้องมีขนาดไม่เกิน 5 MB");
-                        return;
-                      }
-                      setProof(next);
-                    }}
-                  />
-                </Button>
-                <small className={proof ? "selected" : ""}>
-                  {proof ? `เลือกแล้ว: ${proof.name}` : "ยังไม่ได้เลือกรูปสลิป"}
-                </small>
-                <Button
-                  variant="contained"
-                  disabled={busy || !proof}
-                  onClick={() => void uploadProof()}
-                >
-                  {busy ? "กำลังตรวจสลิปด้วย AI…" : "ตรวจสลิปและรับ QR"}
-                </Button>
-                <small>
-                  ผลการตรวจภาพไม่ใช่การยืนยันว่าเงินเข้าบัญชีผู้รับแล้ว
-                </small>
-              </section>
-            </div>
-          )}
-          {b.status === "review" && (
-            <Alert severity="info">ระบบกำลังออก QR Ticket ให้คุณ</Alert>
-          )}
-          {b.status === "confirmed" && (
+          {booking.status === "confirmed" ? (
             <div className="order-success">
               <div>
-                <strong>ยืนยันการจองแล้ว</strong>
-                <span>บัตรอิเล็กทรอนิกส์ {b.tickets.length} ใบพร้อมใช้งาน</span>
+                <strong>จองสำเร็จแล้ว</strong>
+                <span>
+                  QR Ticket จำนวน {booking.tickets.length} ใบพร้อมใช้งาน
+                </span>
               </div>
-              <Button variant="contained" onClick={() => onOpenTickets?.(b)}>
-                ไปที่บัตรของฉัน
+              <Button
+                variant="contained"
+                onClick={() => onOpenTickets?.(booking)}
+              >
+                เปิดบัตรของฉัน
               </Button>
             </div>
+          ) : (
+            <Alert severity="info" sx={{ mt: 2 }}>
+              คำสั่งซื้อนี้อยู่ในสถานะ {labels[booking.status]}
+            </Alert>
           )}
         </div>
       )}

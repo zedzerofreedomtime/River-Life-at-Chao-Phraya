@@ -35,7 +35,7 @@ const nav: [Page, string][] = [
 const checkoutSteps = [
   "เลือกบัตร",
   "ข้อมูลผู้จอง",
-  "ตรวจสลิป AI",
+  "ยืนยันการจอง",
   "รับ QR Ticket",
 ];
 
@@ -107,8 +107,8 @@ export default function App() {
       </header>
       {event?.demo && (
         <div className="demo-banner">
-          ระบบทดลอง · ราคาและโควตาเพื่อทดสอบเท่านั้น · วันงานรอยืนยัน ·
-          ไม่รับชำระเงินจริง
+          ระบบทดลอง · ราคาและโควตาเพื่อทดสอบเท่านั้น · วันงานรอยืนยัน · QR
+          Ticket สำหรับทดสอบ
         </div>
       )}
       <main className={`app-main page-${page}`}>
@@ -153,7 +153,7 @@ export default function App() {
                     "riverlife.booking.token",
                     accessToken,
                   );
-                  go("orders");
+                  go("tickets");
                 }}
               />
             </div>
