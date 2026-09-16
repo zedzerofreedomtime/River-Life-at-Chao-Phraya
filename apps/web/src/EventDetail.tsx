@@ -24,6 +24,8 @@ const bookingVessels = [
     detail: "ดาดฟ้าบน 250 ใบ · ชั้นล่าง 100 ใบ",
     image: "/images/boat/unicorn-night-exterior.jpg",
     capacity: "350 ท่าน",
+    pier: "ท่าเรือ ICONSIAM",
+    departure: "ออกเรือ 19:00",
   },
 ];
 
@@ -117,26 +119,27 @@ export default function EventDetail({
           <h2>เลือกเรือ</h2>
           <p>เลือกเรือก่อนเข้าสู่ขั้นตอนเลือกโซนและบัตร</p>
           {bookingVessels.map((vessel) => (
-            <button
-              className="booking-vessel-card"
-              key={vessel.id}
-              onClick={() => onStartCheckout()}
-            >
-              <img src={vessel.image} alt="" />
-              <span>
-                <small>เรือที่เปิดให้จอง</small>
+            <article className="booking-vessel-card" key={vessel.id}>
+              <img src={vessel.image} alt={`เรือ ${vessel.name}`} />
+              <div className="booking-vessel-copy">
+                <small>{vessel.departure}</small>
                 <strong>{vessel.name}</strong>
                 <em>{vessel.detail}</em>
-                <b>
-                  <UsersRound aria-hidden="true" size={14} /> {vessel.capacity}
-                </b>
-              </span>
-              <ArrowRight aria-hidden="true" size={20} />
-            </button>
+                <div className="booking-vessel-meta">
+                  <span>
+                    <MapPin aria-hidden="true" size={15} /> {vessel.pier}
+                  </span>
+                  <span>
+                    <UsersRound aria-hidden="true" size={15} />{" "}
+                    {vessel.capacity}
+                  </span>
+                </div>
+              </div>
+              <button onClick={() => onStartCheckout()}>
+                เลือกเรือลำนี้ <ArrowRight aria-hidden="true" size={18} />
+              </button>
+            </article>
           ))}
-          <button className="gold-action" onClick={() => onStartCheckout()}>
-            เลือกโซนและบัตร <ArrowRight aria-hidden="true" size={22} />
-          </button>
           <small>ราคาเป็นข้อมูลชั่วคราว รอยืนยันก่อนเปิดขายจริง</small>
         </aside>
       </section>
