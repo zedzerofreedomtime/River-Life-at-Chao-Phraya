@@ -2,7 +2,7 @@
 
 ## Product scope
 
-One cruise-concert booking workflow: vessel selection, zone selection, customer information, 15-minute inventory hold, PNG/JPEG proof upload, automated AI assessment, one QR ticket per guest, single-use check-in, agent attribution, and staff zone price/quota editing. This is a functional local demo, not a live paid event. The current provisional inventory is 100 head-boat tickets plus 150 rear-boat tickets on the upper deck (250 total), and 100 lower-deck tickets (350 total). Prices are explicitly temporary. No event date is invented.
+One cruise-concert booking workflow: zone selection, customer information, 15-minute inventory hold, PNG/JPEG proof upload, automated AI assessment, one QR ticket per guest, single-use check-in, agent attribution, and staff zone price/quota editing. This is a functional local demo, not a live paid event. The current provisional inventory is 100 head-boat tickets plus 150 rear-boat tickets on the upper deck (250 total), and 100 lower-deck tickets (350 total). Prices are explicitly temporary. No event date is invented.
 
 The frontend contract drives Gin endpoints, with PostgreSQL as the durable authority and Redis for ephemeral staff sessions and rate limiting. Browser session storage holds access credentials only, never the authoritative booking state. Frontend and API share one origin through nginx or the Vite proxy.
 
@@ -35,8 +35,6 @@ Proofs: max 5 MB, sniffed PNG/JPEG only, random filenames, private persistent vo
 
 Confirm actual event date, per-zone capacity, views and prices with the operator; replace demo mode with an explicit event publishing workflow and real payment instructions. Add named staff accounts/roles, customer account or email/OTP recovery, provider-backed notifications and reconciliation, camera scanner UI (current check-in accepts scanner/pasted token), agent verification/commission settlement, refund/cancellation policies, pagination/export reports, configured trusted reverse proxy, TLS, retention/backups and secret rotation.
 
-## Fleet-ready catalogue
-
-The web home route is a vessel catalogue, separate from the current vessel’s event detail. The frontend uses a `Vessel` catalogue model (id, name, image, pier, capacity and availability) and routes the active Unicorn vessel to `/boats/unicorn-cruise`. The API remains intentionally single-vessel for this demo. Before a second boat can be sold, add durable `vessels`, `sailings`, and `zone_templates` entities and make bookings reference a sailing-specific zone; never share the current `zones` inventory between different departures.
+Before a second boat can be sold, add durable `vessels`, `sailings`, and `zone_templates` entities and make bookings reference a sailing-specific zone; never share the current `zones` inventory between different departures.
 
 The current migration is a transactional version-2 bootstrap guarded by a PostgreSQL advisory lock. Future revisions must be new versioned migrations rather than changing existing deployed columns in place.
