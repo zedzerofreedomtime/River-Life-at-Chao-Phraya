@@ -4,12 +4,11 @@ import {
   Clock3,
   MapPin,
   ShipWheel,
-  Snowflake,
-  Sun,
   Utensils,
+  UsersRound,
   Waves,
 } from "lucide-react";
-import type { EventInfo, Zone } from "./api";
+import type { EventInfo } from "./api";
 
 const programme = [
   ["Welcome", "ต้อนรับผู้ร่วมงาน ณ ท่าเรือ ICONSIAM"],
@@ -18,11 +17,15 @@ const programme = [
   ["Live music", "สนุกต่อเนื่องไปกับบทเพลงตลอดการล่องเรือ"],
 ];
 
-const zoneMeta: Record<string, { icon: typeof Anchor; description: string }> = {
-  A: { icon: Anchor, description: "ดาดฟ้าบน • โซนพรีเมียมบริเวณหัวเรือ" },
-  B: { icon: Sun, description: "ดาดฟ้าบน • ชมวิวริมแม่น้ำบริเวณท้ายเรือ" },
-  C: { icon: Snowflake, description: "ชั้นล่าง • โซนราคาสบาย ๆ บนเรือ" },
-};
+const bookingVessels = [
+  {
+    id: "unicorn-cruise",
+    name: "ยูนิคอร์นครูซ",
+    detail: "ดาดฟ้าบน 250 ใบ · ชั้นล่าง 100 ใบ",
+    image: "/images/boat/unicorn-night-exterior.jpg",
+    capacity: "350 ท่าน",
+  },
+];
 
 export default function EventDetail({
   event,
@@ -111,13 +114,28 @@ export default function EventDetail({
           <span className="event-signoff">BANGKOK LIVES ON THE RIVER</span>
         </article>
         <aside className="ticket-picker">
-          <h2>เลือกบัตร</h2>
-          <p>เลือกโซนที่นั่งบนเรือ</p>
-          {event.zones.map((zone) => (
-            <ZoneRow key={zone.id} zone={zone} onChoose={onStartCheckout} />
+          <h2>เลือกเรือ</h2>
+          <p>เลือกเรือก่อนเข้าสู่ขั้นตอนเลือกโซนและบัตร</p>
+          {bookingVessels.map((vessel) => (
+            <button
+              className="booking-vessel-card"
+              key={vessel.id}
+              onClick={() => onStartCheckout()}
+            >
+              <img src={vessel.image} alt="" />
+              <span>
+                <small>เรือที่เปิดให้จอง</small>
+                <strong>{vessel.name}</strong>
+                <em>{vessel.detail}</em>
+                <b>
+                  <UsersRound aria-hidden="true" size={14} /> {vessel.capacity}
+                </b>
+              </span>
+              <ArrowRight aria-hidden="true" size={20} />
+            </button>
           ))}
           <button className="gold-action" onClick={() => onStartCheckout()}>
-            เลือกบัตร <ArrowRight aria-hidden="true" size={22} />
+            เลือกโซนและบัตร <ArrowRight aria-hidden="true" size={22} />
           </button>
           <small>ราคาเป็นข้อมูลชั่วคราว รอยืนยันก่อนเปิดขายจริง</small>
         </aside>
@@ -143,27 +161,5 @@ function Fact({
         {value}
       </span>
     </div>
-  );
-}
-
-function ZoneRow({
-  zone,
-  onChoose,
-}: {
-  zone: Zone;
-  onChoose: (zone: string) => void;
-}) {
-  const meta = zoneMeta[zone.id] ?? zoneMeta.C;
-  const Icon = meta.icon;
-  return (
-    <button className="zone-row" onClick={() => onChoose(zone.id)}>
-      <Icon aria-hidden="true" />
-      <span>
-        <strong>{zone.name}</strong>
-        <small>{meta.description}</small>
-      </span>
-      <em>ราคาเริ่มต้นชั่วคราว</em>
-      <ArrowRight aria-hidden="true" size={19} />
-    </button>
   );
 }
