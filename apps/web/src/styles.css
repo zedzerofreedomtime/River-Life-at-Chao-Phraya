@@ -559,6 +559,37 @@ body {
   .page-event {
     padding: 0;
   }
+  .vessel-catalog-hero {
+    min-height: 238px;
+    padding: 37px 20px;
+    gap: 22px;
+  }
+  .vessel-catalog-hero h1 {
+    font-size: 34px;
+  }
+  .vessel-catalog-hero p {
+    font-size: 14px;
+  }
+  .vessel-search {
+    height: 51px;
+    padding: 0 15px;
+  }
+  .vessel-search input {
+    font-size: 14px;
+  }
+  .vessel-catalog-content {
+    padding: 28px 20px 52px;
+  }
+  .vessel-list-heading h2 {
+    font-size: 23px;
+  }
+  .vessel-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .vessel-card > img {
+    height: 205px;
+  }
   .event-hero {
     min-height: 390px;
     height: 70vw;
@@ -1351,6 +1382,197 @@ td small {
 }
 .page-event {
   padding: 0;
+}
+.page-fleet {
+  max-width: none;
+  padding: 0;
+}
+.vessel-catalog {
+  min-height: calc(100vh - 154px);
+  background: #fff;
+}
+.vessel-catalog-hero {
+  min-height: 264px;
+  padding: 52px max(52px, calc((100vw - 1336px) / 2));
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 26px;
+  color: #fff;
+  text-align: center;
+  background:
+    linear-gradient(
+      108deg,
+      rgba(8, 40, 92, 0.94),
+      rgba(23, 136, 209, 0.78) 49%,
+      rgba(61, 183, 151, 0.72)
+    ),
+    url("/images/boat/unicorn-night-exterior.jpg") center 54% / cover;
+}
+.vessel-catalog-hero h1 {
+  margin: 0;
+  font:
+    700 clamp(33px, 4vw, 51px) "Noto Sans Thai",
+    sans-serif;
+  letter-spacing: -1.5px;
+}
+.vessel-catalog-hero p {
+  margin: 6px 0 0;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 16px;
+}
+.vessel-search {
+  width: min(100%, 580px);
+  height: 56px;
+  padding: 0 19px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #68809f;
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(3, 31, 72, 0.2);
+}
+.vessel-search input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  color: #102641;
+  background: transparent;
+  font-size: 16px;
+}
+.vessel-search input::placeholder {
+  color: #8b9aae;
+}
+.vessel-catalog-content {
+  max-width: 1336px;
+  margin: 0 auto;
+  padding: 42px 52px 80px;
+}
+.vessel-list-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 21px;
+}
+.vessel-list-heading h2 {
+  margin: 0;
+  color: #102641;
+  font-size: 27px;
+}
+.vessel-list-heading span {
+  color: #537091;
+  font-size: 14px;
+}
+.vessel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(274px, 1fr));
+  gap: 30px;
+}
+.vessel-card {
+  overflow: hidden;
+  border: 1px solid #e0e6ee;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 7px 20px rgba(18, 48, 84, 0.07);
+}
+.vessel-card > img {
+  width: 100%;
+  height: 220px;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+  background: #e7eef5;
+}
+.vessel-card-body {
+  padding: 19px 20px 21px;
+}
+.vessel-card-title {
+  display: grid;
+  gap: 2px;
+}
+.vessel-card-title span {
+  color: #aa7c32;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+.vessel-card-title h3 {
+  margin: 0;
+  color: #102641;
+  font-size: 22px;
+}
+.vessel-card-body > p {
+  min-height: 47px;
+  margin: 8px 0 15px;
+  color: #65758a;
+  font-size: 14px;
+  line-height: 1.65;
+}
+.vessel-card dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 0 0 18px;
+}
+.vessel-card dl div {
+  min-width: 0;
+}
+.vessel-card dt {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #718197;
+  font-size: 11px;
+}
+.vessel-card dt svg {
+  color: #b89152;
+}
+.vessel-card dd {
+  margin: 3px 0 0 22px;
+  color: #18304d;
+  font-size: 13px;
+  font-weight: 700;
+}
+.vessel-open-button {
+  width: 100%;
+  min-height: 43px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 0;
+  border-radius: 7px;
+  color: #fff;
+  background: #0c3767;
+  font-size: 15px;
+  font-weight: 700;
+}
+.vessel-open-button:hover:not(:disabled) {
+  background: #092c54;
+}
+.vessel-open-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.vessel-empty {
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  color: #667991;
+  border: 1px dashed #cbd6e2;
+  border-radius: 12px;
+}
+.vessel-empty svg {
+  color: #b89152;
+}
+.vessel-empty strong {
+  color: #263d59;
+}
+.vessel-empty span {
+  font-size: 13px;
 }
 .event-hero {
   height: 330px;

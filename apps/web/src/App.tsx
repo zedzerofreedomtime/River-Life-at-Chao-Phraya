@@ -12,10 +12,13 @@ import MyBooking from "./MyBooking";
 import TicketWallet from "./TicketWallet";
 import Admin from "./Admin";
 import { api, type Booking, type EventInfo } from "./api";
+import VesselCatalog from "./VesselCatalog";
+import { vessels, type Vessel } from "./vessels";
 
-type Page = "event" | "checkout" | "orders" | "tickets" | "admin";
+type Page = "fleet" | "event" | "checkout" | "orders" | "tickets" | "admin";
 const pagePaths: Record<Page, string> = {
-  event: "/",
+  fleet: "/",
+  event: "/boats/unicorn-cruise",
   checkout: "/checkout",
   orders: "/orders",
   tickets: "/tickets",
@@ -27,7 +30,7 @@ const pathPages: Record<string, Page> = Object.fromEntries(
 const pageFromLocation = (): Page =>
   pathPages[window.location.pathname] ?? "event";
 const nav: [Page, string][] = [
-  ["event", "งานแสดง"],
+  ["fleet", "เรือของเรา"],
   ["tickets", "บัตรของฉัน"],
   ["orders", "คำสั่งซื้อ"],
   ["admin", "เจ้าหน้าที่"],
@@ -69,7 +72,13 @@ export default function App() {
       window.history.pushState(null, "", nextPath);
     }
     setPage(next);
-    if (next === "event") void loadEvent();
+    if (next === "event" || next === "fleet") void loadEvent();
+  };
+  const openVessel = (vessel: Vessel) => {
+    // At present one active vessel is configured. The vessel id is deliberately
+    // part of navigation so more vessels/sailings can be introduced without
+    // breaking customer URLs.
+    if (vessel.id === "unicorn-cruise") go("event");
   };
   const goCheckout = (preferredZone?: string) => {
     if (preferredZone) setZone(preferredZone);
@@ -82,7 +91,7 @@ export default function App() {
       >
         <button
           className="river-brand"
-          onClick={() => go("event")}
+          onClick={() => go("fleet")}
           aria-label="กลับไปหน้ารวมงาน"
         >
           RIVER LIFE <small>MUSIC ON THE RIVER</small>
@@ -120,13 +129,16 @@ export default function App() {
             {error}
           </Alert>
         )}
+        {page === "fleet" && (
+          <VesselCatalog vessels={vessels} onOpen={openVessel} />
+        )}
         {page === "event" && event && (
           <EventDetail event={event} onStartCheckout={goCheckout} />
         )}
         {page === "checkout" && event && (
           <section className="checkout-page">
             <button className="back-link" onClick={() => go("event")}>
-              ← กลับไปดูรายละเอียดงาน
+              ← กลับไปดูรายละเอียดเรือ
             </button>
             <Stepper activeStep={0} alternativeLabel className="checkout-steps">
               {checkoutSteps.map((label) => (
