@@ -1,68 +1,100 @@
-import { useState } from "react";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
+import { useEffect, useState } from "react";
 import Alert from "@mui/material/Alert";
+import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import TextField from "@mui/material/TextField";
 import { api, labels, money, type Booking } from "./api";
 import ZoneEditor from "./ZoneEditor";
+
 export default function Admin() {
-  const [token, setToken] = useState(
-      sessionStorage.getItem("riverlife.admin") ?? "",
-    ),
-    [password, setPassword] = useState(""),
-    [rows, setRows] = useState<Booking[]>([]),
-    [error, setError] = useState(""),
-    [message, setMessage] = useState(""),
-    [busy, setBusy] = useState(false),
-    [ticket, setTicket] = useState(""),
-    [search, setSearch] = useState("");
+  const [authenticated, setAuthenticated] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
+  const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(true);
+  const [rows, setRows] = useState<Booking[]>([]);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [ticket, setTicket] = useState("");
+  const [search, setSearch] = useState("");
+
+  const refresh = async () => setRows(await api<Booking[]>("/admin/bookings"));
+
   async function run(fn: () => Promise<void>) {
     setBusy(true);
     setError("");
     setMessage("");
     try {
       await fn();
-    } catch (e) {
-      setError((e as Error).message);
+    } catch (cause) {
+      setError((cause as Error).message);
     } finally {
       setBusy(false);
     }
   }
-  const refresh = async (t = token) =>
-    setRows(await api<Booking[]>("/admin/bookings", {}, t));
-  async function login(e: React.FormEvent) {
-    e.preventDefault();
+
+  useEffect(() => {
+    void api<void>("/admin/session")
+      .then(async () => {
+        setAuthenticated(true);
+        await refresh();
+      })
+      .catch(() => setAuthenticated(false))
+      .finally(() => setCheckingSession(false));
+  }, []);
+
+  async function login(event: React.FormEvent) {
+    event.preventDefault();
     await run(async () => {
-      const r = await api<{ token: string }>("/admin/login", {
+      await api<void>("/admin/login", {
         method: "POST",
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ password, remember }),
       });
-      setToken(r.token);
-      sessionStorage.setItem("riverlife.admin", r.token);
       setPassword("");
-      await refresh(r.token);
-    });
-  }
-  async function decide(id: string, action: string) {
-    await run(async () => {
-      await api(
-        `/admin/bookings/${id}/decision`,
-        { method: "POST", body: JSON.stringify({ action }) },
-        token,
-      );
+      setAuthenticated(true);
       await refresh();
     });
   }
+
+  async function decide(id: string, action: string) {
+    await run(async () => {
+      await api(`/admin/bookings/${id}/decision`, {
+        method: "POST",
+        body: JSON.stringify({ action }),
+      });
+      await refresh();
+    });
+  }
+
+  if (checkingSession) {
+    return (
+      <section className="content-panel">
+        กำลังตรวจสอบสิทธิ์เจ้าหน้าที่…
+      </section>
+    );
+  }
+
   return (
     <section className="content-panel">
       <h2>จัดการการจอง</h2>
-      {!token ? (
+      {!authenticated ? (
         <form onSubmit={login} className="flex flex-wrap gap-4 max-w-lg">
           <TextField
             label="รหัสผ่านเจ้าหน้าที่"
             type="password"
             value={password}
             required
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={remember}
+                onChange={(event) => setRemember(event.target.checked)}
+              />
+            }
+            label="จำเครื่องนี้ 7 วัน"
           />
           <Button type="submit" variant="contained" disabled={busy}>
             เข้าสู่ระบบ
@@ -74,17 +106,16 @@ export default function Admin() {
             <Button
               variant="outlined"
               disabled={busy}
-              onClick={() => run(() => refresh())}
+              onClick={() => void run(refresh)}
             >
               โหลดรายการล่าสุด
             </Button>
             <Button
               onClick={() =>
-                run(async () => {
-                  await api("/admin/logout", { method: "POST" }, token);
-                  setToken("");
+                void run(async () => {
+                  await api("/admin/logout", { method: "POST" });
+                  setAuthenticated(false);
                   setRows([]);
-                  sessionStorage.removeItem("riverlife.admin");
                 })
               }
             >
@@ -95,23 +126,22 @@ export default function Admin() {
             <TextField
               label="ค้นหาชื่อ อีเมล รหัส หรือตัวแทน"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(event) => setSearch(event.target.value)}
             />
             <TextField
               label="สแกน / วางรหัสบัตร"
               value={ticket}
-              onChange={(e) => setTicket(e.target.value)}
+              onChange={(event) => setTicket(event.target.value)}
             />
             <Button
               variant="contained"
               disabled={busy || ticket.length !== 64}
               onClick={() =>
-                run(async () => {
-                  await api(
-                    "/admin/check-in",
-                    { method: "POST", body: JSON.stringify({ ticket }) },
-                    token,
-                  );
+                void run(async () => {
+                  await api("/admin/check-in", {
+                    method: "POST",
+                    body: JSON.stringify({ ticket }),
+                  });
                   setMessage("เช็กอินสำเร็จ");
                   setTicket("");
                 })
@@ -120,7 +150,7 @@ export default function Admin() {
               เช็กอินบัตร
             </Button>
           </div>
-          <ZoneEditor token={token} />
+          <ZoneEditor token="" />
           <div className="table-wrap">
             <table>
               <thead>
@@ -134,29 +164,31 @@ export default function Admin() {
               </thead>
               <tbody>
                 {rows
-                  .filter((b) =>
-                    `${b.name} ${b.email} ${b.id} ${b.agent_code}`
+                  .filter((booking) =>
+                    `${booking.name} ${booking.email} ${booking.id} ${booking.agent_code}`
                       .toLowerCase()
                       .includes(search.toLowerCase()),
                   )
-                  .map((b) => (
-                    <tr key={b.id}>
+                  .map((booking) => (
+                    <tr key={booking.id}>
                       <td>
-                        <strong>{b.name}</strong>
-                        <small>{b.email}</small>
-                        <small>{b.id}</small>
-                        {b.agent_code && <small>ตัวแทน: {b.agent_code}</small>}
+                        <strong>{booking.name}</strong>
+                        <small>{booking.email}</small>
+                        <small>{booking.id}</small>
+                        {booking.agent_code && (
+                          <small>ตัวแทน: {booking.agent_code}</small>
+                        )}
                       </td>
                       <td>
-                        {b.zone_id} / {b.quantity} ใบ
+                        {booking.zone_id} / {booking.quantity} ใบ
                       </td>
-                      <td>{money(b.total)}</td>
-                      <td>{labels[b.status]}</td>
+                      <td>{money(booking.total)}</td>
+                      <td>{labels[booking.status]}</td>
                       <td>
-                        {b.status === "confirmed" && (
+                        {booking.status === "confirmed" && (
                           <Button
                             disabled={busy}
-                            onClick={() => decide(b.id, "no_show")}
+                            onClick={() => void decide(booking.id, "no_show")}
                           >
                             No-show
                           </Button>
@@ -167,9 +199,7 @@ export default function Admin() {
               </tbody>
             </table>
             {rows.length === 0 && (
-              <p className="muted py-6">
-                ยังไม่มีรายการที่โหลด กด “โหลดรายการล่าสุด”
-              </p>
+              <p className="muted py-6">ยังไม่มีรายการที่โหลด</p>
             )}
           </div>
         </>

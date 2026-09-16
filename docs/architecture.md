@@ -25,7 +25,7 @@ Row locks on the zone serialize competing holds and capacity edits. Inventory is
 
 ## Access
 
-Customer booking access uses a cryptographically random 256-bit bearer secret; PostgreSQL stores only its SHA-256 hash. It is not a substitute for a future customer account recovery flow. Ticket QR values are separate 256-bit secrets. Staff sessions use independently generated tokens, hashed Redis keys, 8-hour expiry and explicit logout. Staff password comes from the ignored environment file. There are no committed passwords.
+Customer booking access uses a cryptographically random 256-bit bearer secret; PostgreSQL stores only its SHA-256 hash. It is not a substitute for a future customer account recovery flow. Ticket QR values are separate 256-bit secrets. Staff sessions use independently generated tokens, hashed Redis keys, an HttpOnly/SameSite=Strict cookie and explicit logout. A normal staff session ends with the browser session; “remember this device” lasts seven days. `COOKIE_SECURE` must be true on HTTPS deployments. Staff password comes from the ignored environment file. There are no committed passwords.
 
 Rate limiting uses atomic INCR + EXPIRE via Redis Lua, a 60-second TTL, and fails closed if Redis is unavailable. Reverse proxy deployment must configure trusted proxy addresses explicitly; default Gin does not trust forwarded IP headers. Behind the supplied nginx, rate limits currently group requests by proxy IP (conservative shared limit).
 

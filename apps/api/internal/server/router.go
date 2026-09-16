@@ -21,10 +21,21 @@ type Server struct {
 	Redis         *redis.Client
 	UploadDir     string
 	AdminPassword string
+	CookieSecure  bool
 	Demo          bool
 }
 
 func token(c *gin.Context) string { return strings.TrimPrefix(c.GetHeader("Authorization"), "Bearer ") }
+
+const adminCookie = "riverlife_admin"
+
+func adminToken(c *gin.Context) string {
+	if header := token(c); header != "" {
+		return header
+	}
+	cookie, _ := c.Cookie(adminCookie)
+	return cookie
+}
 func fail(c *gin.Context, err error) {
 	code := 500
 	msg := "ระบบไม่พร้อม กรุณาลองใหม่"
@@ -63,7 +74,7 @@ func (s *Server) limiter(limit int) gin.HandlerFunc {
 	}
 }
 func (s *Server) admin(c *gin.Context) {
-	v, err := s.Redis.Get(c.Request.Context(), "riverlife:session:"+service.Hash(token(c))).Result()
+	v, err := s.Redis.Get(c.Request.Context(), "riverlife:session:"+service.Hash(adminToken(c))).Result()
 	if err != nil || v != "admin" {
 		c.AbortWithStatusJSON(401, gin.H{"error": "กรุณาเข้าสู่ระบบเจ้าหน้าที่"})
 		return
@@ -166,6 +177,7 @@ func (s *Server) Router() *gin.Engine {
 	api.POST("/admin/login", s.limiter(5), func(c *gin.Context) {
 		var in struct {
 			Password string `json:"password"`
+			Remember bool   `json:"remember"`
 		}
 		if c.ShouldBindJSON(&in) != nil {
 			bad(c)
@@ -177,18 +189,25 @@ func (s *Server) Router() *gin.Engine {
 			return
 		}
 		t := service.Token()
-		if err := s.Redis.Set(c.Request.Context(), "riverlife:session:"+service.Hash(t), "admin", 8*time.Hour).Err(); err != nil {
+		ttl, maxAge := 8*time.Hour, 0
+		if in.Remember {
+			ttl, maxAge = 7*24*time.Hour, int((7 * 24 * time.Hour).Seconds())
+		}
+		if err := s.Redis.Set(c.Request.Context(), "riverlife:session:"+service.Hash(t), "admin", ttl).Err(); err != nil {
 			fail(c, err)
 			return
 		}
-		c.JSON(200, gin.H{"token": t})
+		c.SetCookie(adminCookie, t, maxAge, "/api/v1/admin", "", s.CookieSecure, true)
+		c.Status(http.StatusNoContent)
 	})
 	admin := api.Group("/admin", s.admin)
+	admin.GET("/session", func(c *gin.Context) { c.Status(http.StatusNoContent) })
 	admin.POST("/logout", func(c *gin.Context) {
-		if err := s.Redis.Del(c.Request.Context(), "riverlife:session:"+service.Hash(token(c))).Err(); err != nil {
+		if err := s.Redis.Del(c.Request.Context(), "riverlife:session:"+service.Hash(adminToken(c))).Err(); err != nil {
 			fail(c, err)
 			return
 		}
+		c.SetCookie(adminCookie, "", -1, "/api/v1/admin", "", s.CookieSecure, true)
 		c.Status(204)
 	})
 	admin.GET("/bookings", func(c *gin.Context) {

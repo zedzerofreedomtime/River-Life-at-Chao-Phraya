@@ -25,6 +25,7 @@ services:
       REDIS_URL: redis://redis:6379/0
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in .env}
       UPLOAD_DIR: /data/uploads
+      COOKIE_SECURE: "false"
       DEMO_MODE: "true"
       GIN_MODE: release
     ports: ["127.0.0.1:8088:8080"]
