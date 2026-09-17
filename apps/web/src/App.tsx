@@ -4,7 +4,7 @@ import Button from "@mui/material/Button";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Stepper from "@mui/material/Stepper";
-import { CircleUserRound, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import EventDetail from "./EventDetail";
 import BoatMap from "./BoatMap";
 import BookingForm from "./BookingForm";
@@ -13,6 +13,7 @@ import Payment from "./Payment";
 import BookingSuccess from "./BookingSuccess";
 import TicketWallet from "./TicketWallet";
 import Admin from "./Admin";
+import ProfileMenu from "./ProfileMenu";
 import { api, type Booking, type EventInfo } from "./api";
 
 type Page =
@@ -46,6 +47,14 @@ export default function App() {
   const [zone, setZone] = useState("A");
   const [booking, setBooking] = useState<Booking | null>(null);
   const [token, setToken] = useState("");
+  const [profile, setProfile] = useState(() => ({
+    name:
+      sessionStorage.getItem("riverlife.profile.name") ||
+      "ผู้ใช้งาน River Life",
+    email:
+      sessionStorage.getItem("riverlife.profile.email") ||
+      "ยังไม่ได้เข้าสู่ระบบ",
+  }));
   const loadEvent = () =>
     api<EventInfo>("/event")
       .then((data) => {
@@ -75,6 +84,26 @@ export default function App() {
     if (preferredZone) setZone(preferredZone);
     go("checkout");
   };
+  const rememberBooking = (data: Booking, accessToken: string) => {
+    setBooking(data);
+    setToken(accessToken);
+    const nextProfile = { name: data.name, email: data.email };
+    setProfile(nextProfile);
+    sessionStorage.setItem("riverlife.booking.id", data.id);
+    sessionStorage.setItem("riverlife.booking.token", accessToken);
+    sessionStorage.setItem("riverlife.profile.name", data.name);
+    sessionStorage.setItem("riverlife.profile.email", data.email);
+  };
+  const logoutCustomer = () => {
+    sessionStorage.removeItem("riverlife.booking.id");
+    sessionStorage.removeItem("riverlife.booking.token");
+    sessionStorage.removeItem("riverlife.profile.name");
+    sessionStorage.removeItem("riverlife.profile.email");
+    setBooking(null);
+    setToken("");
+    setProfile({ name: "ผู้ใช้งาน River Life", email: "ยังไม่ได้เข้าสู่ระบบ" });
+    go("event");
+  };
   return (
     <>
       <header
@@ -100,9 +129,12 @@ export default function App() {
         </nav>
         <div className="market-tools" aria-label="เครื่องมือผู้ใช้">
           {page === "tickets" ? null : <Search aria-hidden="true" size={22} />}
-          <button aria-label="บัตรของฉัน" onClick={() => go("tickets")}>
-            <CircleUserRound aria-hidden="true" size={29} />
-          </button>
+          <ProfileMenu
+            name={profile.name}
+            email={profile.email}
+            onNavigate={go}
+            onLogout={logoutCustomer}
+          />
         </div>
       </header>
       {event?.demo && (
@@ -146,13 +178,7 @@ export default function App() {
                 selected={zone}
                 onSelect={setZone}
                 onBooked={(data, accessToken) => {
-                  setBooking(data);
-                  setToken(accessToken);
-                  sessionStorage.setItem("riverlife.booking.id", data.id);
-                  sessionStorage.setItem(
-                    "riverlife.booking.token",
-                    accessToken,
-                  );
+                  rememberBooking(data, accessToken);
                   go("payment");
                 }}
               />
