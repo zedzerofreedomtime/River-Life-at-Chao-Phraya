@@ -48,7 +48,7 @@ export const labels: Record<string, string> = {
   review: "กำลังดำเนินการ",
   confirmed: "ยืนยันแล้ว",
   expired: "หมดเวลาจอง",
-  cancelled: "ไม่อนุมัติ",
+  cancelled: "ยกเลิกแล้ว",
   no_show: "ไม่มาทันเรือ",
 };
 export async function api<T>(

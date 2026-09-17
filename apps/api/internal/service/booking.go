@@ -274,6 +274,37 @@ func (s *Service) Decide(ctx context.Context, id, action string) error {
 	}
 	return tx.Commit(ctx)
 }
+
+// CancelByAdmin cancels a booking before any ticket in it has been checked in.
+// It does not initiate a refund; payment reconciliation is handled separately.
+func (s *Service) CancelByAdmin(ctx context.Context, id string) error {
+	tx, err := s.DB.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+	var status string
+	if err = tx.QueryRow(ctx, "SELECT status FROM bookings WHERE id=$1 FOR UPDATE", id).Scan(&status); err != nil {
+		return err
+	}
+	if status != "held" && status != "confirmed" {
+		return ErrConflict
+	}
+	var checkedIn int
+	if err = tx.QueryRow(ctx, "SELECT COUNT(*) FROM tickets WHERE booking_id=$1 AND checked_in_at IS NOT NULL", id).Scan(&checkedIn); err != nil {
+		return err
+	}
+	if checkedIn > 0 {
+		return ErrConflict
+	}
+	if _, err = tx.Exec(ctx, "UPDATE bookings SET status='cancelled' WHERE id=$1", id); err != nil {
+		return err
+	}
+	if _, err = tx.Exec(ctx, "INSERT INTO audit_log(booking_id,action) VALUES($1,'booking_cancelled_by_admin')", id); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
+}
 func (s *Service) CheckIn(ctx context.Context, token string) error {
 	tx, err := s.DB.Begin(ctx)
 	if err != nil {

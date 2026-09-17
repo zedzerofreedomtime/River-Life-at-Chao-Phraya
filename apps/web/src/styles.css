@@ -307,6 +307,9 @@
   padding: 12px 0;
   text-align: center;
 }
+.admin-action-muted {
+  color: #9ba8b7;
+}
 .market-header-dark .profile-trigger:hover,
 .market-header-dark .profile-trigger[aria-expanded="true"] {
   background: rgba(255, 255, 255, 0.12);

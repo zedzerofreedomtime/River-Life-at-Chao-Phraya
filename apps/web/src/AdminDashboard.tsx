@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 import { BarChart3, Clock3, TicketCheck, Users } from "lucide-react";
 import { api, labels, money, type AdminDashboardData } from "./api";
 
@@ -10,6 +15,10 @@ export default function AdminDashboard() {
   const [data, setData] = useState<AdminDashboardData | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [cancelTarget, setCancelTarget] = useState<
+    AdminDashboardData["bookings"][number] | null
+  >(null);
+  const [cancelling, setCancelling] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -27,6 +36,22 @@ export default function AdminDashboard() {
   useEffect(() => {
     void load();
   }, []);
+  const cancelBooking = async () => {
+    if (!cancelTarget) return;
+    setCancelling(true);
+    setError("");
+    try {
+      await api<void>(`/dashboard/admin/bookings/${cancelTarget.id}/cancel`, {
+        method: "POST",
+      });
+      setCancelTarget(null);
+      await load();
+    } catch (cause) {
+      setError((cause as Error).message);
+    } finally {
+      setCancelling(false);
+    }
+  };
 
   return (
     <section
@@ -119,6 +144,7 @@ export default function AdminDashboard() {
                     <th>จำนวน</th>
                     <th>ยอดรวม</th>
                     <th>สถานะ</th>
+                    <th>จัดการ</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -141,6 +167,20 @@ export default function AdminDashboard() {
                           {labels[booking.status] ?? booking.status}
                         </span>
                       </td>
+                      <td>
+                        {booking.status === "held" ||
+                        booking.status === "confirmed" ? (
+                          <Button
+                            color="error"
+                            size="small"
+                            onClick={() => setCancelTarget(booking)}
+                          >
+                            ยกเลิกการจอง
+                          </Button>
+                        ) : (
+                          <span className="admin-action-muted">—</span>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -152,6 +192,35 @@ export default function AdminDashboard() {
           </section>
         </>
       ) : null}
+      <Dialog
+        open={cancelTarget !== null}
+        onClose={() => !cancelling && setCancelTarget(null)}
+        aria-labelledby="cancel-booking-title"
+      >
+        <DialogTitle id="cancel-booking-title">
+          ยืนยันการยกเลิกการจอง
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            ยกเลิกคำสั่งซื้อของ {cancelTarget?.name} แล้วโควตา{" "}
+            {cancelTarget?.quantity ?? 0} ใบจะกลับเข้าสู่ระบบทันที
+            การดำเนินการนี้ไม่คืนเงินอัตโนมัติ
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCancelTarget(null)} disabled={cancelling}>
+            กลับ
+          </Button>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={() => void cancelBooking()}
+            disabled={cancelling}
+          >
+            ยืนยันการยกเลิก
+          </Button>
+        </DialogActions>
+      </Dialog>
     </section>
   );
 }

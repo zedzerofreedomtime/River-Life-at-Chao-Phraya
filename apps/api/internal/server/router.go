@@ -445,6 +445,13 @@ func (s *Server) Router() *gin.Engine {
 		}
 		c.JSON(http.StatusOK, data)
 	})
+	dashboard.POST("/bookings/:id/cancel", func(c *gin.Context) {
+		if err := s.Service.CancelByAdmin(c.Request.Context(), c.Param("id")); err != nil {
+			fail(c, err)
+			return
+		}
+		c.Status(http.StatusNoContent)
+	})
 	api.POST("/admin/login", s.limiter(5), func(c *gin.Context) {
 		var in struct {
 			Password string `json:"password"`
