@@ -28,6 +28,15 @@ export type Booking = {
   has_attachment: boolean;
   tickets: { id: string; checked_in_at: string | null }[];
 };
+export type AdminDashboardData = {
+  booking_count: number;
+  confirmed_tickets: number;
+  confirmed_revenue: number;
+  active_holds: number;
+  member_count: number;
+  zones: Zone[];
+  bookings: Booking[];
+};
 export const money = (n: number) =>
   new Intl.NumberFormat("th-TH", {
     style: "currency",

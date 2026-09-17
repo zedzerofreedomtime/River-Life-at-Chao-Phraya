@@ -14,10 +14,18 @@ import BookingSuccess from "./BookingSuccess";
 import TicketWallet from "./TicketWallet";
 import ProfileMenu from "./ProfileMenu";
 import Auth, { type AuthUser } from "./Auth";
+import AdminDashboard from "./AdminDashboard";
 import { api, type Booking, type EventInfo } from "./api";
 
 type Page =
-  "event" | "checkout" | "payment" | "success" | "orders" | "tickets" | "auth";
+  | "event"
+  | "checkout"
+  | "payment"
+  | "success"
+  | "orders"
+  | "tickets"
+  | "auth"
+  | "dashboard";
 const pagePaths: Record<Page, string> = {
   event: "/",
   checkout: "/checkout",
@@ -26,6 +34,7 @@ const pagePaths: Record<Page, string> = {
   orders: "/orders",
   tickets: "/tickets",
   auth: "/auth",
+  dashboard: "/dashboard",
 };
 const pathPages: Record<string, Page> = Object.fromEntries(
   Object.entries(pagePaths).map(([page, path]) => [path, page as Page]),
@@ -53,6 +62,7 @@ export default function App() {
     email:
       sessionStorage.getItem("riverlife.profile.email") ||
       "ยังไม่ได้เข้าสู่ระบบ",
+    role: sessionStorage.getItem("riverlife.profile.role") || "user",
   }));
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const loadEvent = () =>
@@ -77,7 +87,14 @@ export default function App() {
         setProfile({
           name: user.name || "ผู้ใช้งาน River Life",
           email: user.email,
+          role: user.role || "user",
         });
+        sessionStorage.setItem(
+          "riverlife.profile.name",
+          user.name || "ผู้ใช้งาน River Life",
+        );
+        sessionStorage.setItem("riverlife.profile.email", user.email);
+        sessionStorage.setItem("riverlife.profile.role", user.role || "user");
         setIsAuthenticated(true);
       })
       .catch(() => setIsAuthenticated(false));
@@ -112,7 +129,14 @@ export default function App() {
     setToken("");
     void api<void>("/auth/logout", { method: "POST" }).catch(() => undefined);
     setIsAuthenticated(false);
-    setProfile({ name: "ผู้ใช้งาน River Life", email: "ยังไม่ได้เข้าสู่ระบบ" });
+    sessionStorage.removeItem("riverlife.profile.name");
+    sessionStorage.removeItem("riverlife.profile.email");
+    sessionStorage.removeItem("riverlife.profile.role");
+    setProfile({
+      name: "ผู้ใช้งาน River Life",
+      email: "ยังไม่ได้เข้าสู่ระบบ",
+      role: "user",
+    });
     go("event");
   };
   return (
@@ -131,7 +155,10 @@ export default function App() {
           </span>
         </button>
         <nav aria-label="เมนูหลัก">
-          {nav.map(([key, label]) => (
+          {(profile.role === "admin"
+            ? [...nav, ["dashboard", "แดชบอร์ด"] as [Page, string]]
+            : nav
+          ).map(([key, label]) => (
             <button
               key={key}
               className={page === key ? "active" : ""}
@@ -177,9 +204,20 @@ export default function App() {
               setProfile({
                 name: user.name || "ผู้ใช้งาน River Life",
                 email: user.email,
+                role: user.role || "user",
               });
+              sessionStorage.setItem(
+                "riverlife.profile.name",
+                user.name || "ผู้ใช้งาน River Life",
+              );
+              sessionStorage.setItem("riverlife.profile.email", user.email);
+              sessionStorage.setItem(
+                "riverlife.profile.role",
+                user.role || "user",
+              );
               setIsAuthenticated(true);
-              if (source === "login") go("event");
+              if (source === "login")
+                go(user.role === "admin" ? "dashboard" : "event");
             }}
           />
         )}
@@ -251,6 +289,10 @@ export default function App() {
         )}
         {page === "tickets" && (
           <TicketWallet initial={booking} initialToken={token} />
+        )}
+        {page === "dashboard" && profile.role === "admin" && <AdminDashboard />}
+        {page === "dashboard" && profile.role !== "admin" && (
+          <Alert severity="error">หน้านี้สำหรับผู้ดูแลระบบเท่านั้น</Alert>
         )}
         {!event && !error && <p role="status">กำลังโหลดรอบการแสดง…</p>}
       </main>

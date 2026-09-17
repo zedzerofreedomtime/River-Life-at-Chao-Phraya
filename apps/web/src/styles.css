@@ -162,6 +162,151 @@
   margin: 0;
   color: #516784;
 }
+.admin-dashboard {
+  max-width: 1240px;
+  margin: 42px auto 0;
+}
+.admin-dashboard-heading,
+.admin-panel-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+}
+.admin-dashboard-heading > div > span {
+  color: #a97b36;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.7px;
+}
+.admin-dashboard h1,
+.admin-dashboard h2 {
+  margin: 4px 0 0;
+  color: #10223c;
+}
+.admin-dashboard h1 {
+  font:
+    42px Georgia,
+    serif;
+}
+.admin-dashboard h2 {
+  font-size: 22px;
+}
+.admin-dashboard p {
+  margin: 7px 0 0;
+  color: #64758a;
+}
+.admin-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 26px 0;
+}
+.admin-stat,
+.admin-zone-panel,
+.admin-bookings-panel {
+  border: 1px solid #dce4ec;
+  border-radius: 12px;
+  background: #fff;
+}
+.admin-stat {
+  min-height: 145px;
+  padding: 21px;
+}
+.admin-stat > span {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fbf0d9;
+  color: #a77a32;
+}
+.admin-stat p {
+  font-size: 13px;
+}
+.admin-stat strong {
+  display: block;
+  margin-top: 8px;
+  color: #122b49;
+  font-size: 24px;
+}
+.admin-zone-panel {
+  padding: 23px;
+}
+.admin-zone-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 13px;
+  margin-top: 19px;
+}
+.admin-zone-grid article {
+  padding: 16px;
+  border-radius: 9px;
+  background: #f6f8fa;
+  border-left: 3px solid #bd8b3a;
+}
+.admin-zone-grid strong,
+.admin-zone-grid span,
+.admin-zone-grid small {
+  display: block;
+}
+.admin-zone-grid span {
+  margin-top: 7px;
+  color: #183651;
+  font-weight: 700;
+}
+.admin-zone-grid small {
+  margin-top: 4px;
+  color: #708096;
+}
+.admin-bookings-panel {
+  margin-top: 20px;
+  padding: 23px;
+}
+.admin-panel-heading > strong {
+  color: #a77a32;
+  white-space: nowrap;
+}
+.admin-bookings-panel .table-wrap {
+  margin-top: 20px;
+}
+.admin-bookings-panel table small {
+  display: block;
+  margin-top: 3px;
+  color: #63738a;
+}
+.admin-bookings-panel code {
+  color: #405b78;
+  font-size: 12px;
+}
+.admin-status {
+  display: inline-block;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #eef2f5;
+  color: #52667c;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.admin-status.status-confirmed {
+  background: #e8f6ee;
+  color: #147044;
+}
+.admin-status.status-held {
+  background: #fff3dd;
+  color: #9a651a;
+}
+.admin-status.status-expired,
+.admin-status.status-no_show {
+  background: #fff0ee;
+  color: #ae413a;
+}
+.admin-empty {
+  padding: 12px 0;
+  text-align: center;
+}
 .market-header-dark .profile-trigger:hover,
 .market-header-dark .profile-trigger[aria-expanded="true"] {
   background: rgba(255, 255, 255, 0.12);

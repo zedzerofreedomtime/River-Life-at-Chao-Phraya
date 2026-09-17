@@ -48,6 +48,19 @@ type Ticket struct {
 	CheckedInAt *time.Time `json:"checked_in_at"`
 }
 
+// AdminDashboard is the operational overview exposed only to the signed-in
+// administrator. The booking list intentionally includes contact details, so
+// it must never be served by a customer-facing endpoint.
+type AdminDashboard struct {
+	BookingCount     int       `json:"booking_count"`
+	ConfirmedTickets int       `json:"confirmed_tickets"`
+	ConfirmedRevenue int       `json:"confirmed_revenue"`
+	ActiveHolds      int       `json:"active_holds"`
+	MemberCount      int       `json:"member_count"`
+	Zones            []Zone    `json:"zones"`
+	Bookings         []Booking `json:"bookings"`
+}
+
 func Token() string {
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
@@ -302,4 +315,32 @@ func (s *Service) List(ctx context.Context) ([]Booking, error) {
 		out = append(out, b)
 	}
 	return out, rows.Err()
+}
+
+func (s *Service) AdminDashboard(ctx context.Context) (AdminDashboard, error) {
+	var dashboard AdminDashboard
+	err := s.DB.QueryRow(ctx, `SELECT
+		COUNT(*)::int,
+		COALESCE(SUM(quantity) FILTER (WHERE status IN ('confirmed','no_show')),0)::int,
+		COALESCE(SUM(total) FILTER (WHERE status IN ('confirmed','no_show')),0)::int,
+		COUNT(*) FILTER (WHERE status='held' AND expires_at>now())::int
+		FROM bookings`).Scan(
+		&dashboard.BookingCount,
+		&dashboard.ConfirmedTickets,
+		&dashboard.ConfirmedRevenue,
+		&dashboard.ActiveHolds,
+	)
+	if err != nil {
+		return dashboard, err
+	}
+	if err = s.DB.QueryRow(ctx, "SELECT COUNT(*)::int FROM users").Scan(&dashboard.MemberCount); err != nil {
+		return dashboard, err
+	}
+	if dashboard.Zones, err = s.Zones(ctx); err != nil {
+		return dashboard, err
+	}
+	if dashboard.Bookings, err = s.List(ctx); err != nil {
+		return dashboard, err
+	}
+	return dashboard, nil
 }

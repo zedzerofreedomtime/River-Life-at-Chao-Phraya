@@ -136,6 +136,25 @@ func (s *Server) admin(c *gin.Context) {
 	}
 	c.Next()
 }
+func (s *Server) requireRole(role string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id, ok := s.userID(c)
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "กรุณาเข้าสู่ระบบ"})
+			return
+		}
+		user, err := s.Service.User(c.Request.Context(), id)
+		if err != nil {
+			fail(c, err)
+			return
+		}
+		if user.Role != role {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "ไม่มีสิทธิ์เข้าถึงข้อมูลผู้ดูแลระบบ"})
+			return
+		}
+		c.Next()
+	}
+}
 func (s *Server) Router() *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Recovery())
@@ -416,6 +435,15 @@ func (s *Server) Router() *gin.Engine {
 			return
 		}
 		c.Redirect(http.StatusFound, strings.TrimRight(s.WebOrigin, "/")+"/")
+	})
+	dashboard := api.Group("/dashboard/admin", s.requireRole(service.RoleAdmin))
+	dashboard.GET("", func(c *gin.Context) {
+		data, err := s.Service.AdminDashboard(c.Request.Context())
+		if err != nil {
+			fail(c, err)
+			return
+		}
+		c.JSON(http.StatusOK, data)
 	})
 	api.POST("/admin/login", s.limiter(5), func(c *gin.Context) {
 		var in struct {
