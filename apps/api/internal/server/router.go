@@ -315,6 +315,9 @@ func (s *Server) Router() *gin.Engine {
 		c.SetCookie(userCookie, "", -1, "/api/v1", "", s.CookieSecure, true)
 		c.Status(http.StatusNoContent)
 	})
+	api.GET("/auth/google/status", func(c *gin.Context) {
+		c.JSON(200, gin.H{"configured": s.GoogleClientID != "" && s.GoogleClientSecret != ""})
+	})
 	api.GET("/auth/google/start", func(c *gin.Context) {
 		if s.GoogleClientID == "" || s.GoogleClientSecret == "" {
 			c.AbortWithStatusJSON(503, gin.H{"error": "Google Sign-In ยังไม่ได้ตั้งค่า"})

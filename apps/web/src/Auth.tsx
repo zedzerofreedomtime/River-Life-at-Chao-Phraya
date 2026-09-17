@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
@@ -23,6 +23,12 @@ export default function Auth({
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [googleReady, setGoogleReady] = useState(false);
+  useEffect(() => {
+    void api<{ configured: boolean }>("/auth/google/status")
+      .then(({ configured }) => setGoogleReady(configured))
+      .catch(() => setGoogleReady(false));
+  }, []);
   const requestOTP = async () => {
     setBusy(true);
     setError("");
@@ -69,8 +75,11 @@ export default function Auth({
         className="google-login"
         variant="outlined"
         onClick={() => window.location.assign("/api/v1/auth/google/start")}
+        disabled={!googleReady}
       >
-        เข้าสู่ระบบด้วย Google
+        {googleReady
+          ? "เข้าสู่ระบบด้วย Google"
+          : "Google Sign-In (รอการตั้งค่า)"}
       </Button>
       <div className="auth-divider">
         <span>หรือ</span>
