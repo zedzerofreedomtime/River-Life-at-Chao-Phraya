@@ -55,6 +55,9 @@ export default function App() {
       sessionStorage.getItem("riverlife.profile.email") ||
       "ยังไม่ได้เข้าสู่ระบบ",
   }));
+  const [isAuthenticated, setIsAuthenticated] = useState(() =>
+    Boolean(sessionStorage.getItem("riverlife.booking.token")),
+  );
   const loadEvent = () =>
     api<EventInfo>("/event")
       .then((data) => {
@@ -89,6 +92,7 @@ export default function App() {
     setToken(accessToken);
     const nextProfile = { name: data.name, email: data.email };
     setProfile(nextProfile);
+    setIsAuthenticated(true);
     sessionStorage.setItem("riverlife.booking.id", data.id);
     sessionStorage.setItem("riverlife.booking.token", accessToken);
     sessionStorage.setItem("riverlife.profile.name", data.name);
@@ -101,6 +105,7 @@ export default function App() {
     sessionStorage.removeItem("riverlife.profile.email");
     setBooking(null);
     setToken("");
+    setIsAuthenticated(false);
     setProfile({ name: "ผู้ใช้งาน River Life", email: "ยังไม่ได้เข้าสู่ระบบ" });
     go("event");
   };
@@ -133,6 +138,7 @@ export default function App() {
         <div className="market-tools" aria-label="เครื่องมือผู้ใช้">
           {page === "tickets" ? null : <Search aria-hidden="true" size={22} />}
           <ProfileMenu
+            isAuthenticated={isAuthenticated}
             name={profile.name}
             email={profile.email}
             onNavigate={go}

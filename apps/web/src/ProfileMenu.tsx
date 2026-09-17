@@ -10,11 +10,13 @@ import {
 type Destination = "tickets" | "orders";
 
 export default function ProfileMenu({
+  isAuthenticated,
   name,
   email,
   onNavigate,
   onLogout,
 }: {
+  isAuthenticated: boolean;
   name: string;
   email: string;
   onNavigate: (destination: Destination) => void;
@@ -67,26 +69,51 @@ export default function ProfileMenu({
           role="menu"
         >
           <div className="profile-summary">
-            <span className="profile-avatar">{initial}</span>
-            <strong>{name}</strong>
-            <small>{email}</small>
-            <button type="button" onClick={() => navigate("orders")}>
-              ดูคำสั่งซื้อ <ChevronRight aria-hidden="true" size={19} />
-            </button>
+            <span className="profile-avatar">
+              {isAuthenticated ? (
+                initial
+              ) : (
+                <CircleUserRound aria-hidden="true" size={26} />
+              )}
+            </span>
+            {isAuthenticated ? (
+              <>
+                <strong>{name}</strong>
+                <small>{email}</small>
+                <button type="button" onClick={() => navigate("orders")}>
+                  ดูคำสั่งซื้อ <ChevronRight aria-hidden="true" size={19} />
+                </button>
+              </>
+            ) : (
+              <>
+                <strong>ยังไม่ได้เข้าสู่ระบบ</strong>
+                <small>กรอกรหัสการจองและรหัสเข้าถึงของคุณ</small>
+                <button type="button" onClick={() => navigate("orders")}>
+                  เข้าสู่ระบบ <ChevronRight aria-hidden="true" size={19} />
+                </button>
+              </>
+            )}
           </div>
-          <div className="profile-actions">
-            <MenuAction icon={Ticket} onClick={() => navigate("tickets")}>
-              บัตรของฉัน
-            </MenuAction>
-            <MenuAction icon={ReceiptText} onClick={() => navigate("orders")}>
-              คำสั่งซื้อของฉัน
-            </MenuAction>
-          </div>
-          <div className="profile-logout">
-            <MenuAction icon={LogOut} danger onClick={logout}>
-              ออกจากระบบ
-            </MenuAction>
-          </div>
+          {isAuthenticated ? (
+            <>
+              <div className="profile-actions">
+                <MenuAction icon={Ticket} onClick={() => navigate("tickets")}>
+                  บัตรของฉัน
+                </MenuAction>
+                <MenuAction
+                  icon={ReceiptText}
+                  onClick={() => navigate("orders")}
+                >
+                  คำสั่งซื้อของฉัน
+                </MenuAction>
+              </div>
+              <div className="profile-logout">
+                <MenuAction icon={LogOut} danger onClick={logout}>
+                  ออกจากระบบ
+                </MenuAction>
+              </div>
+            </>
+          ) : null}
         </section>
       ) : null}
     </div>
