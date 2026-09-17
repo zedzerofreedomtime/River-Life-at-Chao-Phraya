@@ -143,6 +143,9 @@ body {
   background: #fff;
 }
 .river-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
   border: 0;
   background: transparent;
   color: #101e32;
@@ -152,6 +155,18 @@ body {
   letter-spacing: 3px;
   cursor: pointer;
   white-space: nowrap;
+}
+.river-brand > img {
+  width: 49px;
+  height: 49px;
+  object-fit: cover;
+  border: 2px solid #c69a4c;
+  border-radius: 50%;
+  background: #071b38;
+}
+.river-brand > span {
+  display: grid;
+  justify-items: start;
 }
 .river-brand small {
   display: block;

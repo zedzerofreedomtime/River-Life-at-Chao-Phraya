@@ -114,7 +114,10 @@ export default function App() {
           onClick={() => go("event")}
           aria-label="กลับไปหน้ารวมงาน"
         >
-          RIVER LIFE <small>MUSIC ON THE RIVER</small>
+          <img src="/images/river-life-logo.jpg" alt="" />
+          <span>
+            RIVER LIFE <small>MUSIC ON THE RIVER</small>
+          </span>
         </button>
         <nav aria-label="เมนูหลัก">
           {nav.map(([key, label]) => (
