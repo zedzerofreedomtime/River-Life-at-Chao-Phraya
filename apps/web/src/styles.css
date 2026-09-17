@@ -31,6 +31,8 @@
   width: min(342px, calc(100vw - 28px));
   overflow: hidden;
   border-radius: 0 0 14px 14px;
+  border: 1px solid #dbe3eb;
+  border-top: 0;
   background: #fff;
   box-shadow: 0 16px 38px rgba(15, 32, 57, 0.2);
   color: #102641;
@@ -41,7 +43,8 @@
   display: grid;
   justify-items: start;
   align-content: start;
-  background: linear-gradient(113deg, #147fe5 0%, #3eb7eb 52%, #5fc69c 100%);
+  border-bottom: 3px solid #bd9048;
+  background: linear-gradient(135deg, #071c37 0%, #0d3765 68%, #1a4c70 100%);
   color: #fff;
 }
 .profile-avatar {
@@ -51,8 +54,9 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #edf5ff;
-  color: #1b80df;
+  border: 1px solid #dfbd7c;
+  background: #f8ebce;
+  color: #9f722a;
   font-size: 23px;
   font-weight: 700;
 }
@@ -61,6 +65,7 @@
 }
 .profile-summary small {
   margin-top: 3px;
+  color: #d8e3ef;
   font-size: 14px;
 }
 .profile-summary button {
@@ -71,11 +76,14 @@
   gap: 4px;
   border: 0;
   background: transparent;
-  color: #fff;
+  color: #e7c98d;
   font: inherit;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+}
+.profile-summary button:hover {
+  color: #fff;
 }
 .profile-actions {
   padding: 11px 0;
@@ -100,7 +108,7 @@
   cursor: pointer;
 }
 .market-tools .profile-action:hover {
-  background: #f6f9fc;
+  background: #fbf6ed;
 }
 .profile-action > span {
   width: 39px;
@@ -109,8 +117,8 @@
   flex: 0 0 auto;
   place-items: center;
   border-radius: 50%;
-  background: #f1f5fb;
-  color: #1682e6;
+  background: #fbf2de;
+  color: #aa7c32;
 }
 .market-tools .profile-action.danger {
   color: #c93631;
@@ -3057,6 +3065,7 @@ td small {
   }
   .profile-popover {
     top: calc(100% + 10px);
-    right: -7px;
+    right: auto;
+    left: -74px;
   }
 }
