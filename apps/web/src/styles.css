@@ -158,6 +158,10 @@
 .auth-form .MuiButton-contained {
   min-height: 46px;
 }
+.auth-otp-copy {
+  margin: 0;
+  color: #516784;
+}
 .market-header-dark .profile-trigger:hover,
 .market-header-dark .profile-trigger[aria-expanded="true"] {
   background: rgba(255, 255, 255, 0.12);

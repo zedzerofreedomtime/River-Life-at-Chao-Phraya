@@ -183,13 +183,13 @@ export default function App() {
         )}
         {page === "auth" && (
           <Auth
-            onAuthenticated={(user) => {
+            onAuthenticated={(user, source) => {
               setProfile({
                 name: user.name || "ผู้ใช้งาน River Life",
                 email: user.email,
               });
               setIsAuthenticated(true);
-              go("event");
+              if (source === "login") go("event");
             }}
           />
         )}
