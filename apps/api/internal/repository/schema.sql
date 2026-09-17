@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS schema_migrations (version integer PRIMARY KEY);
 CREATE TABLE IF NOT EXISTS users (
  id text PRIMARY KEY, email text NOT NULL UNIQUE, password_hash text NOT NULL DEFAULT '',
+ role text NOT NULL DEFAULT 'user' CHECK(role IN ('user','sales','operator','admin')),
  name text NOT NULL DEFAULT '', created_at timestamptz NOT NULL DEFAULT now(),
  updated_at timestamptz NOT NULL DEFAULT now()
 );
@@ -12,6 +13,7 @@ CREATE TABLE IF NOT EXISTS auth_identities (
  PRIMARY KEY(provider, provider_subject)
 );
 ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash text NOT NULL DEFAULT '';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT 'user' CHECK(role IN ('user','sales','operator','admin'));
 CREATE INDEX IF NOT EXISTS auth_identities_user ON auth_identities(user_id);
 CREATE TABLE IF NOT EXISTS zones (
  id text PRIMARY KEY, name text NOT NULL, capacity integer NOT NULL CHECK(capacity>=0),

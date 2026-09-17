@@ -309,8 +309,9 @@ func (s *Server) Router() *gin.Engine {
 		var in struct {
 			Email    string `json:"email"`
 			Password string `json:"password"`
+			Role     string `json:"role"`
 		}
-		if c.ShouldBindJSON(&in) != nil || len(in.Password) == 0 {
+		if c.ShouldBindJSON(&in) != nil || len(in.Password) == 0 || !service.ValidRole(in.Role) {
 			bad(c)
 			return
 		}
@@ -319,7 +320,7 @@ func (s *Server) Router() *gin.Engine {
 			bad(c)
 			return
 		}
-		user, err := s.Service.AuthenticateEmailPassword(c.Request.Context(), email, in.Password)
+		user, err := s.Service.AuthenticateEmailPassword(c.Request.Context(), email, in.Password, in.Role)
 		if errors.Is(err, service.ErrInvalidCredentials) {
 			c.AbortWithStatusJSON(401, gin.H{"error": err.Error()})
 			return
@@ -345,7 +346,7 @@ func (s *Server) Router() *gin.Engine {
 			fail(c, err)
 			return
 		}
-		c.JSON(200, gin.H{"authenticated": true, "id": user.ID, "name": user.Name, "email": user.Email})
+		c.JSON(200, gin.H{"authenticated": true, "id": user.ID, "name": user.Name, "email": user.Email, "role": user.Role})
 	})
 	api.POST("/auth/logout", func(c *gin.Context) {
 		if t, err := c.Cookie(userCookie); err == nil {

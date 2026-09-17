@@ -12,20 +12,12 @@ import MyBooking from "./MyBooking";
 import Payment from "./Payment";
 import BookingSuccess from "./BookingSuccess";
 import TicketWallet from "./TicketWallet";
-import Admin from "./Admin";
 import ProfileMenu from "./ProfileMenu";
 import Auth, { type AuthUser } from "./Auth";
 import { api, type Booking, type EventInfo } from "./api";
 
 type Page =
-  | "event"
-  | "checkout"
-  | "payment"
-  | "success"
-  | "orders"
-  | "tickets"
-  | "admin"
-  | "auth";
+  "event" | "checkout" | "payment" | "success" | "orders" | "tickets" | "auth";
 const pagePaths: Record<Page, string> = {
   event: "/",
   checkout: "/checkout",
@@ -33,7 +25,6 @@ const pagePaths: Record<Page, string> = {
   success: "/success",
   orders: "/orders",
   tickets: "/tickets",
-  admin: "/admin",
   auth: "/auth",
 };
 const pathPages: Record<string, Page> = Object.fromEntries(
@@ -45,7 +36,6 @@ const nav: [Page, string][] = [
   ["event", "งานแสดง"],
   ["tickets", "บัตรของฉัน"],
   ["orders", "คำสั่งซื้อ"],
-  ["admin", "เจ้าหน้าที่"],
 ];
 const checkoutSteps = ["เลือกเรือ", "เลือกโซน", "ชำระเงิน", "ทำรายการสำเร็จ"];
 
@@ -262,7 +252,6 @@ export default function App() {
         {page === "tickets" && (
           <TicketWallet initial={booking} initialToken={token} />
         )}
-        {page === "admin" && <Admin />}
         {!event && !error && <p role="status">กำลังโหลดรอบการแสดง…</p>}
       </main>
       <footer>

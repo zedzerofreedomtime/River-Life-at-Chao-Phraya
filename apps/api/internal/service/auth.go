@@ -11,10 +11,22 @@ import (
 var ErrMemberAlreadyExists = errors.New("อีเมลนี้สมัครสมาชิกแล้ว")
 var ErrInvalidCredentials = errors.New("อีเมลหรือรหัสผ่านไม่ถูกต้อง")
 
+const (
+	RoleUser     = "user"
+	RoleSales    = "sales"
+	RoleOperator = "operator"
+	RoleAdmin    = "admin"
+)
+
+func ValidRole(role string) bool {
+	return role == RoleUser || role == RoleSales || role == RoleOperator || role == RoleAdmin
+}
+
 type User struct {
 	ID    string `json:"id"`
 	Name  string `json:"name"`
 	Email string `json:"email"`
+	Role  string `json:"role"`
 }
 
 func (s *Service) UpsertUser(ctx context.Context, email, name, provider, subject string) (User, error) {
@@ -28,7 +40,7 @@ func (s *Service) UpsertUser(ctx context.Context, email, name, provider, subject
 	var user User
 	err = tx.QueryRow(ctx, `INSERT INTO users(id,email,name) VALUES($1,$2,$3)
 		ON CONFLICT(email) DO UPDATE SET name=CASE WHEN EXCLUDED.name<>'' THEN EXCLUDED.name ELSE users.name END, updated_at=now()
-		RETURNING id,name,email`, Token(), email, name).Scan(&user.ID, &user.Name, &user.Email)
+		RETURNING id,name,email,role`, Token(), email, name).Scan(&user.ID, &user.Name, &user.Email, &user.Role)
 	if err != nil {
 		return User{}, err
 	}
@@ -54,8 +66,8 @@ func (s *Service) CreateMember(ctx context.Context, email, name, passwordHash st
 	}
 	defer tx.Rollback(ctx)
 	var user User
-	err = tx.QueryRow(ctx, `INSERT INTO users(id,email,name,password_hash) VALUES($1,$2,$3,$4)
-		ON CONFLICT(email) DO NOTHING RETURNING id,name,email`, Token(), email, name, passwordHash).Scan(&user.ID, &user.Name, &user.Email)
+	err = tx.QueryRow(ctx, `INSERT INTO users(id,email,name,password_hash,role) VALUES($1,$2,$3,$4,$5)
+		ON CONFLICT(email) DO NOTHING RETURNING id,name,email,role`, Token(), email, name, passwordHash, RoleUser).Scan(&user.ID, &user.Name, &user.Email, &user.Role)
 	if err == pgx.ErrNoRows {
 		return User{}, ErrMemberAlreadyExists
 	}
@@ -68,12 +80,12 @@ func (s *Service) CreateMember(ctx context.Context, email, name, passwordHash st
 	return user, tx.Commit(ctx)
 }
 
-func (s *Service) AuthenticateEmailPassword(ctx context.Context, email, password string) (User, error) {
+func (s *Service) AuthenticateEmailPassword(ctx context.Context, email, password, role string) (User, error) {
 	email = strings.ToLower(strings.TrimSpace(email))
 	var user User
 	var passwordHash string
-	err := s.DB.QueryRow(ctx, "SELECT id,name,email,password_hash FROM users WHERE email=$1", email).Scan(&user.ID, &user.Name, &user.Email, &passwordHash)
-	if err != nil || passwordHash == "" || bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password)) != nil {
+	err := s.DB.QueryRow(ctx, "SELECT id,name,email,role,password_hash FROM users WHERE email=$1", email).Scan(&user.ID, &user.Name, &user.Email, &user.Role, &passwordHash)
+	if err != nil || passwordHash == "" || user.Role != role || bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password)) != nil {
 		return User{}, ErrInvalidCredentials
 	}
 	return user, nil
@@ -81,7 +93,7 @@ func (s *Service) AuthenticateEmailPassword(ctx context.Context, email, password
 
 func (s *Service) User(ctx context.Context, id string) (User, error) {
 	var user User
-	err := s.DB.QueryRow(ctx, "SELECT id,name,email FROM users WHERE id=$1", id).Scan(&user.ID, &user.Name, &user.Email)
+	err := s.DB.QueryRow(ctx, "SELECT id,name,email,role FROM users WHERE id=$1", id).Scan(&user.ID, &user.Name, &user.Email, &user.Role)
 	if err == pgx.ErrNoRows {
 		return User{}, err
 	}
@@ -91,6 +103,6 @@ func (s *Service) User(ctx context.Context, id string) (User, error) {
 func (s *Service) UserByEmail(ctx context.Context, email string) (User, error) {
 	email = strings.ToLower(strings.TrimSpace(email))
 	var user User
-	err := s.DB.QueryRow(ctx, "SELECT id,name,email FROM users WHERE email=$1", email).Scan(&user.ID, &user.Name, &user.Email)
+	err := s.DB.QueryRow(ctx, "SELECT id,name,email,role FROM users WHERE email=$1", email).Scan(&user.ID, &user.Name, &user.Email, &user.Role)
 	return user, err
 }
