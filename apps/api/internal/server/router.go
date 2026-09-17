@@ -40,8 +40,9 @@ const adminCookie = "riverlife_admin"
 const userCookie = "riverlife_user"
 
 type otpChallenge struct {
-	CodeHash string `json:"code_hash"`
-	Name     string `json:"name"`
+	CodeHash     string `json:"code_hash"`
+	Name         string `json:"name"`
+	PasswordHash string `json:"password_hash"`
 }
 
 func otpCode() (string, error) {
@@ -230,10 +231,11 @@ func (s *Server) Router() *gin.Engine {
 	})
 	api.POST("/auth/signup/request", s.limiter(5), func(c *gin.Context) {
 		var in struct {
-			Email string `json:"email"`
-			Name  string `json:"name"`
+			Email    string `json:"email"`
+			Name     string `json:"name"`
+			Password string `json:"password"`
 		}
-		if c.ShouldBindJSON(&in) != nil || len(strings.TrimSpace(in.Name)) < 2 || len(strings.TrimSpace(in.Name)) > 120 {
+		if c.ShouldBindJSON(&in) != nil || len(strings.TrimSpace(in.Name)) < 2 || len(strings.TrimSpace(in.Name)) > 120 || len(in.Password) < 8 || len(in.Password) > 72 {
 			bad(c)
 			return
 		}
@@ -242,12 +244,17 @@ func (s *Server) Router() *gin.Engine {
 			bad(c)
 			return
 		}
+		passwordHash, err := service.PasswordHash(in.Password)
+		if err != nil {
+			fail(c, err)
+			return
+		}
 		code, err := otpCode()
 		if err != nil {
 			fail(c, err)
 			return
 		}
-		encoded, _ := json.Marshal(otpChallenge{CodeHash: service.Hash(code), Name: strings.TrimSpace(in.Name)})
+		encoded, _ := json.Marshal(otpChallenge{CodeHash: service.Hash(code), Name: strings.TrimSpace(in.Name), PasswordHash: passwordHash})
 		if err = s.Redis.Set(c.Request.Context(), "riverlife:otp:"+service.Hash(email), encoded, 10*time.Minute).Err(); err != nil {
 			fail(c, err)
 			return
@@ -287,7 +294,7 @@ func (s *Server) Router() *gin.Engine {
 			fail(c, err)
 			return
 		}
-		user, err := s.Service.CreateMember(c.Request.Context(), email, challenge.Name)
+		user, err := s.Service.CreateMember(c.Request.Context(), email, challenge.Name, challenge.PasswordHash)
 		if err != nil {
 			fail(c, err)
 			return
@@ -298,11 +305,12 @@ func (s *Server) Router() *gin.Engine {
 		}
 		c.JSON(200, user)
 	})
-	api.POST("/auth/login/request", s.limiter(5), func(c *gin.Context) {
+	api.POST("/auth/login", s.limiter(10), func(c *gin.Context) {
 		var in struct {
-			Email string `json:"email"`
+			Email    string `json:"email"`
+			Password string `json:"password"`
 		}
-		if c.ShouldBindJSON(&in) != nil {
+		if c.ShouldBindJSON(&in) != nil || len(in.Password) == 0 {
 			bad(c)
 			return
 		}
@@ -311,48 +319,9 @@ func (s *Server) Router() *gin.Engine {
 			bad(c)
 			return
 		}
-		code, err := otpCode()
-		if err != nil {
-			fail(c, err)
-			return
-		}
-		if err = s.Redis.Set(c.Request.Context(), "riverlife:login-otp:"+service.Hash(email), service.Hash(code), 10*time.Minute).Err(); err != nil {
-			fail(c, err)
-			return
-		}
-		if !s.Demo {
-			c.AbortWithStatusJSON(503, gin.H{"error": "ระบบส่งอีเมล OTP ยังไม่ได้ตั้งค่า"})
-			return
-		}
-		c.JSON(202, gin.H{"message": "ส่งรหัส OTP แล้ว", "demo_code": code})
-	})
-	api.POST("/auth/login/verify", s.limiter(8), func(c *gin.Context) {
-		var in struct {
-			Email string `json:"email"`
-			Code  string `json:"code"`
-		}
-		if c.ShouldBindJSON(&in) != nil || len(in.Code) != 6 {
-			bad(c)
-			return
-		}
-		email, ok := validEmail(in.Email)
-		if !ok {
-			bad(c)
-			return
-		}
-		key := "riverlife:login-otp:" + service.Hash(email)
-		hash, err := s.Redis.Get(c.Request.Context(), key).Result()
-		if err != nil || subtle.ConstantTimeCompare([]byte(hash), []byte(service.Hash(in.Code))) != 1 {
-			c.AbortWithStatusJSON(401, gin.H{"error": "รหัส OTP หมดอายุหรือไม่ถูกต้อง"})
-			return
-		}
-		if err = s.Redis.Del(c.Request.Context(), key).Err(); err != nil {
-			fail(c, err)
-			return
-		}
-		user, err := s.Service.UserByEmail(c.Request.Context(), email)
-		if errors.Is(err, pgx.ErrNoRows) {
-			c.AbortWithStatusJSON(401, gin.H{"error": "ไม่พบบัญชีนี้ กรุณาสมัครสมาชิกก่อน"})
+		user, err := s.Service.AuthenticateEmailPassword(c.Request.Context(), email, in.Password)
+		if errors.Is(err, service.ErrInvalidCredentials) {
+			c.AbortWithStatusJSON(401, gin.H{"error": err.Error()})
 			return
 		}
 		if err != nil {

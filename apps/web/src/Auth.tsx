@@ -20,6 +20,7 @@ export default function Auth({
   const [mode, setMode] = useState<Mode>("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [demoCode, setDemoCode] = useState("");
   const [message, setMessage] = useState("");
@@ -29,6 +30,7 @@ export default function Auth({
 
   const switchMode = (next: Mode) => {
     setMode(next);
+    setPassword("");
     setCode("");
     setDemoCode("");
     setMessage("");
@@ -40,14 +42,27 @@ export default function Auth({
     setMessage("");
     try {
       const result = await api<{ message: string; demo_code?: string }>(
-        isSignup ? "/auth/signup/request" : "/auth/login/request",
-        {
-          method: "POST",
-          body: JSON.stringify(isSignup ? { name, email } : { email }),
-        },
+        "/auth/signup/request",
+        { method: "POST", body: JSON.stringify({ name, email, password }) },
       );
       setMessage(result.message);
       setDemoCode(result.demo_code ?? "");
+    } catch (cause) {
+      setError((cause as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const login = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      onAuthenticated(
+        await api<AuthUser>("/auth/login", {
+          method: "POST",
+          body: JSON.stringify({ email, password }),
+        }),
+      );
     } catch (cause) {
       setError((cause as Error).message);
     } finally {
@@ -100,7 +115,7 @@ export default function Auth({
         <p>
           {isSignup
             ? "สมัครสมาชิกด้วยอีเมลเพื่อเก็บบัตรและคำสั่งซื้อไว้กับบัญชีของคุณ"
-            : "กรอกอีเมลที่ใช้สมัครสมาชิก เพื่อรับรหัส OTP สำหรับเข้าสู่ระบบ"}
+            : "กรอกอีเมลและรหัสผ่านเพื่อเข้าสู่ระบบ"}
         </p>
       </div>
       <div className="auth-form">
@@ -118,34 +133,56 @@ export default function Auth({
           value={email}
           onChange={(event) => setEmail(event.target.value)}
         />
-        <Button
-          variant="contained"
-          onClick={() => void requestOTP()}
-          disabled={busy || !email || (isSignup && name.trim().length < 2)}
-        >
-          {isSignup ? "ส่ง OTP เพื่อสมัครสมาชิก" : "ส่ง OTP เพื่อเข้าสู่ระบบ"}
-        </Button>
-        {message && (
-          <Alert severity="success">
-            {message}
-            {demoCode ? ` รหัสทดสอบ: ${demoCode}` : ""}
-          </Alert>
-        )}
         <TextField
-          label="รหัส OTP 6 หลัก"
-          value={code}
-          onChange={(event) =>
-            setCode(event.target.value.replace(/\D/g, "").slice(0, 6))
-          }
-          inputProps={{ inputMode: "numeric", maxLength: 6 }}
+          label="รหัสผ่าน"
+          type="password"
+          autoComplete={isSignup ? "new-password" : "current-password"}
+          helperText={isSignup ? "อย่างน้อย 8 ตัวอักษร" : undefined}
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
         />
-        <Button
-          variant="contained"
-          onClick={() => void verifyOTP()}
-          disabled={busy || !email || code.length !== 6}
-        >
-          {isSignup ? "ยืนยันการสมัครสมาชิก" : "ยืนยันการเข้าสู่ระบบ"}
-        </Button>
+        {isSignup ? (
+          <>
+            <Button
+              variant="contained"
+              onClick={() => void requestOTP()}
+              disabled={
+                busy || !email || name.trim().length < 2 || password.length < 8
+              }
+            >
+              ส่ง OTP เพื่อสมัครสมาชิก
+            </Button>
+            {message && (
+              <Alert severity="success">
+                {message}
+                {demoCode ? ` รหัสทดสอบ: ${demoCode}` : ""}
+              </Alert>
+            )}
+            <TextField
+              label="รหัส OTP 6 หลัก"
+              value={code}
+              onChange={(event) =>
+                setCode(event.target.value.replace(/\D/g, "").slice(0, 6))
+              }
+              inputProps={{ inputMode: "numeric", maxLength: 6 }}
+            />
+            <Button
+              variant="contained"
+              onClick={() => void verifyOTP()}
+              disabled={busy || !email || code.length !== 6}
+            >
+              ยืนยันการสมัครสมาชิก
+            </Button>
+          </>
+        ) : (
+          <Button
+            variant="contained"
+            onClick={() => void login()}
+            disabled={busy || !email || !password}
+          >
+            เข้าสู่ระบบ
+          </Button>
+        )}
         {error && <Alert severity="error">{error}</Alert>}
       </div>
     </section>

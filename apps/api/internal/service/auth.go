@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"github.com/jackc/pgx/v5"
+	"golang.org/x/crypto/bcrypt"
 	"strings"
 )
 
 var ErrMemberAlreadyExists = errors.New("อีเมลนี้สมัครสมาชิกแล้ว")
+var ErrInvalidCredentials = errors.New("อีเมลหรือรหัสผ่านไม่ถูกต้อง")
 
 type User struct {
 	ID    string `json:"id"`
@@ -37,8 +39,13 @@ func (s *Service) UpsertUser(ctx context.Context, email, name, provider, subject
 	return user, tx.Commit(ctx)
 }
 
-// CreateMember creates a new passwordless membership and rejects an existing email.
-func (s *Service) CreateMember(ctx context.Context, email, name string) (User, error) {
+func PasswordHash(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(hash), err
+}
+
+// CreateMember creates a new member and rejects an existing email.
+func (s *Service) CreateMember(ctx context.Context, email, name, passwordHash string) (User, error) {
 	email = strings.ToLower(strings.TrimSpace(email))
 	name = strings.TrimSpace(name)
 	tx, err := s.DB.Begin(ctx)
@@ -47,8 +54,8 @@ func (s *Service) CreateMember(ctx context.Context, email, name string) (User, e
 	}
 	defer tx.Rollback(ctx)
 	var user User
-	err = tx.QueryRow(ctx, `INSERT INTO users(id,email,name) VALUES($1,$2,$3)
-		ON CONFLICT(email) DO NOTHING RETURNING id,name,email`, Token(), email, name).Scan(&user.ID, &user.Name, &user.Email)
+	err = tx.QueryRow(ctx, `INSERT INTO users(id,email,name,password_hash) VALUES($1,$2,$3,$4)
+		ON CONFLICT(email) DO NOTHING RETURNING id,name,email`, Token(), email, name, passwordHash).Scan(&user.ID, &user.Name, &user.Email)
 	if err == pgx.ErrNoRows {
 		return User{}, ErrMemberAlreadyExists
 	}
@@ -59,6 +66,17 @@ func (s *Service) CreateMember(ctx context.Context, email, name string) (User, e
 		return User{}, err
 	}
 	return user, tx.Commit(ctx)
+}
+
+func (s *Service) AuthenticateEmailPassword(ctx context.Context, email, password string) (User, error) {
+	email = strings.ToLower(strings.TrimSpace(email))
+	var user User
+	var passwordHash string
+	err := s.DB.QueryRow(ctx, "SELECT id,name,email,password_hash FROM users WHERE email=$1", email).Scan(&user.ID, &user.Name, &user.Email, &passwordHash)
+	if err != nil || passwordHash == "" || bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password)) != nil {
+		return User{}, ErrInvalidCredentials
+	}
+	return user, nil
 }
 
 func (s *Service) User(ctx context.Context, id string) (User, error) {
