@@ -156,7 +156,7 @@ export default function App() {
         </button>
         <nav aria-label="เมนูหลัก">
           {(profile.role === "admin"
-            ? [...nav, ["dashboard", "แดชบอร์ด"] as [Page, string]]
+            ? ([["dashboard", "แดชบอร์ด"]] as [Page, string][])
             : nav
           ).map(([key, label]) => (
             <button
