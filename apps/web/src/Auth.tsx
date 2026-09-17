@@ -10,12 +10,14 @@ export type AuthUser = {
   email: string;
   authenticated?: boolean;
 };
+type Mode = "login" | "signup";
 
 export default function Auth({
   onAuthenticated,
 }: {
   onAuthenticated: (user: AuthUser) => void;
 }) {
+  const [mode, setMode] = useState<Mode>("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
@@ -23,14 +25,26 @@ export default function Auth({
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const isSignup = mode === "signup";
+
+  const switchMode = (next: Mode) => {
+    setMode(next);
+    setCode("");
+    setDemoCode("");
+    setMessage("");
+    setError("");
+  };
   const requestOTP = async () => {
     setBusy(true);
     setError("");
     setMessage("");
     try {
       const result = await api<{ message: string; demo_code?: string }>(
-        "/auth/signup/request",
-        { method: "POST", body: JSON.stringify({ name, email }) },
+        isSignup ? "/auth/signup/request" : "/auth/login/request",
+        {
+          method: "POST",
+          body: JSON.stringify(isSignup ? { name, email } : { email }),
+        },
       );
       setMessage(result.message);
       setDemoCode(result.demo_code ?? "");
@@ -45,10 +59,10 @@ export default function Auth({
     setError("");
     try {
       onAuthenticated(
-        await api<AuthUser>("/auth/signup/verify", {
-          method: "POST",
-          body: JSON.stringify({ email, code }),
-        }),
+        await api<AuthUser>(
+          isSignup ? "/auth/signup/verify" : "/auth/login/verify",
+          { method: "POST", body: JSON.stringify({ email, code }) },
+        ),
       );
     } catch (cause) {
       setError((cause as Error).message);
@@ -56,30 +70,60 @@ export default function Auth({
       setBusy(false);
     }
   };
+
   return (
     <section className="auth-page content-panel">
+      <div className="auth-tabs" role="tablist" aria-label="การเข้าใช้งานบัญชี">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === "login"}
+          className={mode === "login" ? "active" : ""}
+          onClick={() => switchMode("login")}
+        >
+          เข้าสู่ระบบ
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={isSignup}
+          className={isSignup ? "active" : ""}
+          onClick={() => switchMode("signup")}
+        >
+          สมัครสมาชิก
+        </button>
+      </div>
       <div className="orders-heading">
-        <h1>สมัครสมาชิก River Life</h1>
-        <p>สมัครสมาชิกด้วยอีเมลเพื่อเก็บบัตรและคำสั่งซื้อไว้กับบัญชีของคุณ</p>
+        <h1>
+          {isSignup ? "สมัครสมาชิก River Life" : "เข้าสู่ระบบ River Life"}
+        </h1>
+        <p>
+          {isSignup
+            ? "สมัครสมาชิกด้วยอีเมลเพื่อเก็บบัตรและคำสั่งซื้อไว้กับบัญชีของคุณ"
+            : "กรอกอีเมลที่ใช้สมัครสมาชิก เพื่อรับรหัส OTP สำหรับเข้าสู่ระบบ"}
+        </p>
       </div>
       <div className="auth-form">
-        <TextField
-          label="ชื่อ-นามสกุล"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-        />
+        {isSignup && (
+          <TextField
+            label="ชื่อ-นามสกุล"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+          />
+        )}
         <TextField
           label="อีเมล"
           type="email"
+          autoComplete="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
         />
         <Button
           variant="contained"
           onClick={() => void requestOTP()}
-          disabled={busy || !email}
+          disabled={busy || !email || (isSignup && name.trim().length < 2)}
         >
-          ส่ง OTP เพื่อสมัครสมาชิก
+          {isSignup ? "ส่ง OTP เพื่อสมัครสมาชิก" : "ส่ง OTP เพื่อเข้าสู่ระบบ"}
         </Button>
         {message && (
           <Alert severity="success">
@@ -100,7 +144,7 @@ export default function Auth({
           onClick={() => void verifyOTP()}
           disabled={busy || !email || code.length !== 6}
         >
-          ยืนยันการสมัครสมาชิก
+          {isSignup ? "ยืนยันการสมัครสมาชิก" : "ยืนยันการเข้าสู่ระบบ"}
         </Button>
         {error && <Alert severity="error">{error}</Alert>}
       </div>

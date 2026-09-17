@@ -37,8 +37,7 @@ func (s *Service) UpsertUser(ctx context.Context, email, name, provider, subject
 	return user, tx.Commit(ctx)
 }
 
-// CreateMember creates a new passwordless membership. It deliberately rejects
-// an existing email: email OTP is for registration only, not an alternate login.
+// CreateMember creates a new passwordless membership and rejects an existing email.
 func (s *Service) CreateMember(ctx context.Context, email, name string) (User, error) {
 	email = strings.ToLower(strings.TrimSpace(email))
 	name = strings.TrimSpace(name)
@@ -68,5 +67,12 @@ func (s *Service) User(ctx context.Context, id string) (User, error) {
 	if err == pgx.ErrNoRows {
 		return User{}, err
 	}
+	return user, err
+}
+
+func (s *Service) UserByEmail(ctx context.Context, email string) (User, error) {
+	email = strings.ToLower(strings.TrimSpace(email))
+	var user User
+	err := s.DB.QueryRow(ctx, "SELECT id,name,email FROM users WHERE email=$1", email).Scan(&user.ID, &user.Name, &user.Email)
 	return user, err
 }

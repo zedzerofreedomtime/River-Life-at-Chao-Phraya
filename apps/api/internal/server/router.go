@@ -298,6 +298,73 @@ func (s *Server) Router() *gin.Engine {
 		}
 		c.JSON(200, user)
 	})
+	api.POST("/auth/login/request", s.limiter(5), func(c *gin.Context) {
+		var in struct {
+			Email string `json:"email"`
+		}
+		if c.ShouldBindJSON(&in) != nil {
+			bad(c)
+			return
+		}
+		email, ok := validEmail(in.Email)
+		if !ok {
+			bad(c)
+			return
+		}
+		code, err := otpCode()
+		if err != nil {
+			fail(c, err)
+			return
+		}
+		if err = s.Redis.Set(c.Request.Context(), "riverlife:login-otp:"+service.Hash(email), service.Hash(code), 10*time.Minute).Err(); err != nil {
+			fail(c, err)
+			return
+		}
+		if !s.Demo {
+			c.AbortWithStatusJSON(503, gin.H{"error": "ระบบส่งอีเมล OTP ยังไม่ได้ตั้งค่า"})
+			return
+		}
+		c.JSON(202, gin.H{"message": "ส่งรหัส OTP แล้ว", "demo_code": code})
+	})
+	api.POST("/auth/login/verify", s.limiter(8), func(c *gin.Context) {
+		var in struct {
+			Email string `json:"email"`
+			Code  string `json:"code"`
+		}
+		if c.ShouldBindJSON(&in) != nil || len(in.Code) != 6 {
+			bad(c)
+			return
+		}
+		email, ok := validEmail(in.Email)
+		if !ok {
+			bad(c)
+			return
+		}
+		key := "riverlife:login-otp:" + service.Hash(email)
+		hash, err := s.Redis.Get(c.Request.Context(), key).Result()
+		if err != nil || subtle.ConstantTimeCompare([]byte(hash), []byte(service.Hash(in.Code))) != 1 {
+			c.AbortWithStatusJSON(401, gin.H{"error": "รหัส OTP หมดอายุหรือไม่ถูกต้อง"})
+			return
+		}
+		if err = s.Redis.Del(c.Request.Context(), key).Err(); err != nil {
+			fail(c, err)
+			return
+		}
+		user, err := s.Service.UserByEmail(c.Request.Context(), email)
+		if errors.Is(err, pgx.ErrNoRows) {
+			c.AbortWithStatusJSON(401, gin.H{"error": "ไม่พบบัญชีนี้ กรุณาสมัครสมาชิกก่อน"})
+			return
+		}
+		if err != nil {
+			fail(c, err)
+			return
+		}
+		if err = s.setUserSession(c, user.ID); err != nil {
+			fail(c, err)
+			return
+		}
+		c.JSON(200, user)
+	})
 	api.GET("/auth/me", func(c *gin.Context) {
 		id, ok := s.userID(c)
 		if !ok {

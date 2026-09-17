@@ -131,6 +131,26 @@
   width: min(560px, calc(100% - 32px));
   margin: 52px auto;
 }
+.auth-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin: -18px -18px 28px;
+  border-bottom: 1px solid #dfe5eb;
+}
+.auth-tabs button {
+  padding: 16px 12px 13px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: #68778b;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.auth-tabs button.active {
+  border-bottom-color: #bd8b3a;
+  color: #10223c;
+}
 .auth-form {
   display: grid;
   gap: 14px;
