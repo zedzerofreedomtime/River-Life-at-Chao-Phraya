@@ -97,6 +97,10 @@ func fail(c *gin.Context, err error) {
 		code = 409
 		msg = err.Error()
 	}
+	if errors.Is(err, service.ErrMemberAlreadyExists) {
+		code = 409
+		msg = err.Error()
+	}
 	if code == 500 {
 		slog.Error("request failed", "error", err)
 	}
@@ -224,12 +228,12 @@ func (s *Server) Router() *gin.Engine {
 		}
 		c.JSON(http.StatusOK, b)
 	})
-	api.POST("/auth/otp/request", s.limiter(5), func(c *gin.Context) {
+	api.POST("/auth/signup/request", s.limiter(5), func(c *gin.Context) {
 		var in struct {
 			Email string `json:"email"`
 			Name  string `json:"name"`
 		}
-		if c.ShouldBindJSON(&in) != nil || len(strings.TrimSpace(in.Name)) > 120 {
+		if c.ShouldBindJSON(&in) != nil || len(strings.TrimSpace(in.Name)) < 2 || len(strings.TrimSpace(in.Name)) > 120 {
 			bad(c)
 			return
 		}
@@ -254,7 +258,7 @@ func (s *Server) Router() *gin.Engine {
 		}
 		c.JSON(202, gin.H{"message": "ส่งรหัส OTP แล้ว", "demo_code": code})
 	})
-	api.POST("/auth/otp/verify", s.limiter(8), func(c *gin.Context) {
+	api.POST("/auth/signup/verify", s.limiter(8), func(c *gin.Context) {
 		var in struct {
 			Email string `json:"email"`
 			Code  string `json:"code"`
@@ -283,7 +287,7 @@ func (s *Server) Router() *gin.Engine {
 			fail(c, err)
 			return
 		}
-		user, err := s.Service.UpsertUser(c.Request.Context(), email, challenge.Name, "email", email)
+		user, err := s.Service.CreateMember(c.Request.Context(), email, challenge.Name)
 		if err != nil {
 			fail(c, err)
 			return

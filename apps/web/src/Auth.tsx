@@ -35,7 +35,7 @@ export default function Auth({
     setMessage("");
     try {
       const result = await api<{ message: string; demo_code?: string }>(
-        "/auth/otp/request",
+        "/auth/signup/request",
         { method: "POST", body: JSON.stringify({ name, email }) },
       );
       setMessage(result.message);
@@ -51,7 +51,7 @@ export default function Auth({
     setError("");
     try {
       onAuthenticated(
-        await api<AuthUser>("/auth/otp/verify", {
+        await api<AuthUser>("/auth/signup/verify", {
           method: "POST",
           body: JSON.stringify({ email, code }),
         }),
@@ -65,10 +65,10 @@ export default function Auth({
   return (
     <section className="auth-page content-panel">
       <div className="orders-heading">
-        <h1>เข้าสู่ระบบ River Life</h1>
+        <h1>เข้าสู่ระบบ หรือสมัครสมาชิก</h1>
         <p>
-          ใช้ Google
-          หรือลงทะเบียนด้วยอีเมลเพื่อเก็บบัตรและคำสั่งซื้อไว้กับบัญชีของคุณ
+          เข้าสู่ระบบด้วย Google
+          หรือสมัครสมาชิกด้วยอีเมลเพื่อเก็บบัตรและคำสั่งซื้อไว้กับบัญชีของคุณ
         </p>
       </div>
       <Button
@@ -82,11 +82,11 @@ export default function Auth({
           : "Google Sign-In (รอการตั้งค่า)"}
       </Button>
       <div className="auth-divider">
-        <span>หรือ</span>
+        <span>หรือสมัครสมาชิกด้วยอีเมล</span>
       </div>
       <div className="auth-form">
         <TextField
-          label="ชื่อ-นามสกุล (ใช้ตอนสมัครครั้งแรก)"
+          label="ชื่อ-นามสกุล"
           value={name}
           onChange={(event) => setName(event.target.value)}
         />
@@ -101,7 +101,7 @@ export default function Auth({
           onClick={() => void requestOTP()}
           disabled={busy || !email}
         >
-          ส่งรหัส OTP
+          ส่ง OTP เพื่อสมัครสมาชิก
         </Button>
         {message && (
           <Alert severity="success">
@@ -122,7 +122,7 @@ export default function Auth({
           onClick={() => void verifyOTP()}
           disabled={busy || !email || code.length !== 6}
         >
-          ยืนยันและเข้าสู่ระบบ
+          ยืนยันการสมัครสมาชิก
         </Button>
         {error && <Alert severity="error">{error}</Alert>}
       </div>
