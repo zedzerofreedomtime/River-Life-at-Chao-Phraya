@@ -14,10 +14,18 @@ import BookingSuccess from "./BookingSuccess";
 import TicketWallet from "./TicketWallet";
 import Admin from "./Admin";
 import ProfileMenu from "./ProfileMenu";
+import Auth, { type AuthUser } from "./Auth";
 import { api, type Booking, type EventInfo } from "./api";
 
 type Page =
-  "event" | "checkout" | "payment" | "success" | "orders" | "tickets" | "admin";
+  | "event"
+  | "checkout"
+  | "payment"
+  | "success"
+  | "orders"
+  | "tickets"
+  | "admin"
+  | "auth";
 const pagePaths: Record<Page, string> = {
   event: "/",
   checkout: "/checkout",
@@ -26,6 +34,7 @@ const pagePaths: Record<Page, string> = {
   orders: "/orders",
   tickets: "/tickets",
   admin: "/admin",
+  auth: "/auth",
 };
 const pathPages: Record<string, Page> = Object.fromEntries(
   Object.entries(pagePaths).map(([page, path]) => [path, page as Page]),
@@ -55,9 +64,7 @@ export default function App() {
       sessionStorage.getItem("riverlife.profile.email") ||
       "ยังไม่ได้เข้าสู่ระบบ",
   }));
-  const [isAuthenticated, setIsAuthenticated] = useState(() =>
-    Boolean(sessionStorage.getItem("riverlife.booking.token")),
-  );
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const loadEvent = () =>
     api<EventInfo>("/event")
       .then((data) => {
@@ -69,6 +76,21 @@ export default function App() {
       );
   useEffect(() => {
     void loadEvent();
+  }, []);
+  useEffect(() => {
+    void api<AuthUser>("/auth/me")
+      .then((user) => {
+        if (!user.authenticated) {
+          setIsAuthenticated(false);
+          return;
+        }
+        setProfile({
+          name: user.name || "ผู้ใช้งาน River Life",
+          email: user.email,
+        });
+        setIsAuthenticated(true);
+      })
+      .catch(() => setIsAuthenticated(false));
   }, []);
   useEffect(() => {
     const handlePopState = () => setPage(pageFromLocation());
@@ -90,21 +112,15 @@ export default function App() {
   const rememberBooking = (data: Booking, accessToken: string) => {
     setBooking(data);
     setToken(accessToken);
-    const nextProfile = { name: data.name, email: data.email };
-    setProfile(nextProfile);
-    setIsAuthenticated(true);
     sessionStorage.setItem("riverlife.booking.id", data.id);
     sessionStorage.setItem("riverlife.booking.token", accessToken);
-    sessionStorage.setItem("riverlife.profile.name", data.name);
-    sessionStorage.setItem("riverlife.profile.email", data.email);
   };
   const logoutCustomer = () => {
     sessionStorage.removeItem("riverlife.booking.id");
     sessionStorage.removeItem("riverlife.booking.token");
-    sessionStorage.removeItem("riverlife.profile.name");
-    sessionStorage.removeItem("riverlife.profile.email");
     setBooking(null);
     setToken("");
+    void api<void>("/auth/logout", { method: "POST" }).catch(() => undefined);
     setIsAuthenticated(false);
     setProfile({ name: "ผู้ใช้งาน River Life", email: "ยังไม่ได้เข้าสู่ระบบ" });
     go("event");
@@ -141,6 +157,7 @@ export default function App() {
             isAuthenticated={isAuthenticated}
             name={profile.name}
             email={profile.email}
+            onLogin={() => go("auth")}
             onNavigate={go}
             onLogout={logoutCustomer}
           />
@@ -163,6 +180,18 @@ export default function App() {
         )}
         {page === "event" && event && (
           <EventDetail event={event} onStartCheckout={goCheckout} />
+        )}
+        {page === "auth" && (
+          <Auth
+            onAuthenticated={(user) => {
+              setProfile({
+                name: user.name || "ผู้ใช้งาน River Life",
+                email: user.email,
+              });
+              setIsAuthenticated(true);
+              go("event");
+            }}
+          />
         )}
         {page === "checkout" && event && (
           <section className="checkout-page">

@@ -13,12 +13,14 @@ export default function ProfileMenu({
   isAuthenticated,
   name,
   email,
+  onLogin,
   onNavigate,
   onLogout,
 }: {
   isAuthenticated: boolean;
   name: string;
   email: string;
+  onLogin: () => void;
   onNavigate: (destination: Destination) => void;
   onLogout: () => void;
 }) {
@@ -88,7 +90,7 @@ export default function ProfileMenu({
               <>
                 <strong>ยังไม่ได้เข้าสู่ระบบ</strong>
                 <small>กรอกรหัสการจองและรหัสเข้าถึงของคุณ</small>
-                <button type="button" onClick={() => navigate("orders")}>
+                <button type="button" onClick={onLogin}>
                   เข้าสู่ระบบ <ChevronRight aria-hidden="true" size={19} />
                 </button>
               </>

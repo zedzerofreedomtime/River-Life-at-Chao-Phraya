@@ -27,6 +27,9 @@ services:
       UPLOAD_DIR: /data/uploads
       COOKIE_SECURE: "false"
       DEMO_MODE: "true"
+      WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       GIN_MODE: release
     ports: ["127.0.0.1:8088:8080"]
     volumes: ["uploads:/data/uploads"]

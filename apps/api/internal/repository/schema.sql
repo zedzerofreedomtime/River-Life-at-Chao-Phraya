@@ -1,4 +1,17 @@
 CREATE TABLE IF NOT EXISTS schema_migrations (version integer PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS users (
+ id text PRIMARY KEY, email text NOT NULL UNIQUE,
+ name text NOT NULL DEFAULT '', created_at timestamptz NOT NULL DEFAULT now(),
+ updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS auth_identities (
+ provider text NOT NULL CHECK(provider IN ('email','google')),
+ provider_subject text NOT NULL,
+ user_id text NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ created_at timestamptz NOT NULL DEFAULT now(),
+ PRIMARY KEY(provider, provider_subject)
+);
+CREATE INDEX IF NOT EXISTS auth_identities_user ON auth_identities(user_id);
 CREATE TABLE IF NOT EXISTS zones (
  id text PRIMARY KEY, name text NOT NULL, capacity integer NOT NULL CHECK(capacity>=0),
  price integer NOT NULL CHECK(price>=0), active boolean NOT NULL DEFAULT true
