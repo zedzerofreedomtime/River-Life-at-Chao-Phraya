@@ -18,10 +18,6 @@ const (
 	RoleAdmin    = "admin"
 )
 
-func ValidRole(role string) bool {
-	return role == RoleUser || role == RoleSales || role == RoleOperator || role == RoleAdmin
-}
-
 type User struct {
 	ID    string `json:"id"`
 	Name  string `json:"name"`
@@ -80,12 +76,12 @@ func (s *Service) CreateMember(ctx context.Context, email, name, passwordHash st
 	return user, tx.Commit(ctx)
 }
 
-func (s *Service) AuthenticateEmailPassword(ctx context.Context, email, password, role string) (User, error) {
+func (s *Service) AuthenticateEmailPassword(ctx context.Context, email, password string) (User, error) {
 	email = strings.ToLower(strings.TrimSpace(email))
 	var user User
 	var passwordHash string
 	err := s.DB.QueryRow(ctx, "SELECT id,name,email,role,password_hash FROM users WHERE email=$1", email).Scan(&user.ID, &user.Name, &user.Email, &user.Role, &passwordHash)
-	if err != nil || passwordHash == "" || user.Role != role || bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password)) != nil {
+	if err != nil || passwordHash == "" || bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password)) != nil {
 		return User{}, ErrInvalidCredentials
 	}
 	return user, nil

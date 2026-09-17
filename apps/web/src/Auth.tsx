@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
-import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import { api } from "./api";
 
@@ -9,18 +8,11 @@ export type AuthUser = {
   id: string;
   name: string;
   email: string;
-  role?: Role;
+  role?: "user" | "sales" | "operator" | "admin";
   authenticated?: boolean;
 };
 type Mode = "login" | "signup";
 type SignupStep = "details" | "otp" | "complete";
-type Role = "user" | "sales" | "operator" | "admin";
-const roleOptions: { value: Role; label: string }[] = [
-  { value: "user", label: "ผู้ใช้" },
-  { value: "sales", label: "เซล" },
-  { value: "operator", label: "โอเปอร์เรเตอร์" },
-  { value: "admin", label: "แอดมิน" },
-];
 
 export default function Auth({
   onAuthenticated,
@@ -32,7 +24,6 @@ export default function Auth({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<Role>("user");
   const [code, setCode] = useState("");
   const [demoCode, setDemoCode] = useState("");
   const [message, setMessage] = useState("");
@@ -75,7 +66,7 @@ export default function Auth({
       onAuthenticated(
         await api<AuthUser>("/auth/login", {
           method: "POST",
-          body: JSON.stringify({ email, password, role }),
+          body: JSON.stringify({ email, password }),
         }),
         "login",
       );
@@ -243,18 +234,6 @@ export default function Auth({
               value={password}
               onChange={(event) => setPassword(event.target.value)}
             />
-            <TextField
-              select
-              label="เข้าสู่ระบบในบทบาท"
-              value={role}
-              onChange={(event) => setRole(event.target.value as Role)}
-            >
-              {roleOptions.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </TextField>
             <Button
               variant="contained"
               onClick={() => void login()}
