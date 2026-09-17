@@ -89,10 +89,9 @@ export default function ProfileMenu({
             ) : (
               <>
                 <strong>ยังไม่ได้เข้าสู่ระบบ</strong>
-                <small>เข้าสู่ระบบด้วย Google หรือสมัครสมาชิกใหม่</small>
+                <small>สมัครสมาชิกเพื่อเก็บบัตรและคำสั่งซื้อของคุณ</small>
                 <button type="button" onClick={onLogin}>
-                  เข้าสู่ระบบ / สมัครสมาชิก{" "}
-                  <ChevronRight aria-hidden="true" size={19} />
+                  สมัครสมาชิก <ChevronRight aria-hidden="true" size={19} />
                 </button>
               </>
             )}

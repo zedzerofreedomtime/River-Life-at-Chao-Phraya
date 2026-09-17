@@ -135,21 +135,8 @@
   display: grid;
   gap: 14px;
 }
-.auth-form .MuiButton-contained,
-.google-login {
+.auth-form .MuiButton-contained {
   min-height: 46px;
-}
-.auth-divider {
-  display: grid;
-  place-items: center;
-  margin: 24px 0;
-  border-top: 1px solid #dfe5eb;
-}
-.auth-divider span {
-  margin-top: -12px;
-  padding: 0 12px;
-  background: #fff;
-  color: #6b7b8e;
 }
 .market-header-dark .profile-trigger:hover,
 .market-header-dark .profile-trigger[aria-expanded="true"] {

@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-var ErrMemberAlreadyExists = errors.New("อีเมลนี้สมัครสมาชิกแล้ว กรุณาเข้าสู่ระบบด้วย Google")
+var ErrMemberAlreadyExists = errors.New("อีเมลนี้สมัครสมาชิกแล้ว")
 
 type User struct {
 	ID    string `json:"id"`

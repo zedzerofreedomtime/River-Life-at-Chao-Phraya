@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
@@ -23,12 +23,6 @@ export default function Auth({
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [googleReady, setGoogleReady] = useState(false);
-  useEffect(() => {
-    void api<{ configured: boolean }>("/auth/google/status")
-      .then(({ configured }) => setGoogleReady(configured))
-      .catch(() => setGoogleReady(false));
-  }, []);
   const requestOTP = async () => {
     setBusy(true);
     setError("");
@@ -65,24 +59,8 @@ export default function Auth({
   return (
     <section className="auth-page content-panel">
       <div className="orders-heading">
-        <h1>เข้าสู่ระบบ หรือสมัครสมาชิก</h1>
-        <p>
-          เข้าสู่ระบบด้วย Google
-          หรือสมัครสมาชิกด้วยอีเมลเพื่อเก็บบัตรและคำสั่งซื้อไว้กับบัญชีของคุณ
-        </p>
-      </div>
-      <Button
-        className="google-login"
-        variant="outlined"
-        onClick={() => window.location.assign("/api/v1/auth/google/start")}
-        disabled={!googleReady}
-      >
-        {googleReady
-          ? "เข้าสู่ระบบด้วย Google"
-          : "Google Sign-In (รอการตั้งค่า)"}
-      </Button>
-      <div className="auth-divider">
-        <span>หรือสมัครสมาชิกด้วยอีเมล</span>
+        <h1>สมัครสมาชิก River Life</h1>
+        <p>สมัครสมาชิกด้วยอีเมลเพื่อเก็บบัตรและคำสั่งซื้อไว้กับบัญชีของคุณ</p>
       </div>
       <div className="auth-form">
         <TextField
