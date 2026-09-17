@@ -166,10 +166,10 @@ export default function BookingForm({
         startIcon={<Ticket size={19} />}
         disabled={busy || !accepted || !zone || quantity > zone.available}
       >
-        {busy ? "กำลังสร้างคำสั่งซื้อ…" : "ยืนยันการจอง"}
+        {busy ? "กำลังสร้างรายการ…" : "ยืนยันการจองและไปชำระเงิน"}
       </Button>
       <p className="form-foot">
-        ยืนยันการจองแล้ว แนบรูปประกอบในหน้าคำสั่งซื้อเพื่อรับ QR Ticket
+        รายการจะถูกสำรองไว้ 15 นาที เพื่อให้คุณชำระเงินในขั้นตอนถัดไป
       </p>
     </form>
   );

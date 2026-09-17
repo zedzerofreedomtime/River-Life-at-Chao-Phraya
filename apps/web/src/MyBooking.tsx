@@ -7,10 +7,12 @@ import { api, labels, money, type Booking } from "./api";
 export default function MyBooking({
   initial,
   initialToken,
+  onPay,
   onOpenTickets,
 }: {
   initial: Booking | null;
   initialToken: string;
+  onPay?: (booking: Booking) => void;
   onOpenTickets?: (booking: Booking) => void;
 }) {
   const [booking, setBooking] = useState(initial);
@@ -20,7 +22,6 @@ export default function MyBooking({
   const [token, setToken] = useState(
     initialToken || sessionStorage.getItem("riverlife.booking.token") || "",
   );
-  const [attachment, setAttachment] = useState<File | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -57,38 +58,6 @@ export default function MyBooking({
       .then(setBooking)
       .catch((cause: Error) => setError(cause.message));
   }, [initial?.id, initialToken]);
-
-  const upload = async () => {
-    if (!booking || !attachment) return;
-    setBusy(true);
-    setError("");
-    try {
-      const form = new FormData();
-      form.append("attachment", attachment);
-      const updated = await api<Booking>(
-        `/bookings/${booking.id}/attachment`,
-        { method: "POST", body: form },
-        token,
-      );
-      setBooking(updated);
-      setAttachment(null);
-      onOpenTickets?.(updated);
-    } catch (cause) {
-      setError((cause as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const chooseAttachment = (next: File | null) => {
-    if (next && next.size > 5 * 1024 * 1024) {
-      setAttachment(null);
-      setError("รูปต้องมีขนาดไม่เกิน 5 MB");
-      return;
-    }
-    setError("");
-    setAttachment(next);
-  };
 
   return (
     <section className="content-panel">
@@ -143,46 +112,20 @@ export default function MyBooking({
             <code className="break-all">{token}</code>
           </details>
           {booking.status === "held" && (
-            <section
-              className="order-attachment"
-              aria-label="แนบรูปประกอบการจอง"
-            >
-              <span>ขั้นตอนที่ 2</span>
-              <h3>แนบรูปประกอบการจอง</h3>
+            <section className="order-action" aria-label="ชำระเงิน">
+              <h3>รอชำระเงิน</h3>
               <p>
-                รองรับ PNG หรือ JPG ไม่เกิน 5 MB
-                ระบบรับไฟล์ไว้เป็นหลักฐานเท่านั้น ไม่ตรวจสลิป ไม่ตรวจธุรกรรม
-                และไม่วิเคราะห์ภาพ
+                รายการถูกสำรองไว้ กรุณาไปหน้าชำระเงินเพื่อสแกน QR และแนบหลักฐาน
               </p>
-              <Button component="label" variant="outlined" disabled={busy}>
-                {attachment ? "เปลี่ยนรูป" : "เลือกรูป"}
-                <input
-                  hidden
-                  type="file"
-                  accept="image/png,image/jpeg"
-                  onChange={(event) =>
-                    chooseAttachment(event.target.files?.[0] ?? null)
-                  }
-                />
-              </Button>
-              <small className={attachment ? "selected" : ""}>
-                {attachment
-                  ? `เลือกแล้ว: ${attachment.name}`
-                  : "ยังไม่ได้เลือกรูป"}
-              </small>
-              <Button
-                variant="contained"
-                disabled={busy || !attachment}
-                onClick={() => void upload()}
-              >
-                {busy ? "กำลังส่งรูป…" : "ส่งรูปและรับ QR Ticket"}
+              <Button variant="contained" onClick={() => onPay?.(booking)}>
+                ไปหน้าชำระเงิน
               </Button>
             </section>
           )}
           {booking.status === "confirmed" && (
             <div className="order-success">
               <div>
-                <strong>รับรูปเรียบร้อยแล้ว</strong>
+                <strong>ชำระเงินเรียบร้อยแล้ว</strong>
                 <span>
                   QR Ticket จำนวน {booking.tickets.length} ใบพร้อมใช้งาน
                 </span>

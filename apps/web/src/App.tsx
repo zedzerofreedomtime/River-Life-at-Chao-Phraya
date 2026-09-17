@@ -9,14 +9,19 @@ import EventDetail from "./EventDetail";
 import BoatMap from "./BoatMap";
 import BookingForm from "./BookingForm";
 import MyBooking from "./MyBooking";
+import Payment from "./Payment";
+import BookingSuccess from "./BookingSuccess";
 import TicketWallet from "./TicketWallet";
 import Admin from "./Admin";
 import { api, type Booking, type EventInfo } from "./api";
 
-type Page = "event" | "checkout" | "orders" | "tickets" | "admin";
+type Page =
+  "event" | "checkout" | "payment" | "success" | "orders" | "tickets" | "admin";
 const pagePaths: Record<Page, string> = {
   event: "/",
   checkout: "/checkout",
+  payment: "/payment",
+  success: "/success",
   orders: "/orders",
   tickets: "/tickets",
   admin: "/admin",
@@ -32,12 +37,7 @@ const nav: [Page, string][] = [
   ["orders", "คำสั่งซื้อ"],
   ["admin", "เจ้าหน้าที่"],
 ];
-const checkoutSteps = [
-  "เลือกโซน",
-  "ยืนยันการจอง",
-  "แนบรูปประกอบ",
-  "รับ QR Ticket",
-];
+const checkoutSteps = ["เลือกเรือ", "เลือกโซน", "ชำระเงิน", "ทำรายการสำเร็จ"];
 
 export default function App() {
   const [page, setPage] = useState<Page>(pageFromLocation);
@@ -128,7 +128,7 @@ export default function App() {
             <button className="back-link" onClick={() => go("event")}>
               ← กลับไปดูรายละเอียดเรือ
             </button>
-            <Stepper activeStep={0} alternativeLabel className="checkout-steps">
+            <Stepper activeStep={1} alternativeLabel className="checkout-steps">
               {checkoutSteps.map((label) => (
                 <Step key={label}>
                   <StepLabel>{label}</StepLabel>
@@ -136,8 +136,8 @@ export default function App() {
               ))}
             </Stepper>
             <div className="checkout-heading">
-              <h1>เลือกบัตร</h1>
-              <p>เลือกโซน จำนวนบัตร และกรอกข้อมูลเพื่อสร้างคำสั่งซื้อ</p>
+              <h1>เลือกโซนและจำนวนบัตร</h1>
+              <p>เลือกพื้นที่บนเรือและกรอกข้อมูล ก่อนเข้าสู่หน้าชำระเงิน</p>
             </div>
             <div className="booking-layout">
               <BoatMap zones={event.zones} selected={zone} onSelect={setZone} />
@@ -153,16 +153,42 @@ export default function App() {
                     "riverlife.booking.token",
                     accessToken,
                   );
-                  go("orders");
+                  go("payment");
                 }}
               />
             </div>
           </section>
         )}
+        {page === "payment" && (
+          <Payment
+            initial={booking}
+            initialToken={token}
+            onCompleted={(updated) => {
+              setBooking(updated);
+              go("success");
+            }}
+            onBackToZones={() => go("checkout")}
+          />
+        )}
+        {page === "success" && (
+          <BookingSuccess
+            initial={booking}
+            initialToken={token}
+            onOpenTickets={(updated) => {
+              setBooking(updated);
+              go("tickets");
+            }}
+            onOpenOrders={() => go("orders")}
+          />
+        )}
         {page === "orders" && (
           <MyBooking
             initial={booking}
             initialToken={token}
+            onPay={(updated) => {
+              setBooking(updated);
+              go("payment");
+            }}
             onOpenTickets={(updated) => {
               if (updated) setBooking(updated);
               go("tickets");

@@ -906,6 +906,331 @@ main {
     font-size: 10px;
   }
 }
+
+/* Reservation payment flow */
+.flow-page {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 32px 0 16px;
+}
+.flow-steps {
+  max-width: 720px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 0 auto 34px;
+  padding: 0;
+  list-style: none;
+}
+.flow-steps li {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  color: #728097;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+.flow-steps li::before {
+  position: absolute;
+  z-index: -1;
+  top: 15px;
+  left: calc(-50% + 15px);
+  width: calc(100% - 30px);
+  height: 2px;
+  background: #d9e0e8;
+  content: "";
+}
+.flow-steps li:first-child::before {
+  display: none;
+}
+.flow-steps li span {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 2px solid #d4dce6;
+  border-radius: 50%;
+  background: #fff;
+  color: #64748b;
+}
+.flow-steps li.done {
+  color: #102641;
+}
+.flow-steps li.done span {
+  border-color: #ba8d47;
+  background: #ba8d47;
+  color: #fff;
+}
+.flow-steps li.done::before {
+  background: #ba8d47;
+}
+.flow-heading {
+  margin: 22px 0;
+}
+.flow-heading h1,
+.success-card h1,
+.flow-empty h1 {
+  margin: 0 0 7px;
+  color: #102641;
+  font:
+    700 40px Georgia,
+    serif;
+}
+.flow-heading p,
+.flow-empty p {
+  margin: 0;
+  color: #64748b;
+}
+.payment-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 310px;
+  gap: 22px;
+  align-items: stretch;
+}
+.payment-instructions,
+.payment-qr-card,
+.payment-proof,
+.success-card,
+.flow-empty,
+.order-action {
+  border: 1px solid #dce4ec;
+  border-radius: 13px;
+  background: #fff;
+}
+.payment-instructions {
+  padding: 30px;
+}
+.payment-instructions > span,
+.payment-proof > span {
+  color: #a77831;
+  font-size: 13px;
+  font-weight: 700;
+}
+.payment-instructions h2,
+.payment-proof h2 {
+  margin: 7px 0;
+  color: #102641;
+  font-size: 27px;
+}
+.payment-instructions > p,
+.payment-proof > p {
+  margin: 0;
+  color: #66778d;
+  line-height: 1.65;
+}
+.payment-amount {
+  display: block;
+  margin: 16px 0 9px;
+  color: #ad7b2d;
+  font-size: 38px;
+}
+.payment-instructions > small {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #4c637f;
+}
+.payment-order-summary {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 9px 20px;
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid #e4e9ef;
+  color: #64748b;
+  font-size: 13px;
+}
+.payment-order-summary b {
+  color: #102641;
+  text-align: right;
+}
+.payment-qr-card {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: 22px;
+  color: #102641;
+  text-align: center;
+}
+.payment-qr-card img {
+  width: 180px;
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 7px 19px rgba(16, 38, 65, 0.12);
+}
+.payment-qr-card svg {
+  margin-top: 14px;
+  color: #b18743;
+}
+.payment-qr-card strong {
+  margin-top: 4px;
+}
+.payment-qr-card small {
+  margin-top: 5px;
+  color: #6b7a8e;
+  font-size: 12px;
+}
+.payment-proof {
+  margin-top: 22px;
+  padding: 25px 30px;
+}
+.proof-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+.proof-actions .MuiButton-contained {
+  background: #b98d48;
+}
+.proof-actions .MuiButton-contained:hover {
+  background: #9e7433;
+}
+.proof-actions span {
+  min-width: 180px;
+  color: #718198;
+  font-size: 13px;
+}
+.proof-actions span.selected-file {
+  color: #177150;
+  font-weight: 700;
+}
+.payment-disclaimer {
+  display: block;
+  margin-top: 15px;
+  color: #758398;
+  font-size: 12px;
+}
+.success-page {
+  padding-top: 42px;
+}
+.success-card {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 47px 42px;
+  text-align: center;
+}
+.success-card > svg {
+  width: 55px;
+  height: 55px;
+  margin-bottom: 16px;
+  color: #19835e;
+}
+.success-card > p {
+  margin: 0 auto;
+  max-width: 480px;
+  color: #60718a;
+  line-height: 1.65;
+}
+.success-card dl {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(2, 1fr);
+  gap: 12px;
+  margin: 27px 0;
+  text-align: left;
+}
+.success-card dl div {
+  padding: 13px;
+  border-radius: 7px;
+  background: #f7f9fb;
+}
+.success-card dt {
+  color: #748298;
+  font-size: 11px;
+}
+.success-card dd {
+  margin: 5px 0 0;
+  color: #102641;
+  font-size: 13px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.success-card dl div:first-child dd {
+  font-size: 12px;
+  letter-spacing: 0.15px;
+}
+.success-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+.success-actions .MuiButton-contained {
+  background: #b98d48;
+}
+.flow-empty {
+  max-width: 560px;
+  margin: 72px auto;
+  padding: 40px;
+  text-align: center;
+}
+.flow-empty .MuiButton-root {
+  margin-top: 20px;
+  background: #b98d48;
+}
+.order-action {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 20px;
+}
+.order-action h3 {
+  margin: 0;
+  color: #102641;
+}
+.order-action p {
+  margin: 0;
+  color: #66778d;
+}
+.order-action .MuiButton-root {
+  width: max-content;
+  margin-top: 4px;
+  background: #b98d48;
+}
+@media (max-width: 700px) {
+  .flow-page {
+    padding: 24px 0;
+  }
+  .flow-steps {
+    gap: 2px;
+    margin-bottom: 26px;
+  }
+  .flow-steps li {
+    font-size: 10px;
+  }
+  .flow-steps li span {
+    width: 27px;
+    height: 27px;
+  }
+  .flow-steps li::before {
+    top: 13px;
+  }
+  .payment-layout {
+    grid-template-columns: 1fr;
+  }
+  .payment-qr-card {
+    order: -1;
+  }
+  .payment-qr-card img {
+    width: 156px;
+  }
+  .payment-instructions,
+  .payment-proof {
+    padding: 22px;
+  }
+  .success-card {
+    padding: 35px 20px;
+  }
+  .success-card dl {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  .success-actions {
+    flex-direction: column;
+  }
+}
 .boat-scene {
   height: 340px;
   display: flex;
