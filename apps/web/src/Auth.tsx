@@ -16,8 +16,10 @@ type SignupStep = "details" | "otp" | "complete";
 
 export default function Auth({
   onAuthenticated,
+  modal = false,
 }: {
   onAuthenticated: (user: AuthUser, source: Mode) => void;
+  modal?: boolean;
 }) {
   const [mode, setMode] = useState<Mode>("login");
   const [signupStep, setSignupStep] = useState<SignupStep>("details");
@@ -168,7 +170,9 @@ export default function Auth({
   );
 
   return (
-    <section className="auth-page content-panel">
+    <section
+      className={`auth-page content-panel${modal ? " auth-modal-content" : ""}`}
+    >
       <div className="auth-tabs" role="tablist" aria-label="การเข้าใช้งานบัญชี">
         <button
           type="button"

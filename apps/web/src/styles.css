@@ -162,6 +162,38 @@
   margin: 0;
   color: #516784;
 }
+.auth-dialog .MuiDialog-paper {
+  overflow: hidden;
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(7, 28, 55, 0.32);
+}
+.auth-dialog-banner {
+  min-height: 86px;
+  padding: 0 18px 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(115deg, #071c37, #124574 65%, #1a5b78);
+  color: #fff;
+}
+.auth-dialog-banner span {
+  font-family: Georgia, serif;
+  font-size: 27px;
+  letter-spacing: 3px;
+}
+.auth-dialog-banner .MuiIconButton-root {
+  color: #fff;
+}
+.auth-page.auth-modal-content {
+  width: auto;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.auth-modal-content .auth-tabs {
+  margin: -2px -18px 28px;
+}
 .admin-dashboard {
   max-width: 1240px;
   margin: 42px auto 0;

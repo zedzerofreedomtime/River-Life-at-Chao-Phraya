@@ -51,6 +51,10 @@ export default function ProfileMenu({
     setOpen(false);
     onLogout();
   };
+  const login = () => {
+    setOpen(false);
+    onLogin();
+  };
   const initial = name.trim().charAt(0).toUpperCase() || "R";
 
   return (
@@ -92,7 +96,7 @@ export default function ProfileMenu({
                 <small>
                   เข้าสู่ระบบหรือสมัครสมาชิกเพื่อเก็บบัตรและคำสั่งซื้อ
                 </small>
-                <button type="button" onClick={onLogin}>
+                <button type="button" onClick={login}>
                   เข้าสู่ระบบ / สมัครสมาชิก{" "}
                   <ChevronRight aria-hidden="true" size={19} />
                 </button>

@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import IconButton from "@mui/material/IconButton";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Stepper from "@mui/material/Stepper";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import EventDetail from "./EventDetail";
 import BoatMap from "./BoatMap";
 import BookingForm from "./BookingForm";
@@ -65,6 +67,9 @@ export default function App() {
     role: sessionStorage.getItem("riverlife.profile.role") || "user",
   }));
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authDialogOpen, setAuthDialogOpen] = useState(
+    () => pageFromLocation() === "auth",
+  );
   const [continueCheckoutAfterLogin, setContinueCheckoutAfterLogin] =
     useState(false);
   const loadEvent = () =>
@@ -120,7 +125,12 @@ export default function App() {
   };
   const requireLoginForCheckout = () => {
     setContinueCheckoutAfterLogin(true);
-    go("auth");
+    setAuthDialogOpen(true);
+  };
+  const openAuthDialog = () => setAuthDialogOpen(true);
+  const closeAuthDialog = () => {
+    setAuthDialogOpen(false);
+    if (page === "auth") go("event");
   };
   const rememberBooking = (data: Booking, accessToken: string) => {
     setBooking(data);
@@ -180,7 +190,7 @@ export default function App() {
             isAuthenticated={isAuthenticated}
             name={profile.name}
             email={profile.email}
-            onLogin={() => go("auth")}
+            onLogin={openAuthDialog}
             onNavigate={go}
             onLogout={logoutCustomer}
           />
@@ -203,37 +213,6 @@ export default function App() {
         )}
         {page === "event" && event && (
           <EventDetail event={event} onStartCheckout={goCheckout} />
-        )}
-        {page === "auth" && (
-          <Auth
-            onAuthenticated={(user, source) => {
-              setProfile({
-                name: user.name || "ผู้ใช้งาน River Life",
-                email: user.email,
-                role: user.role || "user",
-              });
-              sessionStorage.setItem(
-                "riverlife.profile.name",
-                user.name || "ผู้ใช้งาน River Life",
-              );
-              sessionStorage.setItem("riverlife.profile.email", user.email);
-              sessionStorage.setItem(
-                "riverlife.profile.role",
-                user.role || "user",
-              );
-              setIsAuthenticated(true);
-              if (source === "login") {
-                const destination =
-                  user.role === "admin"
-                    ? "dashboard"
-                    : continueCheckoutAfterLogin
-                      ? "checkout"
-                      : "event";
-                setContinueCheckoutAfterLogin(false);
-                go(destination);
-              }
-            }}
-          />
         )}
         {page === "checkout" && event && (
           <section className="checkout-page">
@@ -314,6 +293,57 @@ export default function App() {
         )}
         {!event && !error && <p role="status">กำลังโหลดรอบการแสดง…</p>}
       </main>
+      <Dialog
+        open={authDialogOpen}
+        onClose={closeAuthDialog}
+        aria-labelledby="auth-dialog-title"
+        className="auth-dialog"
+        maxWidth="sm"
+        fullWidth
+      >
+        <div className="auth-dialog-banner">
+          <span id="auth-dialog-title">RIVER LIFE</span>
+          <IconButton
+            aria-label="ปิดหน้าต่างเข้าสู่ระบบ"
+            onClick={closeAuthDialog}
+            color="inherit"
+          >
+            <X aria-hidden="true" />
+          </IconButton>
+        </div>
+        <Auth
+          modal
+          onAuthenticated={(user, source) => {
+            setProfile({
+              name: user.name || "ผู้ใช้งาน River Life",
+              email: user.email,
+              role: user.role || "user",
+            });
+            sessionStorage.setItem(
+              "riverlife.profile.name",
+              user.name || "ผู้ใช้งาน River Life",
+            );
+            sessionStorage.setItem("riverlife.profile.email", user.email);
+            sessionStorage.setItem(
+              "riverlife.profile.role",
+              user.role || "user",
+            );
+            setIsAuthenticated(true);
+            if (source !== "login") return;
+            setAuthDialogOpen(false);
+            const destination =
+              user.role === "admin"
+                ? "dashboard"
+                : continueCheckoutAfterLogin
+                  ? "checkout"
+                  : page === "auth"
+                    ? "event"
+                    : page;
+            setContinueCheckoutAfterLogin(false);
+            go(destination);
+          }}
+        />
+      </Dialog>
       <footer>
         <span className="footer-brand">RIVER LIFE</span>
         <span>เจ้าพระยา · คอนเสิร์ตบนเรือ</span>
