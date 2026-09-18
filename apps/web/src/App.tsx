@@ -263,6 +263,8 @@ export default function App() {
                 }}
                 isAuthenticated={isAuthenticated}
                 onRequireLogin={requireLoginForCheckout}
+                accountName={profile.name}
+                accountEmail={profile.email}
               />
             </div>
           </section>

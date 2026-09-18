@@ -13,6 +13,8 @@ export default function BookingForm({
   onBooked,
   isAuthenticated,
   onRequireLogin,
+  accountName,
+  accountEmail,
 }: {
   zones: Zone[];
   selected: string;
@@ -20,10 +22,10 @@ export default function BookingForm({
   onBooked: (b: Booking, t: string) => void;
   isAuthenticated: boolean;
   onRequireLogin: () => void;
+  accountName: string;
+  accountEmail: string;
 }) {
   const [quantity, setQuantity] = useState(1),
-    [name, setName] = useState(""),
-    [email, setEmail] = useState(""),
     [agent, setAgent] = useState(""),
     [accepted, setAccepted] = useState(false),
     [busy, setBusy] = useState(false),
@@ -46,8 +48,8 @@ export default function BookingForm({
     const body = {
       zone_id: selected,
       quantity,
-      name: name.trim(),
-      email: email.trim(),
+      name: accountName,
+      email: accountEmail,
       agent_code: agent.trim(),
     };
     const fingerprint = JSON.stringify(body);
@@ -76,7 +78,12 @@ export default function BookingForm({
   return (
     <form className="booking-panel" onSubmit={submit}>
       <h2>จองบัตรคอนเสิร์ตบนเรือ</h2>
-      <p className="muted">เลือกโซน จำนวนบัตร และกรอกข้อมูลผู้จอง</p>
+      <p className="muted">
+        เลือกโซนและจำนวนบัตร
+        {isAuthenticated
+          ? " ก่อนยืนยันการจอง"
+          : " แล้วเข้าสู่ระบบเพื่อซื้อบัตร"}
+      </p>
       <label className="field-label">โซน</label>
       <div className="zone-options">
         {zones.map((z) => (
@@ -123,49 +130,42 @@ export default function BookingForm({
         </div>
       </div>
       <hr />
-      <h3>ข้อมูลผู้จอง</h3>
-      {!isAuthenticated && (
-        <Alert severity="info" className="mb-3">
-          เข้าสู่ระบบก่อน เพื่อยืนยันตัวตนและดำเนินการซื้อบัตร
-        </Alert>
-      )}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <TextField
-          label="ชื่อ–นามสกุล"
-          required
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          inputProps={{ maxLength: 120 }}
-        />
-        <TextField
-          label="อีเมล"
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          inputProps={{ maxLength: 200 }}
-        />
-      </div>
-      <TextField
-        label="รหัสตัวแทน (ถ้ามี)"
-        value={agent}
-        onChange={(e) => setAgent(e.target.value)}
-        inputProps={{ maxLength: 40 }}
-        sx={{ mt: 2 }}
-      />
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={accepted}
-            onChange={(e) => setAccepted(e.target.checked)}
+      {isAuthenticated ? (
+        <>
+          <h3>ข้อมูลผู้จอง</h3>
+          <div className="booking-account">
+            <span>บัญชีที่ใช้จอง</span>
+            <strong>{accountName}</strong>
+            <small>{accountEmail}</small>
+          </div>
+          <TextField
+            label="รหัสตัวแทน (ถ้ามี)"
+            value={agent}
+            onChange={(e) => setAgent(e.target.value)}
+            inputProps={{ maxLength: 40 }}
+            sx={{ mt: 2 }}
           />
-        }
-        label={
-          <span className="consent">
-            รับทราบว่ามาไม่ทันเรือถือเป็น No-show ไม่คืนเงินหรือใช้สิทธิ์ใหม่
-          </span>
-        }
-      />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={accepted}
+                onChange={(e) => setAccepted(e.target.checked)}
+              />
+            }
+            label={
+              <span className="consent">
+                รับทราบว่ามาไม่ทันเรือถือเป็น No-show
+                ไม่คืนเงินหรือใช้สิทธิ์ใหม่
+              </span>
+            }
+          />
+        </>
+      ) : (
+        <div className="booking-login-prompt">
+          <h3>พร้อมเลือกโซนแล้ว</h3>
+          <p>เข้าสู่ระบบเพื่อยืนยันตัวตนก่อนดำเนินการซื้อบัตร</p>
+        </div>
+      )}
       {error && (
         <Alert severity="error" className="mb-3">
           {error}
@@ -189,7 +189,7 @@ export default function BookingForm({
           ? "กำลังสร้างรายการ…"
           : isAuthenticated
             ? "ยืนยันการจองและไปชำระเงิน"
-            : "เข้าสู่ระบบเพื่อซื้อบัตร"}
+            : "ซื้อบัตร"}
       </Button>
       <p className="form-foot">
         รายการจะถูกสำรองไว้ 15 นาที เพื่อให้คุณชำระเงินในขั้นตอนถัดไป

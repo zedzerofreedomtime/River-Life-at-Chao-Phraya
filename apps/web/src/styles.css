@@ -1748,6 +1748,43 @@ hr {
   font-size: 12px;
   color: #586273;
 }
+.booking-account,
+.booking-login-prompt {
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.booking-account {
+  border: 1px solid #dbe6ed;
+  background: #f6fafc;
+}
+.booking-account span,
+.booking-account strong,
+.booking-account small {
+  display: block;
+}
+.booking-account span,
+.booking-account small,
+.booking-login-prompt p {
+  color: #60758d;
+  font-size: 13px;
+}
+.booking-account strong {
+  margin-top: 3px;
+  color: #10223c;
+}
+.booking-account small {
+  margin-top: 2px;
+}
+.booking-login-prompt {
+  background: #edf8fc;
+  border-left: 3px solid #169bd5;
+}
+.booking-login-prompt h3 {
+  margin: 0;
+}
+.booking-login-prompt p {
+  margin: 5px 0 0;
+}
 .form-foot {
   text-align: center;
   font-size: 12px;
