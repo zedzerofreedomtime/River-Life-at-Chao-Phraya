@@ -11,11 +11,15 @@ export default function BookingForm({
   selected,
   onSelect,
   onBooked,
+  isAuthenticated,
+  onRequireLogin,
 }: {
   zones: Zone[];
   selected: string;
   onSelect: (v: string) => void;
   onBooked: (b: Booking, t: string) => void;
+  isAuthenticated: boolean;
+  onRequireLogin: () => void;
 }) {
   const [quantity, setQuantity] = useState(1),
     [name, setName] = useState(""),
@@ -32,6 +36,10 @@ export default function BookingForm({
   const zone = zones.find((z) => z.id === selected);
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (!isAuthenticated) {
+      onRequireLogin();
+      return;
+    }
     if (!zone || !accepted) return;
     setBusy(true);
     setError("");
@@ -116,6 +124,11 @@ export default function BookingForm({
       </div>
       <hr />
       <h3>ข้อมูลผู้จอง</h3>
+      {!isAuthenticated && (
+        <Alert severity="info" className="mb-3">
+          เข้าสู่ระบบก่อน เพื่อยืนยันตัวตนและดำเนินการซื้อบัตร
+        </Alert>
+      )}
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField
           label="ชื่อ–นามสกุล"
@@ -162,11 +175,21 @@ export default function BookingForm({
         variant="contained"
         fullWidth
         size="large"
-        type="submit"
+        type={isAuthenticated ? "submit" : "button"}
         startIcon={<Ticket size={19} />}
-        disabled={busy || !accepted || !zone || quantity > zone.available}
+        onClick={isAuthenticated ? undefined : onRequireLogin}
+        disabled={
+          busy ||
+          !zone ||
+          quantity > zone.available ||
+          (isAuthenticated && !accepted)
+        }
       >
-        {busy ? "กำลังสร้างรายการ…" : "ยืนยันการจองและไปชำระเงิน"}
+        {busy
+          ? "กำลังสร้างรายการ…"
+          : isAuthenticated
+            ? "ยืนยันการจองและไปชำระเงิน"
+            : "เข้าสู่ระบบเพื่อซื้อบัตร"}
       </Button>
       <p className="form-foot">
         รายการจะถูกสำรองไว้ 15 นาที เพื่อให้คุณชำระเงินในขั้นตอนถัดไป

@@ -65,6 +65,8 @@ export default function App() {
     role: sessionStorage.getItem("riverlife.profile.role") || "user",
   }));
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [continueCheckoutAfterLogin, setContinueCheckoutAfterLogin] =
+    useState(false);
   const loadEvent = () =>
     api<EventInfo>("/event")
       .then((data) => {
@@ -115,6 +117,10 @@ export default function App() {
   const goCheckout = (preferredZone?: string) => {
     if (preferredZone) setZone(preferredZone);
     go("checkout");
+  };
+  const requireLoginForCheckout = () => {
+    setContinueCheckoutAfterLogin(true);
+    go("auth");
   };
   const rememberBooking = (data: Booking, accessToken: string) => {
     setBooking(data);
@@ -216,8 +222,16 @@ export default function App() {
                 user.role || "user",
               );
               setIsAuthenticated(true);
-              if (source === "login")
-                go(user.role === "admin" ? "dashboard" : "event");
+              if (source === "login") {
+                const destination =
+                  user.role === "admin"
+                    ? "dashboard"
+                    : continueCheckoutAfterLogin
+                      ? "checkout"
+                      : "event";
+                setContinueCheckoutAfterLogin(false);
+                go(destination);
+              }
             }}
           />
         )}
@@ -247,6 +261,8 @@ export default function App() {
                   rememberBooking(data, accessToken);
                   go("payment");
                 }}
+                isAuthenticated={isAuthenticated}
+                onRequireLogin={requireLoginForCheckout}
               />
             </div>
           </section>

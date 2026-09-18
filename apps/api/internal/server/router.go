@@ -186,11 +186,24 @@ func (s *Server) Router() *gin.Engine {
 		c.JSON(200, gin.H{"title": "Concert on the River", "demo": s.Demo, "date": nil, "boarding": "18:45", "departure": "19:00", "pier": "ICONSIAM", "duration_minutes": 120, "zones": zs})
 	})
 	api.POST("/bookings", s.limiter(30), func(c *gin.Context) {
+		userID, authenticated := s.userID(c)
+		if !authenticated {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "กรุณาเข้าสู่ระบบก่อนซื้อบัตร"})
+			return
+		}
+		user, err := s.Service.User(c.Request.Context(), userID)
+		if err != nil {
+			fail(c, err)
+			return
+		}
 		var in service.Input
 		if c.ShouldBindJSON(&in) != nil || len(c.GetHeader("Idempotency-Key")) < 16 || len(c.GetHeader("Idempotency-Key")) > 100 || len(token(c)) != 64 {
 			bad(c)
 			return
 		}
+		// The account is the source of truth for the booking owner; never trust
+		// a name or email submitted by the browser for an authenticated purchase.
+		in.Name, in.Email = user.Name, user.Email
 		b, err := s.Service.Create(c.Request.Context(), in, c.GetHeader("Idempotency-Key"), token(c))
 		if err != nil {
 			fail(c, err)
