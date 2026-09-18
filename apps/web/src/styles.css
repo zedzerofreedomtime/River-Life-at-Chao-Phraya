@@ -23,6 +23,23 @@
 .market-tools .profile-trigger[aria-expanded="true"] {
   background: #f0f4f8;
 }
+.market-tools .profile-login-call {
+  min-height: 38px;
+  padding: 4px 0 4px 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 0;
+  background: transparent;
+  color: #10223c;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.market-tools .profile-login-call:hover {
+  color: #a87930;
+}
 .profile-popover {
   position: absolute;
   z-index: 20;

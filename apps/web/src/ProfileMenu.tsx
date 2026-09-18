@@ -51,11 +51,21 @@ export default function ProfileMenu({
     setOpen(false);
     onLogout();
   };
-  const login = () => {
-    setOpen(false);
-    onLogin();
-  };
   const initial = name.trim().charAt(0).toUpperCase() || "R";
+
+  if (!isAuthenticated) {
+    return (
+      <button
+        aria-label="เข้าสู่ระบบ"
+        className="profile-login-call"
+        onClick={onLogin}
+        type="button"
+      >
+        <CircleUserRound aria-hidden="true" size={29} />
+        <span>เข้าสู่ระบบ</span>
+      </button>
+    );
+  }
 
   return (
     <div className="profile-menu" ref={menuRef}>
@@ -82,47 +92,29 @@ export default function ProfileMenu({
                 <CircleUserRound aria-hidden="true" size={26} />
               )}
             </span>
-            {isAuthenticated ? (
-              <>
-                <strong>{name}</strong>
-                <small>{email}</small>
-                <button type="button" onClick={() => navigate("orders")}>
-                  ดูคำสั่งซื้อ <ChevronRight aria-hidden="true" size={19} />
-                </button>
-              </>
-            ) : (
-              <>
-                <strong>ยังไม่ได้เข้าสู่ระบบ</strong>
-                <small>
-                  เข้าสู่ระบบหรือสมัครสมาชิกเพื่อเก็บบัตรและคำสั่งซื้อ
-                </small>
-                <button type="button" onClick={login}>
-                  เข้าสู่ระบบ / สมัครสมาชิก{" "}
-                  <ChevronRight aria-hidden="true" size={19} />
-                </button>
-              </>
-            )}
-          </div>
-          {isAuthenticated ? (
             <>
-              <div className="profile-actions">
-                <MenuAction icon={Ticket} onClick={() => navigate("tickets")}>
-                  บัตรของฉัน
-                </MenuAction>
-                <MenuAction
-                  icon={ReceiptText}
-                  onClick={() => navigate("orders")}
-                >
-                  คำสั่งซื้อของฉัน
-                </MenuAction>
-              </div>
-              <div className="profile-logout">
-                <MenuAction icon={LogOut} danger onClick={logout}>
-                  ออกจากระบบ
-                </MenuAction>
-              </div>
+              <strong>{name}</strong>
+              <small>{email}</small>
+              <button type="button" onClick={() => navigate("orders")}>
+                ดูคำสั่งซื้อ <ChevronRight aria-hidden="true" size={19} />
+              </button>
             </>
-          ) : null}
+          </div>
+          <>
+            <div className="profile-actions">
+              <MenuAction icon={Ticket} onClick={() => navigate("tickets")}>
+                บัตรของฉัน
+              </MenuAction>
+              <MenuAction icon={ReceiptText} onClick={() => navigate("orders")}>
+                คำสั่งซื้อของฉัน
+              </MenuAction>
+            </div>
+            <div className="profile-logout">
+              <MenuAction icon={LogOut} danger onClick={logout}>
+                ออกจากระบบ
+              </MenuAction>
+            </div>
+          </>
         </section>
       ) : null}
     </div>
