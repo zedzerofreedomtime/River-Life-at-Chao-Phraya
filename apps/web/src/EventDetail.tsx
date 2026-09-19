@@ -1,13 +1,18 @@
 import {
   Anchor,
   ArrowRight,
+  CalendarDays,
+  Camera,
   Clock3,
+  Diamond,
   MapPin,
+  Music2,
   ShipWheel,
   Utensils,
   UsersRound,
   Waves,
 } from "lucide-react";
+import { useState } from "react";
 import type { EventInfo } from "./api";
 import type { Language } from "./i18n";
 
@@ -50,7 +55,7 @@ export default function EventDetail({
   };
   return (
     <>
-      <section className="event-hero">
+      <section className="event-hero river-landing-hero">
         <img
           src="/images/boat/unicorn-night-hero-gold.png"
           alt={
@@ -60,23 +65,79 @@ export default function EventDetail({
           }
         />
         <div className="event-hero-copy">
-          <h1>Concert on the River</h1>
+          <h1>
+            {en ? (
+              <>
+                Concerts on the <em>Chao Phraya</em>
+              </>
+            ) : (
+              <>
+                คอนเสิร์ตบน<em>แม่น้ำเจ้าพระยา</em>
+              </>
+            )}
+          </h1>
           <p>
             {en
-              ? "A live concert cruise on the Chao Phraya"
-              : "คอนเสิร์ตบนเรือเจ้าพระยา"}
+              ? "Live music. Fine dining. Unforgettable views in the heart of Bangkok."
+              : "ดนตรีสด อาหารพิเศษ และวิวประทับใจใจกลางกรุงเทพฯ"}
           </p>
-          <span>
-            {en
-              ? "A night of music, river breeze and Bangkok lights"
-              : "ค่ำคืนแห่งเสียงดนตรี สายลม และสายน้ำ"}
-            <br />
-            {en
-              ? "on one of the city's most memorable routes."
-              : "บนเส้นทางที่สวยที่สุดของกรุงเทพฯ"}
-          </span>
-          <small>MUSIC MOVES THE RIVER</small>
+          <button className="hero-explore" onClick={() => onStartCheckout()}>
+            {en ? "Explore the cruise" : "สำรวจการล่องเรือ"}
+            <ArrowRight aria-hidden="true" size={21} />
+          </button>
         </div>
+        <p className="hero-signature">
+          Live the River
+          <br />
+          Love the Journey ♡
+        </p>
+        <button
+          className="hero-arrow hero-arrow-left"
+          aria-label={en ? "Previous slide" : "ภาพก่อนหน้า"}
+        >
+          ‹
+        </button>
+        <button
+          className="hero-arrow hero-arrow-right"
+          aria-label={en ? "Next slide" : "ภาพถัดไป"}
+        >
+          ›
+        </button>
+      </section>
+      <AvailabilityPanel
+        language={language}
+        onStartCheckout={onStartCheckout}
+      />
+      <section
+        className="river-benefits"
+        aria-label={en ? "Highlights" : "จุดเด่น"}
+      >
+        <Benefit
+          icon={Music2}
+          title={en ? "World-Class Concerts" : "คอนเสิร์ตระดับพรีเมียม"}
+          text={en ? "Live music with iconic views" : "ดนตรีสดพร้อมวิวแม่น้ำ"}
+        />
+        <Benefit
+          icon={Utensils}
+          title={en ? "Exceptional Dining" : "มื้ออาหารพิเศษ"}
+          text={
+            en ? "A culinary journey on the river" : "ประสบการณ์รสชาติบนสายน้ำ"
+          }
+        />
+        <Benefit
+          icon={Camera}
+          title={en ? "Unrivaled Views" : "วิวที่น่าประทับใจ"}
+          text={
+            en
+              ? "Bangkok's most breathtaking skyline"
+              : "เส้นขอบฟ้ากรุงเทพฯ ที่งดงาม"
+          }
+        />
+        <Benefit
+          icon={Diamond}
+          title={en ? "Premium Experience" : "ประสบการณ์พรีเมียม"}
+          text={en ? "Moments that stay with you" : "ช่วงเวลาที่น่าจดจำ"}
+        />
       </section>
       <section
         className="event-facts"
@@ -224,5 +285,108 @@ function Fact({
         {value}
       </span>
     </div>
+  );
+}
+
+function AvailabilityPanel({
+  language,
+  onStartCheckout,
+}: {
+  language: Language;
+  onStartCheckout: () => void;
+}) {
+  const [tab, setTab] = useState("cruise");
+  const en = language === "en";
+  const tabs = [
+    ["cruise", Anchor, en ? "Book a Cruise" : "จองการล่องเรือ"],
+    ["events", CalendarDays, en ? "Events & Concerts" : "อีเวนต์และคอนเสิร์ต"],
+    ["packages", Diamond, en ? "Special Packages" : "แพ็กเกจพิเศษ"],
+    ["group", UsersRound, en ? "Group & Private Charter" : "กรุ๊ปและเหมาลำ"],
+  ] as const;
+  return (
+    <section
+      className="availability-panel"
+      aria-label={en ? "Cruise availability" : "ตรวจสอบรอบเรือ"}
+    >
+      <div className="availability-tabs" role="tablist">
+        {tabs.map(([value, Icon, label]) => (
+          <button
+            aria-selected={tab === value}
+            className={tab === value ? "active" : ""}
+            key={value}
+            onClick={() => setTab(value)}
+            role="tab"
+            type="button"
+          >
+            <Icon aria-hidden="true" size={24} />
+            {label}
+          </button>
+        ))}
+      </div>
+      <div className="availability-fields">
+        <label>
+          {en ? "Cruise Date" : "วันที่ล่องเรือ"}
+          <span>
+            <CalendarDays aria-hidden="true" size={20} />
+            {en ? "Select date" : "เลือกวันที่"}
+            <Chevron />
+          </span>
+        </label>
+        <label>
+          {en ? "Guests" : "จำนวนผู้โดยสาร"}
+          <span>
+            <UsersRound aria-hidden="true" size={20} />
+            {en ? "2 Adults" : "ผู้ใหญ่ 2 ท่าน"}
+            <Chevron />
+          </span>
+        </label>
+        <label>
+          {en ? "Cruise Type" : "รูปแบบการล่องเรือ"}
+          <span>
+            <Anchor aria-hidden="true" size={20} />
+            {en ? "All Cruises" : "ทุกรอบเรือ"}
+            <Chevron />
+          </span>
+        </label>
+        <button
+          className="availability-cta"
+          onClick={onStartCheckout}
+          type="button"
+        >
+          {en ? "Check Availability" : "ตรวจสอบที่นั่งว่าง"}
+          <ArrowRight aria-hidden="true" size={22} />
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function Chevron() {
+  return (
+    <span aria-hidden="true" className="field-chevron">
+      ⌄
+    </span>
+  );
+}
+
+function Benefit({
+  icon: Icon,
+  title,
+  text,
+}: {
+  icon: typeof Music2;
+  title: string;
+  text: string;
+}) {
+  return (
+    <article>
+      <span>
+        <Icon aria-hidden="true" size={28} />
+      </span>
+      <p>
+        <strong>{title}</strong>
+        {text}
+      </p>
+    </article>
   );
 }

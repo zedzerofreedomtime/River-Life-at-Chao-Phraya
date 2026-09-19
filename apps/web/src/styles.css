@@ -1064,6 +1064,515 @@ body {
     flex-direction: column;
   }
 }
+
+/* International cruise landing page */
+.market-header {
+  position: relative;
+  z-index: 5;
+  min-height: 100px;
+  padding: 0 58px;
+  gap: 44px;
+  background: #fff;
+  border: 0;
+}
+.river-brand {
+  min-width: 205px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0;
+}
+.river-brand::after,
+.river-brand > span {
+  display: none;
+}
+.river-brand > img {
+  width: 166px;
+  height: 166px;
+  margin-top: 70px;
+  object-fit: contain;
+  box-shadow: none;
+  filter: drop-shadow(0 5px 5px rgba(5, 29, 67, 0.16));
+}
+.market-header nav {
+  justify-content: flex-start;
+  gap: clamp(19px, 2.3vw, 42px);
+}
+.market-header nav button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 37px 0 34px;
+  color: #071d4c;
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.market-header nav button svg {
+  stroke-width: 2.3;
+}
+.market-header nav .active::after {
+  display: none;
+}
+.market-tools {
+  min-width: max-content;
+  gap: 20px;
+}
+.market-tools > svg {
+  width: 28px;
+  height: 28px;
+  stroke-width: 2.3;
+}
+.market-tools .profile-login-call {
+  min-height: 55px;
+  padding: 0 27px;
+  display: inline-flex;
+  gap: 9px;
+  border: 1px solid #9b6d16;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffe98a, #e7ad3c);
+  color: #071d4c;
+  font-size: 17px;
+  font-weight: 800;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.72);
+}
+.market-tools .profile-login-call:hover {
+  background: linear-gradient(135deg, #fff0a3, #eab23f);
+}
+.market-tools .profile-login-call svg {
+  width: 25px;
+  height: 25px;
+  fill: #071d4c;
+}
+.market-tools .language-switcher {
+  gap: 10px;
+  font-size: 14px;
+}
+.market-tools .language-switcher span {
+  color: #acb3c2;
+}
+.market-tools .language-switcher button {
+  padding: 8px 0;
+}
+.market-tools .language-switcher button.active {
+  color: #071d4c;
+  border-bottom: 3px solid #e6af31;
+}
+.demo-banner {
+  display: none;
+}
+
+.river-landing-hero {
+  height: 680px;
+  overflow: hidden;
+}
+.river-landing-hero::after {
+  background: linear-gradient(
+    90deg,
+    rgba(3, 17, 48, 0.88) 0%,
+    rgba(3, 17, 48, 0.48) 39%,
+    rgba(3, 17, 48, 0.05) 72%
+  );
+}
+.river-landing-hero img {
+  object-position: center 57%;
+}
+.river-landing-hero .event-hero-copy {
+  z-index: 2;
+  top: 43%;
+  left: max(5.3vw, 70px);
+  max-width: 570px;
+}
+.river-landing-hero .event-hero-copy h1 {
+  color: #fff;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(59px, 5.2vw, 86px);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -3px;
+}
+.river-landing-hero .event-hero-copy h1 em {
+  display: block;
+  color: #f2c85f;
+  font-style: normal;
+}
+.river-landing-hero .event-hero-copy p {
+  max-width: 500px;
+  margin: 20px 0 19px;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.36;
+}
+.hero-explore,
+.availability-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffe890, #e6ae36);
+  color: #081d4a;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(2, 17, 46, 0.18);
+}
+.hero-explore {
+  min-height: 62px;
+  padding: 0 33px;
+  font-size: 18px;
+}
+.hero-signature {
+  position: absolute;
+  z-index: 2;
+  top: 48px;
+  right: 7.3vw;
+  margin: 0;
+  color: #f2ca65;
+  font:
+    italic 29px/1.1 Georgia,
+    serif;
+  text-align: center;
+  transform: rotate(-9deg);
+}
+.hero-arrow {
+  position: absolute;
+  z-index: 2;
+  top: 49%;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  background: rgba(1, 18, 51, 0.72);
+  color: #fff;
+  font-size: 43px;
+  font-weight: 300;
+  line-height: 1;
+}
+.hero-arrow-left {
+  left: 20px;
+}
+.hero-arrow-right {
+  right: 20px;
+}
+
+.availability-panel {
+  position: relative;
+  z-index: 3;
+  max-width: 1360px;
+  margin: -69px auto 0;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 14px 34px rgba(4, 24, 64, 0.17);
+}
+.availability-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-bottom: 2px solid #cbd4e2;
+}
+.availability-tabs button {
+  min-height: 67px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 17px;
+  border: 0;
+  border-bottom: 4px solid transparent;
+  background: #fff;
+  color: #10285d;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.availability-tabs button.active {
+  border-color: #edbd43;
+  background: #09285e;
+  color: #fff;
+}
+.availability-tabs button svg {
+  stroke-width: 2;
+}
+.availability-fields {
+  padding: 24px 30px 37px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) 1.15fr;
+  gap: 20px;
+  align-items: end;
+}
+.availability-fields label {
+  display: grid;
+  gap: 7px;
+  color: #09265c;
+  font-size: 14px;
+  font-weight: 700;
+}
+.availability-fields label > span {
+  min-height: 52px;
+  padding: 0 15px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  border: 1px solid #bcc9dc;
+  border-radius: 6px;
+  color: #1b3567;
+  font-size: 16px;
+  font-weight: 500;
+}
+.availability-fields label svg {
+  color: #09265c;
+}
+.field-chevron {
+  margin-left: auto;
+  color: #09265c;
+  font-size: 26px;
+  line-height: 1;
+}
+.availability-cta {
+  min-height: 55px;
+  padding: 0 21px;
+  font-size: 17px;
+}
+.availability-cta:hover,
+.hero-explore:hover {
+  filter: brightness(1.06);
+}
+
+.river-benefits {
+  max-width: 1430px;
+  margin: 32px auto 18px;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+.river-benefits article {
+  min-height: 69px;
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  border-right: 1px solid #d5dce6;
+}
+.river-benefits article:last-child {
+  border-right: 0;
+}
+.river-benefits article > span {
+  width: 61px;
+  height: 61px;
+  flex: 0 0 61px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #08255b;
+  color: #f5c94e;
+}
+.river-benefits p {
+  margin: 0;
+  display: grid;
+  color: #7685a0;
+  font-size: 14px;
+  line-height: 1.35;
+}
+.river-benefits strong {
+  color: #08255b;
+  font-size: 16px;
+}
+.river-landing-hero + .availability-panel + .river-benefits + .event-facts {
+  margin-top: 34px;
+}
+
+@media (max-width: 1380px) {
+  .market-header.landing-header {
+    padding: 0 34px;
+    gap: 25px;
+  }
+  .landing-header .river-brand {
+    min-width: 148px;
+  }
+  .landing-header .river-brand > img {
+    width: 128px;
+    height: 128px;
+    margin-top: 42px;
+  }
+  .landing-header nav {
+    gap: clamp(12px, 1.6vw, 25px);
+  }
+  .landing-header nav button {
+    font-size: 14px;
+  }
+  .landing-header .market-tools {
+    gap: 14px;
+  }
+  .landing-header .market-tools .profile-login-call {
+    min-height: 48px;
+    padding: 0 19px;
+  }
+}
+@media (max-width: 1100px) {
+  .market-header {
+    padding: 0 28px;
+    gap: 22px;
+  }
+  .river-brand {
+    min-width: 132px;
+  }
+  .river-brand > img {
+    width: 118px;
+    height: 118px;
+    margin-top: 36px;
+  }
+  .market-header nav {
+    gap: 18px;
+  }
+  .market-header nav button {
+    font-size: 14px;
+  }
+  .market-tools .profile-login-call {
+    padding: 0 17px;
+  }
+  .availability-panel {
+    margin-left: 28px;
+    margin-right: 28px;
+  }
+}
+@media (max-width: 1300px) and (min-width: 801px) {
+  .landing-header nav {
+    display: none;
+  }
+  .landing-header .market-tools {
+    margin-left: auto;
+  }
+}
+@media (max-width: 800px) {
+  .market-header {
+    min-height: 74px;
+    padding: 0 18px;
+  }
+  .river-brand {
+    height: 74px;
+    min-width: 83px;
+  }
+  .river-brand > img {
+    width: 77px;
+    height: 77px;
+    margin-top: 24px;
+  }
+  .market-header nav {
+    display: none;
+  }
+  .market-tools {
+    position: static;
+    gap: 10px;
+  }
+  .market-tools > svg {
+    display: block;
+    width: 23px;
+    height: 23px;
+  }
+  .market-tools .profile-login-call {
+    min-height: 42px;
+    padding: 0 14px;
+    font-size: 14px;
+  }
+  .market-tools .profile-login-call svg {
+    width: 20px;
+    height: 20px;
+  }
+  .market-tools .language-switcher {
+    font-size: 12px;
+    gap: 5px;
+  }
+  .river-landing-hero {
+    height: 530px;
+  }
+  .river-landing-hero .event-hero-copy {
+    top: 48%;
+    left: 24px;
+    right: 22px;
+    max-width: 390px;
+  }
+  .river-landing-hero .event-hero-copy h1 {
+    font-size: 48px;
+    letter-spacing: -2px;
+  }
+  .river-landing-hero .event-hero-copy p {
+    font-size: 17px;
+  }
+  .hero-explore {
+    min-height: 53px;
+    padding: 0 23px;
+    font-size: 16px;
+  }
+  .hero-signature {
+    top: 40px;
+    right: 30px;
+    font-size: 20px;
+  }
+  .hero-arrow {
+    width: 41px;
+    height: 41px;
+    top: 52%;
+    font-size: 34px;
+  }
+  .hero-arrow-left {
+    left: 8px;
+  }
+  .hero-arrow-right {
+    right: 8px;
+  }
+  .availability-panel {
+    margin: -25px 14px 0;
+    border-radius: 12px;
+  }
+  .availability-tabs {
+    overflow-x: auto;
+    display: flex;
+  }
+  .availability-tabs button {
+    min-width: 190px;
+    min-height: 58px;
+    justify-content: flex-start;
+    padding: 0 17px;
+    font-size: 14px;
+  }
+  .availability-fields {
+    padding: 18px;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .availability-cta {
+    margin-top: 6px;
+  }
+  .river-benefits {
+    margin-top: 24px;
+    padding: 0 12px;
+    grid-template-columns: 1fr 1fr;
+  }
+  .river-benefits article {
+    min-height: 84px;
+    padding: 12px;
+    gap: 10px;
+    border-right: 0;
+  }
+  .river-benefits article > span {
+    width: 43px;
+    height: 43px;
+    flex-basis: 43px;
+  }
+  .river-benefits article > span svg {
+    width: 21px;
+    height: 21px;
+  }
+  .river-benefits p {
+    font-size: 11px;
+  }
+  .river-benefits strong {
+    font-size: 13px;
+  }
+}
 button,
 input {
   font: inherit;
@@ -3380,5 +3889,235 @@ td small {
     top: calc(100% + 10px);
     right: auto;
     left: -74px;
+  }
+}
+
+/* Landing page overrides remain last because the application also styles checkout and admin layouts. */
+.market-header.landing-header {
+  min-height: 100px;
+  padding: 0 58px;
+  gap: 44px;
+  background: #fff;
+  border: 0;
+}
+.landing-header .river-brand {
+  min-width: 205px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0;
+}
+.landing-header .river-brand::after,
+.landing-header .river-brand > span {
+  display: none;
+}
+.landing-header .river-brand > img {
+  width: 166px;
+  height: 166px;
+  margin-top: 70px;
+  object-fit: contain;
+  box-shadow: none;
+  filter: drop-shadow(0 5px 5px rgba(5, 29, 67, 0.16));
+}
+.landing-header nav {
+  justify-content: flex-start;
+  gap: clamp(19px, 2.3vw, 42px);
+}
+.landing-header nav button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 37px 0 34px;
+  color: #071d4c;
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.landing-header nav button svg {
+  stroke-width: 2.3;
+}
+.landing-header nav .active::after {
+  display: none;
+}
+.landing-header .market-tools {
+  min-width: max-content;
+  gap: 20px;
+}
+.landing-header .market-tools > svg {
+  width: 28px;
+  height: 28px;
+  stroke-width: 2.3;
+}
+.landing-header .market-tools .profile-login-call {
+  min-height: 55px;
+  padding: 0 27px;
+  display: inline-flex;
+  gap: 9px;
+  border: 1px solid #9b6d16;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffe98a, #e7ad3c);
+  color: #071d4c;
+  font-size: 17px;
+  font-weight: 800;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.72);
+}
+.landing-header .market-tools .profile-login-call svg {
+  width: 25px;
+  height: 25px;
+  fill: #071d4c;
+}
+.landing-header .market-tools .language-switcher {
+  gap: 10px;
+  font-size: 14px;
+}
+.landing-header .market-tools .language-switcher span {
+  color: #acb3c2;
+}
+.landing-header .market-tools .language-switcher button {
+  padding: 8px 0;
+}
+.landing-header .market-tools .language-switcher button.active {
+  color: #071d4c;
+  border-bottom: 3px solid #e6af31;
+}
+.page-event .river-landing-hero {
+  height: 680px;
+}
+.page-event .river-landing-hero::after {
+  background: linear-gradient(
+    90deg,
+    rgba(3, 17, 48, 0.88) 0%,
+    rgba(3, 17, 48, 0.48) 39%,
+    rgba(3, 17, 48, 0.05) 72%
+  );
+}
+.page-event .river-landing-hero img {
+  object-position: center 57%;
+}
+.page-event .river-landing-hero .event-hero-copy {
+  z-index: 2;
+  top: 43%;
+  left: max(5.3vw, 70px);
+  max-width: 570px;
+}
+.page-event .river-landing-hero .event-hero-copy h1 {
+  color: #fff;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(59px, 5.2vw, 86px);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -3px;
+}
+.page-event .river-landing-hero .event-hero-copy h1 em {
+  display: block;
+  color: #f2c85f;
+  font-style: normal;
+}
+.page-event .river-landing-hero .event-hero-copy p {
+  max-width: 500px;
+  margin: 20px 0 19px;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.36;
+}
+.page-event .river-landing-hero .event-hero-copy span,
+.page-event .river-landing-hero .event-hero-copy small {
+  display: none;
+}
+.page-event .river-landing-hero .hero-explore {
+  min-height: 62px;
+  padding: 0 33px;
+  font-size: 18px;
+}
+.page-event
+  .river-landing-hero
+  + .availability-panel
+  + .river-benefits
+  + .event-facts {
+  margin-top: 34px;
+}
+@media (max-width: 1100px) {
+  .market-header.landing-header {
+    padding: 0 28px;
+    gap: 22px;
+  }
+  .landing-header .river-brand {
+    min-width: 132px;
+  }
+  .landing-header .river-brand > img {
+    width: 118px;
+    height: 118px;
+    margin-top: 36px;
+  }
+  .landing-header nav {
+    gap: 18px;
+  }
+  .landing-header nav button {
+    font-size: 14px;
+  }
+  .landing-header .market-tools .profile-login-call {
+    padding: 0 17px;
+  }
+}
+@media (max-width: 800px) {
+  .market-header.landing-header {
+    min-height: 74px;
+    padding: 0 18px;
+  }
+  .landing-header .river-brand {
+    height: 74px;
+    min-width: 83px;
+  }
+  .landing-header .river-brand > img {
+    width: 77px;
+    height: 77px;
+    margin-top: 24px;
+  }
+  .landing-header nav {
+    display: none;
+  }
+  .landing-header .market-tools {
+    position: static;
+    gap: 10px;
+  }
+  .landing-header .market-tools > svg {
+    display: block;
+    width: 23px;
+    height: 23px;
+  }
+  .landing-header .market-tools .profile-login-call {
+    min-height: 42px;
+    padding: 0 14px;
+    font-size: 14px;
+  }
+  .landing-header .market-tools .profile-login-call svg {
+    width: 20px;
+    height: 20px;
+  }
+  .landing-header .market-tools .language-switcher {
+    font-size: 12px;
+    gap: 5px;
+  }
+  .page-event .river-landing-hero {
+    height: 530px;
+  }
+  .page-event .river-landing-hero .event-hero-copy {
+    top: 48%;
+    left: 24px;
+    right: 22px;
+    max-width: 390px;
+  }
+  .page-event .river-landing-hero .event-hero-copy h1 {
+    font-size: 48px;
+    letter-spacing: -2px;
+  }
+  .page-event .river-landing-hero .event-hero-copy p {
+    font-size: 17px;
+  }
+  .page-event .river-landing-hero .hero-explore {
+    min-height: 53px;
+    padding: 0 23px;
+    font-size: 16px;
   }
 }

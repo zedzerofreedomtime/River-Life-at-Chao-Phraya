@@ -6,7 +6,7 @@ import IconButton from "@mui/material/IconButton";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Stepper from "@mui/material/Stepper";
-import { Search, X } from "lucide-react";
+import { ChevronDown, Search, X } from "lucide-react";
 import EventDetail from "./EventDetail";
 import BoatMap from "./BoatMap";
 import BookingForm from "./BookingForm";
@@ -158,15 +158,20 @@ export default function App() {
     go("event");
   };
   const strings = copy[language];
-  const nav: [Page, string][] = [
-    ["event", strings.nav.event],
-    ["tickets", strings.nav.tickets],
-    ["orders", strings.nav.orders],
-  ];
+  const nav =
+    language === "en"
+      ? ["Cruises", "Dining", "Events & Concerts", "About", "Plan Your Trip"]
+      : [
+          "ล่องเรือ",
+          "อาหารบนเรือ",
+          "อีเวนต์และคอนเสิร์ต",
+          "เกี่ยวกับเรา",
+          "วางแผนการเดินทาง",
+        ];
   return (
     <>
       <header
-        className={`market-header ${page === "tickets" ? "market-header-dark" : ""}`}
+        className={`market-header ${page === "event" ? "landing-header" : ""} ${page === "tickets" ? "market-header-dark" : ""}`}
       >
         <button
           className="river-brand"
@@ -179,18 +184,21 @@ export default function App() {
           </span>
         </button>
         <nav aria-label="เมนูหลัก">
-          {(profile.role === "admin"
-            ? ([["dashboard", "แดชบอร์ด"]] as [Page, string][])
-            : nav
-          ).map(([key, label]) => (
-            <button
-              key={key}
-              className={page === key ? "active" : ""}
-              onClick={() => go(key)}
-            >
-              {label}
+          {profile.role === "admin" ? (
+            <button className="active" onClick={() => go("dashboard")}>
+              {strings.nav.dashboard}
             </button>
-          ))}
+          ) : (
+            nav.map((label) => (
+              <button
+                key={label}
+                className={label === nav[0] ? "active" : ""}
+                onClick={() => go("event")}
+              >
+                {label} <ChevronDown aria-hidden="true" size={15} />
+              </button>
+            ))
+          )}
         </nav>
         <div className="market-tools" aria-label="เครื่องมือผู้ใช้">
           {page === "tickets" ? null : <Search aria-hidden="true" size={22} />}
