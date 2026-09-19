@@ -1296,9 +1296,9 @@ body {
     min-width: 148px;
   }
   .landing-header .river-brand > img {
-    width: 128px;
-    height: 128px;
-    margin-top: 42px;
+    width: 112px;
+    height: 112px;
+    margin-top: 12px;
   }
   .landing-header nav {
     gap: clamp(12px, 1.6vw, 25px);
@@ -3797,6 +3797,9 @@ td small {
 
 /* Landing page overrides remain last because the application also styles checkout and admin layouts. */
 .market-header.landing-header {
+  position: relative;
+  z-index: 10;
+  overflow: visible;
   min-height: 100px;
   padding: 0 58px;
   gap: 44px;
@@ -3815,9 +3818,9 @@ td small {
   display: none;
 }
 .landing-header .river-brand > img {
-  width: 166px;
-  height: 166px;
-  margin-top: 70px;
+  width: 132px;
+  height: 132px;
+  margin-top: 20px;
   object-fit: contain;
   box-shadow: none;
   filter: drop-shadow(0 5px 5px rgba(5, 29, 67, 0.16));
@@ -3952,9 +3955,9 @@ td small {
     min-width: 132px;
   }
   .landing-header .river-brand > img {
-    width: 118px;
-    height: 118px;
-    margin-top: 36px;
+    width: 112px;
+    height: 112px;
+    margin-top: 12px;
   }
   .landing-header nav {
     gap: 18px;
