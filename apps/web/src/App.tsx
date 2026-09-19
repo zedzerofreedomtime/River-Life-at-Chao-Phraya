@@ -8,6 +8,7 @@ import StepLabel from "@mui/material/StepLabel";
 import Stepper from "@mui/material/Stepper";
 import { ChevronDown, Search, X } from "lucide-react";
 import EventDetail from "./EventDetail";
+import Home from "./Home";
 import BoatMap from "./BoatMap";
 import BookingForm from "./BookingForm";
 import MyBooking from "./MyBooking";
@@ -22,6 +23,7 @@ import { copy, type Language } from "./i18n";
 import { api, type Booking, type EventInfo } from "./api";
 
 type Page =
+  | "home"
   | "event"
   | "checkout"
   | "payment"
@@ -31,7 +33,8 @@ type Page =
   | "auth"
   | "dashboard";
 const pagePaths: Record<Page, string> = {
-  event: "/",
+  home: "/",
+  event: "/concert",
   checkout: "/checkout",
   payment: "/payment",
   success: "/success",
@@ -44,7 +47,7 @@ const pathPages: Record<string, Page> = Object.fromEntries(
   Object.entries(pagePaths).map(([page, path]) => [path, page as Page]),
 ) as Record<string, Page>;
 const pageFromLocation = (): Page =>
-  pathPages[window.location.pathname] ?? "event";
+  pathPages[window.location.pathname] ?? "home";
 export default function App() {
   const [page, setPage] = useState<Page>(pageFromLocation);
   const [event, setEvent] = useState<EventInfo | null>(null);
@@ -119,7 +122,7 @@ export default function App() {
       window.history.pushState(null, "", nextPath);
     }
     setPage(next);
-    if (next === "event") void loadEvent();
+    if (next === "home" || next === "event") void loadEvent();
   };
   const goCheckout = (preferredZone?: string) => {
     if (preferredZone) setZone(preferredZone);
@@ -132,7 +135,7 @@ export default function App() {
   const openAuthDialog = () => setAuthDialogOpen(true);
   const closeAuthDialog = () => {
     setAuthDialogOpen(false);
-    if (page === "auth") go("event");
+    if (page === "auth") go("home");
   };
   const rememberBooking = (data: Booking, accessToken: string) => {
     setBooking(data);
@@ -155,7 +158,7 @@ export default function App() {
       email: "ยังไม่ได้เข้าสู่ระบบ",
       role: "user",
     });
-    go("event");
+    go("home");
   };
   const strings = copy[language];
   const nav =
@@ -171,11 +174,11 @@ export default function App() {
   return (
     <>
       <header
-        className={`market-header ${page === "event" ? "landing-header" : ""} ${page === "tickets" ? "market-header-dark" : ""}`}
+        className={`market-header ${page === "home" ? "landing-header" : ""} ${page === "tickets" ? "market-header-dark" : ""}`}
       >
         <button
           className="river-brand"
-          onClick={() => go("event")}
+          onClick={() => go("home")}
           aria-label="กลับไปหน้ารวมงาน"
         >
           <img src="/images/river-life-logo-v2.png" alt="" />
@@ -193,7 +196,7 @@ export default function App() {
               <button
                 key={label}
                 className={label === nav[0] ? "active" : ""}
-                onClick={() => go("event")}
+                onClick={() => go("home")}
               >
                 {label} <ChevronDown aria-hidden="true" size={15} />
               </button>
@@ -235,6 +238,13 @@ export default function App() {
               requireLoginForCheckout();
             }}
             language={language}
+          />
+        )}
+        {page === "home" && event && (
+          <Home
+            event={event}
+            language={language}
+            onOpenConcert={() => go("event")}
           />
         )}
         {page === "checkout" && event && (
@@ -370,7 +380,7 @@ export default function App() {
                 : continueCheckoutAfterLogin
                   ? "checkout"
                   : page === "auth"
-                    ? "event"
+                    ? "home"
                     : page;
             setContinueCheckoutAfterLogin(false);
             go(destination);

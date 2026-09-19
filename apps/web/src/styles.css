@@ -3928,6 +3928,152 @@ td small {
   background: #fff;
   border: 0;
 }
+
+.concert-home {
+  background: #fff;
+}
+.concert-home-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 530px;
+  padding: 64px max(7vw, 48px);
+  background-position: center;
+  background-size: cover;
+}
+.concert-home-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(4, 22, 56, 0.9) 0%,
+    rgba(4, 22, 56, 0.62) 40%,
+    rgba(4, 22, 56, 0.03) 74%
+  );
+}
+.concert-home-hero-copy {
+  position: relative;
+  width: min(620px, 100%);
+  color: #fff;
+}
+.concert-home-hero h1 {
+  margin: 0;
+  font:
+    700 clamp(46px, 5vw, 76px) / 0.98 Georgia,
+    serif;
+}
+.concert-home-hero p {
+  max-width: 510px;
+  margin: 20px 0 28px;
+  font-size: 20px;
+  line-height: 1.55;
+}
+.concert-home button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  border: 0;
+  border-radius: 999px;
+  background: #f2c246;
+  color: #072a60;
+  padding: 14px 23px;
+  font: 700 16px inherit;
+  cursor: pointer;
+}
+.concert-home-featured {
+  width: min(1120px, calc(100% - 40px));
+  margin: 56px auto 80px;
+}
+.concert-home-featured > div > p,
+.concert-home-card > div > span {
+  margin: 0;
+  color: #a77831;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.concert-home-featured h2 {
+  margin: 7px 0 22px;
+  color: #102641;
+  font:
+    700 38px Georgia,
+    serif;
+}
+.concert-home-card {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.85fr) minmax(0, 1.15fr);
+  overflow: hidden;
+  border: 1px solid #dce4ec;
+  border-radius: 15px;
+  background: #fff;
+  box-shadow: 0 18px 40px rgba(16, 38, 65, 0.08);
+}
+.concert-home-card img {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  object-fit: cover;
+}
+.concert-home-card > div {
+  padding: 35px;
+}
+.concert-home-card h3 {
+  margin: 10px 0 18px;
+  color: #102641;
+  font:
+    700 32px Georgia,
+    serif;
+}
+.concert-home-card p {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 11px 0;
+  color: #586d86;
+}
+.concert-home-card p svg {
+  color: #b58634;
+}
+.concert-home-card button {
+  margin-top: 18px;
+  background: #093b78;
+  color: #fff;
+}
+@media (max-width: 700px) {
+  .concert-home-hero {
+    min-height: 455px;
+    padding: 44px 24px;
+  }
+  .concert-home-hero h1 {
+    font-size: 44px;
+  }
+  .concert-home-hero p {
+    font-size: 17px;
+  }
+  .concert-home-featured {
+    width: min(100% - 32px, 1120px);
+    margin: 40px auto 58px;
+  }
+  .concert-home-featured h2 {
+    font-size: 30px;
+  }
+  .concert-home-card {
+    grid-template-columns: 1fr;
+  }
+  .concert-home-card img {
+    min-height: 220px;
+    max-height: 280px;
+  }
+  .concert-home-card > div {
+    padding: 25px;
+  }
+  .concert-home-card h3 {
+    font-size: 27px;
+  }
+}
 .landing-header .river-brand {
   min-width: 205px;
   height: 100px;
