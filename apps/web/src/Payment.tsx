@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
-import { CheckCircle2, Clock3, QrCode } from "lucide-react";
+import Checkbox from "@mui/material/Checkbox";
+import Dialog from "@mui/material/Dialog";
+import { CheckCircle2, Clock3, X } from "lucide-react";
 import { api, money, type Booking } from "./api";
 
 export default function Payment({
@@ -20,6 +22,9 @@ export default function Payment({
     initialToken || sessionStorage.getItem("riverlife.booking.token") || "",
   );
   const [attachment, setAttachment] = useState<File | null>(null);
+  const [marketingAccepted, setMarketingAccepted] = useState(false);
+  const [marketingDialogOpen, setMarketingDialogOpen] = useState(false);
+  const [termsReadToEnd, setTermsReadToEnd] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -39,6 +44,17 @@ export default function Payment({
     }
     setError("");
     setAttachment(file);
+  };
+
+  const openMarketingTerms = () => {
+    setTermsReadToEnd(false);
+    setMarketingDialogOpen(true);
+  };
+
+  const checkTermsScroll = (element: HTMLDivElement) => {
+    if (element.scrollTop + element.clientHeight >= element.scrollHeight - 4) {
+      setTermsReadToEnd(true);
+    }
   };
 
   const completePayment = async () => {
@@ -94,72 +110,162 @@ export default function Payment({
       </button>
       <div className="flow-heading">
         <h1>ชำระเงิน</h1>
-        <p>สแกน QR เพื่อโอนตามยอด แล้วแนบรูปหลักฐานเพื่อจบรายการ</p>
+        <p>สแกน QR โอนเงิน แนบสลิป และยืนยันการชำระเงินในหน้านี้</p>
       </div>
       {error && <Alert severity="error">{error}</Alert>}
       <div className="payment-layout">
         <article className="payment-instructions">
-          <span>ขั้นตอนที่ 1</span>
-          <h2>สแกน QR เพื่อชำระเงิน</h2>
-          <p>โอนเงินตามยอดคำสั่งซื้อนี้ แล้วกลับมาแนบรูปหลักฐานด้านขวา</p>
-          <strong className="payment-amount">{money(booking.total)}</strong>
-          <small>
-            <Clock3 aria-hidden="true" size={16} /> สำรองสิทธิ์ถึง{" "}
-            {new Date(booking.expires_at).toLocaleTimeString("th-TH", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}{" "}
-            น.
-          </small>
-          <div className="payment-order-summary">
-            <span>คำสั่งซื้อ</span>
-            <b>#{booking.id.toUpperCase()}</b>
-            <span>โซน / จำนวน</span>
-            <b>
-              {booking.zone_id} / {booking.quantity} ใบ
-            </b>
+          <div className="payment-section-title">
+            <span>ช่องทางการชำระเงิน</span>
+            <h2>QR PromptPay</h2>
+          </div>
+          <div className="payment-qr-content">
+            <img
+              src="/images/payment/promptpay-qr.png"
+              alt="QR PromptPay สำหรับชำระเงิน"
+            />
+            <div>
+              <strong>สแกน QR เพื่อชำระเงิน</strong>
+              <p>โอนเงินตามยอดคำสั่งซื้อนี้ผ่านแอปธนาคารของคุณ</p>
+              <b className="payment-amount">{money(booking.total)}</b>
+              <small>
+                <Clock3 aria-hidden="true" size={16} /> สำรองสิทธิ์ถึง{" "}
+                {new Date(booking.expires_at).toLocaleTimeString("th-TH", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}{" "}
+                น.
+              </small>
+            </div>
+          </div>
+          <div className="payment-upload">
+            <h3>แนบสลิปการชำระเงิน</h3>
+            <p>รองรับ PNG หรือ JPG ขนาดไม่เกิน 5 MB</p>
+            <Button component="label" variant="outlined" disabled={busy}>
+              {attachment ? "เปลี่ยนรูปสลิป" : "เลือกไฟล์สลิป"}
+              <input
+                hidden
+                type="file"
+                accept="image/png,image/jpeg"
+                onChange={(event) =>
+                  chooseAttachment(event.target.files?.[0] ?? null)
+                }
+              />
+            </Button>
+            <span className={attachment ? "selected-file" : ""}>
+              {attachment ? attachment.name : "ยังไม่ได้เลือกไฟล์"}
+            </span>
+          </div>
+          <div className="marketing-consent">
+            <Checkbox checked={marketingAccepted} readOnly tabIndex={-1} />
+            <p>
+              ฉันยินดีรับ{" "}
+              <button type="button" onClick={openMarketingTerms}>
+                ข้อมูลและสิทธิพิเศษทางการตลาด
+              </button>
+            </p>
           </div>
         </article>
-        <aside className="payment-qr-card">
-          <img src="/images/payment/promptpay-qr.png" alt="QR สำหรับชำระเงิน" />
-          <QrCode aria-hidden="true" size={20} />
-          <strong>สแกนด้วยแอปธนาคาร</strong>
-          <small>ตรวจสอบชื่อผู้รับและยอดเงินก่อนยืนยัน</small>
+        <aside className="payment-summary-card">
+          <h2>สรุปคำสั่งซื้อ</h2>
+          <div className="payment-order-summary">
+            <span>รหัสคำสั่งซื้อ</span>
+            <b>#{booking.id.toUpperCase()}</b>
+            <span>โซนบัตร</span>
+            <b>{booking.zone_id}</b>
+            <span>จำนวนบัตร</span>
+            <b>{booking.quantity} ใบ</b>
+          </div>
+          <div className="payment-total">
+            <span>ยอดชำระเงินทั้งสิ้น</span>
+            <strong>{money(booking.total)}</strong>
+          </div>
+          <p className="payment-summary-note">
+            ตรวจสอบชื่อผู้รับและยอดเงินก่อนแนบสลิป
+          </p>
         </aside>
       </div>
-      <section className="payment-proof">
-        <span>ขั้นตอนที่ 2</span>
-        <h2>แนบหลักฐานการชำระเงิน</h2>
-        <p>รองรับ PNG หรือ JPG ไม่เกิน 5 MB เพื่อยืนยันรายการในระบบทดลอง</p>
-        <div className="proof-actions">
-          <Button component="label" variant="outlined" disabled={busy}>
-            {attachment ? "เปลี่ยนรูป" : "เลือกรูปหลักฐาน"}
-            <input
-              hidden
-              type="file"
-              accept="image/png,image/jpeg"
-              onChange={(event) =>
-                chooseAttachment(event.target.files?.[0] ?? null)
-              }
-            />
-          </Button>
-          <span className={attachment ? "selected-file" : ""}>
-            {attachment ? attachment.name : "ยังไม่ได้เลือกรูป"}
-          </span>
+      <Button
+        className="payment-confirm"
+        variant="contained"
+        fullWidth
+        disabled={!attachment || busy}
+        onClick={() => void completePayment()}
+        startIcon={<CheckCircle2 size={18} />}
+      >
+        {busy ? "กำลังบันทึกรายการ…" : "ยืนยันการชำระเงิน"}
+      </Button>
+      <small className="payment-disclaimer">
+        ระบบนี้บันทึกหลักฐานเพื่อดำเนินการต่อเท่านั้น
+        ยังไม่ใช่การตรวจสอบธุรกรรมอัตโนมัติ
+      </small>
+      <Dialog
+        open={marketingDialogOpen}
+        onClose={() => setMarketingDialogOpen(false)}
+        className="marketing-dialog"
+        aria-labelledby="marketing-terms-title"
+        maxWidth="sm"
+        fullWidth
+      >
+        <section className="marketing-terms-modal">
+          <div className="marketing-terms-header">
+            <h2 id="marketing-terms-title">ข้อมูลและสิทธิพิเศษทางการตลาด</h2>
+            <button
+              type="button"
+              aria-label="ปิดเงื่อนไขการตลาด"
+              onClick={() => setMarketingDialogOpen(false)}
+            >
+              <X aria-hidden="true" size={21} />
+            </button>
+          </div>
+          <div
+            className="marketing-terms-scroll"
+            onScroll={(event) => checkTermsScroll(event.currentTarget)}
+          >
+            <h3>การให้ความยินยอมเพื่อรับข้อมูลทางการตลาด</h3>
+            <p>
+              River Life จะใช้ชื่อ อีเมล และข้อมูลการจองของคุณเพื่อส่งข่าวสาร
+              สิทธิพิเศษ โปรโมชัน
+              และกิจกรรมที่เกี่ยวข้องกับคอนเสิร์ตบนเรือเท่านั้น
+            </p>
+            <h3>ข้อมูลที่อาจได้รับ</h3>
+            <p>
+              คุณอาจได้รับอีเมลเกี่ยวกับรอบการแสดงใหม่
+              สิทธิพิเศษสำหรับผู้ถือบัตร แพ็กเกจอาหาร กิจกรรมของศิลปิน
+              และข้อเสนอจาก River Life
+            </p>
+            <h3>สิทธิของคุณ</h3>
+            <p>
+              คุณสามารถถอนความยินยอมได้ทุกเมื่อผ่านลิงก์ในอีเมล
+              โดยไม่กระทบต่อการซื้อบัตร หรือการใช้งาน QR Ticket ของคุณ
+            </p>
+            <h3>การคุ้มครองข้อมูล</h3>
+            <p>
+              เราจัดเก็บข้อมูลเท่าที่จำเป็นและใช้มาตรการรักษาความปลอดภัยที่เหมาะสม
+              โดยจะไม่จำหน่ายข้อมูลส่วนบุคคลให้แก่บุคคลภายนอก
+            </p>
+            <p>
+              โปรดอ่านรายละเอียดทั้งหมดก่อนยอมรับการสื่อสารทางการตลาดนี้
+              การยอมรับเป็นทางเลือกและไม่ใช่เงื่อนไขในการซื้อบัตรคอนเสิร์ต
+            </p>
+          </div>
+          <p className="marketing-scroll-hint">
+            {termsReadToEnd
+              ? "คุณอ่านเงื่อนไขครบแล้ว"
+              : "เลื่อนอ่านเงื่อนไขจนถึงด้านล่างเพื่อยอมรับ"}
+          </p>
           <Button
             variant="contained"
-            disabled={!attachment || busy}
-            onClick={() => void completePayment()}
-            startIcon={<CheckCircle2 size={18} />}
+            disabled={!termsReadToEnd}
+            onClick={() => {
+              setMarketingAccepted(true);
+              setMarketingDialogOpen(false);
+            }}
           >
-            {busy ? "กำลังบันทึกรายการ…" : "ยืนยันการชำระเงิน"}
+            ยอมรับ
           </Button>
-        </div>
-        <small className="payment-disclaimer">
-          ระบบนี้บันทึกหลักฐานเพื่อดำเนินการต่อเท่านั้น
-          ยังไม่ใช่การตรวจสอบธุรกรรมอัตโนมัติ
-        </small>
-      </section>
+        </section>
+      </Dialog>
     </section>
   );
 }

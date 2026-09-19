@@ -1778,13 +1778,12 @@ main {
 }
 .payment-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 310px;
+  grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
   gap: 22px;
-  align-items: stretch;
+  align-items: start;
 }
 .payment-instructions,
-.payment-qr-card,
-.payment-proof,
+.payment-summary-card,
 .success-card,
 .flow-empty,
 .order-action {
@@ -1793,33 +1792,50 @@ main {
   background: #fff;
 }
 .payment-instructions {
-  padding: 30px;
+  padding: 28px;
 }
-.payment-instructions > span,
-.payment-proof > span {
+.payment-section-title > span {
   color: #a77831;
   font-size: 13px;
   font-weight: 700;
 }
-.payment-instructions h2,
-.payment-proof h2 {
-  margin: 7px 0;
+.payment-section-title h2,
+.payment-summary-card h2 {
+  margin: 5px 0 0;
   color: #102641;
   font-size: 27px;
 }
-.payment-instructions > p,
-.payment-proof > p {
-  margin: 0;
+.payment-qr-content {
+  display: grid;
+  grid-template-columns: 178px minmax(0, 1fr);
+  gap: 22px;
+  align-items: center;
+  margin-top: 22px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e4e9ef;
+}
+.payment-qr-content img {
+  width: 178px;
+  border-radius: 8px;
+  box-shadow: 0 7px 19px rgba(16, 38, 65, 0.12);
+}
+.payment-qr-content strong {
+  display: block;
+  color: #102641;
+  font-size: 18px;
+}
+.payment-qr-content p {
+  margin: 7px 0 10px;
   color: #66778d;
-  line-height: 1.65;
+  line-height: 1.55;
 }
 .payment-amount {
   display: block;
-  margin: 16px 0 9px;
-  color: #ad7b2d;
-  font-size: 38px;
+  margin-bottom: 10px;
+  color: #a77831;
+  font-size: 31px;
 }
-.payment-instructions > small {
+.payment-qr-content small {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -1829,9 +1845,7 @@ main {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 9px 20px;
-  margin-top: 26px;
-  padding-top: 18px;
-  border-top: 1px solid #e4e9ef;
+  margin-top: 18px;
   color: #64748b;
   font-size: 13px;
 }
@@ -1839,63 +1853,161 @@ main {
   color: #102641;
   text-align: right;
 }
-.payment-qr-card {
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  padding: 22px;
+.payment-upload {
+  padding: 22px 0;
+  border-bottom: 1px solid #e4e9ef;
+}
+.payment-upload h3 {
+  margin: 0;
   color: #102641;
-  text-align: center;
+  font-size: 18px;
 }
-.payment-qr-card img {
-  width: 180px;
-  max-width: 100%;
-  border-radius: 8px;
-  box-shadow: 0 7px 19px rgba(16, 38, 65, 0.12);
-}
-.payment-qr-card svg {
-  margin-top: 14px;
-  color: #b18743;
-}
-.payment-qr-card strong {
-  margin-top: 4px;
-}
-.payment-qr-card small {
-  margin-top: 5px;
-  color: #6b7a8e;
-  font-size: 12px;
-}
-.payment-proof {
-  margin-top: 22px;
-  padding: 25px 30px;
-}
-.proof-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  margin-top: 18px;
-}
-.proof-actions .MuiButton-contained {
-  background: #b98d48;
-}
-.proof-actions .MuiButton-contained:hover {
-  background: #9e7433;
-}
-.proof-actions span {
-  min-width: 180px;
+.payment-upload p {
+  margin: 5px 0 13px;
   color: #718198;
   font-size: 13px;
 }
-.proof-actions span.selected-file {
+.payment-upload .MuiButton-root {
+  border-color: #17457f;
+  color: #17457f;
+}
+.payment-upload span {
+  display: inline-block;
+  min-width: 150px;
+  margin-left: 12px;
+  color: #718198;
+  font-size: 13px;
+}
+.payment-upload span.selected-file {
   color: #177150;
   font-weight: 700;
 }
+.marketing-consent {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding-top: 17px;
+}
+.marketing-consent .MuiCheckbox-root {
+  padding-left: 0;
+  color: #17457f;
+}
+.marketing-consent p {
+  margin: 0;
+  color: #34465d;
+  font-size: 14px;
+}
+.marketing-consent button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #0877d1;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.payment-summary-card {
+  padding: 28px;
+}
+.payment-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  margin-top: 26px;
+  padding-top: 20px;
+  border-top: 1px solid #dfe6ee;
+  color: #102641;
+}
+.payment-total span {
+  font-weight: 700;
+}
+.payment-total strong {
+  color: #a77831;
+  font-size: 28px;
+}
+.payment-summary-note {
+  margin: 18px 0 0;
+  padding: 13px;
+  border-radius: 8px;
+  background: #fff8e8;
+  color: #5e6471;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.payment-confirm.MuiButton-root {
+  margin-top: 22px;
+  padding: 14px;
+  background: #093b78;
+  font-weight: 700;
+}
+.payment-confirm.MuiButton-root:hover {
+  background: #062c5c;
+}
 .payment-disclaimer {
   display: block;
-  margin-top: 15px;
+  margin-top: 12px;
+  text-align: center;
   color: #758398;
   font-size: 12px;
+}
+.marketing-dialog .MuiPaper-root {
+  border-radius: 14px;
+}
+.marketing-terms-modal {
+  padding: 24px;
+}
+.marketing-terms-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+.marketing-terms-header h2 {
+  margin: 0;
+  color: #102641;
+  font-size: 24px;
+}
+.marketing-terms-header button {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  background: #f4f7fa;
+  color: #102641;
+  cursor: pointer;
+}
+.marketing-terms-scroll {
+  height: 300px;
+  margin-top: 20px;
+  padding: 18px;
+  overflow-y: auto;
+  border: 1px solid #dce4ec;
+  border-radius: 9px;
+  color: #43546a;
+  line-height: 1.7;
+}
+.marketing-terms-scroll h3 {
+  margin: 0 0 6px;
+  color: #102641;
+  font-size: 16px;
+}
+.marketing-terms-scroll p {
+  margin: 0 0 22px;
+}
+.marketing-scroll-hint {
+  min-height: 21px;
+  margin: 13px 0;
+  color: #697b91;
+  font-size: 13px;
+  text-align: center;
+}
+.marketing-terms-modal > .MuiButton-root {
+  background: #c99a3c;
+}
+.marketing-terms-modal > .MuiButton-root:hover {
+  background: #a97c27;
 }
 .success-page {
   padding-top: 42px;
@@ -2003,15 +2115,25 @@ main {
   .payment-layout {
     grid-template-columns: 1fr;
   }
-  .payment-qr-card {
-    order: -1;
+  .payment-instructions,
+  .payment-summary-card {
+    padding: 22px;
   }
-  .payment-qr-card img {
+  .payment-qr-content {
+    grid-template-columns: 1fr;
+  }
+  .payment-qr-content img {
     width: 156px;
   }
-  .payment-instructions,
-  .payment-proof {
-    padding: 22px;
+  .payment-upload span {
+    display: block;
+    margin: 10px 0 0;
+  }
+  .marketing-terms-modal {
+    padding: 20px;
+  }
+  .marketing-terms-header h2 {
+    font-size: 20px;
   }
   .success-card {
     padding: 35px 20px;

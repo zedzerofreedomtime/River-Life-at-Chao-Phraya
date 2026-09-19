@@ -81,7 +81,7 @@ export default function BookingForm({
   }
   return (
     <form className="booking-panel" onSubmit={submit}>
-      <h2>{en ? "Reserve your cruise tickets" : "จองบัตรคอนเสิร์ตบนเรือ"}</h2>
+      <h2>{en ? "Buy concert tickets" : "จองบัตรคอนเสิร์ตบนเรือ"}</h2>
       <p className="muted">
         เลือกโซนและจำนวนบัตร
         {isAuthenticated

@@ -227,7 +227,13 @@ export default function App() {
         {page === "event" && event && (
           <EventDetail
             event={event}
-            onStartCheckout={goCheckout}
+            onStartCheckout={() => {
+              if (isAuthenticated) {
+                goCheckout();
+                return;
+              }
+              requireLoginForCheckout();
+            }}
             language={language}
           />
         )}
