@@ -8,10 +8,10 @@ export const copy = {
       orders: "คำสั่งซื้อ",
       dashboard: "แดชบอร์ด",
     },
-    steps: ["เลือกเรือ", "เลือกโซน", "ชำระเงิน", "ทำรายการสำเร็จ"],
+    steps: ["เลือกคอนเสิร์ต", "เลือกโซนและบัตร", "ชำระเงิน", "ทำรายการสำเร็จ"],
     demo: "ระบบทดลอง · ราคาและโควตาเพื่อทดสอบเท่านั้น · วันงานรอยืนยัน · QR Ticket สำหรับทดสอบ",
     checkoutTitle: "เลือกโซนและจำนวนบัตร",
-    checkoutCopy: "เลือกพื้นที่บนเรือ ก่อนเข้าสู่ขั้นตอนชำระเงิน",
+    checkoutCopy: "เลือกโซนและจำนวนบัตรคอนเสิร์ต ก่อนเข้าสู่ขั้นตอนชำระเงิน",
   },
   en: {
     nav: {
@@ -20,9 +20,10 @@ export const copy = {
       orders: "My Bookings",
       dashboard: "Dashboard",
     },
-    steps: ["Choose vessel", "Choose zone", "Payment", "Confirmed"],
+    steps: ["Choose concert", "Choose zone & tickets", "Payment", "Confirmed"],
     demo: "Demo system · Prices and availability are for testing only · Event details are pending confirmation",
     checkoutTitle: "Choose your zone and tickets",
-    checkoutCopy: "Select your space on board before continuing to payment.",
+    checkoutCopy:
+      "Choose your concert zone and ticket quantity before continuing to payment.",
   },
 } as const;

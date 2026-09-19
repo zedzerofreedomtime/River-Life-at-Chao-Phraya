@@ -66,7 +66,7 @@ export default function Payment({
     return (
       <section className="flow-page flow-empty">
         <h1>ไม่พบรายการชำระเงิน</h1>
-        <p>เริ่มเลือกเรือและโซนใหม่ เพื่อสร้างรายการจอง</p>
+        <p>เริ่มเลือกคอนเสิร์ตและโซนบัตรใหม่ เพื่อสร้างรายการซื้อบัตร</p>
         <Button variant="contained" onClick={onBackToZones}>
           กลับไปเลือกโซน
         </Button>
@@ -165,7 +165,12 @@ export default function Payment({
 }
 
 export function FlowSteps({ activeStep }: { activeStep: number }) {
-  const steps = ["เลือกเรือ", "เลือกโซน", "ชำระเงิน", "ทำรายการสำเร็จ"];
+  const steps = [
+    "เลือกคอนเสิร์ต",
+    "เลือกโซนและบัตร",
+    "ชำระเงิน",
+    "ทำรายการสำเร็จ",
+  ];
   return (
     <ol className="flow-steps" aria-label="ขั้นตอนการจอง">
       {steps.map((step, index) => (

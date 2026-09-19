@@ -82,7 +82,7 @@ export default function EventDetail({
               : "ดนตรีสด อาหารพิเศษ และวิวประทับใจใจกลางกรุงเทพฯ"}
           </p>
           <button className="hero-explore" onClick={() => onStartCheckout()}>
-            {en ? "Explore the cruise" : "สำรวจการล่องเรือ"}
+            {en ? "Explore concert tickets" : "ดูบัตรคอนเสิร์ต"}
             <ArrowRight aria-hidden="true" size={21} />
           </button>
         </div>
@@ -105,6 +105,7 @@ export default function EventDetail({
         </button>
       </section>
       <AvailabilityPanel
+        event={event}
         language={language}
         onStartCheckout={onStartCheckout}
       />
@@ -231,11 +232,11 @@ export default function EventDetail({
           <span className="event-signoff">BANGKOK LIVES ON THE RIVER</span>
         </article>
         <aside className="ticket-picker">
-          <h2>{en ? "Choose your vessel" : "เลือกเรือ"}</h2>
+          <h2>{en ? "Concert tickets" : "บัตรคอนเสิร์ต"}</h2>
           <p>
             {en
-              ? "Choose a vessel to select your zone and tickets."
-              : "เลือกเรือก่อนเข้าสู่ขั้นตอนเลือกโซนและบัตร"}
+              ? "Choose your zone and tickets for this concert on Unicorn Cruise."
+              : "เลือกโซนและบัตรสำหรับคอนเสิร์ตบนเรือ Unicorn Cruise"}
           </p>
           <article className="booking-vessel-card" key={vessel.id}>
             <img src={vessel.image} alt={`เรือ ${vessel.name}`} />
@@ -253,7 +254,7 @@ export default function EventDetail({
               </div>
             </div>
             <button onClick={() => onStartCheckout()}>
-              {en ? "Choose Unicorn Cruise" : "เลือกเรือลำนี้"}{" "}
+              {en ? "Choose tickets" : "เลือกโซนและบัตร"}{" "}
               <ArrowRight aria-hidden="true" size={18} />
             </button>
           </article>
@@ -289,24 +290,30 @@ function Fact({
 }
 
 function AvailabilityPanel({
+  event,
   language,
   onStartCheckout,
 }: {
+  event: EventInfo;
   language: Language;
   onStartCheckout: () => void;
 }) {
-  const [tab, setTab] = useState("cruise");
+  const [tab, setTab] = useState("tickets");
   const en = language === "en";
   const tabs = [
-    ["cruise", Anchor, en ? "Book a Cruise" : "จองการล่องเรือ"],
+    ["tickets", Anchor, en ? "Concert Tickets" : "บัตรคอนเสิร์ต"],
     ["events", CalendarDays, en ? "Events & Concerts" : "อีเวนต์และคอนเสิร์ต"],
-    ["packages", Diamond, en ? "Special Packages" : "แพ็กเกจพิเศษ"],
-    ["group", UsersRound, en ? "Group & Private Charter" : "กรุ๊ปและเหมาลำ"],
+    [
+      "packages",
+      Diamond,
+      en ? "Benefits & Promotions" : "สิทธิพิเศษและโปรโมชัน",
+    ],
+    ["travel", MapPin, en ? "Travel Information" : "ข้อมูลการเดินทาง"],
   ] as const;
   return (
     <section
       className="availability-panel"
-      aria-label={en ? "Cruise availability" : "ตรวจสอบรอบเรือ"}
+      aria-label={en ? "Concert ticket selection" : "เลือกบัตรคอนเสิร์ต"}
     >
       <div className="availability-tabs" role="tablist">
         {tabs.map(([value, Icon, label]) => (
@@ -325,26 +332,28 @@ function AvailabilityPanel({
       </div>
       <div className="availability-fields">
         <label>
-          {en ? "Cruise Date" : "วันที่ล่องเรือ"}
+          {en ? "Concert date" : "วันที่จัดคอนเสิร์ต"}
           <span>
             <CalendarDays aria-hidden="true" size={20} />
-            {en ? "Select date" : "เลือกวันที่"}
+            {event.date || (en ? "Date to be announced" : "รอยืนยันวันจัดงาน")}
             <Chevron />
           </span>
         </label>
         <label>
-          {en ? "Guests" : "จำนวนผู้โดยสาร"}
+          {en ? "Show time" : "รอบการแสดง"}
           <span>
-            <UsersRound aria-hidden="true" size={20} />
-            {en ? "2 Adults" : "ผู้ใหญ่ 2 ท่าน"}
+            <Music2 aria-hidden="true" size={20} />
+            {en
+              ? `Board ${event.boarding} · Show ${event.departure}`
+              : `ขึ้นเรือ ${event.boarding} · แสดง ${event.departure}`}
             <Chevron />
           </span>
         </label>
         <label>
-          {en ? "Cruise Type" : "รูปแบบการล่องเรือ"}
+          {en ? "Ticket type" : "ประเภทบัตร"}
           <span>
             <Anchor aria-hidden="true" size={20} />
-            {en ? "All Cruises" : "ทุกรอบเรือ"}
+            {en ? "Choose zone and ticket" : "เลือกโซนและบัตร"}
             <Chevron />
           </span>
         </label>
@@ -353,7 +362,7 @@ function AvailabilityPanel({
           onClick={onStartCheckout}
           type="button"
         >
-          {en ? "Check Availability" : "ตรวจสอบที่นั่งว่าง"}
+          {en ? "Choose zone & tickets" : "เลือกโซนและบัตร"}
           <ArrowRight aria-hidden="true" size={22} />
         </button>
       </div>

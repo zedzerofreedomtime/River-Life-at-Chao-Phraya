@@ -23,11 +23,13 @@ export default function BoatMap({
   const lowerDeckZone = zones.find((z) => z.id === "C");
   return (
     <section className="map-panel">
-      <h2>{en ? "Choose your zone on board" : "เลือกโซนที่นั่งบนเรือ"}</h2>
+      <h2>
+        {en ? "Choose your concert ticket zone" : "เลือกโซนบัตรคอนเสิร์ต"}
+      </h2>
       <p className="muted">
         {en
-          ? "Select an area on the deck plan to view prices and availability."
-          : "เลือกพื้นที่บนผังเพื่อดูราคาและจำนวนคงเหลือ"}
+          ? "Select a zone on the venue map to view ticket prices and availability."
+          : "เลือกโซนบนผังสถานที่เพื่อดูราคาบัตรและจำนวนคงเหลือ"}
       </p>
       <div
         className="vessel-side"

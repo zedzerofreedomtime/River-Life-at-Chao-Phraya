@@ -234,7 +234,10 @@ export default function App() {
         {page === "checkout" && event && (
           <section className="checkout-page">
             <button className="back-link" onClick={() => go("event")}>
-              ← กลับไปดูรายละเอียดเรือ
+              ←{" "}
+              {language === "en"
+                ? "Back to concert details"
+                : "กลับไปดูรายละเอียดคอนเสิร์ต"}
             </button>
             <Stepper activeStep={1} alternativeLabel className="checkout-steps">
               {strings.steps.map((label) => (
