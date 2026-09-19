@@ -17,6 +17,8 @@ import TicketWallet from "./TicketWallet";
 import ProfileMenu from "./ProfileMenu";
 import Auth, { type AuthUser } from "./Auth";
 import AdminDashboard from "./AdminDashboard";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { copy, type Language } from "./i18n";
 import { api, type Booking, type EventInfo } from "./api";
 
 type Page =
@@ -43,13 +45,6 @@ const pathPages: Record<string, Page> = Object.fromEntries(
 ) as Record<string, Page>;
 const pageFromLocation = (): Page =>
   pathPages[window.location.pathname] ?? "event";
-const nav: [Page, string][] = [
-  ["event", "งานแสดง"],
-  ["tickets", "บัตรของฉัน"],
-  ["orders", "คำสั่งซื้อ"],
-];
-const checkoutSteps = ["เลือกเรือ", "เลือกโซน", "ชำระเงิน", "ทำรายการสำเร็จ"];
-
 export default function App() {
   const [page, setPage] = useState<Page>(pageFromLocation);
   const [event, setEvent] = useState<EventInfo | null>(null);
@@ -67,6 +62,9 @@ export default function App() {
     role: sessionStorage.getItem("riverlife.profile.role") || "user",
   }));
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [language, setLanguage] = useState<Language>(() =>
+    localStorage.getItem("riverlife.language") === "en" ? "en" : "th",
+  );
   const [authDialogOpen, setAuthDialogOpen] = useState(
     () => pageFromLocation() === "auth",
   );
@@ -84,6 +82,10 @@ export default function App() {
   useEffect(() => {
     void loadEvent();
   }, []);
+  useEffect(() => {
+    document.documentElement.lang = language;
+    localStorage.setItem("riverlife.language", language);
+  }, [language]);
   useEffect(() => {
     void api<AuthUser>("/auth/me")
       .then((user) => {
@@ -155,6 +157,12 @@ export default function App() {
     });
     go("event");
   };
+  const strings = copy[language];
+  const nav: [Page, string][] = [
+    ["event", strings.nav.event],
+    ["tickets", strings.nav.tickets],
+    ["orders", strings.nav.orders],
+  ];
   return (
     <>
       <header
@@ -186,6 +194,7 @@ export default function App() {
         </nav>
         <div className="market-tools" aria-label="เครื่องมือผู้ใช้">
           {page === "tickets" ? null : <Search aria-hidden="true" size={22} />}
+          <LanguageSwitcher language={language} onChange={setLanguage} />
           <ProfileMenu
             isAuthenticated={isAuthenticated}
             name={profile.name}
@@ -193,15 +202,11 @@ export default function App() {
             onLogin={openAuthDialog}
             onNavigate={go}
             onLogout={logoutCustomer}
+            language={language}
           />
         </div>
       </header>
-      {event?.demo && (
-        <div className="demo-banner">
-          ระบบทดลอง · ราคาและโควตาเพื่อทดสอบเท่านั้น · วันงานรอยืนยัน · QR
-          Ticket สำหรับทดสอบ
-        </div>
-      )}
+      {event?.demo && <div className="demo-banner">{strings.demo}</div>}
       <main className={`app-main page-${page}`}>
         {error && (
           <Alert
@@ -212,7 +217,11 @@ export default function App() {
           </Alert>
         )}
         {page === "event" && event && (
-          <EventDetail event={event} onStartCheckout={goCheckout} />
+          <EventDetail
+            event={event}
+            onStartCheckout={goCheckout}
+            language={language}
+          />
         )}
         {page === "checkout" && event && (
           <section className="checkout-page">
@@ -220,18 +229,23 @@ export default function App() {
               ← กลับไปดูรายละเอียดเรือ
             </button>
             <Stepper activeStep={1} alternativeLabel className="checkout-steps">
-              {checkoutSteps.map((label) => (
+              {strings.steps.map((label) => (
                 <Step key={label}>
                   <StepLabel>{label}</StepLabel>
                 </Step>
               ))}
             </Stepper>
             <div className="checkout-heading">
-              <h1>เลือกโซนและจำนวนบัตร</h1>
-              <p>เลือกพื้นที่บนเรือและกรอกข้อมูล ก่อนเข้าสู่หน้าชำระเงิน</p>
+              <h1>{strings.checkoutTitle}</h1>
+              <p>{strings.checkoutCopy}</p>
             </div>
             <div className="booking-layout">
-              <BoatMap zones={event.zones} selected={zone} onSelect={setZone} />
+              <BoatMap
+                zones={event.zones}
+                selected={zone}
+                onSelect={setZone}
+                language={language}
+              />
               <BookingForm
                 zones={event.zones}
                 selected={zone}
@@ -244,6 +258,7 @@ export default function App() {
                 onRequireLogin={requireLoginForCheckout}
                 accountName={profile.name}
                 accountEmail={profile.email}
+                language={language}
               />
             </div>
           </section>
@@ -313,6 +328,7 @@ export default function App() {
         </div>
         <Auth
           modal
+          language={language}
           onAuthenticated={(user, source) => {
             setProfile({
               name: user.name || "ผู้ใช้งาน River Life",

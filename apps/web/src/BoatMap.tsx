@@ -1,4 +1,5 @@
 import type { Zone } from "./api";
+import type { Language } from "./i18n";
 
 const deckLabel: Record<string, string> = {
   A: "UPPER DECK • FRONT",
@@ -10,18 +11,28 @@ export default function BoatMap({
   zones,
   selected,
   onSelect,
+  language,
 }: {
   zones: Zone[];
   selected: string;
   onSelect: (id: string) => void;
+  language: Language;
 }) {
+  const en = language === "en";
   const upperDeckZones = zones.filter((z) => z.id === "A" || z.id === "B");
   const lowerDeckZone = zones.find((z) => z.id === "C");
   return (
     <section className="map-panel">
-      <h2>เลือกโซนที่นั่งบนเรือ</h2>
-      <p className="muted">เลือกพื้นที่บนผังเพื่อดูราคาและจำนวนคงเหลือ</p>
-      <div className="vessel-side" aria-label="ผังเรือด้านข้าง">
+      <h2>{en ? "Choose your zone on board" : "เลือกโซนที่นั่งบนเรือ"}</h2>
+      <p className="muted">
+        {en
+          ? "Select an area on the deck plan to view prices and availability."
+          : "เลือกพื้นที่บนผังเพื่อดูราคาและจำนวนคงเหลือ"}
+      </p>
+      <div
+        className="vessel-side"
+        aria-label={en ? "Side view deck plan" : "ผังเรือด้านข้าง"}
+      >
         <svg
           className="vessel-outline"
           viewBox="0 0 900 440"
@@ -77,7 +88,10 @@ export default function BoatMap({
           <circle cx="151" cy="357" r="7" fill="#b4c8d8" />
           <circle cx="183" cy="357" r="7" fill="#b4c8d8" />
         </svg>
-        <div className="vessel-upper" aria-label="ดาดฟ้าชั้นบน">
+        <div
+          className="vessel-upper"
+          aria-label={en ? "Upper deck" : "ดาดฟ้าชั้นบน"}
+        >
           {upperDeckZones.map((zone, index) => (
             <ZoneButton
               key={zone.id}
@@ -85,6 +99,7 @@ export default function BoatMap({
               index={index}
               selected={selected}
               onSelect={onSelect}
+              language={language}
             />
           ))}
         </div>
@@ -95,17 +110,23 @@ export default function BoatMap({
             selected={selected}
             onSelect={onSelect}
             lowerDeck
+            language={language}
           />
         )}
       </div>
       <div className="map-caption">
-        <span>← หัวเรือ</span>
-        <span>มุมมองด้านข้าง • ดาดฟ้าบน 250 ใบ</span>
-        <span>ท้ายเรือ →</span>
+        <span>{en ? "← Bow" : "← หัวเรือ"}</span>
+        <span>
+          {en
+            ? "Side view · 250 upper-deck tickets"
+            : "มุมมองด้านข้าง • ดาดฟ้าบน 250 ใบ"}
+        </span>
+        <span>{en ? "Stern →" : "ท้ายเรือ →"}</span>
       </div>
       <p className="map-note">
-        เลือกดาดฟ้าบน (หัวเรือ/ท้ายเรือ) หรือชั้นล่าง 100 ใบ
-        ภาพใช้ระบุตำแหน่งโซนโดยประมาณ ไม่ใช่ผังเลขที่นั่ง
+        {en
+          ? "Choose the upper deck (bow or stern) or the 100-ticket lower deck. This is a zone guide, not assigned seating."
+          : "เลือกดาดฟ้าบน (หัวเรือ/ท้ายเรือ) หรือชั้นล่าง 100 ใบ ภาพใช้ระบุตำแหน่งโซนโดยประมาณ ไม่ใช่ผังเลขที่นั่ง"}
       </p>
     </section>
   );
@@ -117,13 +138,16 @@ function ZoneButton({
   selected,
   onSelect,
   lowerDeck = false,
+  language,
 }: {
   zone: Zone;
   index: number;
   selected: string;
   onSelect: (id: string) => void;
   lowerDeck?: boolean;
+  language: Language;
 }) {
+  const en = language === "en";
   return (
     <button
       type="button"
@@ -138,7 +162,9 @@ function ZoneButton({
       </span>
       <strong>{zone.name}</strong>
       <small>{deckLabel[zone.id] ?? `ZONE ${index + 1}`}</small>
-      <span className="zone-count">{zone.available} ที่ว่าง</span>
+      <span className="zone-count">
+        {zone.available} {en ? "available" : "ที่ว่าง"}
+      </span>
     </button>
   );
 }

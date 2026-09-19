@@ -907,7 +907,7 @@ body {
 @media (max-width: 800px) {
   .market-header {
     min-height: auto;
-    padding: 17px 20px 0;
+    padding: 14px 168px 0 20px;
     align-items: flex-start;
     flex-direction: column;
     gap: 8px;
@@ -923,7 +923,16 @@ body {
     font-size: 13px;
   }
   .river-brand {
-    font-size: 25px;
+    gap: 6px;
+    font-size: 19px;
+    letter-spacing: 1.4px;
+  }
+  .river-brand > img {
+    width: 42px;
+    height: 42px;
+  }
+  .river-brand small {
+    display: none;
   }
   .app-main {
     padding: 0 20px 34px;
@@ -2043,7 +2052,7 @@ td small {
   background: #be9145;
 }
 .market-tools {
-  min-width: 102px;
+  min-width: 170px;
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -2056,6 +2065,33 @@ td small {
   background: transparent;
   color: inherit;
   display: grid;
+}
+.language-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #8b98a8;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
+.market-tools .language-switcher button {
+  min-width: auto;
+  padding: 8px 0 6px;
+  border-bottom: 2px solid transparent;
+  color: #7b8797;
+  font: inherit;
+  cursor: pointer;
+}
+.market-tools .language-switcher button.active {
+  border-bottom-color: #bd9048;
+  color: #102641;
+}
+.market-header {
+  border-bottom: 1px solid #e8edf1;
+}
+.river-brand > img {
+  box-shadow: 0 3px 10px rgba(12, 37, 68, 0.12);
 }
 .demo-banner {
   padding: 7px 20px;
@@ -3328,6 +3364,14 @@ td small {
 @media (max-width: 800px) {
   .market-tools {
     display: flex;
+    min-width: 0;
+    position: absolute;
+    top: 15px;
+    right: 14px;
+    gap: 9px;
+  }
+  .language-switcher {
+    gap: 4px;
   }
   .market-tools > svg {
     display: none;

@@ -3,6 +3,7 @@ import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import { api } from "./api";
+import type { Language } from "./i18n";
 
 export type AuthUser = {
   id: string;
@@ -17,10 +18,13 @@ type SignupStep = "details" | "otp" | "complete";
 export default function Auth({
   onAuthenticated,
   modal = false,
+  language = "th",
 }: {
   onAuthenticated: (user: AuthUser, source: Mode) => void;
   modal?: boolean;
+  language?: Language;
 }) {
+  const en = language === "en";
   const [mode, setMode] = useState<Mode>("login");
   const [signupStep, setSignupStep] = useState<SignupStep>("details");
   const [name, setName] = useState("");
@@ -89,7 +93,9 @@ export default function Auth({
       onAuthenticated(user, "signup");
       setSignupStep("complete");
       setMessage(
-        "สมัครสมาชิกสำเร็จแล้ว คุณสามารถใช้บัญชีนี้เข้าสู่ระบบได้ทันที",
+        en
+          ? "Your membership is ready. You can use your account right away."
+          : "สมัครสมาชิกสำเร็จแล้ว คุณสามารถใช้บัญชีนี้เข้าสู่ระบบได้ทันที",
       );
       setPassword("");
       setCode("");
@@ -104,23 +110,23 @@ export default function Auth({
   const details = (
     <>
       <TextField
-        label="ชื่อ-นามสกุล"
+        label={en ? "Full name" : "ชื่อ-นามสกุล"}
         autoComplete="name"
         value={name}
         onChange={(event) => setName(event.target.value)}
       />
       <TextField
-        label="อีเมล"
+        label={en ? "Email" : "อีเมล"}
         type="email"
         autoComplete="email"
         value={email}
         onChange={(event) => setEmail(event.target.value)}
       />
       <TextField
-        label="รหัสผ่าน"
+        label={en ? "Password" : "รหัสผ่าน"}
         type="password"
         autoComplete="new-password"
-        helperText="อย่างน้อย 8 ตัวอักษร"
+        helperText={en ? "At least 8 characters" : "อย่างน้อย 8 ตัวอักษร"}
         value={password}
         onChange={(event) => setPassword(event.target.value)}
       />
@@ -131,7 +137,7 @@ export default function Auth({
           busy || !email || name.trim().length < 2 || password.length < 8
         }
       >
-        สมัครสมาชิก
+        {en ? "Create account" : "สมัครสมาชิก"}
       </Button>
     </>
   );
@@ -139,13 +145,14 @@ export default function Auth({
     <>
       <Alert severity="success">
         {message}
-        {demoCode ? ` รหัสทดสอบ: ${demoCode}` : ""}
+        {demoCode ? `${en ? " Demo code: " : " รหัสทดสอบ: "}${demoCode}` : ""}
       </Alert>
       <p className="auth-otp-copy">
-        กรอกรหัส OTP ที่ส่งไปยัง <strong>{email}</strong>
+        {en ? "Enter the OTP sent to " : "กรอกรหัส OTP ที่ส่งไปยัง "}
+        <strong>{email}</strong>
       </p>
       <TextField
-        label="รหัส OTP 6 หลัก"
+        label={en ? "6-digit OTP" : "รหัส OTP 6 หลัก"}
         value={code}
         onChange={(event) =>
           setCode(event.target.value.replace(/\D/g, "").slice(0, 6))
@@ -157,14 +164,14 @@ export default function Auth({
         onClick={() => void verifyOTP()}
         disabled={busy || code.length !== 6}
       >
-        ยืนยัน OTP
+        {en ? "Verify OTP" : "ยืนยัน OTP"}
       </Button>
       <Button
         variant="outlined"
         onClick={() => void requestOTP()}
         disabled={busy}
       >
-        ส่ง OTP อีกครั้ง
+        {en ? "Resend OTP" : "ส่ง OTP อีกครั้ง"}
       </Button>
     </>
   );
@@ -173,7 +180,11 @@ export default function Auth({
     <section
       className={`auth-page content-panel${modal ? " auth-modal-content" : ""}`}
     >
-      <div className="auth-tabs" role="tablist" aria-label="การเข้าใช้งานบัญชี">
+      <div
+        className="auth-tabs"
+        role="tablist"
+        aria-label={en ? "Account access" : "การเข้าใช้งานบัญชี"}
+      >
         <button
           type="button"
           role="tab"
@@ -181,7 +192,7 @@ export default function Auth({
           className={mode === "login" ? "active" : ""}
           onClick={() => switchMode("login")}
         >
-          เข้าสู่ระบบ
+          {en ? "Log in" : "เข้าสู่ระบบ"}
         </button>
         <button
           type="button"
@@ -190,27 +201,43 @@ export default function Auth({
           className={isSignup ? "active" : ""}
           onClick={() => switchMode("signup")}
         >
-          สมัครสมาชิก
+          {en ? "Sign up" : "สมัครสมาชิก"}
         </button>
       </div>
       <div className="orders-heading">
         <h1>
           {isSignup
             ? signupStep === "otp"
-              ? "ยืนยันอีเมล"
+              ? en
+                ? "Verify email"
+                : "ยืนยันอีเมล"
               : signupStep === "complete"
-                ? "สมัครสมาชิกสำเร็จ"
-                : "สมัครสมาชิก River Life"
-            : "เข้าสู่ระบบ River Life"}
+                ? en
+                  ? "Membership complete"
+                  : "สมัครสมาชิกสำเร็จ"
+                : en
+                  ? "Join River Life"
+                  : "สมัครสมาชิก River Life"
+            : en
+              ? "Welcome to River Life"
+              : "เข้าสู่ระบบ River Life"}
         </h1>
         <p>
           {isSignup
             ? signupStep === "otp"
-              ? "ยืนยัน OTP เพื่อเปิดใช้งานบัญชีของคุณ"
+              ? en
+                ? "Verify the OTP to activate your account."
+                : "ยืนยัน OTP เพื่อเปิดใช้งานบัญชีของคุณ"
               : signupStep === "complete"
-                ? "บัญชีของคุณพร้อมใช้งานแล้ว"
-                : "สมัครสมาชิกเพื่อเก็บบัตรและคำสั่งซื้อไว้กับบัญชีของคุณ"
-            : "กรอกอีเมลและรหัสผ่านเพื่อเข้าสู่ระบบ"}
+                ? en
+                  ? "Your account is ready to use."
+                  : "บัญชีของคุณพร้อมใช้งานแล้ว"
+                : en
+                  ? "Create an account to keep your tickets and bookings in one place."
+                  : "สมัครสมาชิกเพื่อเก็บบัตรและคำสั่งซื้อไว้กับบัญชีของคุณ"
+            : en
+              ? "Enter your email and password to continue."
+              : "กรอกอีเมลและรหัสผ่านเพื่อเข้าสู่ระบบ"}
         </p>
       </div>
       <div className="auth-form">
@@ -225,14 +252,14 @@ export default function Auth({
         ) : (
           <>
             <TextField
-              label="อีเมล"
+              label={en ? "Email" : "อีเมล"}
               type="email"
               autoComplete="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
             />
             <TextField
-              label="รหัสผ่าน"
+              label={en ? "Password" : "รหัสผ่าน"}
               type="password"
               autoComplete="current-password"
               value={password}
@@ -243,7 +270,7 @@ export default function Auth({
               onClick={() => void login()}
               disabled={busy || !email || !password}
             >
-              เข้าสู่ระบบ
+              {en ? "Log in" : "เข้าสู่ระบบ"}
             </Button>
           </>
         )}

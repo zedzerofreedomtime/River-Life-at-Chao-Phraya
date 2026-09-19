@@ -6,6 +6,7 @@ import {
   ReceiptText,
   Ticket,
 } from "lucide-react";
+import type { Language } from "./i18n";
 
 type Destination = "tickets" | "orders";
 
@@ -16,6 +17,7 @@ export default function ProfileMenu({
   onLogin,
   onNavigate,
   onLogout,
+  language,
 }: {
   isAuthenticated: boolean;
   name: string;
@@ -23,6 +25,7 @@ export default function ProfileMenu({
   onLogin: () => void;
   onNavigate: (destination: Destination) => void;
   onLogout: () => void;
+  language: Language;
 }) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -62,7 +65,7 @@ export default function ProfileMenu({
         type="button"
       >
         <CircleUserRound aria-hidden="true" size={29} />
-        <span>เข้าสู่ระบบ</span>
+        <span>{language === "en" ? "Login" : "เข้าสู่ระบบ"}</span>
       </button>
     );
   }
@@ -70,7 +73,7 @@ export default function ProfileMenu({
   return (
     <div className="profile-menu" ref={menuRef}>
       <button
-        aria-label="เปิดเมนูโปรไฟล์"
+        aria-label={language === "en" ? "Open profile menu" : "เปิดเมนูโปรไฟล์"}
         aria-expanded={open}
         aria-haspopup="menu"
         className="profile-trigger"
@@ -80,7 +83,7 @@ export default function ProfileMenu({
       </button>
       {open ? (
         <section
-          aria-label="เมนูโปรไฟล์"
+          aria-label={language === "en" ? "Profile menu" : "เมนูโปรไฟล์"}
           className="profile-popover"
           role="menu"
         >
@@ -96,22 +99,23 @@ export default function ProfileMenu({
               <strong>{name}</strong>
               <small>{email}</small>
               <button type="button" onClick={() => navigate("orders")}>
-                ดูคำสั่งซื้อ <ChevronRight aria-hidden="true" size={19} />
+                {language === "en" ? "My bookings" : "ดูคำสั่งซื้อ"}{" "}
+                <ChevronRight aria-hidden="true" size={19} />
               </button>
             </>
           </div>
           <>
             <div className="profile-actions">
               <MenuAction icon={Ticket} onClick={() => navigate("tickets")}>
-                บัตรของฉัน
+                {language === "en" ? "My tickets" : "บัตรของฉัน"}
               </MenuAction>
               <MenuAction icon={ReceiptText} onClick={() => navigate("orders")}>
-                คำสั่งซื้อของฉัน
+                {language === "en" ? "My bookings" : "คำสั่งซื้อของฉัน"}
               </MenuAction>
             </div>
             <div className="profile-logout">
               <MenuAction icon={LogOut} danger onClick={logout}>
-                ออกจากระบบ
+                {language === "en" ? "Log out" : "ออกจากระบบ"}
               </MenuAction>
             </div>
           </>

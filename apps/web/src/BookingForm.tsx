@@ -6,6 +6,7 @@ import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import { Minus, Plus, Ticket } from "lucide-react";
 import { api, money, newToken, type Booking, type Zone } from "./api";
+import type { Language } from "./i18n";
 export default function BookingForm({
   zones,
   selected,
@@ -15,6 +16,7 @@ export default function BookingForm({
   onRequireLogin,
   accountName,
   accountEmail,
+  language,
 }: {
   zones: Zone[];
   selected: string;
@@ -24,7 +26,9 @@ export default function BookingForm({
   onRequireLogin: () => void;
   accountName: string;
   accountEmail: string;
+  language: Language;
 }) {
+  const en = language === "en";
   const [quantity, setQuantity] = useState(1),
     [agent, setAgent] = useState(""),
     [accepted, setAccepted] = useState(false),
@@ -77,14 +81,18 @@ export default function BookingForm({
   }
   return (
     <form className="booking-panel" onSubmit={submit}>
-      <h2>จองบัตรคอนเสิร์ตบนเรือ</h2>
+      <h2>{en ? "Reserve your cruise tickets" : "จองบัตรคอนเสิร์ตบนเรือ"}</h2>
       <p className="muted">
         เลือกโซนและจำนวนบัตร
         {isAuthenticated
-          ? " ก่อนยืนยันการจอง"
-          : " แล้วเข้าสู่ระบบเพื่อซื้อบัตร"}
+          ? en
+            ? " before confirming your reservation."
+            : " ก่อนยืนยันการจอง"
+          : en
+            ? " then log in to buy tickets."
+            : " แล้วเข้าสู่ระบบเพื่อซื้อบัตร"}
       </p>
-      <label className="field-label">โซน</label>
+      <label className="field-label">{en ? "Zone" : "โซน"}</label>
       <div className="zone-options">
         {zones.map((z) => (
           <button
@@ -96,17 +104,17 @@ export default function BookingForm({
             onClick={() => onSelect(z.id)}
           >
             <strong>{z.name}</strong>
-            <small>ราคาชั่วคราว</small>
+            <small>{en ? "Provisional price" : "ราคาชั่วคราว"}</small>
             <b>{money(z.price)}</b>
           </button>
         ))}
       </div>
       <div className="quantity-row">
         <div>
-          <label className="field-label">จำนวนบัตร</label>
+          <label className="field-label">{en ? "Tickets" : "จำนวนบัตร"}</label>
           <div className="counter">
             <Button
-              aria-label="ลดจำนวนบัตร"
+              aria-label={en ? "Decrease tickets" : "ลดจำนวนบัตร"}
               disabled={busy || quantity <= 1}
               onClick={() => setQuantity((n) => n - 1)}
             >
@@ -114,7 +122,7 @@ export default function BookingForm({
             </Button>
             <output>{quantity}</output>
             <Button
-              aria-label="เพิ่มจำนวนบัตร"
+              aria-label={en ? "Increase tickets" : "เพิ่มจำนวนบัตร"}
               disabled={busy || quantity >= Math.min(10, zone?.available ?? 0)}
               onClick={() => setQuantity((n) => n + 1)}
             >
@@ -123,7 +131,7 @@ export default function BookingForm({
           </div>
         </div>
         <div>
-          <label className="field-label">ยอดรวม</label>
+          <label className="field-label">{en ? "Total" : "ยอดรวม"}</label>
           <strong className="price">
             {money((zone?.price ?? 0) * quantity)}
           </strong>
@@ -132,14 +140,14 @@ export default function BookingForm({
       <hr />
       {isAuthenticated ? (
         <>
-          <h3>ข้อมูลผู้จอง</h3>
+          <h3>{en ? "Booking details" : "ข้อมูลผู้จอง"}</h3>
           <div className="booking-account">
-            <span>บัญชีที่ใช้จอง</span>
+            <span>{en ? "Booking account" : "บัญชีที่ใช้จอง"}</span>
             <strong>{accountName}</strong>
             <small>{accountEmail}</small>
           </div>
           <TextField
-            label="รหัสตัวแทน (ถ้ามี)"
+            label={en ? "Agent code (optional)" : "รหัสตัวแทน (ถ้ามี)"}
             value={agent}
             onChange={(e) => setAgent(e.target.value)}
             inputProps={{ maxLength: 40 }}
@@ -154,16 +162,21 @@ export default function BookingForm({
             }
             label={
               <span className="consent">
-                รับทราบว่ามาไม่ทันเรือถือเป็น No-show
-                ไม่คืนเงินหรือใช้สิทธิ์ใหม่
+                {en
+                  ? "I understand that arriving after boarding time is a no-show and is not refundable."
+                  : "รับทราบว่ามาไม่ทันเรือถือเป็น No-show ไม่คืนเงินหรือใช้สิทธิ์ใหม่"}
               </span>
             }
           />
         </>
       ) : (
         <div className="booking-login-prompt">
-          <h3>พร้อมเลือกโซนแล้ว</h3>
-          <p>เข้าสู่ระบบเพื่อยืนยันตัวตนก่อนดำเนินการซื้อบัตร</p>
+          <h3>{en ? "Your zone is selected" : "พร้อมเลือกโซนแล้ว"}</h3>
+          <p>
+            {en
+              ? "Log in to verify your account before purchasing tickets."
+              : "เข้าสู่ระบบเพื่อยืนยันตัวตนก่อนดำเนินการซื้อบัตร"}
+          </p>
         </div>
       )}
       {error && (
@@ -186,13 +199,21 @@ export default function BookingForm({
         }
       >
         {busy
-          ? "กำลังสร้างรายการ…"
+          ? en
+            ? "Creating reservation…"
+            : "กำลังสร้างรายการ…"
           : isAuthenticated
-            ? "ยืนยันการจองและไปชำระเงิน"
-            : "ซื้อบัตร"}
+            ? en
+              ? "Confirm reservation and pay"
+              : "ยืนยันการจองและไปชำระเงิน"
+            : en
+              ? "Buy tickets"
+              : "ซื้อบัตร"}
       </Button>
       <p className="form-foot">
-        รายการจะถูกสำรองไว้ 15 นาที เพื่อให้คุณชำระเงินในขั้นตอนถัดไป
+        {en
+          ? "Your selection will be held for 15 minutes while you complete payment."
+          : "รายการจะถูกสำรองไว้ 15 นาที เพื่อให้คุณชำระเงินในขั้นตอนถัดไป"}
       </p>
     </form>
   );
