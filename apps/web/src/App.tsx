@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -8,7 +8,7 @@ import StepLabel from "@mui/material/StepLabel";
 import Stepper from "@mui/material/Stepper";
 import { ChevronDown, Search, X } from "lucide-react";
 import EventDetail from "./EventDetail";
-import Home from "./Home";
+import Home, { type EventCategory } from "./Home";
 import BoatMap from "./BoatMap";
 import BookingForm from "./BookingForm";
 import MyBooking from "./MyBooking";
@@ -73,6 +73,11 @@ export default function App() {
   );
   const [continueCheckoutAfterLogin, setContinueCheckoutAfterLogin] =
     useState(false);
+  const [homeCategory, setHomeCategory] = useState<EventCategory>("all");
+  const [openNavigationMenu, setOpenNavigationMenu] = useState<
+    "events" | "help" | null
+  >(null);
+  const navigationRef = useRef<HTMLElement>(null);
   const loadEvent = () =>
     api<EventInfo>("/event")
       .then((data) => {
@@ -116,6 +121,16 @@ export default function App() {
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
+  useEffect(() => {
+    if (!openNavigationMenu) return;
+    const closeMenu = (event: MouseEvent) => {
+      if (!navigationRef.current?.contains(event.target as Node)) {
+        setOpenNavigationMenu(null);
+      }
+    };
+    document.addEventListener("mousedown", closeMenu);
+    return () => document.removeEventListener("mousedown", closeMenu);
+  }, [openNavigationMenu]);
   const go = (next: Page) => {
     const nextPath = pagePaths[next];
     if (window.location.pathname !== nextPath) {
@@ -161,20 +176,33 @@ export default function App() {
     go("home");
   };
   const strings = copy[language];
-  const nav =
-    language === "en"
-      ? ["Cruises", "Dining", "Events & Concerts", "About", "Plan Your Trip"]
-      : [
-          "ล่องเรือ",
-          "อาหารบนเรือ",
-          "อีเวนต์และคอนเสิร์ต",
-          "เกี่ยวกับเรา",
-          "วางแผนการเดินทาง",
-        ];
+  const en = language === "en";
+  const eventCategories: Array<{ value: EventCategory; label: string }> = [
+    { value: "all", label: en ? "All events" : "อีเวนต์ทั้งหมด" },
+    { value: "festival", label: en ? "Music festivals" : "เทศกาลดนตรี" },
+    { value: "concert", label: en ? "Concerts" : "คอนเสิร์ต" },
+    { value: "fanmeet", label: en ? "Fan meetings" : "แฟนมีตติ้ง" },
+    { value: "special", label: en ? "Special activities" : "กิจกรรมพิเศษ" },
+  ];
+  const helpItems = en
+    ? [
+        "Contact us",
+        "Help & FAQ",
+        "Payments & slip upload",
+        "Postponement & refunds",
+        "Ticket terms",
+      ]
+    : [
+        "ติดต่อเรา",
+        "ช่วยเหลือ / คำถามที่พบบ่อย",
+        "การชำระเงินและแนบสลิป",
+        "การเลื่อนงาน / คืนเงิน",
+        "เงื่อนไขการใช้บัตร",
+      ];
   return (
     <>
       <header
-        className={`market-header ${page === "home" ? "landing-header" : ""} ${page === "tickets" ? "market-header-dark" : ""}`}
+        className={`market-header ${page === "home" ? "ticket-home-header" : ""} ${page === "tickets" ? "market-header-dark" : ""}`}
       >
         <button
           className="river-brand"
@@ -186,21 +214,89 @@ export default function App() {
             RIVER LIFE <small>MUSIC ON THE RIVER</small>
           </span>
         </button>
-        <nav aria-label="เมนูหลัก">
+        <nav ref={navigationRef} className="ticket-nav" aria-label="เมนูหลัก">
           {profile.role === "admin" ? (
             <button className="active" onClick={() => go("dashboard")}>
               {strings.nav.dashboard}
             </button>
           ) : (
-            nav.map((label) => (
+            <>
               <button
-                key={label}
-                className={label === nav[0] ? "active" : ""}
-                onClick={() => go("home")}
+                className={page === "home" ? "active" : ""}
+                onClick={() => {
+                  setOpenNavigationMenu(null);
+                  go("home");
+                }}
               >
-                {label} <ChevronDown aria-hidden="true" size={15} />
+                {en ? "Home" : "หน้าแรก"}
               </button>
-            ))
+              <div className="ticket-nav-dropdown">
+                <button
+                  aria-expanded={openNavigationMenu === "events"}
+                  aria-haspopup="menu"
+                  onClick={() =>
+                    setOpenNavigationMenu((current) =>
+                      current === "events" ? null : "events",
+                    )
+                  }
+                >
+                  {en ? "Events on board" : "อีเวนต์บนเรือ"}
+                  <ChevronDown aria-hidden="true" size={16} />
+                </button>
+                {openNavigationMenu === "events" && (
+                  <div className="ticket-menu-popover" role="menu">
+                    {eventCategories.map((category) => (
+                      <button
+                        key={category.value}
+                        role="menuitem"
+                        onClick={() => {
+                          setHomeCategory(category.value);
+                          setOpenNavigationMenu(null);
+                          go("home");
+                        }}
+                      >
+                        {category.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="ticket-nav-dropdown">
+                <button
+                  aria-expanded={openNavigationMenu === "help"}
+                  aria-haspopup="menu"
+                  onClick={() =>
+                    setOpenNavigationMenu((current) =>
+                      current === "help" ? null : "help",
+                    )
+                  }
+                >
+                  {en ? "Help" : "ช่วยเหลือ"}
+                  <ChevronDown aria-hidden="true" size={16} />
+                </button>
+                {openNavigationMenu === "help" && (
+                  <div className="ticket-menu-popover" role="menu">
+                    {helpItems.map((item) => (
+                      <button
+                        key={item}
+                        role="menuitem"
+                        onClick={() => setOpenNavigationMenu(null)}
+                      >
+                        {item}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <button
+                onClick={() => {
+                  setOpenNavigationMenu(null);
+                  go("event");
+                }}
+              >
+                {en ? "Getting there" : "การเดินทาง"}
+              </button>
+            </>
           )}
         </nav>
         <div className="market-tools" aria-label="เครื่องมือผู้ใช้">
@@ -244,6 +340,7 @@ export default function App() {
           <Home
             event={event}
             language={language}
+            category={homeCategory}
             onOpenConcert={() => go("event")}
           />
         )}
