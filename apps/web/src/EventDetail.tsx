@@ -1,18 +1,12 @@
 import {
-  Anchor,
   ArrowRight,
   CalendarDays,
-  Camera,
   Clock3,
-  Diamond,
   MapPin,
   Music2,
-  ShipWheel,
+  Ticket,
   Utensils,
-  UsersRound,
-  Waves,
 } from "lucide-react";
-import { useState } from "react";
 import type { EventInfo } from "./api";
 import type { Language } from "./i18n";
 
@@ -26,359 +20,144 @@ export default function EventDetail({
   language: Language;
 }) {
   const en = language === "en";
-  const programme = en
-    ? [
-        ["Welcome", "Meet the team at ICONSIAM Pier."],
-        ["Live music", "Settle in with a live music performance."],
-        [
-          "Thai riverside performance",
-          "A special cultural performance along the river.",
-        ],
-        ["Live music", "Enjoy music throughout the cruise."],
-      ]
-    : [
-        ["Welcome", "ต้อนรับผู้ร่วมงาน ณ ท่าเรือ ICONSIAM"],
-        ["Live music", "เริ่มต้นด้วยเสียงดนตรีสดไพเราะ"],
-        ["หนุมาน – นางมัจฉา", "การแสดงพิเศษริมสายน้ำ ถ่ายทอดเสน่ห์วัฒนธรรมไทย"],
-        ["Live music", "สนุกต่อเนื่องไปกับบทเพลงตลอดการล่องเรือ"],
-      ];
-  const vessel = {
-    id: "unicorn-cruise",
-    name: en ? "Unicorn Cruise" : "ยูนิคอร์นครูซ",
-    detail: en
-      ? "250 upper-deck tickets · 100 lower-deck tickets"
-      : "ดาดฟ้าบน 250 ใบ · ชั้นล่าง 100 ใบ",
-    image: "/images/boat/unicorn-night-exterior.jpg",
-    capacity: en ? "350 guests" : "350 ท่าน",
-    pier: en ? "ICONSIAM Pier" : "ท่าเรือ ICONSIAM",
-    departure: en ? "Departs 19:00" : "ออกเรือ 19:00",
-  };
+  const date =
+    event.date || (en ? "Date to be announced" : "รอยืนยันวันจัดงาน");
+  const price = Math.min(...event.zones.map((zone) => zone.price)) / 100;
+  const details = [
+    {
+      icon: CalendarDays,
+      label: en ? "Event date" : "วันที่จัดงาน",
+      value: date,
+    },
+    {
+      icon: Clock3,
+      label: en ? "Boarding and departure" : "ขึ้นเรือและออกเรือ",
+      value: en
+        ? `Board ${event.boarding} · depart ${event.departure}`
+        : `ขึ้นเรือ ${event.boarding} · ออกเรือ ${event.departure}`,
+    },
+    {
+      icon: Ticket,
+      label: en ? "Tickets from" : "บัตรเริ่มต้น",
+      value: en
+        ? `${new Intl.NumberFormat("th-TH").format(price)} THB`
+        : `${new Intl.NumberFormat("th-TH").format(price)} บาท`,
+    },
+    {
+      icon: MapPin,
+      label: en ? "Boarding point" : "จุดขึ้นเรือ",
+      value: en ? `${event.pier} Pier` : `ท่าเรือ ${event.pier}`,
+    },
+  ];
+
   return (
     <>
-      <section className="event-hero river-landing-hero">
-        <img
-          src="/images/boat/unicorn-night-hero-gold.png"
-          alt={
-            en
-              ? "Unicorn Cruise on the Chao Phraya at night"
-              : "เรือ Unicorn Cruise ล่องแม่น้ำเจ้าพระยายามค่ำคืน"
-          }
-        />
-        <div className="event-hero-copy">
-          <h1>
-            {en ? (
-              <>
-                Concerts on the <em>Chao Phraya</em>
-              </>
-            ) : (
-              <>
-                คอนเสิร์ตบน<em>แม่น้ำเจ้าพระยา</em>
-              </>
-            )}
-          </h1>
-          <p>
-            {en
-              ? "Live music. Fine dining. Unforgettable views in the heart of Bangkok."
-              : "ดนตรีสด อาหารพิเศษ และวิวประทับใจใจกลางกรุงเทพฯ"}
+      <section className="event-purchase-hero">
+        <div className="event-purchase-container">
+          <p className="event-breadcrumb">
+            {en ? "Home / Events on board" : "หน้าแรก / อีเวนต์บนเรือ"}
           </p>
-          <button className="hero-explore" onClick={() => onStartCheckout()}>
-            {en ? "Explore concert tickets" : "ดูบัตรคอนเสิร์ต"}
-            <ArrowRight aria-hidden="true" size={21} />
-          </button>
-        </div>
-        <p className="hero-signature">
-          Live the River
-          <br />
-          Love the Journey ♡
-        </p>
-        <button
-          className="hero-arrow hero-arrow-left"
-          aria-label={en ? "Previous slide" : "ภาพก่อนหน้า"}
-        >
-          ‹
-        </button>
-        <button
-          className="hero-arrow hero-arrow-right"
-          aria-label={en ? "Next slide" : "ภาพถัดไป"}
-        >
-          ›
-        </button>
-      </section>
-      <AvailabilityPanel
-        event={event}
-        language={language}
-        onStartCheckout={onStartCheckout}
-      />
-      <section
-        className="river-benefits"
-        aria-label={en ? "Highlights" : "จุดเด่น"}
-      >
-        <Benefit
-          icon={Music2}
-          title={en ? "World-Class Concerts" : "คอนเสิร์ตระดับพรีเมียม"}
-          text={en ? "Live music with iconic views" : "ดนตรีสดพร้อมวิวแม่น้ำ"}
-        />
-        <Benefit
-          icon={Utensils}
-          title={en ? "Exceptional Dining" : "มื้ออาหารพิเศษ"}
-          text={
-            en ? "A culinary journey on the river" : "ประสบการณ์รสชาติบนสายน้ำ"
-          }
-        />
-        <Benefit
-          icon={Camera}
-          title={en ? "Unrivaled Views" : "วิวที่น่าประทับใจ"}
-          text={
-            en
-              ? "Bangkok's most breathtaking skyline"
-              : "เส้นขอบฟ้ากรุงเทพฯ ที่งดงาม"
-          }
-        />
-        <Benefit
-          icon={Diamond}
-          title={en ? "Premium Experience" : "ประสบการณ์พรีเมียม"}
-          text={en ? "Moments that stay with you" : "ช่วงเวลาที่น่าจดจำ"}
-        />
-      </section>
-      <section
-        className="event-facts"
-        aria-label={en ? "Cruise information" : "ข้อมูลการเดินทาง"}
-      >
-        <Fact
-          icon={MapPin}
-          label="ICONSIAM"
-          value={en ? "ICONSIAM Pier" : "ท่าเรือ ICONSIAM"}
-        />
-        <Fact
-          icon={Clock3}
-          label={
-            en ? `Board by ${event.boarding}` : `ขึ้นเรือก่อน ${event.boarding}`
-          }
-          value={
-            en
-              ? "Please arrive before boarding time."
-              : "กรุณามาถึงก่อนเวลาที่กำหนด"
-          }
-        />
-        <Fact
-          icon={ShipWheel}
-          label={
-            en ? `Departs ${event.departure}` : `ออกเรือ ${event.departure}`
-          }
-          value={
-            en ? "The cruise departs on schedule." : "เริ่มล่องตามกำหนดการ"
-          }
-        />
-        <Fact
-          icon={Waves}
-          label={en ? "Two-hour cruise" : "ล่องเรือ 2 ชั่วโมง"}
-          value={
-            en
-              ? "Take in the river from both banks."
-              : "สัมผัสบรรยากาศสองฝั่งพระยา"
-          }
-        />
-      </section>
-      <section className="event-content">
-        <article className="event-story">
-          <span className="event-kicker">
-            {en ? "ABOUT THIS EVENT" : "เกี่ยวกับงานนี้"}
-          </span>
-          <div className="event-heading-row">
-            <h2>{en ? "An evening on the river" : "รายละเอียดงานแสดง"}</h2>
-            <span>
-              MORE THAN A CONCERT
-              <br />A NIGHT ON THE RIVER
-            </span>
-          </div>
-          <p>
-            {en
-              ? "Enjoy live music and a one-of-a-kind river-cruise experience. Every moment is designed to become a lasting Bangkok memory."
-              : "ดื่มด่ำกับดนตรี การแสดง และประสบการณ์สุดพิเศษบนเรือสำราญกลางแม่น้ำเจ้าพระยา ให้ทุกช่วงเวลาของค่ำคืนนี้ เป็นความทรงจำที่งดงาม"}
-          </p>
-          <h3>{en ? "Evening schedule" : "กำหนดการ (Rundown)"}</h3>
-          <ol className="rundown">
-            {programme.map(([name, detail]) => (
-              <li key={`${name}-${detail}`}>
-                <strong>{name}</strong>
-                <span>{detail}</span>
-              </li>
-            ))}
-          </ol>
-          <div className="event-notes">
-            <div>
-              <Utensils aria-hidden="true" />
-              <p>
-                <strong>
-                  {en ? "Dinner on board" : "อิ่มอร่อยกับบุฟเฟต์ดินเนอร์"}
-                </strong>
+          <article className="event-purchase-card">
+            <div className="event-poster">
+              <img
+                src="/images/boat/unicorn-night-hero-gold.png"
+                alt={
+                  en
+                    ? "Unicorn Cruise on the Chao Phraya at night"
+                    : "เรือ Unicorn Cruise ล่องแม่น้ำเจ้าพระยายามค่ำคืน"
+                }
+              />
+              <span>{en ? "LIVE ON THE RIVER" : "LIVE ON THE RIVER"}</span>
+            </div>
+            <div className="event-purchase-info">
+              <h1>{event.title}</h1>
+              <p className="event-purchase-summary">
                 {en
-                  ? "A curated dinner experience is served throughout the cruise."
-                  : "บริการอาหารบุฟเฟต์หลากหลายเมนู ตลอดการล่องเรือ"}
+                  ? "An intimate concert experience with live music, dining and the Chao Phraya after dark."
+                  : "คอนเสิร์ตดนตรีสด อาหาร และค่ำคืนบนแม่น้ำเจ้าพระยา"}
               </p>
+              <dl className="event-key-details">
+                {details.map(({ icon: Icon, label, value }) => (
+                  <div key={label}>
+                    <dt>
+                      <Icon aria-hidden="true" size={20} />
+                    </dt>
+                    <dd>
+                      <strong>{label}</strong>
+                      <span>{value}</span>
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+              <button
+                className="event-buy-button"
+                onClick={() => onStartCheckout()}
+              >
+                {en ? "Choose tickets" : "เลือกโซนและซื้อบัตร"}
+                <ArrowRight aria-hidden="true" size={21} />
+              </button>
             </div>
-            <div>
-              <Clock3 aria-hidden="true" />
-              <p>
-                <strong>
-                  {en ? "Arrival policy" : "เงื่อนไขการเข้าร่วมงาน"}
-                </strong>
-                {en
-                  ? "Guests who miss boarding time forfeit their booking and are not eligible for a refund."
-                  : "หากไม่มาแสดงตัวภายในเวลาที่กำหนด ถือว่าสละสิทธิ์ และไม่สามารถขอคืนบัตรได้"}
-              </p>
-            </div>
-          </div>
-          <span className="event-signoff">BANGKOK LIVES ON THE RIVER</span>
-        </article>
-        <aside className="ticket-picker">
-          <h2>{en ? "Concert tickets" : "บัตรคอนเสิร์ต"}</h2>
-          <p>
-            {en
-              ? "Choose your zone and tickets for this concert on Unicorn Cruise."
-              : "เลือกโซนและบัตรสำหรับคอนเสิร์ตบนเรือ Unicorn Cruise"}
-          </p>
-          <article className="booking-vessel-card" key={vessel.id}>
-            <img src={vessel.image} alt={`เรือ ${vessel.name}`} />
-            <div className="booking-vessel-copy">
-              <small>{vessel.departure}</small>
-              <strong>{vessel.name}</strong>
-              <em>{vessel.detail}</em>
-              <div className="booking-vessel-meta">
-                <span>
-                  <MapPin aria-hidden="true" size={15} /> {vessel.pier}
-                </span>
-                <span>
-                  <UsersRound aria-hidden="true" size={15} /> {vessel.capacity}
-                </span>
-              </div>
-            </div>
-            <button onClick={() => onStartCheckout()}>
-              {en ? "Choose tickets" : "เลือกโซนและบัตร"}{" "}
-              <ArrowRight aria-hidden="true" size={18} />
-            </button>
           </article>
-          <small>
+        </div>
+      </section>
+
+      <section className="event-detail-content">
+        <article>
+          <h2>{en ? "About this concert" : "เกี่ยวกับคอนเสิร์ตนี้"}</h2>
+          <p>
             {en
-              ? "Prices are provisional and subject to confirmation."
-              : "ราคาเป็นข้อมูลชั่วคราว รอยืนยันก่อนเปิดขายจริง"}
-          </small>
+              ? "River Life brings live music to the Chao Phraya. Your ticket includes a concert setting designed around the view, a relaxed dinner atmosphere and a night aboard Unicorn Cruise."
+              : "River Life นำดนตรีสดมาสู่แม่น้ำเจ้าพระยา บัตรของคุณคือประสบการณ์คอนเสิร์ต อาหาร และบรรยากาศยามค่ำคืนบนเรือ Unicorn Cruise"}
+          </p>
+          <div className="event-detail-highlights">
+            <Highlight
+              icon={Music2}
+              title={en ? "Live music" : "ดนตรีสด"}
+              text={
+                en
+                  ? "A concert setting on the river"
+                  : "เพลิดเพลินกับการแสดงบนสายน้ำ"
+              }
+            />
+            <Highlight
+              icon={Utensils}
+              title={en ? "Dining experience" : "มื้ออาหารบนเรือ"}
+              text={
+                en
+                  ? "Food and drinks served during the cruise"
+                  : "อาหารและเครื่องดื่มตลอดการล่องเรือ"
+              }
+            />
+          </div>
+        </article>
+        <aside className="event-boarding-card">
+          <h2>{en ? "Before you board" : "ก่อนขึ้นเรือ"}</h2>
+          <dl>
+            <div>
+              <dt>{en ? "Boarding" : "เวลาเช็กอิน"}</dt>
+              <dd>{event.boarding}</dd>
+            </div>
+            <div>
+              <dt>{en ? "Departure" : "เวลาออกเรือ"}</dt>
+              <dd>{event.departure}</dd>
+            </div>
+            <div>
+              <dt>{en ? "Meeting point" : "จุดนัดพบ"}</dt>
+              <dd>{event.pier}</dd>
+            </div>
+          </dl>
+          <p>
+            {en
+              ? "Please arrive before boarding time. Guests who miss the boat are treated as no-show."
+              : "กรุณามาถึงก่อนเวลาขึ้นเรือ ผู้ที่มาสายจนไม่ทันเรือจะถือเป็น No-show"}
+          </p>
         </aside>
       </section>
     </>
   );
 }
 
-function Fact({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: typeof MapPin;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div>
-      <Icon aria-hidden="true" />
-      <span>
-        <strong>{label}</strong>
-        {value}
-      </span>
-    </div>
-  );
-}
-
-function AvailabilityPanel({
-  event,
-  language,
-  onStartCheckout,
-}: {
-  event: EventInfo;
-  language: Language;
-  onStartCheckout: () => void;
-}) {
-  const [tab, setTab] = useState("tickets");
-  const en = language === "en";
-  const tabs = [
-    ["tickets", Anchor, en ? "Concert Tickets" : "บัตรคอนเสิร์ต"],
-    ["events", CalendarDays, en ? "Events & Concerts" : "อีเวนต์และคอนเสิร์ต"],
-    [
-      "packages",
-      Diamond,
-      en ? "Benefits & Promotions" : "สิทธิพิเศษและโปรโมชัน",
-    ],
-    ["travel", MapPin, en ? "Travel Information" : "ข้อมูลการเดินทาง"],
-  ] as const;
-  return (
-    <section
-      className="availability-panel"
-      aria-label={en ? "Concert ticket selection" : "เลือกบัตรคอนเสิร์ต"}
-    >
-      <div className="availability-tabs" role="tablist">
-        {tabs.map(([value, Icon, label]) => (
-          <button
-            aria-selected={tab === value}
-            className={tab === value ? "active" : ""}
-            key={value}
-            onClick={() => setTab(value)}
-            role="tab"
-            type="button"
-          >
-            <Icon aria-hidden="true" size={24} />
-            {label}
-          </button>
-        ))}
-      </div>
-      <div className="availability-fields">
-        <label>
-          {en ? "Concert date" : "วันที่จัดคอนเสิร์ต"}
-          <span>
-            <CalendarDays aria-hidden="true" size={20} />
-            {event.date || (en ? "Date to be announced" : "รอยืนยันวันจัดงาน")}
-            <Chevron />
-          </span>
-        </label>
-        <label>
-          {en ? "Show time" : "รอบการแสดง"}
-          <span>
-            <Music2 aria-hidden="true" size={20} />
-            {en
-              ? `Board ${event.boarding} · Show ${event.departure}`
-              : `ขึ้นเรือ ${event.boarding} · แสดง ${event.departure}`}
-            <Chevron />
-          </span>
-        </label>
-        <label>
-          {en ? "Ticket type" : "ประเภทบัตร"}
-          <span>
-            <Anchor aria-hidden="true" size={20} />
-            {en ? "Choose zone and ticket" : "เลือกโซนและบัตร"}
-            <Chevron />
-          </span>
-        </label>
-        <button
-          className="availability-cta"
-          onClick={onStartCheckout}
-          type="button"
-        >
-          {en ? "Choose zone & tickets" : "เลือกโซนและบัตร"}
-          <ArrowRight aria-hidden="true" size={22} />
-        </button>
-      </div>
-    </section>
-  );
-}
-
-function Chevron() {
-  return (
-    <span aria-hidden="true" className="field-chevron">
-      ⌄
-    </span>
-  );
-}
-
-function Benefit({
+function Highlight({
   icon: Icon,
   title,
   text,
@@ -388,14 +167,14 @@ function Benefit({
   text: string;
 }) {
   return (
-    <article>
+    <div>
       <span>
-        <Icon aria-hidden="true" size={28} />
+        <Icon aria-hidden="true" size={22} />
       </span>
       <p>
         <strong>{title}</strong>
         {text}
       </p>
-    </article>
+    </div>
   );
 }
