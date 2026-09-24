@@ -125,6 +125,35 @@ export default function Home({
         </div>
       </section>
 
+      <section className="presenter-promo" aria-labelledby="presenter-title">
+        <div className="presenter-promo-image">
+          <img
+            src="/images/river-life-presenter.jpg"
+            alt={
+              en
+                ? "River Life presenter in a red and gold evening gown"
+                : "พรีเซนเตอร์ River Life ในชุดราตรีสีแดงและทอง"
+            }
+          />
+        </div>
+        <div className="presenter-promo-copy">
+          <h2 id="presenter-title">
+            {en
+              ? "Meet River Life's presenter"
+              : "พบกับพรีเซนเตอร์ของ River Life"}
+          </h2>
+          <p>
+            {en
+              ? "An evening of live music, dining and memorable moments on the Chao Phraya."
+              : "ค่ำคืนแห่งดนตรีสด อาหาร และช่วงเวลาน่าประทับใจบนแม่น้ำเจ้าพระยา"}
+          </p>
+          <button onClick={onOpenConcert}>
+            {en ? "Explore concert tickets" : "ดูรอบคอนเสิร์ต"}
+            <ArrowRight aria-hidden="true" size={20} />
+          </button>
+        </div>
+      </section>
+
       <section className="ticket-events" aria-labelledby="all-events-title">
         <div className="ticket-events-heading">
           <div>
