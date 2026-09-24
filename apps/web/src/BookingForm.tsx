@@ -5,7 +5,7 @@ import Alert from "@mui/material/Alert";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import { Minus, Plus, Ticket } from "lucide-react";
-import { api, money, newToken, type Booking, type Zone } from "./api";
+import { api, money, newToken, zoneLabel, type Booking, type Zone } from "./api";
 import type { Language } from "./i18n";
 export default function BookingForm({
   zones,
@@ -81,9 +81,9 @@ export default function BookingForm({
   }
   return (
     <form className="booking-panel" onSubmit={submit}>
-      <h2>{en ? "Buy concert tickets" : "จองบัตรคอนเสิร์ตบนเรือ"}</h2>
+      <h2>{en ? "Choose your tickets" : "เลือกบัตรของคุณ"}</h2>
       <p className="muted">
-        เลือกโซนและจำนวนบัตร
+        {en ? "Select a zone and ticket quantity" : "เลือกโซน ราคา และจำนวนบัตร"}
         {isAuthenticated
           ? en
             ? " before confirming your reservation."
@@ -97,15 +97,20 @@ export default function BookingForm({
         {zones.map((z) => (
           <button
             type="button"
-            disabled={busy}
+            disabled={busy || z.available <= 0}
             key={z.id}
             className={selected === z.id ? "active" : ""}
             aria-pressed={selected === z.id}
             onClick={() => onSelect(z.id)}
           >
-            <strong>{z.name}</strong>
+            <strong>{zoneLabel(z, language)}</strong>
             <small>{en ? "Provisional price" : "ราคาชั่วคราว"}</small>
             <b>{money(z.price)}</b>
+            <span className="zone-remaining">
+              {z.available > 0
+                ? en ? `${z.available} left` : `เหลือ ${z.available} ใบ`
+                : en ? "Sold out" : "บัตรหมด"}
+            </span>
           </button>
         ))}
       </div>

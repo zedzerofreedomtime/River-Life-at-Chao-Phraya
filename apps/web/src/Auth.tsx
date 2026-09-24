@@ -56,7 +56,7 @@ export default function Auth({
           body: JSON.stringify({ name, email, password }),
         },
       );
-      setMessage(result.message);
+      setMessage(en ? "OTP sent. Please check your email." : result.message);
       setDemoCode(result.demo_code ?? "");
       setSignupStep("otp");
     } catch (cause) {

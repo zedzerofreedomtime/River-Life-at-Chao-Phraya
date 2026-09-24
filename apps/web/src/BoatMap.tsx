@@ -1,4 +1,4 @@
-import type { Zone } from "./api";
+import { zoneLabel, type Zone } from "./api";
 import type { Language } from "./i18n";
 
 const deckLabel: Record<string, string> = {
@@ -10,12 +10,10 @@ const deckLabel: Record<string, string> = {
 export default function BoatMap({
   zones,
   selected,
-  onSelect,
   language,
 }: {
   zones: Zone[];
   selected: string;
-  onSelect: (id: string) => void;
   language: Language;
 }) {
   const en = language === "en";
@@ -23,13 +21,11 @@ export default function BoatMap({
   const lowerDeckZone = zones.find((z) => z.id === "C");
   return (
     <section className="map-panel">
-      <h2>
-        {en ? "Choose your concert ticket zone" : "เลือกโซนบัตรคอนเสิร์ต"}
-      </h2>
+      <h2>{en ? "Zones on board" : "ผังโซนบนเรือ"}</h2>
       <p className="muted">
         {en
-          ? "Select a zone on the venue map to view ticket prices and availability."
-          : "เลือกโซนบนผังสถานที่เพื่อดูราคาบัตรและจำนวนคงเหลือ"}
+          ? "See where each zone is located, then choose a ticket from the list."
+          : "ดูตำแหน่งโซน แล้วเลือกบัตรและราคาจากรายการบัตร"}
       </p>
       <div
         className="vessel-side"
@@ -100,7 +96,6 @@ export default function BoatMap({
               zone={zone}
               index={index}
               selected={selected}
-              onSelect={onSelect}
               language={language}
             />
           ))}
@@ -110,7 +105,6 @@ export default function BoatMap({
             zone={lowerDeckZone}
             index={2}
             selected={selected}
-            onSelect={onSelect}
             lowerDeck
             language={language}
           />
@@ -127,8 +121,8 @@ export default function BoatMap({
       </div>
       <p className="map-note">
         {en
-          ? "Choose the upper deck (bow or stern) or the 100-ticket lower deck. This is a zone guide, not assigned seating."
-          : "เลือกดาดฟ้าบน (หัวเรือ/ท้ายเรือ) หรือชั้นล่าง 100 ใบ ภาพใช้ระบุตำแหน่งโซนโดยประมาณ ไม่ใช่ผังเลขที่นั่ง"}
+          ? "This diagram shows approximate zone locations, not assigned seats. Choose a zone from the ticket list."
+          : "ผังนี้แสดงตำแหน่งโซนโดยประมาณ ไม่ใช่ผังเลขที่นั่ง กรุณาเลือกโซนจากรายการบัตร"}
       </p>
     </section>
   );
@@ -138,23 +132,18 @@ function ZoneButton({
   zone,
   index,
   selected,
-  onSelect,
   lowerDeck = false,
   language,
 }: {
   zone: Zone;
   index: number;
   selected: string;
-  onSelect: (id: string) => void;
   lowerDeck?: boolean;
   language: Language;
 }) {
   const en = language === "en";
   return (
-    <button
-      type="button"
-      onClick={() => onSelect(zone.id)}
-      aria-pressed={zone.id === selected}
+    <div
       className={`vessel-zone ${lowerDeck ? "vessel-lower" : ""} ${zone.id === selected ? "selected" : ""}`}
     >
       <span className="vessel-windows" aria-hidden="true">
@@ -162,11 +151,11 @@ function ZoneButton({
           <i key={seat} />
         ))}
       </span>
-      <strong>{zone.name}</strong>
+      <strong>{zoneLabel(zone, language)}</strong>
       <small>{deckLabel[zone.id] ?? `ZONE ${index + 1}`}</small>
       <span className="zone-count">
         {zone.available} {en ? "available" : "ที่ว่าง"}
       </span>
-    </button>
+    </div>
   );
 }

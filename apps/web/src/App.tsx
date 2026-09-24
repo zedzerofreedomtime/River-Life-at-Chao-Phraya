@@ -3,16 +3,13 @@ import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import IconButton from "@mui/material/IconButton";
-import Step from "@mui/material/Step";
-import StepLabel from "@mui/material/StepLabel";
-import Stepper from "@mui/material/Stepper";
-import { ChevronDown, Search, X } from "lucide-react";
+import { ChevronDown, Menu, Search, X } from "lucide-react";
 import EventDetail from "./EventDetail";
 import Home, { type EventCategory } from "./Home";
 import BoatMap from "./BoatMap";
 import BookingForm from "./BookingForm";
 import MyBooking from "./MyBooking";
-import Payment from "./Payment";
+import Payment, { FlowSteps } from "./Payment";
 import BookingSuccess from "./BookingSuccess";
 import TicketWallet from "./TicketWallet";
 import ProfileMenu from "./ProfileMenu";
@@ -77,6 +74,7 @@ export default function App() {
   const [openNavigationMenu, setOpenNavigationMenu] = useState<
     "events" | "help" | null
   >(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigationRef = useRef<HTMLElement>(null);
   const loadEvent = () =>
     api<EventInfo>("/event")
@@ -85,13 +83,14 @@ export default function App() {
         setError("");
       })
       .catch(() =>
-        setError("เชื่อมต่อระบบจองไม่ได้ กรุณาตรวจสอบว่า API พร้อมใช้งาน"),
+        setError(language === "en" ? "Unable to connect to bookings. Please check that the service is available." : "เชื่อมต่อระบบจองไม่ได้ กรุณาตรวจสอบว่า API พร้อมใช้งาน"),
       );
   useEffect(() => {
     void loadEvent();
   }, []);
   useEffect(() => {
     document.documentElement.lang = language;
+    document.title = language === "en" ? "River Life — Concert tickets on the river" : "River Life — จองบัตรคอนเสิร์ตบนเรือ";
     localStorage.setItem("riverlife.language", language);
   }, [language]);
   useEffect(() => {
@@ -137,6 +136,8 @@ export default function App() {
       window.history.pushState(null, "", nextPath);
     }
     setPage(next);
+    setMobileMenuOpen(false);
+    setOpenNavigationMenu(null);
     if (next === "home" || next === "event") void loadEvent();
   };
   const goCheckout = (preferredZone?: string) => {
@@ -177,6 +178,8 @@ export default function App() {
   };
   const strings = copy[language];
   const en = language === "en";
+  const displayName = profile.name === "ผู้ใช้งาน River Life" && en ? "River Life user" : profile.name;
+  const displayEmail = profile.email === "ยังไม่ได้เข้าสู่ระบบ" && en ? "Not logged in" : profile.email;
   const eventCategories: Array<{ value: EventCategory; label: string }> = [
     { value: "all", label: en ? "All events" : "อีเวนต์ทั้งหมด" },
     { value: "festival", label: en ? "Music festivals" : "เทศกาลดนตรี" },
@@ -201,20 +204,33 @@ export default function App() {
       ];
   return (
     <>
-      <header
-        className={`market-header ${page === "home" ? "ticket-home-header" : ""} ${page === "tickets" ? "market-header-dark" : ""}`}
-      >
+      <header className={`market-header ${page === "tickets" ? "market-header-dark" : ""}`}>
         <button
           className="river-brand"
           onClick={() => go("home")}
-          aria-label="กลับไปหน้ารวมงาน"
+          aria-label={en ? "Back to events" : "กลับไปหน้ารวมงาน"}
         >
           <img src="/images/river-life-logo-v2.png" alt="" />
           <span>
             RIVER LIFE <small>MUSIC ON THE RIVER</small>
           </span>
         </button>
-        <nav ref={navigationRef} className="ticket-nav" aria-label="เมนูหลัก">
+        <button
+          className="mobile-nav-toggle"
+          type="button"
+          aria-label={en ? (mobileMenuOpen ? "Close menu" : "Open menu") : (mobileMenuOpen ? "ปิดเมนู" : "เปิดเมนู")}
+          aria-expanded={mobileMenuOpen}
+          aria-controls="ticket-main-nav"
+          onClick={() => setMobileMenuOpen((current) => !current)}
+        >
+          {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
+        <nav
+          id="ticket-main-nav"
+          ref={navigationRef}
+          className={`ticket-nav ${mobileMenuOpen ? "is-open" : ""}`}
+          aria-label={en ? "Main menu" : "เมนูหลัก"}
+        >
           {profile.role === "admin" ? (
             <button className="active" onClick={() => go("dashboard")}>
               {strings.nav.dashboard}
@@ -280,7 +296,10 @@ export default function App() {
                       <button
                         key={item}
                         role="menuitem"
-                        onClick={() => setOpenNavigationMenu(null)}
+                        onClick={() => {
+                          setOpenNavigationMenu(null);
+                          setMobileMenuOpen(false);
+                        }}
                       >
                         {item}
                       </button>
@@ -299,13 +318,13 @@ export default function App() {
             </>
           )}
         </nav>
-        <div className="market-tools" aria-label="เครื่องมือผู้ใช้">
+        <div className="market-tools" aria-label={en ? "User tools" : "เครื่องมือผู้ใช้"}>
           {page === "tickets" ? null : <Search aria-hidden="true" size={22} />}
           <LanguageSwitcher language={language} onChange={setLanguage} />
           <ProfileMenu
             isAuthenticated={isAuthenticated}
-            name={profile.name}
-            email={profile.email}
+            name={displayName}
+            email={displayEmail}
             onLogin={openAuthDialog}
             onNavigate={go}
             onLogout={logoutCustomer}
@@ -318,7 +337,7 @@ export default function App() {
         {error && (
           <Alert
             severity="error"
-            action={<Button onClick={() => void loadEvent()}>ลองใหม่</Button>}
+            action={<Button onClick={() => void loadEvent()}>{en ? "Try again" : "ลองใหม่"}</Button>}
           >
             {error}
           </Alert>
@@ -341,6 +360,7 @@ export default function App() {
             event={event}
             language={language}
             category={homeCategory}
+            onCategoryChange={setHomeCategory}
             onOpenConcert={() => go("event")}
           />
         )}
@@ -352,13 +372,7 @@ export default function App() {
                 ? "Back to concert details"
                 : "กลับไปดูรายละเอียดคอนเสิร์ต"}
             </button>
-            <Stepper activeStep={1} alternativeLabel className="checkout-steps">
-              {strings.steps.map((label) => (
-                <Step key={label}>
-                  <StepLabel>{label}</StepLabel>
-                </Step>
-              ))}
-            </Stepper>
+            <FlowSteps activeStep={1} language={language} />
             <div className="checkout-heading">
               <h1>{strings.checkoutTitle}</h1>
               <p>{strings.checkoutCopy}</p>
@@ -367,7 +381,6 @@ export default function App() {
               <BoatMap
                 zones={event.zones}
                 selected={zone}
-                onSelect={setZone}
                 language={language}
               />
               <BookingForm
@@ -389,6 +402,7 @@ export default function App() {
         )}
         {page === "payment" && (
           <Payment
+            language={language}
             initial={booking}
             initialToken={token}
             onCompleted={(updated) => {
@@ -400,6 +414,7 @@ export default function App() {
         )}
         {page === "success" && (
           <BookingSuccess
+            language={language}
             initial={booking}
             initialToken={token}
             onOpenTickets={(updated) => {
@@ -411,6 +426,7 @@ export default function App() {
         )}
         {page === "orders" && (
           <MyBooking
+            language={language}
             initial={booking}
             initialToken={token}
             onPay={(updated) => {
@@ -424,13 +440,13 @@ export default function App() {
           />
         )}
         {page === "tickets" && (
-          <TicketWallet initial={booking} initialToken={token} />
+          <TicketWallet initial={booking} initialToken={token} language={language} />
         )}
         {page === "dashboard" && profile.role === "admin" && <AdminDashboard />}
         {page === "dashboard" && profile.role !== "admin" && (
-          <Alert severity="error">หน้านี้สำหรับผู้ดูแลระบบเท่านั้น</Alert>
+          <Alert severity="error">{en ? "This page is for administrators only." : "หน้านี้สำหรับผู้ดูแลระบบเท่านั้น"}</Alert>
         )}
-        {!event && !error && <p role="status">กำลังโหลดรอบการแสดง…</p>}
+        {!event && !error && <p role="status">{en ? "Loading event…" : "กำลังโหลดรอบการแสดง…"}</p>}
       </main>
       <Dialog
         open={authDialogOpen}
@@ -443,7 +459,7 @@ export default function App() {
         <div className="auth-dialog-banner">
           <span id="auth-dialog-title">RIVER LIFE</span>
           <IconButton
-            aria-label="ปิดหน้าต่างเข้าสู่ระบบ"
+            aria-label={en ? "Close login dialog" : "ปิดหน้าต่างเข้าสู่ระบบ"}
             onClick={closeAuthDialog}
             color="inherit"
           >
@@ -486,8 +502,8 @@ export default function App() {
       </Dialog>
       <footer>
         <span className="footer-brand">RIVER LIFE</span>
-        <span>เจ้าพระยา · คอนเสิร์ตบนเรือ</span>
-        <span>ราคาและรายละเอียดงานรอยืนยัน</span>
+        <span>{en ? "Chao Phraya · Concerts on board" : "เจ้าพระยา · คอนเสิร์ตบนเรือ"}</span>
+        <span>{en ? "Prices and event details are pending confirmation" : "ราคาและรายละเอียดงานรอยืนยัน"}</span>
       </footer>
     </>
   );

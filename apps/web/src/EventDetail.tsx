@@ -23,6 +23,7 @@ export default function EventDetail({
   const date =
     event.date || (en ? "Date to be announced" : "รอยืนยันวันจัดงาน");
   const price = Math.min(...event.zones.map((zone) => zone.price)) / 100;
+  const available = event.zones.reduce((total, zone) => total + zone.available, 0);
   const details = [
     {
       icon: CalendarDays,
@@ -44,6 +45,11 @@ export default function EventDetail({
         : `${new Intl.NumberFormat("th-TH").format(price)} บาท`,
     },
     {
+      icon: Ticket,
+      label: en ? "Tickets available" : "บัตรคงเหลือ",
+      value: en ? `${available} tickets` : `${available} ใบ`,
+    },
+    {
       icon: MapPin,
       label: en ? "Boarding point" : "จุดขึ้นเรือ",
       value: en ? `${event.pier} Pier` : `ท่าเรือ ${event.pier}`,
@@ -63,8 +69,8 @@ export default function EventDetail({
                 src="/images/boat/unicorn-night-hero-gold.png"
                 alt={
                   en
-                    ? "Unicorn Cruise on the Chao Phraya at night"
-                    : "เรือ Unicorn Cruise ล่องแม่น้ำเจ้าพระยายามค่ำคืน"
+                    ? "UNICRON CRUISE on the Chao Phraya at night"
+                    : "เรือ UNICRON CRUISE ล่องแม่น้ำเจ้าพระยายามค่ำคืน"
                 }
               />
               <span>{en ? "LIVE ON THE RIVER" : "LIVE ON THE RIVER"}</span>
@@ -73,8 +79,8 @@ export default function EventDetail({
               <h1>{event.title}</h1>
               <p className="event-purchase-summary">
                 {en
-                  ? "An intimate concert experience with live music, dining and the Chao Phraya after dark."
-                  : "คอนเสิร์ตดนตรีสด อาหาร และค่ำคืนบนแม่น้ำเจ้าพระยา"}
+                  ? "Live music and the Chao Phraya after dark aboard UNICRON CRUISE."
+                  : "คอนเสิร์ตดนตรีสดและค่ำคืนบนแม่น้ำเจ้าพระยา"}
               </p>
               <dl className="event-key-details">
                 {details.map(({ icon: Icon, label, value }) => (
@@ -89,11 +95,13 @@ export default function EventDetail({
                   </div>
                 ))}
               </dl>
+              <p className="event-price-note">{en ? "Ticket prices are provisional until the event is confirmed." : "ราคาบัตรชั่วคราว รอยืนยันรายละเอียดงาน"}</p>
               <button
                 className="event-buy-button"
                 onClick={() => onStartCheckout()}
+                disabled={available === 0}
               >
-                {en ? "Choose tickets" : "เลือกโซนและซื้อบัตร"}
+                {available === 0 ? (en ? "Sold out" : "บัตรหมด") : en ? "Choose tickets" : "เลือกโซนและซื้อบัตร"}
                 <ArrowRight aria-hidden="true" size={21} />
               </button>
             </div>
@@ -106,8 +114,8 @@ export default function EventDetail({
           <h2>{en ? "About this concert" : "เกี่ยวกับคอนเสิร์ตนี้"}</h2>
           <p>
             {en
-              ? "River Life brings live music to the Chao Phraya. Your ticket includes a concert setting designed around the view, a relaxed dinner atmosphere and a night aboard Unicorn Cruise."
-              : "River Life นำดนตรีสดมาสู่แม่น้ำเจ้าพระยา บัตรของคุณคือประสบการณ์คอนเสิร์ต อาหาร และบรรยากาศยามค่ำคืนบนเรือ Unicorn Cruise"}
+              ? "River Life brings live music to the Chao Phraya aboard UNICRON CRUISE. Explore the river views and spaces on board before choosing a ticket zone. Food service and event inclusions will be confirmed with the show details."
+              : "River Life นำดนตรีสดมาสู่แม่น้ำเจ้าพระยาบนเรือ UNICRON CRUISE ชมวิวและพื้นที่บนเรือก่อนเลือกโซนบัตร ส่วนอาหารและสิ่งที่รวมในบัตรจะยืนยันพร้อมรายละเอียดงาน"}
           </p>
           <div className="event-detail-highlights">
             <Highlight
@@ -124,8 +132,8 @@ export default function EventDetail({
               title={en ? "Dining experience" : "มื้ออาหารบนเรือ"}
               text={
                 en
-                  ? "Food and drinks served during the cruise"
-                  : "อาหารและเครื่องดื่มตลอดการล่องเรือ"
+                  ? "Food service details will be confirmed with the event"
+                  : "รายละเอียดอาหารจะประกาศพร้อมงาน"
               }
             />
           </div>

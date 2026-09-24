@@ -7,6 +7,7 @@ export type Zone = {
 };
 export type EventInfo = {
   title: string;
+  artists?: string[];
   demo: boolean;
   date: string | null;
   boarding: string;
@@ -51,6 +52,39 @@ export const labels: Record<string, string> = {
   cancelled: "ยกเลิกแล้ว",
   no_show: "ไม่มาทันเรือ",
 };
+export const statusLabel = (status: string, language: "th" | "en") =>
+  language === "en"
+    ? ({
+        held: "Awaiting payment",
+        review: "Under review",
+        confirmed: "Confirmed",
+        expired: "Reservation expired",
+        cancelled: "Cancelled",
+        no_show: "No-show",
+      } as Record<string, string>)[status] || status
+    : labels[status] || status;
+export const zoneLabel = (zone: Zone, language: "th" | "en") =>
+  language === "en"
+    ? ({ A: "Bow", B: "Stern", C: "Lower deck" } as Record<string, string>)[zone.id] || zone.name
+    : zone.name;
+const englishApiMessages: Record<string, string> = {
+  "ระบบไม่พร้อม กรุณาลองใหม่": "Service unavailable. Please try again.",
+  "ไม่พบรายการ": "Booking not found.",
+  "ข้อมูลไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง": "Please check the information and try again.",
+  "ระบบจำกัดการใช้งานไม่พร้อม กรุณาลองใหม่": "Service temporarily unavailable. Please try again.",
+  "ทำรายการถี่เกินไป กรุณารอ 1 นาที": "Too many requests. Please wait one minute.",
+  "กรุณาเข้าสู่ระบบเจ้าหน้าที่": "Staff login required.",
+  "กรุณาเข้าสู่ระบบ": "Please log in.",
+  "ไม่มีสิทธิ์เข้าถึงข้อมูลผู้ดูแลระบบ": "You do not have access to this page.",
+  "กรุณาเข้าสู่ระบบก่อนซื้อบัตร": "Please log in before buying tickets.",
+  "ระบบส่งอีเมล OTP ยังไม่ได้ตั้งค่า": "Email verification is not configured.",
+  "รหัส OTP หมดอายุหรือไม่ถูกต้อง": "The OTP is invalid or has expired.",
+  "Google Sign-In ยังไม่ได้ตั้งค่า": "Google Sign-In is not configured.",
+  "รหัสผ่านไม่ถูกต้อง": "Incorrect password.",
+  "อีเมลนี้สมัครสมาชิกแล้ว": "This email is already registered.",
+  "อีเมลหรือรหัสผ่านไม่ถูกต้อง": "Incorrect email or password.",
+  "รายการเปลี่ยนแปลงหรือโควตาไม่เพียงพอ": "Availability has changed or there are not enough tickets.",
+};
 export async function api<T>(
   path: string,
   options: RequestInit = {},
@@ -67,6 +101,9 @@ export async function api<T>(
       message = (await r.json()).error || message;
     } catch {
       /* preserve recoverable message */
+    }
+    if (localStorage.getItem("riverlife.language") === "en") {
+      message = englishApiMessages[message] || (/[ก-๙]/.test(message) ? "Request failed. Please try again." : message);
     }
     throw new Error(message);
   }

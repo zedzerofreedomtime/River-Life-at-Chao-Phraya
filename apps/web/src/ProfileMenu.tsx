@@ -59,7 +59,7 @@ export default function ProfileMenu({
   if (!isAuthenticated) {
     return (
       <button
-        aria-label="เข้าสู่ระบบ"
+        aria-label={language === "en" ? "Login" : "เข้าสู่ระบบ"}
         className="profile-login-call"
         onClick={onLogin}
         type="button"

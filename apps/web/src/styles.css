@@ -5,6 +5,11 @@
   color: #101e32;
   background: #fff;
   font-synthesis: none;
+  --customer-width: 1200px;
+  --customer-navy: #102b52;
+  --customer-gold: #c4943f;
+  --customer-border: #dce4ec;
+  --customer-radius: 20px;
 }
 
 /* Customer profile menu */
@@ -1401,45 +1406,6 @@ body {
 }
 
 /* Ticket discovery homepage */
-.market-header.ticket-home-header {
-  min-height: 96px;
-  gap: clamp(24px, 3.5vw, 64px);
-  padding: 0 clamp(24px, 5vw, 82px);
-  border-bottom: 1px solid #e5e9f0;
-  background: #fff;
-  box-shadow: 0 6px 22px rgba(9, 37, 80, 0.06);
-}
-.ticket-home-header .river-brand {
-  min-width: 202px;
-  height: 96px;
-  gap: 11px;
-  color: #061e50;
-}
-.ticket-home-header .river-brand::after {
-  display: none;
-}
-.ticket-home-header .river-brand > img {
-  width: 74px;
-  height: 74px;
-  object-fit: contain;
-  filter: drop-shadow(0 4px 7px rgba(6, 30, 80, 0.14));
-}
-.ticket-home-header .river-brand > span {
-  display: grid;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: 0.09em;
-  line-height: 1;
-}
-.ticket-home-header .river-brand > span small {
-  margin-top: 5px;
-  color: #a6782f;
-  font-family: inherit;
-  font-size: 7px;
-  font-weight: 700;
-  letter-spacing: 0.13em;
-}
 .ticket-nav {
   display: flex;
   flex: 1;
@@ -1505,34 +1471,6 @@ body {
 .ticket-menu-popover button:focus-visible {
   background: #f2f6fc;
   color: #0b58b8;
-}
-.ticket-home-header .market-tools {
-  min-width: max-content;
-  gap: 18px;
-}
-.ticket-home-header .market-tools > svg {
-  width: 26px;
-  height: 26px;
-  color: #09245a;
-  stroke-width: 2.4;
-}
-.ticket-home-header .market-tools .profile-login-call {
-  min-height: 52px;
-  padding: 0 24px;
-  border: 1px solid #a8751d;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #ffe58a, #eca928);
-  color: #071d4c;
-  font-size: 16px;
-  font-weight: 800;
-}
-.ticket-home-header .market-tools .profile-login-call svg {
-  width: 22px;
-  height: 22px;
-  fill: #071d4c;
-}
-.ticket-home-header + .demo-banner {
-  display: none;
 }
 .ticket-home {
   overflow: hidden;
@@ -1834,16 +1772,6 @@ body {
   text-align: center;
 }
 @media (max-width: 1100px) {
-  .market-header.ticket-home-header {
-    gap: 24px;
-    padding: 0 28px;
-  }
-  .ticket-home-header .river-brand {
-    min-width: 84px;
-  }
-  .ticket-home-header .river-brand > span {
-    display: none;
-  }
   .ticket-nav {
     gap: 22px;
   }
@@ -1853,36 +1781,6 @@ body {
   }
 }
 @media (max-width: 800px) {
-  .market-header.ticket-home-header {
-    min-height: 76px;
-    padding: 0 18px;
-  }
-  .ticket-home-header .river-brand {
-    height: 76px;
-  }
-  .ticket-home-header .river-brand > img {
-    width: 61px;
-    height: 61px;
-  }
-  .ticket-home-header .ticket-nav {
-    display: none;
-  }
-  .ticket-home-header .market-tools {
-    gap: 10px;
-  }
-  .ticket-home-header .market-tools > svg {
-    width: 22px;
-    height: 22px;
-  }
-  .ticket-home-header .market-tools .profile-login-call {
-    min-height: 42px;
-    padding: 0 15px;
-    font-size: 14px;
-  }
-  .ticket-home-header .market-tools .profile-login-call svg {
-    width: 19px;
-    height: 19px;
-  }
   .ticket-discovery {
     padding: 51px 18px 72px;
   }
@@ -5191,5 +5089,561 @@ td small {
     min-height: 53px;
     padding: 0 23px;
     font-size: 16px;
+  }
+}
+
+/* One visual scale across the customer journey. */
+.market-header {
+  min-height: 76px;
+  padding-inline: max(24px, calc((100vw - var(--customer-width)) / 2));
+  gap: 24px;
+}
+.river-brand {
+  min-width: 238px;
+  font-size: 26px;
+  letter-spacing: 0.1em;
+}
+.river-brand::after {
+  display: none;
+}
+.river-brand > img {
+  width: 52px;
+  height: 52px;
+  margin: 0;
+}
+.market-header nav {
+  gap: clamp(18px, 2.5vw, 38px);
+}
+.market-header nav button {
+  font-size: 15px;
+}
+.market-tools {
+  min-width: 0;
+  gap: 18px;
+}
+.market-tools .profile-login-call span {
+  white-space: nowrap;
+}
+@media (min-width: 801px) and (max-width: 1100px) {
+  .river-brand {
+    min-width: 52px;
+  }
+  .river-brand > span {
+    display: none;
+  }
+}
+.mobile-nav-toggle {
+  display: none;
+}
+.app-main {
+  max-width: none;
+  padding-inline: 24px;
+}
+.page-home,
+.page-event {
+  padding-inline: 0;
+}
+.ticket-discovery {
+  padding: 52px 24px 78px;
+  background: linear-gradient(112deg, #0b2447, #124978 62%, #236f8a);
+}
+.ticket-discovery h1 {
+  font-family: "Noto Sans Thai", Arial, sans-serif;
+  font-size: clamp(32px, 3.2vw, 44px);
+  line-height: 1.2;
+}
+.ticket-discovery-content > p {
+  margin: -12px 0 28px;
+  color: #dceafb;
+  font-size: 17px;
+}
+.ticket-featured,
+.ticket-events,
+.presenter-promo {
+  width: min(var(--customer-width), calc(100% - 48px));
+}
+.ticket-featured {
+  height: clamp(390px, 38vw, 500px);
+  border-radius: var(--customer-radius);
+}
+.ticket-featured-copy h2 {
+  font-family: "Noto Sans Thai", Arial, sans-serif;
+  font-size: clamp(38px, 3.6vw, 52px);
+  line-height: 1.15;
+}
+.ticket-featured-copy > span {
+  font-size: 17px;
+}
+.ticket-featured-copy {
+  max-width: 590px;
+}
+.featured-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin-top: 22px;
+  font-size: 15px;
+  font-weight: 700;
+}
+.featured-facts span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.ticket-featured-copy > small {
+  display: block;
+  margin-top: 12px;
+  color: #e3e9f2;
+  font-size: 12px;
+}
+.presenter-promo {
+  grid-template-columns: minmax(260px, 390px) minmax(0, 1fr);
+  margin-top: 56px;
+  border-radius: var(--customer-radius);
+}
+.presenter-promo-copy h2 {
+  font-family: "Noto Sans Thai", Arial, sans-serif;
+  font-size: clamp(30px, 3vw, 38px);
+  line-height: 1.2;
+}
+.presenter-promo-copy p {
+  font-size: 16px;
+}
+.ticket-events {
+  margin-block: 60px 80px;
+}
+.ticket-events-heading h2 {
+  font-family: "Noto Sans Thai", Arial, sans-serif;
+  font-size: clamp(28px, 2.6vw, 34px);
+  line-height: 1.2;
+}
+.event-category-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-bottom: 20px;
+}
+.event-category-filter button {
+  min-height: 40px;
+  padding: 7px 16px;
+  border: 1px solid #d7e0eb;
+  border-radius: 999px;
+  background: #fff;
+  color: #173457;
+  cursor: pointer;
+  font: 700 14px/1.3 "Noto Sans Thai", Arial, sans-serif;
+}
+.event-category-filter button.active {
+  border-color: #0e315e;
+  background: #0e315e;
+  color: #fff;
+}
+.event-filter-row {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.event-filter-row label {
+  display: grid;
+  gap: 6px;
+  min-width: 190px;
+  color: #203956;
+  font-size: 13px;
+  font-weight: 700;
+}
+.event-filter-row input,
+.event-filter-row select {
+  min-height: 43px;
+  padding: 0 12px;
+  border: 1px solid #cdd8e6;
+  border-radius: 9px;
+  background: #fff;
+  color: #152c48;
+  font: 600 14px "Noto Sans Thai", Arial, sans-serif;
+}
+.event-filter-row input:disabled {
+  background: #f4f6f9;
+  color: #8291a5;
+}
+.event-filter-row p {
+  margin: 0 0 10px;
+  color: #687b94;
+  font-size: 13px;
+}
+.ticket-event-card {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr);
+  width: 100%;
+}
+.ticket-event-card > img {
+  height: 100%;
+  min-height: 290px;
+}
+.ticket-event-card > div {
+  padding: 28px 32px;
+}
+.ticket-event-card h3,
+.ticket-card-description {
+  min-height: 0;
+}
+.ticket-card-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  color: #12365d;
+  font-size: 14px;
+}
+.ticket-card-bottom span {
+  color: #65758b;
+}
+.boat-experience {
+  width: min(var(--customer-width), calc(100% - 48px));
+  margin: 0 auto 90px;
+}
+.boat-experience-heading h2 {
+  margin: 0;
+  color: #102b52;
+  font-size: clamp(28px, 2.6vw, 34px);
+}
+.boat-experience-heading p {
+  margin: 8px 0 24px;
+  color: #65758b;
+  font-size: 15px;
+}
+.boat-experience-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.boat-experience-gallery figure {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid #e0e7f0;
+  border-radius: 16px;
+  background: #fff;
+}
+.boat-experience-gallery img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+.boat-experience-gallery figcaption {
+  padding: 12px 15px;
+  color: #203956;
+  font-size: 14px;
+  font-weight: 700;
+}
+.event-price-note {
+  margin: -12px 0 16px;
+  color: #687b94;
+  font-size: 13px;
+}
+.event-buy-button:disabled {
+  background: #a5b0bf;
+  cursor: not-allowed;
+}
+.event-purchase-hero {
+  padding-block: 38px 60px;
+}
+.event-purchase-container,
+.event-detail-content {
+  width: min(var(--customer-width), 100%);
+}
+.event-purchase-card,
+.event-boarding-card,
+.map-panel,
+.booking-panel,
+.payment-instructions,
+.payment-summary-card,
+.success-card,
+.flow-empty {
+  border-radius: var(--customer-radius);
+}
+.event-purchase-info h1 {
+  font-size: clamp(36px, 3.4vw, 52px);
+}
+.event-key-details dt {
+  background: #fff5df;
+  color: #a6782f;
+}
+.event-detail-content {
+  gap: 48px;
+  padding-block: 56px 76px;
+}
+.event-detail-content h2 {
+  font-size: 28px;
+}
+.checkout-page,
+.flow-page {
+  max-width: var(--customer-width);
+}
+.content-panel,
+.wallet-shell,
+.admin-dashboard {
+  max-width: var(--customer-width);
+}
+.orders-heading h1,
+.wallet-heading h1,
+.wallet-title h1,
+.admin-dashboard h1 {
+  font-family: "Noto Sans Thai", Arial, sans-serif;
+  font-size: clamp(30px, 3vw, 38px);
+  font-weight: 700;
+  line-height: 1.25;
+}
+.checkout-page {
+  padding-top: 30px;
+}
+.checkout-heading h1,
+.flow-heading h1,
+.success-card h1,
+.flow-empty h1 {
+  font-family: "Noto Sans Thai", Arial, sans-serif;
+  font-size: clamp(30px, 3vw, 38px);
+  font-weight: 700;
+  line-height: 1.25;
+}
+.checkout-heading p,
+.flow-heading p,
+.flow-empty p {
+  font-size: 16px;
+  line-height: 1.6;
+}
+.flow-steps {
+  max-width: 760px;
+  margin-block: 24px 34px;
+}
+.flow-steps li {
+  font-size: 13px;
+}
+.flow-steps li.current {
+  color: var(--customer-navy);
+}
+.flow-steps li.current span {
+  border-color: var(--customer-gold);
+  background: #fff8e7;
+  color: var(--customer-navy);
+}
+.booking-layout {
+  grid-template-columns: minmax(0, 1.4fr) minmax(370px, 1fr);
+  gap: 22px;
+}
+.map-panel,
+.booking-panel {
+  padding: 30px;
+  border-color: var(--customer-border);
+}
+.map-panel h2,
+.booking-panel h2,
+.payment-section-title h2,
+.payment-summary-card h2 {
+  font-size: 24px;
+  line-height: 1.3;
+}
+.map-panel .muted,
+.booking-panel .muted {
+  font-size: 15px;
+  line-height: 1.5;
+}
+.vessel-zone {
+  cursor: default;
+}
+.vessel-zone:hover {
+  box-shadow: none;
+}
+.zone-options {
+  gap: 10px;
+}
+.zone-options button {
+  min-height: 118px;
+  padding: 12px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.zone-options strong {
+  font-size: 15px;
+}
+.zone-options b {
+  font-size: 18px;
+}
+.zone-remaining {
+  color: #5f7087;
+  font-size: 12px;
+}
+.zone-options button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.payment-layout {
+  gap: 24px;
+}
+.payment-instructions,
+.payment-summary-card {
+  padding: 30px;
+}
+@media (max-width: 1000px) {
+  .booking-layout {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 800px) {
+  .market-header {
+    position: relative;
+    z-index: 30;
+    min-height: 72px;
+    padding: 0 16px;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+  .river-brand {
+    min-width: 0;
+    height: 72px;
+    font-size: 20px;
+  }
+  .river-brand > img {
+    width: 48px;
+    height: 48px;
+  }
+  .river-brand > span {
+    display: none;
+  }
+  .mobile-nav-toggle {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 1px solid #dce4ec;
+    border-radius: 10px;
+    background: #fff;
+    color: #102b52;
+    cursor: pointer;
+  }
+  .market-header nav {
+    display: none;
+  }
+  .market-header .ticket-nav.is-open {
+    position: absolute;
+    top: 72px;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0;
+    padding: 12px 16px 18px;
+    border-top: 1px solid #e5eaf0;
+    border-bottom: 1px solid #dce4ec;
+    background: #fff;
+    box-shadow: 0 14px 25px rgba(10, 35, 70, 0.14);
+  }
+  .ticket-nav > button,
+  .ticket-nav-dropdown > button {
+    width: 100%;
+    justify-content: space-between;
+    min-height: 44px;
+    padding: 10px 4px;
+    font-size: 15px;
+  }
+  .ticket-menu-popover {
+    position: static;
+    width: 100%;
+    min-width: 0;
+    margin: 0 0 8px;
+    border-radius: 12px;
+    box-shadow: none;
+  }
+  .market-tools {
+    display: flex;
+    position: static;
+    margin-left: auto;
+    gap: 10px;
+  }
+  .market-tools > svg {
+    display: none;
+  }
+  .app-main {
+    padding-inline: 16px;
+  }
+  .page-home,
+  .page-event {
+    padding-inline: 0;
+  }
+  .ticket-discovery {
+    padding: 42px 16px 68px;
+  }
+  .ticket-featured,
+  .ticket-events,
+  .presenter-promo,
+  .boat-experience {
+    width: calc(100% - 32px);
+  }
+  .ticket-featured {
+    height: 520px;
+  }
+  .ticket-featured-copy {
+    left: 22px;
+    right: 22px;
+  }
+  .featured-facts {
+    display: grid;
+    gap: 8px;
+    font-size: 14px;
+  }
+  .ticket-featured-copy h2 {
+    font-size: clamp(32px, 7vw, 42px);
+  }
+  .presenter-promo {
+    grid-template-columns: 1fr;
+    margin-top: 40px;
+  }
+  .presenter-promo-copy h2 {
+    font-size: 32px;
+  }
+  .ticket-events {
+    margin-block: 44px 60px;
+  }
+  .ticket-event-card {
+    display: block;
+  }
+  .ticket-event-card > img {
+    height: 212px;
+    min-height: 0;
+  }
+  .ticket-event-card > div {
+    padding: 20px;
+  }
+  .event-filter-row label {
+    flex: 1 1 150px;
+    min-width: 0;
+  }
+  .boat-experience-gallery {
+    grid-template-columns: 1fr;
+  }
+  .boat-experience-gallery img {
+    aspect-ratio: 16 / 10;
+  }
+  .event-purchase-hero {
+    padding: 24px 16px 36px;
+  }
+  .event-detail-content {
+    padding: 40px 18px 60px;
+  }
+  .flow-steps {
+    gap: 4px;
+  }
+  .flow-steps li {
+    font-size: 11px;
+  }
+  .map-panel,
+  .booking-panel,
+  .payment-instructions,
+  .payment-summary-card {
+    padding: 20px;
   }
 }

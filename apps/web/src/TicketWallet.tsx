@@ -15,16 +15,19 @@ import {
   Ticket,
   X,
 } from "lucide-react";
-import { api, labels, type Booking } from "./api";
+import { api, statusLabel, type Booking } from "./api";
+import type { Language } from "./i18n";
 
-type Props = { initial: Booking | null; initialToken: string };
-const zoneName: Record<string, string> = {
-  A: "โซนหัวเรือ (Head Boat)",
-  B: "โซนท้ายเรือ (Rear Boat)",
-  C: "โซนชั้นล่าง (Lower Deck)",
-};
+type Props = { initial: Booking | null; initialToken: string; language: Language };
+const zoneName = (zone: string, language: Language) =>
+  (language === "en"
+    ? { A: "Bow", B: "Stern", C: "Lower deck" }
+    : { A: "โซนหัวเรือ", B: "โซนท้ายเรือ", C: "โซนชั้นล่าง" }
+  )[zone as "A" | "B" | "C"] || `${language === "en" ? "Zone" : "โซน"} ${zone}`;
+const translate = (language: Language, th: string, en: string) => language === "en" ? en : th;
 
-export default function TicketWallet({ initial, initialToken }: Props) {
+export default function TicketWallet({ initial, initialToken, language }: Props) {
+  const tr = (th: string, en: string) => translate(language, th, en);
   const [booking, setBooking] = useState<Booking | null>(initial);
   const [id, setId] = useState(
     initial?.id ?? sessionStorage.getItem("riverlife.booking.id") ?? "",
@@ -59,17 +62,17 @@ export default function TicketWallet({ initial, initialToken }: Props) {
     return (
       <section className="wallet-access-shell">
         <div className="wallet-heading">
-          <h1>บัตรของฉัน</h1>
-          <p>กรอกรหัสคำสั่งซื้อและรหัสเข้าถึงส่วนตัวเพื่อเปิดบัตรของคุณ</p>
+          <h1>{tr("บัตรของฉัน", "My tickets")}</h1>
+          <p>{tr("กรอกรหัสคำสั่งซื้อและรหัสเข้าถึงส่วนตัวเพื่อเปิดบัตรของคุณ", "Enter your order ID and private access code to open your tickets.")}</p>
         </div>
         <div className="access-panel">
           <TextField
-            label="รหัสคำสั่งซื้อ"
+            label={tr("รหัสคำสั่งซื้อ", "Order ID")}
             value={id}
             onChange={(e) => setId(e.target.value)}
           />
           <TextField
-            label="รหัสเข้าถึงส่วนตัว"
+            label={tr("รหัสเข้าถึงส่วนตัว", "Private access code")}
             type="password"
             value={token}
             onChange={(e) => setToken(e.target.value)}
@@ -79,7 +82,7 @@ export default function TicketWallet({ initial, initialToken }: Props) {
             onClick={load}
             disabled={busy || !id || !token}
           >
-            เปิดบัตรของฉัน
+            {tr("เปิดบัตรของฉัน", "Open my tickets")}
           </Button>
         </div>
         {error && <Alert severity="error">{error}</Alert>}
@@ -94,9 +97,9 @@ export default function TicketWallet({ initial, initialToken }: Props) {
     <section className="wallet-dashboard">
       <aside className="wallet-orders">
         <div className="wallet-orders-head">
-          <h2>คำสั่งซื้อของฉัน</h2>
+          <h2>{tr("คำสั่งซื้อของฉัน", "My bookings")}</h2>
           <span>
-            ดูทั้งหมด <ChevronRight size={17} />
+            {tr("ดูทั้งหมด", "View all")} <ChevronRight size={17} />
           </span>
         </div>
         <button
@@ -105,14 +108,14 @@ export default function TicketWallet({ initial, initialToken }: Props) {
         >
           <img
             src="/images/boat/unicorn-upper-deck.jpg"
-            alt="เรือ Unicorn Cruise"
+            alt={tr("เรือ UNICRON CRUISE", "UNICRON CRUISE boat")}
           />
           <span>
             <strong>Concert on the River</strong>
-            <small>คำสั่งซื้อ #{shortId(booking.id)}</small>
-            <em>{tickets.length} บัตร</em>
+            <small>{tr("คำสั่งซื้อ", "Order")} #{shortId(booking.id)}</small>
+            <em>{tickets.length} {language === "en" ? (tickets.length === 1 ? "ticket" : "tickets") : "บัตร"}</em>
             <b className={confirmed ? "confirmed" : "review"}>
-              {confirmed ? "ยืนยันแล้ว" : labels[booking.status]}
+              {statusLabel(booking.status, language)}
             </b>
           </span>
           <ChevronRight aria-hidden="true" size={23} />
@@ -120,37 +123,36 @@ export default function TicketWallet({ initial, initialToken }: Props) {
       </aside>
       <main className="wallet-main">
         <div className="wallet-title">
-          <h1>บัตรของฉัน</h1>
+          <h1>{tr("บัตรของฉัน", "My tickets")}</h1>
           <p>
-            ตรวจสอบบัตร เข้างาน
-            และเพลิดเพลินกับประสบการณ์คอนเสิร์ตบนแม่น้ำเจ้าพระยา
+            {tr("ตรวจสอบบัตร เข้างาน และเพลิดเพลินกับประสบการณ์คอนเสิร์ตบนแม่น้ำเจ้าพระยา", "Check your tickets, board the boat, and enjoy a concert on the Chao Phraya River.")}
           </p>
         </div>
         <div className="wallet-tabs">
           <span className={confirmed ? "active" : ""}>
-            บัตรที่ใช้งานได้ (
+            {tr("บัตรที่ใช้งานได้", "Available tickets")} (
             {confirmed
               ? tickets.filter((ticket) => !ticket.checked_in_at).length
               : 0}
             )
           </span>
           <span className={!confirmed ? "active" : ""}>
-            กำลังดำเนินการ ({confirmed ? 0 : 1})
+            {tr("กำลังดำเนินการ", "In progress")} ({confirmed ? 0 : 1})
           </span>
           <span>
-            ใช้แล้ว ({tickets.filter((ticket) => ticket.checked_in_at).length})
+            {tr("ใช้แล้ว", "Used")} ({tickets.filter((ticket) => ticket.checked_in_at).length})
           </span>
         </div>
         {!confirmed ? (
           <div className="wallet-pending-state">
             <Alert severity="info" className="wallet-status-alert">
-              คำสั่งซื้อ #{shortId(booking.id)} อยู่ในสถานะ:{" "}
-              {labels[booking.status]}
+              {tr("คำสั่งซื้อ", "Order")} #{shortId(booking.id)} {tr("อยู่ในสถานะ:", "status:")}{" "}
+              {statusLabel(booking.status, language)}
             </Alert>
           </div>
         ) : (
           <>
-            <TicketJourney ticketCount={tickets.length} />
+            <TicketJourney ticketCount={tickets.length} language={language} />
             <div className="wallet-ticket-workspace">
               <section className="wallet-ticket-stack">
                 <div className="wallet-order-summary">
@@ -159,9 +161,9 @@ export default function TicketWallet({ initial, initialToken }: Props) {
                     <small>ICONSIAM · 19:00</small>
                   </span>
                   <span>
-                    คำสั่งซื้อ #{shortId(booking.id)}
-                    <b>ยืนยันแล้ว</b>
-                    <small>จำนวน {tickets.length} บัตร</small>
+                    {tr("คำสั่งซื้อ", "Order")} #{shortId(booking.id)}
+                    <b>{tr("ยืนยันแล้ว", "Confirmed")}</b>
+                    <small>{tickets.length} {language === "en" ? (tickets.length === 1 ? "ticket" : "tickets") : "บัตร"}</small>
                   </span>
                 </div>
                 {tickets.map((ticket, index) => (
@@ -176,10 +178,10 @@ export default function TicketWallet({ initial, initialToken }: Props) {
                     <img src="/images/boat/unicorn-night-exterior.jpg" alt="" />
                     <span>
                       <small>
-                        บัตรที่ {index + 1} จาก {tickets.length}
+                        {tr("บัตรที่", "Ticket")} {index + 1} {tr("จาก", "of")} {tickets.length}
                       </small>
                       <strong>
-                        {zoneName[booking.zone_id] ?? `โซน ${booking.zone_id}`}
+                        {zoneName(booking.zone_id, language)}
                       </strong>
                       <em>
                         Concert on the River
@@ -188,25 +190,25 @@ export default function TicketWallet({ initial, initialToken }: Props) {
                       </em>
                     </span>
                     <span className="ticket-quantity">
-                      <small>จำนวน</small>
+                      <small>{tr("จำนวน", "Quantity")}</small>
                       <b>1</b>
-                      <em>ใบ</em>
+                      <em>{tr("ใบ", "ticket")}</em>
                     </span>
-                    <span className="show-qr">แสดง QR</span>
+                    <span className="show-qr">{tr("แสดง QR", "Show QR")}</span>
                   </button>
                 ))}
                 <div className="wallet-help">
                   <Ticket aria-hidden="true" />
                   <span>
                     <strong>
-                      ทั้ง {tickets.length} บัตรอยู่ในคำสั่งซื้อเดียวกัน
+                      {tr(`ทั้ง ${tickets.length} บัตรอยู่ในคำสั่งซื้อเดียวกัน`, `All ${tickets.length} tickets are in one order`)}
                     </strong>
-                    <small>กรุณาแสดงบัตรแต่ละใบเมื่อเข้างาน</small>
+                    <small>{tr("กรุณาแสดงบัตรแต่ละใบเมื่อเข้างาน", "Show each ticket when boarding.")}</small>
                   </span>
                   <span>
                     <CircleHelp aria-hidden="true" />
-                    <strong>มีคำถามเกี่ยวกับบัตร?</strong>
-                    <small>ดูคำแนะนำการใช้งาน →</small>
+                    <strong>{tr("มีคำถามเกี่ยวกับบัตร?", "Questions about your tickets?")}</strong>
+                    <small>{tr("ดูคำแนะนำการใช้งาน →", "View ticket guidance →")}</small>
                   </span>
                 </div>
               </section>
@@ -216,6 +218,7 @@ export default function TicketWallet({ initial, initialToken }: Props) {
                   ticketId={active.id}
                   index={selected}
                   count={tickets.length}
+                  language={language}
                 />
               )}
             </div>
@@ -227,6 +230,7 @@ export default function TicketWallet({ initial, initialToken }: Props) {
                 ticketId={active.id}
                 index={selected}
                 count={tickets.length}
+                language={language}
               />
             )}
           </>
@@ -243,6 +247,7 @@ function QrDialog({
   ticketId,
   index,
   count,
+  language,
 }: {
   open: boolean;
   onClose: () => void;
@@ -250,56 +255,59 @@ function QrDialog({
   ticketId: string;
   index: number;
   count: number;
+  language: Language;
 }) {
+  const tr = (th: string, en: string) => translate(language, th, en);
   const checkedIn = booking.tickets[index]?.checked_in_at;
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <DialogContent className="qr-dialog-content">
         <IconButton
-          aria-label="ปิด QR"
+          aria-label={tr("ปิด QR", "Close QR code")}
           className="qr-dialog-close"
           onClick={onClose}
         >
           <X />
         </IconButton>
         <span>
-          บัตรที่ {index + 1} จาก {count}
+          {tr("บัตรที่", "Ticket")} {index + 1} {tr("จาก", "of")} {count}
         </span>
-        <h2>{zoneName[booking.zone_id] ?? `โซน ${booking.zone_id}`}</h2>
+        <h2>{zoneName(booking.zone_id, language)}</h2>
         <p>Concert on the River · ICONSIAM · 19:00</p>
         <QRCodeSVG value={ticketId} size={250} />
         <strong className={checkedIn ? "used" : "available"}>
-          ● {checkedIn ? "เช็กอินแล้ว" : "พร้อมใช้เข้างาน"}
+          ● {checkedIn ? tr("เช็กอินแล้ว", "Checked in") : tr("พร้อมใช้เข้างาน", "Ready for boarding")}
         </strong>
-        <small>แสดง QR นี้ให้เจ้าหน้าที่สแกนที่จุด Check-in</small>
+        <small>{tr("แสดง QR นี้ให้เจ้าหน้าที่สแกนที่จุด Check-in", "Show this QR code for scanning at check-in.")}</small>
       </DialogContent>
     </Dialog>
   );
 }
 
-function TicketJourney({ ticketCount }: { ticketCount: number }) {
+function TicketJourney({ ticketCount, language }: { ticketCount: number; language: Language }) {
+  const tr = (th: string, en: string) => translate(language, th, en);
   return (
     <section className="booking-journey confirmed">
       <div className="booking-journey-head">
         <div>
-          <small>สถานะการจอง</small>
-          <strong>บัตรของคุณพร้อมใช้งานแล้ว</strong>
+          <small>{tr("สถานะการจอง", "Booking status")}</small>
+          <strong>{tr("บัตรของคุณพร้อมใช้งานแล้ว", "Your tickets are ready")}</strong>
         </div>
-        <span>มี {ticketCount} QR — แสดงทีละใบเมื่อเข้างาน</span>
+        <span>{tr(`มี ${ticketCount} QR — แสดงทีละใบเมื่อเข้างาน`, `${ticketCount} QR ${ticketCount === 1 ? "code" : "codes"} — show each ticket when boarding`)}</span>
       </div>
       <ol className="booking-steps">
-        <li className="done">ยืนยันการจอง</li>
-        <li className="done">แนบรูปประกอบ</li>
-        <li className="current">รับ QR Ticket</li>
-        <li>สแกนเข้างาน</li>
+        <li className="done">{tr("ยืนยันการจอง", "Booking confirmed")}</li>
+        <li className="done">{tr("แนบรูปประกอบ", "Receipt uploaded")}</li>
+        <li className="current">{tr("รับ QR Ticket", "QR ticket issued")}</li>
+        <li>{tr("สแกนเข้างาน", "Scan at boarding")}</li>
       </ol>
       <div className="boarding-details">
         <span>
-          <MapPin aria-hidden="true" /> ICONSIAM · จุดขึ้นเรือ
+          <MapPin aria-hidden="true" /> ICONSIAM · {tr("จุดขึ้นเรือ", "Boarding pier")}
         </span>
-        <span>ขึ้นเรือก่อน 18:45 · ออกเรือ 19:00</span>
+        <span>{tr("ขึ้นเรือก่อน 18:45 · ออกเรือ 19:00", "Board by 18:45 · Departure at 19:00")}</span>
         <span>
-          <ShieldAlert aria-hidden="true" /> มาสายจนไม่ทันเรือถือเป็น No-show
+          <ShieldAlert aria-hidden="true" /> {tr("มาสายจนไม่ทันเรือถือเป็น No-show", "Missing departure is considered a no-show")}
         </span>
       </div>
     </section>
@@ -311,22 +319,25 @@ function TicketPreview({
   ticketId,
   index,
   count,
+  language,
 }: {
   booking: Booking;
   ticketId: string;
   index: number;
   count: number;
+  language: Language;
 }) {
+  const tr = (th: string, en: string) => translate(language, th, en);
   const checkedIn = booking.tickets[index]?.checked_in_at;
   return (
     <aside className="qr-ticket">
       <span className="qr-ticket-count">
-        บัตรที่ {index + 1} จาก {count}
+        {tr("บัตรที่", "Ticket")} {index + 1} {tr("จาก", "of")} {count}
       </span>
       <span className="ticket-state">
-        ● {checkedIn ? "เช็กอินแล้ว" : "ใช้งานได้"}
+        ● {checkedIn ? tr("เช็กอินแล้ว", "Checked in") : tr("ใช้งานได้", "Available")}
       </span>
-      <h2>{zoneName[booking.zone_id] ?? `โซน ${booking.zone_id}`}</h2>
+      <h2>{zoneName(booking.zone_id, language)}</h2>
       <p>
         Concert on the River
         <br />
@@ -334,39 +345,38 @@ function TicketPreview({
       </p>
       <QRCodeSVG value={ticketId} size={188} />
       <p className="qr-note">
-        <CircleHelp aria-hidden="true" size={20} /> แสดง QR Code นี้ที่จุด
-        Check-in
+        <CircleHelp aria-hidden="true" size={20} /> {tr("แสดง QR Code นี้ที่จุด Check-in", "Show this QR code at check-in")}
         <br />
-        <small>เพื่อสแกนเข้างาน</small>
+        <small>{tr("เพื่อสแกนเข้างาน", "for boarding")}</small>
       </p>
       <dl>
         <div>
-          <dt>หมายเลขบัตร</dt>
+          <dt>{tr("หมายเลขบัตร", "Ticket number")}</dt>
           <dd>
             {ticketId.slice(0, 14).toUpperCase()} <Copy size={16} />
           </dd>
         </div>
         <div>
-          <dt>หมายเลขคำสั่งซื้อ</dt>
+          <dt>{tr("หมายเลขคำสั่งซื้อ", "Order number")}</dt>
           <dd>#{shortId(booking.id)}</dd>
         </div>
         <div>
-          <dt>จำนวน</dt>
-          <dd>1 ใบ</dd>
+          <dt>{tr("จำนวน", "Quantity")}</dt>
+          <dd>1 {tr("ใบ", "ticket")}</dd>
         </div>
         <div>
-          <dt>สถานะ</dt>
+          <dt>{tr("สถานะ", "Status")}</dt>
           <dd className="available">
-            ● {checkedIn ? "เช็กอินแล้ว" : "ใช้งานได้"}
+            ● {checkedIn ? tr("เช็กอินแล้ว", "Checked in") : tr("ใช้งานได้", "Available")}
           </dd>
         </div>
       </dl>
       <div className="ticket-rules">
-        <strong>เงื่อนไขการใช้งาน</strong>
+        <strong>{tr("เงื่อนไขการใช้งาน", "Ticket terms")}</strong>
         <ul>
-          <li>บัตรนี้ใช้เข้าร่วมงาน Concert on the River เท่านั้น</li>
-          <li>กรุณาแสดง QR Code จากหน้าจอนี้ ไม่อนุญาตให้ใช้ภาพถ่าย</li>
-          <li>1 บัตร ต่อ 1 ท่าน</li>
+          <li>{tr("บัตรนี้ใช้เข้าร่วมงาน Concert on the River เท่านั้น", "This ticket is valid for Concert on the River only.")}</li>
+          <li>{tr("กรุณาแสดง QR Code จากหน้าจอนี้ ไม่อนุญาตให้ใช้ภาพถ่าย", "Show the QR code on this screen; screenshots are not accepted.")}</li>
+          <li>{tr("1 บัตร ต่อ 1 ท่าน", "One ticket per person.")}</li>
         </ul>
       </div>
     </aside>

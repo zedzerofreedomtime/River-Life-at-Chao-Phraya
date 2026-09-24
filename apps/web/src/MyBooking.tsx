@@ -2,19 +2,24 @@ import { useEffect, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import { api, labels, money, type Booking } from "./api";
+import { api, statusLabel, money, type Booking } from "./api";
+import type { Language } from "./i18n";
 
 export default function MyBooking({
   initial,
   initialToken,
   onPay,
   onOpenTickets,
+  language,
 }: {
   initial: Booking | null;
   initialToken: string;
   onPay?: (booking: Booking) => void;
   onOpenTickets?: (booking: Booking) => void;
+  language: Language;
 }) {
+  const en = language === "en";
+  const tr = (th: string, english: string) => en ? english : th;
   const [booking, setBooking] = useState(initial);
   const [id, setID] = useState(
     initial?.id ?? sessionStorage.getItem("riverlife.booking.id") ?? "",
@@ -62,12 +67,12 @@ export default function MyBooking({
   return (
     <section className="content-panel">
       <div className="orders-heading">
-        <h1>คำสั่งซื้อของฉัน</h1>
-        <p>แนบรูปประกอบการจอง แล้วรับ QR Ticket</p>
+        <h1>{tr("คำสั่งซื้อของฉัน", "My bookings")}</h1>
+        <p>{tr("แนบรูปประกอบการจอง แล้วรับ QR Ticket", "Upload your payment receipt and track your QR ticket.")}</p>
       </div>
       <div className="grid gap-4 md:grid-cols-3">
         <TextField
-          label="รหัสการจอง"
+          label={tr("รหัสการจอง", "Booking ID")}
           value={id}
           onChange={(event) => {
             setID(event.target.value);
@@ -75,7 +80,7 @@ export default function MyBooking({
           }}
         />
         <TextField
-          label="รหัสเข้าถึงส่วนตัว"
+          label={tr("รหัสเข้าถึงส่วนตัว", "Private access code")}
           type="password"
           value={token}
           onChange={(event) => {
@@ -88,7 +93,7 @@ export default function MyBooking({
           onClick={() => void load()}
           disabled={busy || !id || !token}
         >
-          เปิดคำสั่งซื้อ
+          {tr("เปิดคำสั่งซื้อ", "Open booking")}
         </Button>
       </div>
       {error && <Alert severity="error">{error}</Alert>}
@@ -96,51 +101,51 @@ export default function MyBooking({
         <div className="booking-detail">
           <div className="order-status-bar">
             <h3>
-              โซน {booking.zone_id} · {booking.quantity} ใบ ·{" "}
+              {tr("โซน", "Zone")} {booking.zone_id} · {booking.quantity} {en ? (booking.quantity === 1 ? "ticket" : "tickets") : "ใบ"} ·{" "}
               {money(booking.total)}
             </h3>
-            <strong>{labels[booking.status]}</strong>
+            <strong>{statusLabel(booking.status, language)}</strong>
           </div>
           <p className="order-person">
-            ผู้สั่งซื้อ: {booking.name} · {booking.email}
+            {tr("ผู้สั่งซื้อ", "Customer")}: {booking.name} · {booking.email}
           </p>
           <Alert severity="info">
-            เก็บรหัสการจองและรหัสเข้าถึงนี้ไว้เพื่อเปิดบัตรจากเครื่องอื่น
+            {tr("เก็บรหัสการจองและรหัสเข้าถึงนี้ไว้เพื่อเปิดบัตรจากเครื่องอื่น", "Keep your booking ID and access code to open tickets on another device.")}
           </Alert>
           <details className="access-code">
-            <summary>แสดงรหัสเข้าถึงสำหรับเก็บรักษา</summary>
+            <summary>{tr("แสดงรหัสเข้าถึงสำหรับเก็บรักษา", "Show access code to save")}</summary>
             <code className="break-all">{token}</code>
           </details>
           {booking.status === "held" && (
-            <section className="order-action" aria-label="ชำระเงิน">
-              <h3>รอชำระเงิน</h3>
+            <section className="order-action" aria-label={tr("ชำระเงิน", "Payment")}>
+              <h3>{tr("รอชำระเงิน", "Awaiting payment")}</h3>
               <p>
-                รายการถูกสำรองไว้ กรุณาไปหน้าชำระเงินเพื่อสแกน QR และแนบหลักฐาน
+                {tr("รายการถูกสำรองไว้ กรุณาไปหน้าชำระเงินเพื่อสแกน QR และแนบหลักฐาน", "Your tickets are reserved. Go to payment to scan the QR code and upload your receipt.")}
               </p>
               <Button variant="contained" onClick={() => onPay?.(booking)}>
-                ไปหน้าชำระเงิน
+                {tr("ไปหน้าชำระเงิน", "Continue to payment")}
               </Button>
             </section>
           )}
           {booking.status === "confirmed" && (
             <div className="order-success">
               <div>
-                <strong>ชำระเงินเรียบร้อยแล้ว</strong>
+                <strong>{tr("ชำระเงินเรียบร้อยแล้ว", "Payment confirmed")}</strong>
                 <span>
-                  QR Ticket จำนวน {booking.tickets.length} ใบพร้อมใช้งาน
+                  {booking.tickets.length} {en ? (booking.tickets.length === 1 ? "QR ticket ready" : "QR tickets ready") : "QR Ticket พร้อมใช้งาน"}
                 </span>
               </div>
               <Button
                 variant="contained"
                 onClick={() => onOpenTickets?.(booking)}
               >
-                เปิดบัตรของฉัน
+                {tr("เปิดบัตรของฉัน", "Open my tickets")}
               </Button>
             </div>
           )}
           {booking.status !== "held" && booking.status !== "confirmed" && (
             <Alert severity="info" sx={{ mt: 2 }}>
-              คำสั่งซื้อนี้อยู่ในสถานะ {labels[booking.status]}
+              {tr("คำสั่งซื้อนี้อยู่ในสถานะ", "Booking status:")} {statusLabel(booking.status, language)}
             </Alert>
           )}
         </div>
