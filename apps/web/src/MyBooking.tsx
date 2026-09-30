@@ -11,12 +11,14 @@ export default function MyBooking({
   onPay,
   onOpenTickets,
   language,
+  demo,
 }: {
   initial: Booking | null;
   initialToken: string;
   onPay?: (booking: Booking) => void;
   onOpenTickets?: (booking: Booking) => void;
   language: Language;
+  demo: boolean;
 }) {
   const en = language === "en";
   const tr = (th: string, english: string) => en ? english : th;
@@ -120,7 +122,7 @@ export default function MyBooking({
             <section className="order-action" aria-label={tr("ชำระเงิน", "Payment")}>
               <h3>{tr("รอชำระเงิน", "Awaiting payment")}</h3>
               <p>
-                {tr("รายการถูกสำรองไว้ กรุณาไปหน้าชำระเงินเพื่อสแกน QR และแนบหลักฐาน", "Your tickets are reserved. Go to payment to scan the QR code and upload your receipt.")}
+                {demo ? tr("รายการทดลองถูกสำรองไว้ ไปหน้าถัดไปเพื่อแนบภาพตัวอย่าง ห้ามชำระเงินจริง", "Your demo tickets are held. Continue to upload a sample image; do not make a real payment.") : tr("รายการถูกสำรองไว้ กรุณาไปหน้าชำระเงินเพื่อสแกน QR และแนบหลักฐาน", "Your tickets are reserved. Go to payment to scan the QR code and upload your receipt.")}
               </p>
               <Button variant="contained" onClick={() => onPay?.(booking)}>
                 {tr("ไปหน้าชำระเงิน", "Continue to payment")}
@@ -130,7 +132,7 @@ export default function MyBooking({
           {booking.status === "confirmed" && (
             <div className="order-success">
               <div>
-                <strong>{tr("ชำระเงินเรียบร้อยแล้ว", "Payment confirmed")}</strong>
+                <strong>{demo ? tr("บันทึกรายการทดลองแล้ว", "Demo booking recorded") : tr("ชำระเงินเรียบร้อยแล้ว", "Payment confirmed")}</strong>
                 <span>
                   {booking.tickets.length} {en ? (booking.tickets.length === 1 ? "QR ticket ready" : "QR tickets ready") : "QR Ticket พร้อมใช้งาน"}
                 </span>

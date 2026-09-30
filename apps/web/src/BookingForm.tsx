@@ -17,6 +17,7 @@ export default function BookingForm({
   accountName,
   accountEmail,
   language,
+  demo,
 }: {
   zones: Zone[];
   selected: string;
@@ -27,6 +28,7 @@ export default function BookingForm({
   accountName: string;
   accountEmail: string;
   language: Language;
+  demo: boolean;
 }) {
   const en = language === "en";
   const [quantity, setQuantity] = useState(1),
@@ -167,9 +169,9 @@ export default function BookingForm({
             }
             label={
               <span className="consent">
-                {en
-                  ? "I understand that arriving after boarding time is a no-show and is not refundable."
-                  : "รับทราบว่ามาไม่ทันเรือถือเป็น No-show ไม่คืนเงินหรือใช้สิทธิ์ใหม่"}
+                {demo
+                  ? (en ? "I understand this is a demo reservation. The event date, prices, inclusions and refund terms are not final, and I must not make a real payment." : "รับทราบว่านี่เป็นการจองทดลอง วันงาน ราคา สิ่งที่รวมในบัตรและเงื่อนไขคืนเงินยังไม่ยืนยัน และจะไม่ชำระเงินจริง")
+                  : (en ? "I have reviewed the event details and booking terms." : "ฉันได้ตรวจสอบรายละเอียดงานและเงื่อนไขการจองแล้ว")}
               </span>
             }
           />

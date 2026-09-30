@@ -7,8 +7,72 @@ import {
   Ticket,
   Utensils,
 } from "lucide-react";
-import type { EventInfo } from "./api";
+import { formatEventDate, formatPier, localizeEventTitle, type EventInfo } from "./api";
 import type { Language } from "./i18n";
+
+const foodMenu = [
+  {
+    th: "สลัด",
+    en: "SALADS",
+    items: [
+      { th: "สลัดซีซาร์", en: "CAESAR SALAD" },
+      { th: "ลาบไก่", en: "SPICY MINCED CHICKEN SALAD" },
+      { th: "ส้มตำ", en: "PAPAYA SALAD WITH SHRIMP" },
+    ],
+  },
+  {
+    th: "ซูชิ",
+    en: "SUSHI",
+    items: [
+      { th: "ซูชิรวม", en: "MIXED SUSHI" },
+      { th: "ปูอัด", en: "CRAB STICKS" },
+    ],
+  },
+  {
+    th: "ซุป",
+    en: "SOUPS",
+    items: [
+      { th: "ต้มยำกุ้ง", en: "TOM YUM GOONG" },
+      { th: "ซุปข้าวโพด", en: "CORN SOUP" },
+    ],
+  },
+  {
+    th: "อาหารทะเล",
+    en: "SEAFOOD",
+    items: [
+      { th: "กุ้งแม่น้ำ", en: "RIVER PRAWN ON ICE" },
+      { th: "หอยชิลี", en: "CHILE CLAMS ON ICE" },
+      { th: "แซลมอน", en: "SALMON" },
+    ],
+  },
+  {
+    th: "อาหารหลัก",
+    en: "MAIN DISHED",
+    items: [
+      { th: "ผัดไทกุ้งสด", en: "FRIED NOODLE WITH SHRIMP" },
+      { th: "เต้าหู้ทรงเครื่อง", en: "FRIED TOFU WITH GRAVY SAUCE" },
+      { th: "ไก่ทอดซอสเทอริยากิ", en: "CHICKEN TERIYAKI" },
+      { th: "มักกะโรนี ซอสมะเขือเทศ", en: "MACARONI TOMATO SAUCE" },
+      { th: "ปลาผัดขึ้นฉ่าย", en: "STIR-FRIED FISH WITH CELERY" },
+      { th: "หอยชิลีผัดผงหม่าล่า", en: "STIR-FRIED CLAMS WITH MALA POWDER" },
+      { th: "ผัดผักซอสน้ำมันหอย", en: "STIR-FRIED VEGETABLES IN OYSTER SAUCE" },
+      { th: "ขนมจีนน้ำยาปลาแซลมอน", en: "SALMON CURRY SAUCE WITH RICE NOODLES" },
+      { th: "เฟรนฟราย", en: "FRENCH FRIES" },
+      { th: "ข้าวผัดไข่", en: "EGG FRIED RICE" },
+      { th: "ข้าวสวย", en: "STEAMED RICE" },
+    ],
+  },
+  {
+    th: "ของหวาน",
+    en: "DESSERTS",
+    items: [
+      { th: "กล้วยอบ ซอสคาราเมล & ช็อคโกแลต", en: "BAKED BANANA WITH CARAMEL & CHOCOLATE SAUCE" },
+      { th: "เค้กนานาชนิด", en: "VARIETY OF CAKES" },
+      { th: "ผลไม้ตามฤดูกาล", en: "SEASONAL FRUIT" },
+      { th: "ชา กาแฟ", en: "COFFEE OR TEA" },
+    ],
+  },
+] as const;
 
 export default function EventDetail({
   event,
@@ -20,8 +84,7 @@ export default function EventDetail({
   language: Language;
 }) {
   const en = language === "en";
-  const date =
-    event.date || (en ? "Date to be announced" : "รอยืนยันวันจัดงาน");
+  const date = formatEventDate(event.date, language);
   const price = Math.min(...event.zones.map((zone) => zone.price)) / 100;
   const available = event.zones.reduce((total, zone) => total + zone.available, 0);
   const details = [
@@ -52,7 +115,7 @@ export default function EventDetail({
     {
       icon: MapPin,
       label: en ? "Boarding point" : "จุดขึ้นเรือ",
-      value: en ? `${event.pier} Pier` : `ท่าเรือ ${event.pier}`,
+      value: formatPier(event.pier, event.pier_number, language),
     },
   ];
 
@@ -76,7 +139,7 @@ export default function EventDetail({
               <span>{en ? "LIVE ON THE RIVER" : "LIVE ON THE RIVER"}</span>
             </div>
             <div className="event-purchase-info">
-              <h1>{event.title}</h1>
+              <h1>{localizeEventTitle(event.title, language)}</h1>
               <p className="event-purchase-summary">
                 {en
                   ? "Live music and the Chao Phraya after dark aboard UNICRON CRUISE."
@@ -95,7 +158,9 @@ export default function EventDetail({
                   </div>
                 ))}
               </dl>
-              <p className="event-price-note">{en ? "Ticket prices are provisional until the event is confirmed." : "ราคาบัตรชั่วคราว รอยืนยันรายละเอียดงาน"}</p>
+              <p className="event-price-note">{event.date_is_preview
+                ? (en ? "Preview only: date and ticket prices are examples, not a live event announcement. Do not make a real payment." : "ตัวอย่างเท่านั้น: วันงานและราคาบัตรยังไม่ใช่ประกาศขายจริง กรุณาอย่าชำระเงินจริง")
+                : (en ? "Check the event terms and ticket inclusions before purchasing." : "ตรวจสอบเงื่อนไขงานและสิ่งที่รวมในบัตรก่อนซื้อ")}</p>
               <button
                 className="event-buy-button"
                 onClick={() => onStartCheckout()}
@@ -114,8 +179,8 @@ export default function EventDetail({
           <h2>{en ? "About this concert" : "เกี่ยวกับคอนเสิร์ตนี้"}</h2>
           <p>
             {en
-              ? "River Life brings live music to the Chao Phraya aboard UNICRON CRUISE. Explore the river views and spaces on board before choosing a ticket zone. Food service and event inclusions will be confirmed with the show details."
-              : "River Life นำดนตรีสดมาสู่แม่น้ำเจ้าพระยาบนเรือ UNICRON CRUISE ชมวิวและพื้นที่บนเรือก่อนเลือกโซนบัตร ส่วนอาหารและสิ่งที่รวมในบัตรจะยืนยันพร้อมรายละเอียดงาน"}
+              ? "River Life brings live music to the Chao Phraya aboard UNICRON CRUISE. Explore the river views, spaces on board, and the sample food menu before choosing a ticket zone. Ticket inclusions will be confirmed with the show details."
+              : "River Life นำดนตรีสดมาสู่แม่น้ำเจ้าพระยาบนเรือ UNICRON CRUISE ชมวิว พื้นที่บนเรือ และตัวอย่างไลน์อาหารก่อนเลือกโซนบัตร ส่วนสิ่งที่รวมในบัตรจะยืนยันพร้อมรายละเอียดงาน"}
           </p>
           <div className="event-detail-highlights">
             <Highlight
@@ -132,8 +197,8 @@ export default function EventDetail({
               title={en ? "Dining experience" : "มื้ออาหารบนเรือ"}
               text={
                 en
-                  ? "Food service details will be confirmed with the event"
-                  : "รายละเอียดอาหารจะประกาศพร้อมงาน"
+                  ? "Explore the sample menu below"
+                  : "ดูตัวอย่างรายการอาหารด้านล่าง"
               }
             />
           </div>
@@ -151,15 +216,46 @@ export default function EventDetail({
             </div>
             <div>
               <dt>{en ? "Meeting point" : "จุดนัดพบ"}</dt>
-              <dd>{event.pier}</dd>
+              <dd>{formatPier(event.pier, event.pier_number, language)}</dd>
             </div>
           </dl>
           <p>
             {en
-              ? "Please arrive before boarding time. Guests who miss the boat are treated as no-show."
-              : "กรุณามาถึงก่อนเวลาขึ้นเรือ ผู้ที่มาสายจนไม่ทันเรือจะถือเป็น No-show"}
+              ? "Please arrive before boarding time. Artist lineup, ticket inclusions, and cancellation or refund terms are pending confirmation."
+              : "กรุณามาถึงก่อนเวลาขึ้นเรือ รายชื่อศิลปิน สิ่งที่รวมในบัตร และเงื่อนไขยกเลิกหรือคืนเงินยังรอยืนยัน"}
           </p>
         </aside>
+      </section>
+
+      <section className="event-food-menu" aria-labelledby="event-food-menu-title">
+        <div className="event-food-menu-intro">
+          <div>
+            <p className="event-food-menu-eyebrow">{en ? "ON-BOARD DINING" : "อาหารบนเรือ"}</p>
+            <h2 id="event-food-menu-title">{en ? "Sample food menu" : "ตัวอย่างไลน์อาหาร"}</h2>
+            <p>
+              {en
+                ? "A look at the dishes shown on the cruise food menu. Individual items and availability may change."
+                : "รายการอาหารตามภาพเมนูของเรือ แต่ละรายการและความพร้อมให้บริการอาจเปลี่ยนแปลงได้"}
+            </p>
+          </div>
+          <div className="event-food-menu-notice">
+            {en
+              ? "Food and drinks are not confirmed as included with the concert ticket. Check the final ticket conditions before purchasing."
+              : "ยังไม่ได้ยืนยันว่าอาหารและเครื่องดื่มรวมอยู่ในราคาบัตรคอนเสิร์ต โปรดตรวจเงื่อนไขบัตรฉบับยืนยันก่อนซื้อ"}
+          </div>
+        </div>
+        <div className="event-food-menu-grid">
+          {foodMenu.map((category) => (
+            <article className="event-food-menu-card" key={category.en}>
+              <h3>{en ? category.en : category.th}</h3>
+              <ul>
+                {category.items.map((item) => (
+                  <li key={item.en}>{en ? item.en : item.th}</li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </div>
       </section>
     </>
   );

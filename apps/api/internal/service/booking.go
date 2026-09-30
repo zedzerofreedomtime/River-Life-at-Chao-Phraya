@@ -31,17 +31,20 @@ type Input struct {
 	AgentCode string `json:"agent_code" binding:"max=40"`
 }
 type Booking struct {
-	ID            string    `json:"id"`
-	ZoneID        string    `json:"zone_id"`
-	Name          string    `json:"name"`
-	Email         string    `json:"email"`
-	Quantity      int       `json:"quantity"`
-	Total         int       `json:"total"`
-	Status        string    `json:"status"`
-	ExpiresAt     time.Time `json:"expires_at"`
-	AgentCode     string    `json:"agent_code"`
-	HasAttachment bool      `json:"has_attachment"`
-	Tickets       []Ticket  `json:"tickets"`
+	ID                       string     `json:"id"`
+	ZoneID                   string     `json:"zone_id"`
+	Name                     string     `json:"name"`
+	Email                    string     `json:"email"`
+	Quantity                 int        `json:"quantity"`
+	Total                    int        `json:"total"`
+	Status                   string     `json:"status"`
+	ExpiresAt                time.Time  `json:"expires_at"`
+	AgentCode                string     `json:"agent_code"`
+	HasAttachment            bool       `json:"has_attachment"`
+	MarketingConsentAt       *time.Time `json:"marketing_consent_at"`
+	MarketingConsentVersion  string     `json:"marketing_consent_version"`
+	MarketingConsentLanguage string     `json:"marketing_consent_language"`
+	Tickets                  []Ticket   `json:"tickets"`
 }
 type Ticket struct {
 	ID          string     `json:"id"`
@@ -70,10 +73,10 @@ func Token() string {
 }
 func Hash(v string) string { h := sha256.Sum256([]byte(v)); return hex.EncodeToString(h[:]) }
 
-const columns = "id,zone_id,name,email,quantity,total,CASE WHEN status='held' AND expires_at<=now() THEN 'expired' ELSE status END,expires_at,agent_code,(attachment_path<>'')"
+const columns = "id,zone_id,name,email,quantity,total,CASE WHEN status='held' AND expires_at<=now() THEN 'expired' ELSE status END,expires_at,agent_code,(attachment_path<>''),marketing_consent_at,marketing_consent_version,marketing_consent_language"
 
 func scan(row pgx.Row) (b Booking, err error) {
-	err = row.Scan(&b.ID, &b.ZoneID, &b.Name, &b.Email, &b.Quantity, &b.Total, &b.Status, &b.ExpiresAt, &b.AgentCode, &b.HasAttachment)
+	err = row.Scan(&b.ID, &b.ZoneID, &b.Name, &b.Email, &b.Quantity, &b.Total, &b.Status, &b.ExpiresAt, &b.AgentCode, &b.HasAttachment, &b.MarketingConsentAt, &b.MarketingConsentVersion, &b.MarketingConsentLanguage)
 	b.Tickets = []Ticket{}
 	return
 }
@@ -150,14 +153,20 @@ func (s *Service) Create(ctx context.Context, in Input, key, token string) (Book
 
 // SubmitAttachment accepts an image as booking evidence only. It deliberately does
 // not validate, inspect, or infer whether a payment slip is genuine.
-func (s *Service) SubmitAttachment(ctx context.Context, id, token, path string) error {
+const MarketingConsentVersion = "marketing-consent-v1"
+
+func (s *Service) SubmitAttachment(ctx context.Context, id, token, path string, marketingConsent bool, language string) error {
 	tx, err := s.DB.Begin(ctx)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback(ctx)
 	var quantity int
-	err = tx.QueryRow(ctx, "UPDATE bookings SET status='confirmed',attachment_path=$3 WHERE id=$1 AND token_hash=$2 AND status='held' AND expires_at>now() RETURNING quantity", id, Hash(token), path).Scan(&quantity)
+	err = tx.QueryRow(ctx, `UPDATE bookings SET status='confirmed',attachment_path=$3,
+		marketing_consent_at=CASE WHEN $4 THEN now() ELSE NULL END,
+		marketing_consent_version=CASE WHEN $4 THEN $5 ELSE '' END,
+		marketing_consent_language=CASE WHEN $4 THEN $6 ELSE '' END
+		WHERE id=$1 AND token_hash=$2 AND status='held' AND expires_at>now() RETURNING quantity`, id, Hash(token), path, marketingConsent, MarketingConsentVersion, language).Scan(&quantity)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return ErrConflict
 	}
@@ -171,6 +180,11 @@ func (s *Service) SubmitAttachment(ctx context.Context, id, token, path string) 
 	}
 	if _, err = tx.Exec(ctx, "INSERT INTO audit_log(booking_id,action) VALUES($1,'attachment_received_qr_issued')", id); err != nil {
 		return err
+	}
+	if marketingConsent {
+		if _, err = tx.Exec(ctx, "INSERT INTO audit_log(booking_id,action) VALUES($1,'marketing_consent_accepted_v1')", id); err != nil {
+			return err
+		}
 	}
 	return tx.Commit(ctx)
 }

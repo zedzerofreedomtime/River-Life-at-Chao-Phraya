@@ -3,9 +3,9 @@ import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import IconButton from "@mui/material/IconButton";
-import { ChevronDown, Menu, Search, X } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
 import EventDetail from "./EventDetail";
-import Home, { type EventCategory } from "./Home";
+import Home from "./Home";
 import BoatMap from "./BoatMap";
 import BookingForm from "./BookingForm";
 import MyBooking from "./MyBooking";
@@ -17,7 +17,8 @@ import Auth, { type AuthUser } from "./Auth";
 import AdminDashboard from "./AdminDashboard";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { copy, type Language } from "./i18n";
-import { api, type Booking, type EventInfo } from "./api";
+import { api, formatPier, type Booking, type EventInfo } from "./api";
+import Help, { helpTitle, helpTopics, type HelpTopic } from "./Help";
 
 type Page =
   | "home"
@@ -28,7 +29,8 @@ type Page =
   | "orders"
   | "tickets"
   | "auth"
-  | "dashboard";
+  | "dashboard"
+  | "help";
 const pagePaths: Record<Page, string> = {
   home: "/",
   event: "/concert",
@@ -39,12 +41,17 @@ const pagePaths: Record<Page, string> = {
   tickets: "/tickets",
   auth: "/auth",
   dashboard: "/dashboard",
+  help: "/help/faq",
 };
 const pathPages: Record<string, Page> = Object.fromEntries(
   Object.entries(pagePaths).map(([page, path]) => [path, page as Page]),
 ) as Record<string, Page>;
 const pageFromLocation = (): Page =>
-  pathPages[window.location.pathname] ?? "home";
+  window.location.pathname.startsWith("/help/") ? "help" : pathPages[window.location.pathname] ?? "home";
+const helpFromLocation = (): HelpTopic => {
+  const topic = window.location.pathname.split("/")[2];
+  return helpTopics.includes(topic as HelpTopic) ? topic as HelpTopic : "faq";
+};
 export default function App() {
   const [page, setPage] = useState<Page>(pageFromLocation);
   const [event, setEvent] = useState<EventInfo | null>(null);
@@ -70,7 +77,7 @@ export default function App() {
   );
   const [continueCheckoutAfterLogin, setContinueCheckoutAfterLogin] =
     useState(false);
-  const [homeCategory, setHomeCategory] = useState<EventCategory>("all");
+  const [helpTopic, setHelpTopic] = useState<HelpTopic>(helpFromLocation);
   const [openNavigationMenu, setOpenNavigationMenu] = useState<
     "events" | "help" | null
   >(null);
@@ -116,7 +123,10 @@ export default function App() {
       .catch(() => setIsAuthenticated(false));
   }, []);
   useEffect(() => {
-    const handlePopState = () => setPage(pageFromLocation());
+    const handlePopState = () => {
+      setPage(pageFromLocation());
+      setHelpTopic(helpFromLocation());
+    };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
@@ -143,6 +153,13 @@ export default function App() {
   const goCheckout = (preferredZone?: string) => {
     if (preferredZone) setZone(preferredZone);
     go("checkout");
+  };
+  const goHelp = (topic: HelpTopic) => {
+    window.history.pushState(null, "", `/help/${topic}`);
+    setHelpTopic(topic);
+    setPage("help");
+    setMobileMenuOpen(false);
+    setOpenNavigationMenu(null);
   };
   const requireLoginForCheckout = () => {
     setContinueCheckoutAfterLogin(true);
@@ -180,28 +197,6 @@ export default function App() {
   const en = language === "en";
   const displayName = profile.name === "ผู้ใช้งาน River Life" && en ? "River Life user" : profile.name;
   const displayEmail = profile.email === "ยังไม่ได้เข้าสู่ระบบ" && en ? "Not logged in" : profile.email;
-  const eventCategories: Array<{ value: EventCategory; label: string }> = [
-    { value: "all", label: en ? "All events" : "อีเวนต์ทั้งหมด" },
-    { value: "festival", label: en ? "Music festivals" : "เทศกาลดนตรี" },
-    { value: "concert", label: en ? "Concerts" : "คอนเสิร์ต" },
-    { value: "fanmeet", label: en ? "Fan meetings" : "แฟนมีตติ้ง" },
-    { value: "special", label: en ? "Special activities" : "กิจกรรมพิเศษ" },
-  ];
-  const helpItems = en
-    ? [
-        "Contact us",
-        "Help & FAQ",
-        "Payments & slip upload",
-        "Postponement & refunds",
-        "Ticket terms",
-      ]
-    : [
-        "ติดต่อเรา",
-        "ช่วยเหลือ / คำถามที่พบบ่อย",
-        "การชำระเงินและแนบสลิป",
-        "การเลื่อนงาน / คืนเงิน",
-        "เงื่อนไขการใช้บัตร",
-      ];
   return (
     <>
       <header className={`market-header ${page === "tickets" ? "market-header-dark" : ""}`}>
@@ -246,37 +241,9 @@ export default function App() {
               >
                 {en ? "Home" : "หน้าแรก"}
               </button>
-              <div className="ticket-nav-dropdown">
-                <button
-                  aria-expanded={openNavigationMenu === "events"}
-                  aria-haspopup="menu"
-                  onClick={() =>
-                    setOpenNavigationMenu((current) =>
-                      current === "events" ? null : "events",
-                    )
-                  }
-                >
-                  {en ? "Events on board" : "อีเวนต์บนเรือ"}
-                  <ChevronDown aria-hidden="true" size={16} />
-                </button>
-                {openNavigationMenu === "events" && (
-                  <div className="ticket-menu-popover" role="menu">
-                    {eventCategories.map((category) => (
-                      <button
-                        key={category.value}
-                        role="menuitem"
-                        onClick={() => {
-                          setHomeCategory(category.value);
-                          setOpenNavigationMenu(null);
-                          go("home");
-                        }}
-                      >
-                        {category.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <button className={page === "event" ? "active" : ""} onClick={() => go("event")}>
+                {en ? "The concert" : "คอนเสิร์ต"}
+              </button>
               <div className="ticket-nav-dropdown">
                 <button
                   aria-expanded={openNavigationMenu === "help"}
@@ -292,16 +259,13 @@ export default function App() {
                 </button>
                 {openNavigationMenu === "help" && (
                   <div className="ticket-menu-popover" role="menu">
-                    {helpItems.map((item) => (
+                    {helpTopics.map((item) => (
                       <button
                         key={item}
                         role="menuitem"
-                        onClick={() => {
-                          setOpenNavigationMenu(null);
-                          setMobileMenuOpen(false);
-                        }}
+                        onClick={() => goHelp(item)}
                       >
-                        {item}
+                        {helpTitle(item, language)}
                       </button>
                     ))}
                   </div>
@@ -319,7 +283,6 @@ export default function App() {
           )}
         </nav>
         <div className="market-tools" aria-label={en ? "User tools" : "เครื่องมือผู้ใช้"}>
-          {page === "tickets" ? null : <Search aria-hidden="true" size={22} />}
           <LanguageSwitcher language={language} onChange={setLanguage} />
           <ProfileMenu
             isAuthenticated={isAuthenticated}
@@ -359,8 +322,6 @@ export default function App() {
           <Home
             event={event}
             language={language}
-            category={homeCategory}
-            onCategoryChange={setHomeCategory}
             onOpenConcert={() => go("event")}
           />
         )}
@@ -396,6 +357,7 @@ export default function App() {
                 accountName={profile.name}
                 accountEmail={profile.email}
                 language={language}
+                demo={event.demo}
               />
             </div>
           </section>
@@ -403,6 +365,7 @@ export default function App() {
         {page === "payment" && (
           <Payment
             language={language}
+            demo={event?.demo ?? false}
             initial={booking}
             initialToken={token}
             onCompleted={(updated) => {
@@ -415,6 +378,7 @@ export default function App() {
         {page === "success" && (
           <BookingSuccess
             language={language}
+            demo={event?.demo ?? false}
             initial={booking}
             initialToken={token}
             onOpenTickets={(updated) => {
@@ -427,6 +391,7 @@ export default function App() {
         {page === "orders" && (
           <MyBooking
             language={language}
+            demo={event?.demo ?? false}
             initial={booking}
             initialToken={token}
             onPay={(updated) => {
@@ -440,12 +405,13 @@ export default function App() {
           />
         )}
         {page === "tickets" && (
-          <TicketWallet initial={booking} initialToken={token} language={language} />
+          <TicketWallet initial={booking} initialToken={token} language={language} demo={event?.demo ?? false} boardingPier={event ? formatPier(event.pier, event.pier_number, language) : ""} />
         )}
-        {page === "dashboard" && profile.role === "admin" && <AdminDashboard />}
+        {page === "dashboard" && profile.role === "admin" && <AdminDashboard language={language} />}
         {page === "dashboard" && profile.role !== "admin" && (
           <Alert severity="error">{en ? "This page is for administrators only." : "หน้านี้สำหรับผู้ดูแลระบบเท่านั้น"}</Alert>
         )}
+        {page === "help" && <Help topic={helpTopic} language={language} onSelect={goHelp} />}
         {!event && !error && <p role="status">{en ? "Loading event…" : "กำลังโหลดรอบการแสดง…"}</p>}
       </main>
       <Dialog
@@ -469,7 +435,7 @@ export default function App() {
         <Auth
           modal
           language={language}
-          onAuthenticated={(user, source) => {
+          onAuthenticated={(user) => {
             setProfile({
               name: user.name || "ผู้ใช้งาน River Life",
               email: user.email,
@@ -485,7 +451,6 @@ export default function App() {
               user.role || "user",
             );
             setIsAuthenticated(true);
-            if (source !== "login") return;
             setAuthDialogOpen(false);
             const destination =
               user.role === "admin"

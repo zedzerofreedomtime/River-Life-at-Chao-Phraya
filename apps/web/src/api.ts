@@ -10,12 +10,29 @@ export type EventInfo = {
   artists?: string[];
   demo: boolean;
   date: string | null;
+  date_is_preview: boolean;
   boarding: string;
   departure: string;
   pier: string;
+  pier_number: number;
   duration_minutes: number;
   zones: Zone[];
 };
+export const formatEventDate = (date: string | null, language: "th" | "en") =>
+  date
+    ? new Intl.DateTimeFormat(language === "en" ? "en-GB" : "th-TH", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        timeZone: "UTC",
+      }).format(new Date(`${date}T00:00:00Z`))
+    : language === "en" ? "Date to be announced" : "รอยืนยันวันจัดงาน";
+export const formatPier = (pier: string, number: number, language: "th" | "en") =>
+  language === "en" ? `${pier} Pier ${number}` : `ท่าเรือ ${pier} ท่าที่ ${number}`;
+export const localizeEventTitle = (title: string, language: "th" | "en") =>
+  language === "th" && title === "Concert on the River"
+    ? "คอนเสิร์ตบนแม่น้ำเจ้าพระยา"
+    : title;
 export type Booking = {
   id: string;
   zone_id: string;
@@ -27,6 +44,9 @@ export type Booking = {
   expires_at: string;
   agent_code: string;
   has_attachment: boolean;
+  marketing_consent_at: string | null;
+  marketing_consent_version: string;
+  marketing_consent_language: string;
   tickets: { id: string; checked_in_at: string | null }[];
 };
 export type AdminDashboardData = {

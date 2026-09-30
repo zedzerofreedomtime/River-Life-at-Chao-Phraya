@@ -95,11 +95,11 @@ func TestInventoryLifecycle(t *testing.T) {
 	if err != nil || b.Status != "held" || len(b.Tickets) != 0 {
 		t.Fatal("booking hold failed", err)
 	}
-	if err = s.SubmitAttachment(ctx, first.ID, auth, "test.png"); err != nil {
+	if err = s.SubmitAttachment(ctx, first.ID, auth, "test.png", true, "th"); err != nil {
 		t.Fatal("attachment submission failed", err)
 	}
 	b, err = s.Get(ctx, first.ID, auth, false)
-	if err != nil || b.Status != "confirmed" || len(b.Tickets) != 1 || !b.HasAttachment {
+	if err != nil || b.Status != "confirmed" || len(b.Tickets) != 1 || !b.HasAttachment || b.MarketingConsentAt == nil || b.MarketingConsentVersion != MarketingConsentVersion || b.MarketingConsentLanguage != "th" {
 		t.Fatal("ticket issuance after attachment failed", err)
 	}
 	if err = s.CheckIn(ctx, b.Tickets[0].ID); err != nil {

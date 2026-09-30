@@ -12,12 +12,14 @@ export default function BookingSuccess({
   onOpenTickets,
   onOpenOrders,
   language,
+  demo,
 }: {
   initial: Booking | null;
   initialToken: string;
   onOpenTickets: (booking: Booking) => void;
   onOpenOrders: () => void;
   language: Language;
+  demo: boolean;
 }) {
   const en = language === "en";
   const tr = (th: string, english: string) => en ? english : th;
@@ -58,7 +60,9 @@ export default function BookingSuccess({
           <>
             <p>
               {booking.status === "confirmed"
-                ? tr("คำสั่งซื้อของคุณได้รับการยืนยันแล้ว และออก QR Ticket ให้เรียบร้อย", "Your booking is confirmed and your QR ticket is ready.")
+                ? demo
+                  ? tr("ระบบบันทึกการจองและสร้าง QR Ticket สำหรับการทดลองแล้ว ไม่มีการตรวจสอบหรือรับเงินจริง", "A test booking and QR ticket were created. No real payment was collected or verified.")
+                  : tr("ระบบบันทึกการจองและออก QR Ticket แล้ว กรุณาตรวจสอบสถานะการชำระเงินกับผู้จัดงาน", "Your booking and QR ticket are ready. Confirm payment status with the organizer.")
                 : tr("ได้รับหลักฐานการชำระเงินแล้ว กำลังรอตรวจสอบก่อนออก QR Ticket", "Your payment receipt was submitted. Your QR ticket will be issued after review.")}
             </p>
             <dl>

@@ -29,11 +29,17 @@ CREATE TABLE IF NOT EXISTS bookings (
  attachment_path text NOT NULL DEFAULT '',
  slip_path text NOT NULL DEFAULT '',
  slip_hash text NOT NULL DEFAULT '',
- slip_verification jsonb NOT NULL DEFAULT '{}'::jsonb
+ slip_verification jsonb NOT NULL DEFAULT '{}'::jsonb,
+ marketing_consent_at timestamptz,
+ marketing_consent_version text NOT NULL DEFAULT '',
+ marketing_consent_language text NOT NULL DEFAULT ''
 );
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS attachment_path text NOT NULL DEFAULT '';
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS slip_hash text NOT NULL DEFAULT '';
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS slip_verification jsonb NOT NULL DEFAULT '{}'::jsonb;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS marketing_consent_at timestamptz;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS marketing_consent_version text NOT NULL DEFAULT '';
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS marketing_consent_language text NOT NULL DEFAULT '';
 CREATE INDEX IF NOT EXISTS bookings_zone_status ON bookings(zone_id,status,expires_at);
 CREATE INDEX IF NOT EXISTS bookings_slip_hash ON bookings(slip_hash) WHERE slip_hash<>'';
 CREATE UNIQUE INDEX IF NOT EXISTS bookings_confirmed_slip_hash_unique ON bookings(slip_hash) WHERE slip_hash<>'' AND status IN ('confirmed','no_show');

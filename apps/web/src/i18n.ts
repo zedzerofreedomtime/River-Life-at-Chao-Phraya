@@ -9,7 +9,7 @@ export const copy = {
       dashboard: "แดชบอร์ด",
     },
     steps: ["เลือกคอนเสิร์ต", "เลือกโซนและบัตร", "ชำระเงิน", "ทำรายการสำเร็จ"],
-    demo: "ระบบทดลอง · ราคาและโควตาเพื่อทดสอบเท่านั้น · วันงานรอยืนยัน · QR Ticket สำหรับทดสอบ",
+    demo: "ระบบทดลอง · วันที่ 21 พ.ย. 2569 และราคาเป็นตัวอย่างเพื่อดูหน้าตาเท่านั้น · ห้ามชำระเงินจริง",
     checkoutTitle: "เลือกโซนและจำนวนบัตร",
     checkoutCopy: "เลือกโซนและจำนวนบัตรคอนเสิร์ต ก่อนเข้าสู่ขั้นตอนชำระเงิน",
   },
@@ -21,7 +21,7 @@ export const copy = {
       dashboard: "Dashboard",
     },
     steps: ["Choose concert", "Choose zone & tickets", "Payment", "Confirmed"],
-    demo: "Demo system · Prices and availability are for testing only · Event details are pending confirmation",
+    demo: "Demo preview · 21 Nov 2026 and ticket prices are examples only · Do not make a real payment",
     checkoutTitle: "Choose your zone and tickets",
     checkoutCopy:
       "Choose your concert zone and ticket quantity before continuing to payment.",

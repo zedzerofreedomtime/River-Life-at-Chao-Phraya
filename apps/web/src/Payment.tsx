@@ -13,12 +13,14 @@ export default function Payment({
   onCompleted,
   onBackToZones,
   language,
+  demo,
 }: {
   initial: Booking | null;
   initialToken: string;
   onCompleted: (booking: Booking) => void;
   onBackToZones: () => void;
   language: Language;
+  demo: boolean;
 }) {
   const en = language === "en";
   const tr = (th: string, english: string) => en ? english : th;
@@ -69,6 +71,8 @@ export default function Payment({
     try {
       const form = new FormData();
       form.append("attachment", attachment);
+      form.append("marketing_consent", String(marketingAccepted));
+      form.append("marketing_consent_language", language);
       const updated = await api<Booking>(
         `/bookings/${booking.id}/attachment`,
         { method: "POST", body: form },
@@ -115,23 +119,25 @@ export default function Payment({
       </button>
       <div className="flow-heading">
         <h1>{tr("ชำระเงิน", "Payment")}</h1>
-        <p>{tr("สแกน QR โอนเงิน แนบสลิป และยืนยันการชำระเงินในหน้านี้", "Scan the QR code, transfer the amount, upload your receipt, and submit it here.")}</p>
+        <p>{demo
+          ? tr("หน้าทดลองการชำระเงิน · ห้ามโอนเงินจริง สามารถแนบภาพตัวอย่างเพื่อทดสอบขั้นตอนต่อไป", "Payment preview only · Do not transfer real money. Upload a sample image to test the next step.")
+          : tr("สแกน QR โอนเงิน แนบสลิป และยืนยันการชำระเงินในหน้านี้", "Scan the QR code, transfer the amount, upload your receipt, and submit it here.")}</p>
       </div>
+      {en && <Alert severity="info">International card and wallet payments are planned but not yet connected. This preview cannot accept a real payment.</Alert>}
       {error && <Alert severity="error">{error}</Alert>}
       <div className="payment-layout">
         <article className="payment-instructions">
           <div className="payment-section-title">
             <span>{tr("ช่องทางการชำระเงิน", "Payment method")}</span>
-            <h2>QR PromptPay</h2>
+            <h2>{demo ? "QR PromptPay · Demo" : "QR PromptPay"}</h2>
           </div>
           <div className="payment-qr-content">
-            <img
-              src="/images/payment/promptpay-qr.png"
-              alt={tr("QR PromptPay สำหรับชำระเงิน", "PromptPay QR code for payment")}
-            />
+            {demo
+              ? <div className="payment-qr-placeholder" role="img" aria-label={tr("คิวอาร์โค้ดปิดใช้งานในโหมดทดลอง", "Payment QR code disabled in demo mode")}>{tr("ทดลองเท่านั้น · ไม่มี QR ชำระเงินจริง", "DEMO ONLY · NO LIVE PAYMENT QR")}</div>
+              : <img src="/images/payment/promptpay-qr.png" alt={tr("QR PromptPay สำหรับชำระเงิน", "PromptPay QR code for payment")} />}
             <div>
-              <strong>{tr("สแกน QR เพื่อชำระเงิน", "Scan the QR code to pay")}</strong>
-              <p>{tr("โอนเงินตามยอดคำสั่งซื้อนี้ผ่านแอปธนาคารของคุณ", "Transfer the order total using your banking app.")}</p>
+              <strong>{demo ? tr("จำลองขั้นตอนชำระเงิน", "Preview the payment step") : tr("สแกน QR เพื่อชำระเงิน", "Scan the QR code to pay")}</strong>
+              <p>{demo ? tr("ไม่ต้องโอนเงิน จำนวนนี้เป็นเพียงราคาตัวอย่าง", "Do not transfer money. This amount is a sample price.") : tr("โอนเงินตามยอดคำสั่งซื้อนี้ผ่านแอปธนาคารของคุณ", "Transfer the order total using your banking app.")}</p>
               <b className="payment-amount">{money(booking.total)}</b>
               <small>
                 <Clock3 aria-hidden="true" size={16} /> {tr("สำรองสิทธิ์ถึง", "Reserved until")}{" "}
@@ -144,7 +150,7 @@ export default function Payment({
             </div>
           </div>
           <div className="payment-upload">
-            <h3>{tr("แนบสลิปการชำระเงิน", "Upload payment receipt")}</h3>
+            <h3>{demo ? tr("แนบภาพตัวอย่างเพื่อทดสอบ", "Upload a sample image") : tr("แนบสลิปการชำระเงิน", "Upload payment receipt")}</h3>
             <p>{tr("รองรับ PNG หรือ JPG ขนาดไม่เกิน 5 MB", "PNG or JPG, up to 5 MB")}</p>
             <Button component="label" variant="outlined" disabled={busy}>
               {attachment ? tr("เปลี่ยนรูปสลิป", "Change receipt") : tr("เลือกไฟล์สลิป", "Choose receipt")}
@@ -186,7 +192,7 @@ export default function Payment({
             <strong>{money(booking.total)}</strong>
           </div>
           <p className="payment-summary-note">
-            {tr("ตรวจสอบชื่อผู้รับและยอดเงินก่อนแนบสลิป", "Check the recipient and amount before uploading your receipt.")}
+            {demo ? tr("รายการนี้ใช้ทดสอบหน้าจอเท่านั้น ไม่มีการชำระเงินจริง", "This booking is for previewing the flow only. No real payment is collected.") : tr("ตรวจสอบชื่อผู้รับและยอดเงินก่อนแนบสลิป", "Check the recipient and amount before uploading your receipt.")}
           </p>
         </aside>
       </div>
@@ -198,10 +204,10 @@ export default function Payment({
         onClick={() => void completePayment()}
         startIcon={<CheckCircle2 size={18} />}
       >
-        {busy ? tr("กำลังบันทึกรายการ…", "Submitting…") : tr("ยืนยันการชำระเงิน", "Submit payment")}
+        {busy ? tr("กำลังบันทึกรายการ…", "Submitting…") : demo ? tr("ส่งภาพตัวอย่าง", "Submit sample image") : tr("ยืนยันการชำระเงิน", "Submit payment")}
       </Button>
       <small className="payment-disclaimer">
-        {tr("ระบบนี้บันทึกหลักฐานเพื่อดำเนินการต่อเท่านั้น ยังไม่ใช่การตรวจสอบธุรกรรมอัตโนมัติ", "Your receipt is submitted for review. Payment is not verified automatically.")}
+        {demo ? tr("ระบบทดลองสร้างบัตรทดสอบหลังส่งภาพ แต่ไม่ได้ตรวจสอบหรือรับเงินจริง", "The demo creates a test ticket after image upload. No real payment is collected or verified.") : tr("ระบบนี้บันทึกหลักฐานเพื่อดำเนินการต่อเท่านั้น ยังไม่ใช่การตรวจสอบธุรกรรมอัตโนมัติ", "Your receipt is submitted for review. Payment is not verified automatically.")}
       </small>
       <Dialog
         open={marketingDialogOpen}
@@ -236,7 +242,7 @@ export default function Payment({
             </p>
             <h3>{tr("สิทธิของคุณ", "Your choices")}</h3>
             <p>
-              {tr("คุณสามารถถอนความยินยอมได้ทุกเมื่อผ่านลิงก์ในอีเมล โดยไม่กระทบต่อการซื้อบัตร หรือการใช้งาน QR Ticket ของคุณ", "You can withdraw consent at any time using the link in our email. This will not affect your ticket purchase or QR ticket.")}
+              {tr("คุณสามารถขอถอนความยินยอมได้โดยติดต่อผู้จัดงาน โดยไม่กระทบต่อการซื้อบัตรหรือการใช้งาน QR Ticket", "You can request withdrawal of consent by contacting the organizer. This will not affect your ticket purchase or QR ticket.")}
             </p>
             <h3>{tr("การคุ้มครองข้อมูล", "Data protection")}</h3>
             <p>

@@ -183,7 +183,12 @@ func (s *Server) Router() *gin.Engine {
 			fail(c, err)
 			return
 		}
-		c.JSON(200, gin.H{"title": "Concert on the River", "demo": s.Demo, "date": nil, "boarding": "18:45", "departure": "19:00", "pier": "ICONSIAM", "duration_minutes": 120, "zones": zs})
+		var previewDate *string
+		if s.Demo {
+			date := "2026-11-21"
+			previewDate = &date
+		}
+		c.JSON(200, gin.H{"title": "Concert on the River", "demo": s.Demo, "date": previewDate, "date_is_preview": s.Demo, "boarding": "18:45", "departure": "19:00", "pier": "ICONSIAM", "pier_number": 4, "duration_minutes": 120, "zones": zs})
 	})
 	api.POST("/bookings", s.limiter(30), func(c *gin.Context) {
 		userID, authenticated := s.userID(c)
@@ -220,6 +225,15 @@ func (s *Server) Router() *gin.Engine {
 		c.JSON(200, b)
 	})
 	api.POST("/bookings/:id/attachment", s.limiter(10), func(c *gin.Context) {
+		consent := c.PostForm("marketing_consent")
+		language := c.PostForm("marketing_consent_language")
+		if language == "" {
+			language = "th"
+		}
+		if (consent != "" && consent != "true" && consent != "false") || (language != "th" && language != "en") {
+			bad(c)
+			return
+		}
 		file, err := c.FormFile("attachment")
 		if err != nil || file.Size < 1 || file.Size > 5<<20 {
 			bad(c)
@@ -249,7 +263,7 @@ func (s *Server) Router() *gin.Engine {
 			fail(c, errors.Join(copyErr, closeErr))
 			return
 		}
-		if err = s.Service.SubmitAttachment(c.Request.Context(), c.Param("id"), token(c), path); err != nil {
+		if err = s.Service.SubmitAttachment(c.Request.Context(), c.Param("id"), token(c), path, consent == "true", language); err != nil {
 			_ = os.Remove(path)
 			fail(c, err)
 			return

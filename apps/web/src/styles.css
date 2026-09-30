@@ -12,6 +12,62 @@
   --customer-radius: 20px;
 }
 
+.help-page,
+.river-story {
+  width: min(1180px, calc(100% - 40px));
+  margin: 48px auto 80px;
+  color: #102445;
+}
+.help-page-heading > span,
+.river-story > span {
+  color: #a67a2f;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .12em;
+}
+.help-page h1,
+.river-story h2 {
+  font-family: Georgia, serif;
+  font-size: clamp(32px, 4vw, 50px);
+  margin: 12px 0 20px;
+}
+.help-topic-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 28px 0;
+}
+.help-topic-nav button {
+  border: 1px solid #d6deeb;
+  border-radius: 999px;
+  background: #fff;
+  color: #102445;
+  padding: 10px 18px;
+  cursor: pointer;
+}
+.help-topic-nav button.active {
+  background: #102445;
+  color: #fff;
+}
+.help-article {
+  max-width: 760px;
+  padding: 28px 32px;
+  border: 1px solid #d6deeb;
+  border-radius: 18px;
+  background: #fff;
+  line-height: 1.8;
+}
+.help-article p:first-child { margin-top: 0; }
+.help-article p:last-child { margin-bottom: 0; }
+.river-story {
+  background: #f5f8fc;
+  border-radius: 20px;
+  padding: clamp(26px, 4vw, 48px);
+  line-height: 1.75;
+}
+.river-story p { max-width: 730px; }
+.river-story a { color: #135a9a; }
+
 /* Customer profile menu */
 .profile-menu {
   position: relative;
@@ -1338,6 +1394,93 @@ body {
   line-height: 1.55;
 }
 
+.event-food-menu {
+  width: min(var(--customer-width), 100%);
+  margin: 0 auto 88px;
+  padding: 0 24px;
+  color: #071d43;
+}
+
+.event-food-menu-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 380px);
+  align-items: end;
+  gap: 28px;
+  margin-bottom: 25px;
+}
+
+.event-food-menu-eyebrow {
+  margin: 0 0 8px;
+  color: #a6782f;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.event-food-menu h2 {
+  margin: 0 0 9px;
+  font-size: 28px;
+  line-height: 1.25;
+}
+
+.event-food-menu-intro > div > p:last-child {
+  margin: 0;
+  color: #536681;
+  line-height: 1.65;
+}
+
+.event-food-menu-notice {
+  padding: 15px 18px;
+  border: 1px solid #e5d4aa;
+  border-radius: 12px;
+  background: #fff9eb;
+  color: #76571d;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.event-food-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.event-food-menu-card {
+  padding: 22px 24px;
+  border: 1px solid #e2e8f1;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.event-food-menu-card h3 {
+  margin: 0 0 15px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f1;
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.event-food-menu-card ul {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+  padding-left: 19px;
+  color: #536681;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.event-food-menu-card li::marker {
+  color: #b58a42;
+}
+
+@media (max-width: 940px) {
+  .event-food-menu-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 760px) {
   .event-purchase-hero {
     padding: 26px 16px 36px;
@@ -1402,6 +1545,24 @@ body {
 
   .event-boarding-card {
     padding: 24px;
+  }
+
+  .event-food-menu {
+    margin-bottom: 60px;
+    padding: 0 18px;
+  }
+
+  .event-food-menu-intro,
+  .event-food-menu-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .event-food-menu-intro {
+    gap: 17px;
+  }
+
+  .event-food-menu-card {
+    padding: 20px;
   }
 }
 
@@ -5646,4 +5807,104 @@ td small {
   .payment-summary-card {
     padding: 20px;
   }
+}
+
+/* Ticket-first homepage. Keep these scoped overrides after older page styles. */
+.ticket-home .ticket-featured {
+  width: 100%;
+  height: min(650px, 68vw);
+  min-height: 550px;
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.ticket-home .ticket-featured::after {
+  z-index: 1;
+  background: linear-gradient(90deg, rgba(4, 18, 45, .96), rgba(4, 18, 45, .85) 30%, rgba(4, 18, 45, .36) 66%, rgba(4, 18, 45, .08));
+}
+.ticket-home .ticket-featured > img { object-position: center 54%; }
+.ticket-home .ticket-featured-copy {
+  z-index: 3;
+  left: max(6vw, calc((100vw - 1360px) / 2));
+  width: min(460px, 42vw);
+  max-width: none;
+}
+.ticket-home .ticket-featured-copy h1 {
+  margin: 0;
+  font: 700 clamp(50px, 5.7vw, 82px)/1.03 Georgia, "Times New Roman", serif;
+  letter-spacing: -.045em;
+  text-wrap: balance;
+}
+.ticket-home .featured-facts {
+  display: grid;
+  gap: 13px;
+  margin-top: 28px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.ticket-home .featured-facts span { align-items: flex-start; line-height: 1.45; }
+.ticket-home .featured-facts svg { flex: 0 0 18px; margin-top: 1px; color: #f3c76b; }
+.ticket-home .ticket-featured-preview {
+  max-width: 390px;
+  margin: 16px 0 0;
+  color: #e3eaf3;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: normal;
+  line-height: 1.5;
+  text-transform: none;
+}
+.ticket-home .ticket-featured-copy button { margin-top: 24px; background: #f2c459; }
+.ticket-home .ticket-featured-stage {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  bottom: 0;
+  width: 62%;
+  height: 47%;
+  overflow: hidden;
+  clip-path: polygon(17% 0, 100% 0, 100% 100%, 0 100%);
+}
+.ticket-home .ticket-featured-stage::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(4, 18, 45, .48), transparent 40%);
+  content: "";
+}
+.ticket-home .ticket-featured-stage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 60%;
+}
+.ticket-home .boat-experience { margin-top: 64px; }
+.payment-qr-placeholder {
+  display: grid;
+  width: min(100%, 220px);
+  min-height: 220px;
+  place-items: center;
+  padding: 24px;
+  border: 2px dashed #b6c3d3;
+  border-radius: 14px;
+  background: #f4f7fb;
+  color: #37506d;
+  font-weight: 800;
+  text-align: center;
+}
+@media (max-width: 800px) {
+  .ticket-home .ticket-featured { width: 100%; height: 710px; min-height: 0; }
+  .ticket-home .ticket-featured::after {
+    background: linear-gradient(180deg, rgba(4, 18, 45, .97), rgba(4, 18, 45, .82) 52%, rgba(4, 18, 45, .22));
+  }
+  .ticket-home .ticket-featured-copy {
+    top: 38px;
+    right: 20px;
+    left: 20px;
+    width: auto;
+    transform: none;
+  }
+  .ticket-home .ticket-featured-copy h1 { font-size: clamp(44px, 12vw, 64px); }
+  .ticket-home .featured-facts { gap: 10px; margin-top: 22px; }
+  .ticket-home .ticket-featured-stage { width: 100%; height: 34%; clip-path: none; }
+  .ticket-home .boat-experience { margin-top: 42px; }
 }
