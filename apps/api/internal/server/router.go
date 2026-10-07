@@ -23,15 +23,17 @@ import (
 )
 
 type Server struct {
-	Service            *service.Service
-	Redis              *redis.Client
-	UploadDir          string
-	AdminPassword      string
-	CookieSecure       bool
-	Demo               bool
-	WebOrigin          string
-	GoogleClientID     string
-	GoogleClientSecret string
+	Service             *service.Service
+	Redis               *redis.Client
+	UploadDir           string
+	AdminPassword       string
+	CookieSecure        bool
+	Demo                bool
+	WebOrigin           string
+	GoogleClientID      string
+	GoogleClientSecret  string
+	Payments            *service.Payments
+	StripeWebhookSecret string
 }
 
 func token(c *gin.Context) string { return strings.TrimPrefix(c.GetHeader("Authorization"), "Bearer ") }
@@ -166,6 +168,7 @@ func (s *Server) Router() *gin.Engine {
 		c.Next()
 	})
 	api := r.Group("/api/v1")
+	s.paymentRoutes(api)
 	api.GET("/health", func(c *gin.Context) {
 		if err := s.Service.DB.Ping(c.Request.Context()); err != nil {
 			fail(c, err)
@@ -225,6 +228,10 @@ func (s *Server) Router() *gin.Engine {
 		c.JSON(200, b)
 	})
 	api.POST("/bookings/:id/attachment", s.limiter(10), func(c *gin.Context) {
+		if s.Payments != nil {
+			c.JSON(409, gin.H{"error": "Please use Stripe Checkout for this booking"})
+			return
+		}
 		consent := c.PostForm("marketing_consent")
 		language := c.PostForm("marketing_consent_language")
 		if language == "" {

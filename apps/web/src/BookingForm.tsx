@@ -48,7 +48,7 @@ export default function BookingForm({
       onRequireLogin();
       return;
     }
-    if (!zone || !accepted) return;
+    if (!zone || !accepted || busy || quantity > zone.available) return;
     setBusy(true);
     setError("");
     const body = {
@@ -83,16 +83,16 @@ export default function BookingForm({
   }
   return (
     <form className="booking-panel" onSubmit={submit}>
-      <h2>{en ? "Choose your tickets" : "เลือกบัตรของคุณ"}</h2>
+      <h2>{en ? "Choose your places on board" : "เลือกที่นั่งบนเรือ"}</h2>
       <p className="muted">
-        {en ? "Select a zone and ticket quantity" : "เลือกโซน ราคา และจำนวนบัตร"}
+        {en ? "Select a cruise zone and number of guests" : "เลือกโซน ราคา และจำนวนผู้ร่วมเดินทาง"}
         {isAuthenticated
           ? en
             ? " before confirming your reservation."
             : " ก่อนยืนยันการจอง"
           : en
-            ? " then log in to buy tickets."
-            : " แล้วเข้าสู่ระบบเพื่อซื้อบัตร"}
+            ? " then log in to book your sailing."
+            : " แล้วเข้าสู่ระบบเพื่อจองล่องเรือ"}
       </p>
       <label className="field-label">{en ? "Zone" : "โซน"}</label>
       <div className="zone-options">
@@ -103,7 +103,10 @@ export default function BookingForm({
             key={z.id}
             className={selected === z.id ? "active" : ""}
             aria-pressed={selected === z.id}
-            onClick={() => onSelect(z.id)}
+            onClick={() => {
+              setQuantity((count) => Math.min(count, Math.max(1, z.available)));
+              onSelect(z.id);
+            }}
           >
             <strong>{zoneLabel(z, language)}</strong>
             <small>{en ? "Provisional price" : "ราคาชั่วคราว"}</small>

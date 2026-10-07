@@ -10,7 +10,7 @@ React + TypeScript + Tailwind CSS + MUI · Go Gin · PostgreSQL · Redis.
 4. Open http://localhost:3000. API health: http://localhost:8088/api/v1/health.
 5. Staff tab uses `ADMIN_PASSWORD` from your local `.env`.
 
-This starts a test event with 250 provisional seats and explicitly labeled test prices. **Do not transfer real money.** Set `OPENAI_API_KEY` to enable the automated slip-image assessment. The key is server-only and must never be exposed to the browser. The assessment checks visible image evidence and is not proof that money reached the recipient account.
+This starts a test event with 350 provisional seats and explicitly labeled test prices. **Do not transfer real money.** To test Stripe Checkout, place a new sandbox secret key in the ignored `.env.stripe.local` file and recreate the containers. See [Stripe sandbox setup](docs/stripe-sandbox.md). Without Stripe configuration, image uploads continue to exercise the existing demo flow; they do not verify a real payment.
 
 ## Frontend development
 

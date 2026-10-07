@@ -166,7 +166,8 @@ func (s *Service) SubmitAttachment(ctx context.Context, id, token, path string, 
 		marketing_consent_at=CASE WHEN $4 THEN now() ELSE NULL END,
 		marketing_consent_version=CASE WHEN $4 THEN $5 ELSE '' END,
 		marketing_consent_language=CASE WHEN $4 THEN $6 ELSE '' END
-		WHERE id=$1 AND token_hash=$2 AND status='held' AND expires_at>now() RETURNING quantity`, id, Hash(token), path, marketingConsent, MarketingConsentVersion, language).Scan(&quantity)
+		WHERE id=$1 AND token_hash=$2 AND status='held' AND expires_at>now()
+		AND NOT EXISTS(SELECT 1 FROM stripe_checkouts WHERE booking_id=$1) RETURNING quantity`, id, Hash(token), path, marketingConsent, MarketingConsentVersion, language).Scan(&quantity)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return ErrConflict
 	}

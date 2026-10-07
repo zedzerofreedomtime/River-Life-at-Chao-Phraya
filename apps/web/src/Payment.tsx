@@ -34,12 +34,52 @@ export default function Payment({
   const [termsReadToEnd, setTermsReadToEnd] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [now, setNow] = useState(Date.now);
+  const [paymentConfig, setPaymentConfig] = useState<{ enabled: boolean; sandbox: boolean } | null>(null);
+  const [checkingStripe, setCheckingStripe] = useState(false);
+  const stripeEnabled = paymentConfig?.enabled === true;
+  useEffect(() => {
+    void api<{ enabled: boolean; sandbox: boolean }>("/payments/config")
+      .then(setPaymentConfig)
+      .catch((cause: Error) => setError(cause.message));
+  }, []);
+
+  useEffect(() => {
+    const id = initial?.id || sessionStorage.getItem("riverlife.booking.id");
+    if (!stripeEnabled || !id || !token || !new URLSearchParams(window.location.search).has("stripe_return")) return;
+    let stopped = false;
+    let timer: number | undefined;
+    let attempts = 0;
+    setCheckingStripe(true);
+    const check = async () => {
+      try {
+        const updated = await api<Booking>(`/bookings/${encodeURIComponent(id)}/payment-status`, { method: "POST" }, token);
+        if (stopped) return;
+        setBooking(updated);
+        if (updated.status !== "confirmed" && ++attempts < 10) {
+          timer = window.setTimeout(() => void check(), 3000);
+          return;
+        }
+      } catch (cause) {
+        if (!stopped) setError((cause as Error).message);
+      }
+      if (!stopped) setCheckingStripe(false);
+    };
+    void check();
+    return () => { stopped = true; window.clearTimeout(timer); };
+  }, [stripeEnabled, initial?.id, token]);
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+  const expired = booking?.status === "expired" || (booking?.status === "held" && new Date(booking.expires_at).getTime() <= now);
+  const canSubmit = booking?.status === "held" && !expired;
 
   useEffect(() => {
     const id = initial?.id || sessionStorage.getItem("riverlife.booking.id");
     if (!id || !token) return;
     void api<Booking>(`/bookings/${encodeURIComponent(id)}`, {}, token)
-      .then(setBooking)
+      .then((updated) => setBooking((current) => current?.status === "confirmed" ? current : updated))
       .catch((cause: Error) => setError(cause.message));
   }, [initial?.id, token]);
 
@@ -65,7 +105,7 @@ export default function Payment({
   };
 
   const completePayment = async () => {
-    if (!booking || !attachment) return;
+    if (!booking || !attachment || !canSubmit || busy) return;
     setBusy(true);
     setError("");
     try {
@@ -87,9 +127,36 @@ export default function Payment({
     }
   };
 
+  const startStripeCheckout = async () => {
+    if (!booking || !canSubmit || busy) return;
+    setBusy(true);
+    setError("");
+    try {
+      const checkout = await api<{ url: string }>(`/bookings/${booking.id}/checkout`, {
+        method: "POST",
+        body: JSON.stringify({ language, marketing_consent: marketingAccepted }),
+      }, token);
+      const target = new URL(checkout.url);
+      if (target.protocol !== "https:" || target.hostname !== "checkout.stripe.com") throw new Error("Invalid checkout URL");
+      window.location.assign(target.href);
+    } catch (cause) {
+      setError((cause as Error).message);
+      setBusy(false);
+    }
+  };
+
+  if (!paymentConfig || checkingStripe) {
+    return <section className="flow-page flow-empty">
+      <h1>{checkingStripe ? tr("กำลังตรวจสอบการชำระเงิน…", "Checking your payment…") : tr("กำลังโหลดช่องทางชำระเงิน…", "Loading payment methods…")}</h1>
+      {error && <Alert severity="error">{error}</Alert>}
+      {error && <Button onClick={() => window.location.reload()}>{tr("ลองใหม่", "Try again")}</Button>}
+    </section>;
+  }
+
   if (!booking) {
     return (
       <section className="flow-page flow-empty">
+        {error && <Alert severity="error">{error}</Alert>}
         <h1>{tr("ไม่พบรายการชำระเงิน", "No payment found")}</h1>
         <p>{tr("เริ่มเลือกคอนเสิร์ตและโซนบัตรใหม่ เพื่อสร้างรายการซื้อบัตร", "Choose a concert and ticket zone to start a new booking.")}</p>
         <Button variant="contained" onClick={onBackToZones}>
@@ -111,6 +178,14 @@ export default function Payment({
     );
   }
 
+  if (!canSubmit) {
+    return <section className="flow-page flow-empty">
+      <h1>{expired ? tr("หมดเวลาสำรองบัตร", "Reservation expired") : tr("รายการนี้ไม่สามารถชำระเงินได้", "Payment unavailable for this booking")}</h1>
+      <p>{booking.status === "review" ? tr("ได้รับหลักฐานแล้ว กรุณาตรวจสอบสถานะในคำสั่งซื้อ ไม่ต้องส่งซ้ำ", "Your receipt is under review. Check your booking status; do not submit it again.") : tr("กรุณากลับไปเลือกบัตรเพื่อสร้างรายการใหม่", "Please choose tickets to create a new booking.")}</p>
+      <Button variant="contained" onClick={onBackToZones}>{tr("กลับไปเลือกโซน", "Back to zones")}</Button>
+    </section>;
+  }
+
   return (
     <section className="flow-page payment-page">
       <FlowSteps activeStep={2} language={language} />
@@ -119,18 +194,26 @@ export default function Payment({
       </button>
       <div className="flow-heading">
         <h1>{tr("ชำระเงิน", "Payment")}</h1>
-        <p>{demo
+        <p>{stripeEnabled ? tr("ทดสอบการชำระเงินผ่าน Stripe Sandbox ด้วยข้อมูลทดสอบ", "Test payments through Stripe Sandbox using test payment details.") : demo
           ? tr("หน้าทดลองการชำระเงิน · ห้ามโอนเงินจริง สามารถแนบภาพตัวอย่างเพื่อทดสอบขั้นตอนต่อไป", "Payment preview only · Do not transfer real money. Upload a sample image to test the next step.")
           : tr("สแกน QR โอนเงิน แนบสลิป และยืนยันการชำระเงินในหน้านี้", "Scan the QR code, transfer the amount, upload your receipt, and submit it here.")}</p>
       </div>
-      {en && <Alert severity="info">International card and wallet payments are planned but not yet connected. This preview cannot accept a real payment.</Alert>}
+      {stripeEnabled && <Alert severity="info">{tr("โหมดทดลอง Stripe · ไม่มีการเรียกเก็บเงินจริง ใช้บัตรทดสอบ 4242 4242 4242 4242", "Stripe sandbox · No real money is charged. Use test card 4242 4242 4242 4242.")}</Alert>}
+      {!stripeEnabled && en && <Alert severity="info">International card and wallet payments are planned but not yet connected. This preview cannot accept a real payment.</Alert>}
       {error && <Alert severity="error">{error}</Alert>}
       <div className="payment-layout">
         <article className="payment-instructions">
           <div className="payment-section-title">
             <span>{tr("ช่องทางการชำระเงิน", "Payment method")}</span>
-            <h2>{demo ? "QR PromptPay · Demo" : "QR PromptPay"}</h2>
+            <h2>{stripeEnabled ? "Stripe Checkout · Sandbox" : demo ? "QR PromptPay · Demo" : "QR PromptPay"}</h2>
           </div>
+          {stripeEnabled ? <div className="payment-qr-content payment-stripe-content">
+            <div>
+              <strong>{tr("เลือกวิธีชำระเงินบนหน้าของ Stripe", "Choose your payment method on Stripe")}</strong>
+              <p>{tr("ระบบแสดงช่องทางที่เปิดใช้งานและรองรับอุปกรณ์ของคุณ หลังชำระเงินจะกลับมายืนยันรายการและเปิด QR Ticket", "Stripe shows the enabled methods available for your device. After payment, return here to confirm your booking and open your QR ticket.")}</p>
+              <b className="payment-amount">{money(booking.total)}</b>
+            </div>
+          </div> : <>
           <div className="payment-qr-content">
             {demo
               ? <div className="payment-qr-placeholder" role="img" aria-label={tr("คิวอาร์โค้ดปิดใช้งานในโหมดทดลอง", "Payment QR code disabled in demo mode")}>{tr("ทดลองเท่านั้น · ไม่มี QR ชำระเงินจริง", "DEMO ONLY · NO LIVE PAYMENT QR")}</div>
@@ -167,8 +250,12 @@ export default function Payment({
               {attachment ? attachment.name : tr("ยังไม่ได้เลือกไฟล์", "No file selected")}
             </span>
           </div>
+          </>}
           <div className="marketing-consent">
-            <Checkbox checked={marketingAccepted} readOnly tabIndex={-1} />
+            <Checkbox checked={marketingAccepted} onChange={(_, checked) => {
+              if (checked) openMarketingTerms();
+              else setMarketingAccepted(false);
+            }} inputProps={{ "aria-label": tr("ยินยอมรับข้อมูลทางการตลาด (ไม่บังคับ)", "Marketing consent (optional)") }} />
             <p>
               {tr("ฉันยินดีรับ", "I agree to receive")}{" "}
               <button type="button" onClick={openMarketingTerms}>
@@ -183,7 +270,7 @@ export default function Payment({
             <span>{tr("รหัสคำสั่งซื้อ", "Order ID")}</span>
             <b>#{booking.id.toUpperCase()}</b>
             <span>{tr("โซนบัตร", "Ticket zone")}</span>
-            <b>{booking.zone_id}</b>
+            <b>{tr("โซน", "Zone")} {booking.zone_id} · {({ A: tr("หัวเรือ", "Bow"), B: tr("ท้ายเรือ", "Stern"), C: tr("ชั้นล่าง", "Lower deck") } as Record<string, string>)[booking.zone_id] || booking.zone_id}</b>
             <span>{tr("จำนวนบัตร", "Tickets")}</span>
             <b>{booking.quantity} {en ? (booking.quantity === 1 ? "ticket" : "tickets") : "ใบ"}</b>
           </div>
@@ -192,7 +279,7 @@ export default function Payment({
             <strong>{money(booking.total)}</strong>
           </div>
           <p className="payment-summary-note">
-            {demo ? tr("รายการนี้ใช้ทดสอบหน้าจอเท่านั้น ไม่มีการชำระเงินจริง", "This booking is for previewing the flow only. No real payment is collected.") : tr("ตรวจสอบชื่อผู้รับและยอดเงินก่อนแนบสลิป", "Check the recipient and amount before uploading your receipt.")}
+            {stripeEnabled ? tr("รายการทดสอบ Stripe Sandbox · ระบบออกบัตรหลังยืนยันผลชำระเงิน", "Stripe sandbox booking · Tickets are issued after payment is verified.") : demo ? tr("รายการนี้ใช้ทดสอบหน้าจอเท่านั้น ไม่มีการชำระเงินจริง", "This booking is for previewing the flow only. No real payment is collected.") : tr("ตรวจสอบชื่อผู้รับและยอดเงินก่อนแนบสลิป", "Check the recipient and amount before uploading your receipt.")}
           </p>
         </aside>
       </div>
@@ -200,14 +287,14 @@ export default function Payment({
         className="payment-confirm"
         variant="contained"
         fullWidth
-        disabled={!attachment || busy}
-        onClick={() => void completePayment()}
+        disabled={busy || (!stripeEnabled && !attachment)}
+        onClick={() => void (stripeEnabled ? startStripeCheckout() : completePayment())}
         startIcon={<CheckCircle2 size={18} />}
       >
-        {busy ? tr("กำลังบันทึกรายการ…", "Submitting…") : demo ? tr("ส่งภาพตัวอย่าง", "Submit sample image") : tr("ยืนยันการชำระเงิน", "Submit payment")}
+        {busy ? tr("กำลังดำเนินการ…", "Processing…") : stripeEnabled ? tr("ไปชำระเงินกับ Stripe (ทดลอง)", "Continue to Stripe (test)") : demo ? tr("ส่งภาพตัวอย่าง", "Submit sample image") : tr("ยืนยันการชำระเงิน", "Submit payment")}
       </Button>
       <small className="payment-disclaimer">
-        {demo ? tr("ระบบทดลองสร้างบัตรทดสอบหลังส่งภาพ แต่ไม่ได้ตรวจสอบหรือรับเงินจริง", "The demo creates a test ticket after image upload. No real payment is collected or verified.") : tr("ระบบนี้บันทึกหลักฐานเพื่อดำเนินการต่อเท่านั้น ยังไม่ใช่การตรวจสอบธุรกรรมอัตโนมัติ", "Your receipt is submitted for review. Payment is not verified automatically.")}
+        {stripeEnabled ? tr("Stripe จัดการข้อมูลการชำระเงิน ระบบตรวจยอดและสถานะจาก Stripe ก่อนออกบัตรทดลอง", "Stripe handles payment details. The server verifies the amount and payment status before issuing test tickets.") : demo ? tr("ระบบทดลองสร้างบัตรทดสอบหลังส่งภาพ แต่ไม่ได้ตรวจสอบหรือรับเงินจริง", "The demo creates a test ticket after image upload. No real payment is collected or verified.") : tr("ระบบนี้บันทึกหลักฐานเพื่อดำเนินการต่อเท่านั้น ยังไม่ใช่การตรวจสอบธุรกรรมอัตโนมัติ", "Your receipt is submitted for review. Payment is not verified automatically.")}
       </small>
       <Dialog
         open={marketingDialogOpen}

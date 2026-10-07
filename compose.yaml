@@ -20,6 +20,9 @@ services:
       retries: 20
   api:
     build: ./apps/api
+    env_file:
+      - path: .env.stripe.local
+        required: false
     environment:
       DATABASE_URL: postgres://riverlife:${POSTGRES_PASSWORD}@postgres:5432/riverlife?sslmode=disable
       REDIS_URL: redis://redis:6379/0

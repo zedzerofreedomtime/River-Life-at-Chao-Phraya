@@ -240,7 +240,13 @@ export default function Auth({
               : "กรอกอีเมลและรหัสผ่านเพื่อเข้าสู่ระบบ"}
         </p>
       </div>
-      <div className="auth-form">
+      <form className="auth-form" onSubmit={(event) => {
+        event.preventDefault();
+        if (busy) return;
+        if (!isSignup && email && password) void login();
+        else if (isSignup && signupStep === "details" && email && name.trim().length >= 2 && password.length >= 8) void requestOTP();
+        else if (isSignup && signupStep === "otp" && code.length === 6) void verifyOTP();
+      }}>
         {isSignup ? (
           signupStep === "details" ? (
             details
@@ -267,7 +273,7 @@ export default function Auth({
             />
             <Button
               variant="contained"
-              onClick={() => void login()}
+              type="submit"
               disabled={busy || !email || !password}
             >
               {en ? "Log in" : "เข้าสู่ระบบ"}
@@ -275,7 +281,7 @@ export default function Auth({
           </>
         )}
         {error && <Alert severity="error">{error}</Alert>}
-      </div>
+      </form>
     </section>
   );
 }

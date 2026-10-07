@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/redis/go-redis/v9"
+	stripe "github.com/stripe/stripe-go/v85"
 	"log/slog"
 	"net/http"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"riverlife/api/internal/repository"
 	"riverlife/api/internal/server"
 	"riverlife/api/internal/service"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -61,6 +63,15 @@ func main() {
 		webOrigin = "http://localhost:3000"
 	}
 	app := &server.Server{Service: bookingService, Redis: cache, UploadDir: uploadDir, AdminPassword: password, CookieSecure: os.Getenv("COOKIE_SECURE") == "true", Demo: demo, WebOrigin: webOrigin, GoogleClientID: os.Getenv("GOOGLE_CLIENT_ID"), GoogleClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET")}
+	if key := os.Getenv("STRIPE_SECRET_KEY"); key != "" {
+		if !demo || !strings.HasPrefix(key, "sk_test_") {
+			slog.Error("Stripe integration currently supports demo mode and test keys only")
+			os.Exit(1)
+		}
+		client := stripe.NewClient(key)
+		app.Payments = &service.Payments{Bookings: bookingService, Client: client.V1CheckoutSessions, WebOrigin: webOrigin}
+		app.StripeWebhookSecret = os.Getenv("STRIPE_WEBHOOK_SECRET")
+	}
 	srv := &http.Server{Addr: ":8080", Handler: app.Router(), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 20 * time.Second, WriteTimeout: 30 * time.Second, IdleTimeout: 60 * time.Second}
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {

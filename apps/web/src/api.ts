@@ -30,8 +30,8 @@ export const formatEventDate = (date: string | null, language: "th" | "en") =>
 export const formatPier = (pier: string, number: number, language: "th" | "en") =>
   language === "en" ? `${pier} Pier ${number}` : `ท่าเรือ ${pier} ท่าที่ ${number}`;
 export const localizeEventTitle = (title: string, language: "th" | "en") =>
-  language === "th" && title === "Concert on the River"
-    ? "คอนเสิร์ตบนแม่น้ำเจ้าพระยา"
+  title === "Concert on the River"
+    ? language === "en" ? "Concert Cruise on the Chao Phraya" : "ล่องเรือพร้อมคอนเสิร์ตบนเจ้าพระยา"
     : title;
 export type Booking = {
   id: string;

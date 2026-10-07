@@ -97,7 +97,7 @@ export default function App() {
   }, []);
   useEffect(() => {
     document.documentElement.lang = language;
-    document.title = language === "en" ? "River Life — Concert tickets on the river" : "River Life — จองบัตรคอนเสิร์ตบนเรือ";
+    document.title = language === "en" ? "River Life — Chao Phraya cruises & concert sailings" : "River Life — จองล่องเรือเจ้าพระยาและรอบคอนเสิร์ตพิเศษ";
     localStorage.setItem("riverlife.language", language);
   }, [language]);
   useEffect(() => {
@@ -146,6 +146,7 @@ export default function App() {
       window.history.pushState(null, "", nextPath);
     }
     setPage(next);
+    if (page !== next) window.scrollTo(0, 0);
     setMobileMenuOpen(false);
     setOpenNavigationMenu(null);
     if (next === "home" || next === "event") void loadEvent();
@@ -158,6 +159,7 @@ export default function App() {
     window.history.pushState(null, "", `/help/${topic}`);
     setHelpTopic(topic);
     setPage("help");
+    window.scrollTo(0, 0);
     setMobileMenuOpen(false);
     setOpenNavigationMenu(null);
   };
@@ -168,6 +170,7 @@ export default function App() {
   const openAuthDialog = () => setAuthDialogOpen(true);
   const closeAuthDialog = () => {
     setAuthDialogOpen(false);
+    setContinueCheckoutAfterLogin(false);
     if (page === "auth") go("home");
   };
   const rememberBooking = (data: Booking, accessToken: string) => {
@@ -203,11 +206,11 @@ export default function App() {
         <button
           className="river-brand"
           onClick={() => go("home")}
-          aria-label={en ? "Back to events" : "กลับไปหน้ารวมงาน"}
+          aria-label={en ? "Back to cruise homepage" : "กลับไปหน้าจองล่องเรือ"}
         >
-          <img src="/images/river-life-logo-v2.png" alt="" />
+          <img src="/images/river-life-logo-web.webp" alt="" />
           <span>
-            RIVER LIFE <small>MUSIC ON THE RIVER</small>
+            RIVER LIFE <small>CHAO PHRAYA CRUISES</small>
           </span>
         </button>
         <button
@@ -242,7 +245,7 @@ export default function App() {
                 {en ? "Home" : "หน้าแรก"}
               </button>
               <button className={page === "event" ? "active" : ""} onClick={() => go("event")}>
-                {en ? "The concert" : "คอนเสิร์ต"}
+                {en ? "Cruise & book" : "รอบล่องเรือและจอง"}
               </button>
               <div className="ticket-nav-dropdown">
                 <button
@@ -275,6 +278,8 @@ export default function App() {
                 onClick={() => {
                   setOpenNavigationMenu(null);
                   go("event");
+                  window.history.replaceState(null, "", "/concert#event-boarding");
+                  requestAnimationFrame(() => document.getElementById("event-boarding")?.scrollIntoView({ block: "start" }));
                 }}
               >
                 {en ? "Getting there" : "การเดินทาง"}
@@ -323,6 +328,7 @@ export default function App() {
             event={event}
             language={language}
             onOpenConcert={() => go("event")}
+            onOpenContact={() => goHelp("contact")}
           />
         )}
         {page === "checkout" && event && (
@@ -411,7 +417,7 @@ export default function App() {
         {page === "dashboard" && profile.role !== "admin" && (
           <Alert severity="error">{en ? "This page is for administrators only." : "หน้านี้สำหรับผู้ดูแลระบบเท่านั้น"}</Alert>
         )}
-        {page === "help" && <Help topic={helpTopic} language={language} onSelect={goHelp} />}
+        {page === "help" && <Help topic={helpTopic} language={language} onSelect={goHelp} demo={event?.demo ?? true} />}
         {!event && !error && <p role="status">{en ? "Loading event…" : "กำลังโหลดรอบการแสดง…"}</p>}
       </main>
       <Dialog
@@ -467,7 +473,7 @@ export default function App() {
       </Dialog>
       <footer>
         <span className="footer-brand">RIVER LIFE</span>
-        <span>{en ? "Chao Phraya · Concerts on board" : "เจ้าพระยา · คอนเสิร์ตบนเรือ"}</span>
+        <span>{en ? "Chao Phraya cruises · Special concert sailings" : "ล่องเรือเจ้าพระยา · คอนเสิร์ตรอบพิเศษ"}</span>
         <span>{en ? "Prices and event details are pending confirmation" : "ราคาและรายละเอียดงานรอยืนยัน"}</span>
       </footer>
     </>

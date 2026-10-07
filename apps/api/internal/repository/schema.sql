@@ -48,6 +48,11 @@ CREATE TABLE IF NOT EXISTS tickets (
  checked_in_at timestamptz
 );
 CREATE INDEX IF NOT EXISTS tickets_booking ON tickets(booking_id);
+CREATE TABLE IF NOT EXISTS stripe_checkouts (
+ booking_id text PRIMARY KEY REFERENCES bookings(id),
+ session_id text UNIQUE NOT NULL,
+ created_at timestamptz NOT NULL DEFAULT now()
+);
 CREATE TABLE IF NOT EXISTS audit_log (
  id bigserial PRIMARY KEY, booking_id text NOT NULL REFERENCES bookings(id),
  action text NOT NULL, created_at timestamptz NOT NULL DEFAULT now()

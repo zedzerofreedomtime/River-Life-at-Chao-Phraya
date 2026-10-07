@@ -25,19 +25,23 @@ export default function Help({
   topic,
   language,
   onSelect,
+  demo,
 }: {
   topic: HelpTopic;
   language: Language;
   onSelect: (topic: HelpTopic) => void;
+  demo: boolean;
 }) {
   const en = language === "en";
   const content: Record<HelpTopic, { th: string[]; en: string[] }> = {
     contact: {
       th: [
+        "สำหรับการสอบถามโต๊ะ VIP โปรดระบุวันล่องเรือ จำนวนผู้ร่วมเดินทาง และพื้นที่ที่ต้องการ โต๊ะว่างและราคาต้องได้รับการยืนยันก่อนชำระเงิน",
         "หากมีปัญหาเกี่ยวกับคำสั่งซื้อ โปรดเตรียมรหัสคำสั่งซื้อและอีเมลที่ใช้จองก่อนติดต่อผู้จัดงาน",
         "ช่องทางติดต่อสาธารณะของผู้จัดยังรอยืนยัน เราจะเพิ่มข้อมูลที่ตรวจสอบแล้วในหน้านี้ก่อนเปิดขายจริง",
       ],
       en: [
+        "For VIP table enquiries, prepare the sailing date, guest count and preferred seating. Table availability and pricing must be confirmed before payment.",
         "For booking questions, have your order ID and booking email ready when contacting the organizer.",
         "The organizer's public contact channel is pending confirmation. Verified details will be added here before ticket sales open.",
       ],
@@ -106,7 +110,9 @@ export default function Help({
         ))}
       </nav>
       <article className="help-article">
-        {content[topic][language].map((paragraph) => (
+        {(demo && (topic === "payment" || topic === "faq")
+          ? (en ? ["This website is a demo. Do not transfer real money. Select tickets, then upload a sample PNG or JPG (up to 5 MB) before the reservation expires.", "A QR ticket created in this demo is for testing only. It is not proof of payment or a valid ticket for a real event."] : ["เว็บไซต์นี้อยู่ในโหมดทดลอง ห้ามโอนเงินจริง เลือกบัตรแล้วแนบภาพตัวอย่าง PNG หรือ JPG ขนาดไม่เกิน 5 MB ก่อนเวลาสำรองบัตรหมด", "QR Ticket ที่สร้างในโหมดทดลองใช้ทดสอบเท่านั้น ไม่ใช่หลักฐานการชำระเงินหรือบัตรเข้างานจริง"])
+          : content[topic][language]).map((paragraph) => (
           <p key={paragraph}>{paragraph}</p>
         ))}
       </article>
