@@ -10,6 +10,7 @@ import {
 import { formatEventDate, formatPier, localizeEventTitle, type EventInfo } from "./api";
 import type { Language } from "./i18n";
 import DiningGallery from "./DiningGallery";
+import CruiseMenu from "./CruiseMenu";
 import { useEffect } from "react";
 
 const foodMenu = [
@@ -51,7 +52,7 @@ const foodMenu = [
     th: "อาหารหลัก",
     en: "MAIN DISHED",
     items: [
-      { th: "ผัดไทกุ้งสด", en: "FRIED NOODLE WITH SHRIMP" },
+      { th: "ผัดไทยกุ้งสด", en: "FRIED NOODLE WITH SHRIMP" },
       { th: "เต้าหู้ทรงเครื่อง", en: "FRIED TOFU WITH GRAVY SAUCE" },
       { th: "ไก่ทอดซอสเทอริยากิ", en: "CHICKEN TERIYAKI" },
       { th: "มักกะโรนี ซอสมะเขือเทศ", en: "MACARONI TOMATO SAUCE" },
@@ -188,8 +189,8 @@ export default function EventDetail({
           <h2>{en ? "About this sailing" : "เกี่ยวกับรอบล่องเรือนี้"}</h2>
           <p>
             {en
-              ? "Book your Chao Phraya journey with River Life aboard UNICORN CRUISE. This is our special concert sailing. Explore the boat, river views and sample food menu before choosing your places. Artist lineup and package inclusions will be confirmed for this sailing."
-              : "จองล่องเรือเจ้าพระยากับ River Life บนเรือ UNICORN CRUISE รอบนี้เป็นโปรแกรมคอนเสิร์ตพิเศษของเรา ชมพื้นที่บนเรือ วิวแม่น้ำ และตัวอย่างไลน์อาหารก่อนเลือกที่นั่ง รายชื่อศิลปินและสิ่งที่รวมในแพ็กเกจจะยืนยันสำหรับรอบนี้"}
+              ? "Book your Chao Phraya journey with River Life aboard UNICORN CRUISE. Dining, river views and on-board entertainment are part of the regular experience. This sailing also features our special concert programme; its artist lineup and ticket inclusions will be announced separately."
+              : "จองล่องเรือเจ้าพระยากับ River Life บนเรือ UNICORN CRUISE มื้ออาหาร วิวแม่น้ำ และความบันเทิงเป็นประสบการณ์พื้นฐานบนเรือ รอบนี้มีโปรแกรมคอนเสิร์ตพิเศษเพิ่มเติม โดยรายชื่อศิลปินและสิ่งที่รวมในบัตรจะประกาศสำหรับรอบนี้"}
           </p>
           <div className="event-detail-highlights">
             <Highlight
@@ -206,8 +207,8 @@ export default function EventDetail({
               title={en ? "Dining experience" : "มื้ออาหารบนเรือ"}
               text={
                 en
-                  ? "Explore the sample menu below"
-                  : "ดูตัวอย่างรายการอาหารด้านล่าง"
+                  ? "Explore the cruise menu below"
+                  : "ดูเมนูอาหารของเรือด้านล่าง"
               }
             />
           </div>
@@ -240,20 +241,21 @@ export default function EventDetail({
         <div className="event-food-menu-intro">
           <div>
             <p className="event-food-menu-eyebrow">{en ? "ON-BOARD DINING" : "อาหารบนเรือ"}</p>
-            <h2 id="event-food-menu-title">{en ? "Sample food menu" : "ตัวอย่างไลน์อาหาร"}</h2>
+            <h2 id="event-food-menu-title">{en ? "On-board food menu" : "ไลน์อาหารบนเรือ"}</h2>
             <p>
               {en
-                ? "A look at the dishes shown on the cruise food menu. Individual items and availability may change."
-                : "รายการอาหารตามภาพเมนูของเรือ แต่ละรายการและความพร้อมให้บริการอาจเปลี่ยนแปลงได้"}
+                ? "Explore the UNICORN CRUISE menu, with Thai dishes, seafood and desserts."
+                : "เมนูอาหารจาก UNICORN CRUISE ทั้งอาหารไทย ซีฟู้ด และของหวาน"}
             </p>
           </div>
           <div className="event-food-menu-notice">
             {en
-              ? "Food and drinks are not confirmed as included with the concert ticket. Check the final ticket conditions before purchasing."
-              : "ยังไม่ได้ยืนยันว่าอาหารและเครื่องดื่มรวมอยู่ในราคาบัตรคอนเสิร์ต โปรดตรวจเงื่อนไขบัตรฉบับยืนยันก่อนซื้อ"}
+              ? "Please check the food and drinks included in your selected ticket package before paying."
+              : "โปรดตรวจรายละเอียดอาหารและเครื่องดื่มที่รวมในแพ็กเกจบัตรที่เลือกก่อนชำระเงิน"}
           </div>
         </div>
         <DiningGallery language={language} />
+        <CruiseMenu language={language} />
         <div className="event-food-menu-grid">
           {foodMenu.map((category) => (
             <article className="event-food-menu-card" key={category.en}>

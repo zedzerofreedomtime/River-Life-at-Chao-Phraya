@@ -14,11 +14,16 @@ import type { Language } from "./i18n";
 import DiningGallery from "./DiningGallery";
 import SailingCalendar from "./SailingCalendar";
 import CruiseVideos from "./CruiseVideos";
+import CruiseMenu from "./CruiseMenu";
+import RiverHighlights from "./RiverHighlights";
+import OnboardExperiences from "./OnboardExperiences";
 import "./CultureHome.css";
 
 const covers = [
   {
     src: "/images/river-life-culture-hero-v5.webp",
+    width: 1902,
+    height: 827,
     th: "ภาพแคมเปญ",
     en: "Campaign image",
     altTh:
@@ -27,29 +32,15 @@ const covers = [
       "Campaign composite of UNICORN CRUISE, the presenter in her red and gold gown, and Wat Arun",
   },
   {
-    src: "/images/boat/unicorn-night-exterior.jpg",
-    th: "ภาพเรือจริง",
-    en: "The real cruise",
-    altTh: "ภาพถ่ายจริงของเรือ UNICORN CRUISE เต็มลำบนแม่น้ำเจ้าพระยา",
+    src: "/images/boat/unicorn-night-exterior-enhanced-v1.webp",
+    width: 1717,
+    height: 916,
+    th: "ภาพเรือปรับความคมชัด",
+    en: "Enhanced cruise photo",
+    altTh:
+      "ภาพเรือ UNICORN CRUISE เต็มลำบนแม่น้ำเจ้าพระยา ปรับความคมชัดด้วย AI จากภาพถ่ายต้นฉบับ",
     altEn:
-      "An actual photograph of the complete UNICORN CRUISE vessel on the Chao Phraya",
-  },
-];
-const spaces = [
-  {
-    src: "/images/boat/unicorn-night-exterior.jpg",
-    th: "เรือ UNICORN CRUISE",
-    en: "UNICORN CRUISE",
-  },
-  {
-    src: "/images/boat/unicorn-lower-deck-dining.jpg",
-    th: "พื้นที่รับประทานอาหารชั้นล่าง",
-    en: "Lower deck dining area",
-  },
-  {
-    src: "/images/boat/unicorn-river-view.jpg",
-    th: "วิวแม่น้ำจากบนเรือ",
-    en: "River views from on board",
+      "AI-enhanced original photograph of the complete UNICORN CRUISE vessel on the Chao Phraya",
   },
 ];
 
@@ -141,8 +132,8 @@ export default function Home({
               alt={index === cover ? (en ? image.altEn : image.altTh) : ""}
               aria-hidden={index !== cover}
               className={index === cover ? "is-current" : ""}
-              width={index === 0 ? 1902 : 1290}
-              height={index === 0 ? 827 : 686}
+              width={image.width}
+              height={image.height}
               fetchPriority={index === 0 ? "high" : "low"}
               decoding="async"
             />
@@ -326,35 +317,13 @@ export default function Home({
           </a>
         </div>
       </section>
+      <RiverHighlights language={language} />
       <section
         id="spaces-on-board"
         className="culture-spaces culture-container"
         aria-labelledby="culture-spaces-title"
       >
-        <div className="culture-section-heading">
-          <h2 id="culture-spaces-title">
-            {en ? "A look on board" : "ชมบรรยากาศบนเรือ"}
-          </h2>
-          <p>
-            {en
-              ? "Actual cruise spaces. Stage arrangements may vary by sailing."
-              : "ภาพพื้นที่จริงของเรือ การจัดเวทีอาจแตกต่างกันตามรอบล่องเรือ"}
-          </p>
-        </div>
-        <div className="culture-space-gallery">
-          {spaces.map((photo) => (
-            <figure key={photo.src}>
-              <img
-                src={photo.src}
-                alt={en ? photo.en : photo.th}
-                loading="lazy"
-                width={1290}
-                height={968}
-              />
-              <figcaption>{en ? photo.en : photo.th}</figcaption>
-            </figure>
-          ))}
-        </div>
+        <OnboardExperiences language={language} />
         <details className="culture-river-context">
           <summary>
             {en
@@ -409,10 +378,11 @@ export default function Home({
           </a>
         </div>
         <DiningGallery language={language} />
+        <CruiseMenu language={language} />
         <p className="culture-caption">
           {en
-            ? "Meals and menu availability depend on the confirmed sailing package."
-            : "อาหารที่รวมในราคาและรายการที่ให้บริการขึ้นอยู่กับแพ็กเกจของรอบล่องเรือที่ยืนยัน"}
+            ? "Dining is part of the on-board experience. Check the food and drinks included in your selected package."
+            : "มื้ออาหารเป็นส่วนหนึ่งของประสบการณ์บนเรือ โปรดตรวจอาหารและเครื่องดื่มที่รวมในแพ็กเกจที่เลือก"}
         </p>
       </section>
 

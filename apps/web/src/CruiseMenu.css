@@ -1,0 +1,83 @@
+.cruise-menu-original {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  align-items: center;
+  gap: 26px;
+  margin: 28px 0;
+  padding: 24px;
+  border: 1px solid #dedbd4;
+  border-radius: 6px;
+  background: #fffdf8;
+  color: #0b2438;
+}
+.cruise-menu-preview {
+  display: block;
+  border: 1px solid #e5e0d7;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.cruise-menu-preview img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.cruise-menu-version {
+  color: #896a38;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+.cruise-menu-original h3 {
+  margin: 8px 0;
+  font-family: inherit;
+  font-size: 21px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+.cruise-menu-original p {
+  max-width: 780px;
+  margin: 8px 0 16px;
+  color: #60707b;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.cruise-menu-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 24px;
+}
+.cruise-menu-actions a {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 0;
+  color: #7b5823;
+  border-bottom: 1px solid #c2a16b;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.cruise-menu-actions a:hover {
+  color: #0b2438;
+}
+.cruise-menu-original a:focus-visible {
+  outline: 3px solid #b3873f;
+  outline-offset: 4px;
+}
+@media (max-width: 600px) {
+  .cruise-menu-original {
+    grid-template-columns: 76px minmax(0, 1fr);
+    align-items: start;
+    gap: 16px;
+    padding: 18px 14px;
+  }
+  .cruise-menu-original h3 {
+    font-size: 17px;
+  }
+  .cruise-menu-original p {
+    font-size: 12px;
+  }
+  .cruise-menu-version {
+    font-size: 10px;
+  }
+}
