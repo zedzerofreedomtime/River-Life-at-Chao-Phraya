@@ -7,6 +7,7 @@ import { X } from "lucide-react";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
 import ScrollToTop from "./components/shared/ScrollToTop";
+import ScrollReveal from "./components/shared/ScrollReveal";
 import EventDetail from "./components/page/EventDetail";
 import Home from "./components/page/Home";
 import BoatMap from "./components/booking/BoatMap";
@@ -394,6 +395,7 @@ export default function App() {
         />
       </Dialog>
       <ScrollToTop />
+      <ScrollReveal />
       <Footer language={language} />
     </>
   );

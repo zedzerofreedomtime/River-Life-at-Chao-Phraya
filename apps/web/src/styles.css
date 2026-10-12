@@ -5309,7 +5309,8 @@ td small {
     display: none;
   }
 }
-.mobile-nav-toggle {
+.mobile-nav-toggle,
+.mobile-menu-tools {
   display: none;
 }
 .app-main {
@@ -5671,11 +5672,11 @@ td small {
     grid-template-columns: 1fr;
   }
 }
-@media (max-width: 800px) {
+@media (max-width: 1024px) {
   .market-header {
     position: relative;
     z-index: 30;
-    min-height: 72px;
+    min-height: 60px;
     padding: 0 16px;
     flex-direction: row;
     align-items: center;
@@ -5683,7 +5684,7 @@ td small {
   }
   .river-brand {
     min-width: 0;
-    height: 72px;
+    height: 60px;
     font-size: 20px;
   }
   .river-brand > img {
@@ -5691,62 +5692,115 @@ td small {
     height: 48px;
   }
   .river-brand > span {
-    display: none;
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    line-height: 1.15;
+  }
+  .river-brand > span small {
+    font-size: 9px;
+    letter-spacing: 0.05em;
   }
   .mobile-nav-toggle {
     display: grid;
-    width: 40px;
-    height: 40px;
+    margin-left: auto;
+    width: 38px;
+    height: 38px;
     flex: 0 0 auto;
     place-items: center;
-    border: 1px solid #dce4ec;
-    border-radius: 10px;
-    background: #fff;
-    color: #102b52;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #d4af37;
     cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .mobile-nav-toggle:hover {
+    background: rgba(212, 175, 55, 0.15);
+    border-color: #d4af37;
   }
   .market-header nav {
     display: none;
   }
   .market-header .ticket-nav.is-open {
     position: absolute;
-    top: 72px;
+    top: calc(100% + 8px);
     left: 0;
     right: 0;
     display: flex;
     align-items: stretch;
     flex-direction: column;
-    gap: 0;
-    padding: 12px 16px 18px;
-    border-top: 1px solid #e5eaf0;
-    border-bottom: 1px solid #dce4ec;
-    background: #fff;
-    box-shadow: 0 14px 25px rgba(10, 35, 70, 0.14);
+    gap: 4px;
+    padding: 16px 20px;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 18px;
+    background: rgba(14, 14, 18, 0.96);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
   }
   .ticket-nav > button,
   .ticket-nav-dropdown > button {
     width: 100%;
     justify-content: space-between;
     min-height: 44px;
-    padding: 10px 4px;
+    padding: 12px 8px;
     font-size: 15px;
+    color: #e5e0d8;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    text-align: left;
+    transition: color 0.2s;
+  }
+  .ticket-nav > button:last-child {
+    border-bottom: none;
+  }
+  .ticket-nav > button.active,
+  .ticket-nav-dropdown > button.active {
+    color: #d4af37 !important;
+    font-weight: 600;
+  }
+  .ticket-nav > button:hover,
+  .ticket-nav-dropdown > button:hover {
+    color: #f3e1be;
   }
   .ticket-menu-popover {
     position: static;
     width: 100%;
     min-width: 0;
-    margin: 0 0 8px;
+    margin: 4px 0 8px;
+    padding: 6px;
     border-radius: 12px;
+    background: rgba(24, 24, 30, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: none;
   }
-  .market-tools {
-    display: flex;
-    position: static;
-    margin-left: auto;
-    gap: 10px;
+  .ticket-menu-popover button {
+    color: #e5e0d8;
+    padding: 10px 12px;
+    width: 100%;
+    text-align: left;
   }
-  .market-tools > svg {
-    display: none;
+  .ticket-menu-popover button:hover {
+    background: rgba(212, 175, 55, 0.1);
+    color: #d4af37;
+  }
+  .mobile-menu-tools {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 14px;
+    margin-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
+    gap: 12px;
+  }
+  .mobile-menu-tools .profile-trigger {
+    color: #d4af37;
+  }
+  .desktop-tools {
+    display: none !important;
   }
   .app-main {
     padding-inline: 16px;
@@ -6783,3 +6837,487 @@ option {
 .flow-step.active {
   color: #d4af37 !important;
 }
+
+/* ==========================================================================
+   Comprehensive Responsive Scaling (Fonts & Images Adapt to Screen Size)
+   ========================================================================== */
+
+/* Universal Image Responsive Baseline */
+img,
+svg,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Global Font Scaling Variables */
+:root {
+  --page-title-size: clamp(24px, 4vw, 42px);
+  --section-title-size: clamp(20px, 3vw, 32px);
+}
+
+/* Screen width <= 1024px (Laptops & Large Tablets) */
+@media (max-width: 1024px) {
+  :root {
+    --page-title-size: clamp(22px, 3.5vw, 36px);
+    --section-title-size: clamp(18px, 2.8vw, 28px);
+  }
+}
+
+/* Screen width <= 768px (Tablets & Mobile Landscape) */
+@media (max-width: 768px) {
+  html {
+    font-size: 15px;
+  }
+
+  /* Headings scale down smoothly */
+  h1 {
+    font-size: clamp(22px, 5.5vw, 36px) !important;
+    line-height: 1.2 !important;
+  }
+  h2 {
+    font-size: clamp(18px, 4.5vw, 28px) !important;
+    line-height: 1.25 !important;
+  }
+  h3 {
+    font-size: clamp(16px, 3.5vw, 22px) !important;
+    line-height: 1.3 !important;
+  }
+  h4 {
+    font-size: clamp(14px, 3vw, 18px) !important;
+  }
+
+  /* Header scaling */
+  .market-header {
+    min-height: 58px !important;
+    padding: 0 14px !important;
+    top: 8px !important;
+  }
+  .river-brand {
+    height: 58px !important;
+  }
+  .river-brand > span {
+    font-size: 13px !important;
+  }
+  .river-brand > span small {
+    font-size: 8px !important;
+  }
+
+  /* Hero Section image & font scaling */
+  .culture-hero {
+    height: auto !important;
+  }
+  .culture-cover-images {
+    aspect-ratio: 2.1 / 1 !important;
+    max-height: none !important;
+    width: 100% !important;
+  }
+  .culture-cover-images img {
+    object-position: center center !important;
+    object-fit: cover !important;
+  }
+  .culture-hero-copy {
+    padding: 24px 20px 32px !important;
+    margin-top: 10px !important;
+  }
+  .culture-home #culture-home-title {
+    font-size: clamp(26px, 7vw, 40px) !important;
+    line-height: 1.15 !important;
+  }
+  .culture-home .culture-tagline {
+    font-size: clamp(13px, 3vw, 16px) !important;
+  }
+  .culture-home .culture-hero-description {
+    font-size: 13px !important;
+  }
+
+  /* Gallery, Cards, and Media Scaling */
+  .culture-space-gallery img,
+  .dining-gallery img,
+  .onboard-experience-card img,
+  .vessel-card > img,
+  .event-hero img {
+    border-radius: 8px !important;
+  }
+
+  .culture-button {
+    min-height: 42px !important;
+    padding: 10px 18px !important;
+    font-size: 13px !important;
+  }
+}
+
+/* Screen width <= 480px (Smartphones) */
+@media (max-width: 480px) {
+  html {
+    font-size: 14px;
+  }
+
+  /* Fluid Headings for small screens */
+  h1 {
+    font-size: clamp(20px, 6vw, 28px) !important;
+  }
+  h2 {
+    font-size: clamp(17px, 5vw, 24px) !important;
+  }
+  h3 {
+    font-size: clamp(15px, 4vw, 19px) !important;
+  }
+
+  /* Container width padding adjustment */
+  .culture-home .culture-container {
+    width: calc(100% - 24px) !important;
+  }
+
+  /* Hero on mobile */
+  .culture-cover-images {
+    aspect-ratio: 16 / 9 !important;
+    max-height: none !important;
+  }
+  .culture-cover-images img {
+    object-position: 60% center !important;
+    object-fit: cover !important;
+  }
+  .culture-home #culture-home-title {
+    font-size: clamp(22px, 6.5vw, 30px) !important;
+  }
+  .culture-home .culture-tagline {
+    font-size: 12px !important;
+  }
+  .culture-home .culture-hero-description {
+    font-size: 12px !important;
+  }
+  .culture-hero-copy {
+    padding: 16px 12px 20px !important;
+  }
+
+  /* Buttons and controls */
+  .culture-home .culture-button {
+    min-height: 38px !important;
+    padding: 8px 14px !important;
+    font-size: 12px !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+  .culture-hero-actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+  .culture-home .culture-watch-link {
+    justify-content: center !important;
+    font-size: 12px !important;
+  }
+
+  /* Culture Facts scaling */
+  .culture-facts .culture-container {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 14px 10px !important;
+    padding-block: 16px !important;
+  }
+  .culture-facts .culture-container > div {
+    gap: 8px !important;
+    padding-inline: 4px !important;
+  }
+  .culture-facts p strong {
+    font-size: 11px !important;
+  }
+  .culture-facts p span {
+    font-size: 9px !important;
+  }
+  .culture-facts svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  /* Calendar on small screens */
+  .culture-date-grid {
+    padding: 12px 8px !important;
+  }
+  .culture-date-grid :is(.culture-event-day, .culture-no-event-day) {
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 12px !important;
+  }
+  .culture-months button {
+    min-height: 38px !important;
+    font-size: 11px !important;
+    padding: 4px !important;
+  }
+
+  /* Space Gallery & Dining Images */
+  .culture-space-gallery,
+  .dining-gallery {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  .culture-space-gallery img,
+  .culture-home .dining-gallery img {
+    aspect-ratio: 16 / 10 !important;
+  }
+  .culture-space-gallery figcaption,
+  .culture-home .dining-gallery figcaption {
+    font-size: 12px !important;
+    padding-top: 8px !important;
+  }
+
+  /* Route section image and card */
+  .culture-route-photo img {
+    max-width: 100% !important;
+    border-radius: 8px !important;
+  }
+
+  /* Experience Cards */
+  .onboard-experience-card > div {
+    padding: 14px !important;
+  }
+  .culture-home .onboard-experience-card h3 {
+    font-size: 15px !important;
+  }
+  .onboard-experience-card p {
+    font-size: 12px !important;
+  }
+
+  /* Original Menu Card */
+  .cruise-menu-original {
+    grid-template-columns: 60px minmax(0, 1fr) !important;
+    gap: 12px !important;
+    padding: 12px !important;
+  }
+  .cruise-menu-original h3 {
+    font-size: 15px !important;
+  }
+  .cruise-menu-original p {
+    font-size: 11px !important;
+  }
+
+  /* Booking & Flow panels */
+  .map-panel,
+  .booking-panel,
+  .content-panel,
+  .flow-steps {
+    padding: 12px !important;
+  }
+  .ticket-picker h2,
+  .event-heading-row h2 {
+    font-size: 20px !important;
+  }
+}
+
+/* ==========================================================================
+   Luxury Motion & Cinematic Animation System
+   ========================================================================== */
+
+/* 1. Cinematic Hero Image Motion (Ken Burns Effect) */
+@keyframes luxuryKenBurns {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1.01);
+  }
+}
+
+.culture-cover-images img.is-current {
+  opacity: 1;
+  animation: luxuryKenBurns 18s cubic-bezier(0.25, 1, 0.5, 1) infinite alternate;
+  will-change: transform;
+}
+
+/* 2. Staggered Hero Text Entrance */
+@keyframes luxuryFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.culture-home #culture-home-title {
+  animation: luxuryFadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.culture-home .culture-tagline {
+  animation: luxuryFadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+
+.culture-home .culture-hero-description {
+  animation: luxuryFadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.28s both;
+}
+
+.culture-hero-actions {
+  animation: luxuryFadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+}
+
+/* 3. Gold Shimmer Reflection on Buttons */
+.culture-home .culture-button,
+.flow-step-actions button,
+.order-action button {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 0.28s ease,
+              background-color 0.28s ease;
+}
+
+.culture-home .culture-button::after,
+.flow-step-actions button::after,
+.order-action button::after {
+  content: "";
+  position: absolute;
+  top: -60%;
+  left: -80%;
+  width: 45%;
+  height: 220%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 100%
+  );
+  transform: rotate(25deg);
+  pointer-events: none;
+  transition: none;
+}
+
+.culture-home .culture-button:hover::after,
+.flow-step-actions button:hover::after,
+.order-action button:hover::after {
+  left: 140%;
+  transition: left 0.75s ease-in-out;
+}
+
+.culture-home .culture-button:hover,
+.flow-step-actions button:hover,
+.order-action button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.38) !important;
+}
+
+/* 4. Luxury Card Hover Lift & Image Zoom */
+.culture-sight-card,
+.onboard-experience-card,
+.culture-space-gallery figure,
+.dining-gallery figure,
+.vessel-card,
+.ticket-event-card {
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.45s ease,
+              border-color 0.35s ease;
+  will-change: transform;
+}
+
+.culture-sight-card:hover,
+.onboard-experience-card:hover,
+.culture-space-gallery figure:hover,
+.dining-gallery figure:hover,
+.vessel-card:hover,
+.ticket-event-card:hover {
+  transform: translateY(-6px) scale(1.012);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7),
+              0 0 24px rgba(212, 175, 55, 0.15) !important;
+  border-color: rgba(212, 175, 55, 0.45) !important;
+}
+
+.culture-sight-card img,
+.onboard-experience-card img,
+.culture-space-gallery figure img,
+.dining-gallery figure img,
+.vessel-card img,
+.ticket-event-card img {
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.culture-sight-card:hover img,
+.onboard-experience-card:hover img,
+.culture-space-gallery figure:hover img,
+.dining-gallery figure:hover img,
+.vessel-card:hover img,
+.ticket-event-card:hover img {
+  transform: scale(1.06);
+}
+
+/* 5. Gold Badge Breathing Glow */
+@keyframes badgeGlowPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 10px 2px rgba(212, 175, 55, 0.65);
+  }
+}
+
+.culture-sight-image > span {
+  animation: badgeGlowPulse 3s ease-in-out infinite;
+}
+
+/* 6. Scroll Reveal Animation for Content Sections */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.scroll-reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger delay for list items in booking & facts */
+.culture-booking ol li.scroll-reveal:nth-child(1) { transition-delay: 0.05s; }
+.culture-booking ol li.scroll-reveal:nth-child(2) { transition-delay: 0.15s; }
+.culture-booking ol li.scroll-reveal:nth-child(3) { transition-delay: 0.25s; }
+.culture-booking ol li.scroll-reveal:nth-child(4) { transition-delay: 0.35s; }
+
+/* 7. Mobile Menu Dropdown Entrance Animation */
+@keyframes luxuryMenuSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.market-header .ticket-nav.is-open {
+  animation: luxuryMenuSlideDown 0.32s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+}
+
+/* 8. Reduced Motion Accessibility Support */
+@media (prefers-reduced-motion: reduce) {
+  .culture-cover-images img.is-current,
+  .culture-home #culture-home-title,
+  .culture-home .culture-tagline,
+  .culture-home .culture-hero-description,
+  .culture-hero-actions,
+  .culture-sight-image > span,
+  .market-header .ticket-nav.is-open {
+    animation: none !important;
+  }
+  .scroll-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .culture-sight-card:hover,
+  .onboard-experience-card:hover,
+  .culture-space-gallery figure:hover,
+  .dining-gallery figure:hover,
+  .vessel-card:hover,
+  .culture-button:hover {
+    transform: none !important;
+  }
+}
+
+

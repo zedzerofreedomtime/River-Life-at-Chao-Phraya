@@ -56,7 +56,10 @@ export default function Header({
         aria-label={en ? "Main menu" : "เมนูหลัก"}
       >
         {profile.role === "admin" ? (
-          <button className="active" onClick={() => go("dashboard")}>
+          <button className="active" onClick={() => {
+            setMobileMenuOpen(false);
+            go("dashboard");
+          }}>
             {strings.nav.dashboard}
           </button>
         ) : (
@@ -65,12 +68,16 @@ export default function Header({
               className={page === "home" ? "active" : ""}
               onClick={() => {
                 setOpenNavigationMenu(null);
+                setMobileMenuOpen(false);
                 go("home");
               }}
             >
               {en ? "Home" : "หน้าแรก"}
             </button>
-            <button className={page === "event" ? "active" : ""} onClick={() => go("event")}>
+            <button className={page === "event" ? "active" : ""} onClick={() => {
+              setMobileMenuOpen(false);
+              go("event");
+            }}>
               {en ? "Cruise & book" : "รอบล่องเรือและจอง"}
             </button>
             <div className="ticket-nav-dropdown">
@@ -92,7 +99,10 @@ export default function Header({
                     <button
                       key={item}
                       role="menuitem"
-                      onClick={() => goHelp(item)}
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        goHelp(item);
+                      }}
                     >
                       {helpTitle(item, language)}
                     </button>
@@ -103,6 +113,7 @@ export default function Header({
             <button
               onClick={() => {
                 setOpenNavigationMenu(null);
+                setMobileMenuOpen(false);
                 go("event");
                 window.history.replaceState(null, "", "/concert#event-boarding");
                 requestAnimationFrame(() => document.getElementById("event-boarding")?.scrollIntoView({ block: "start" }));
@@ -112,8 +123,29 @@ export default function Header({
             </button>
           </>
         )}
+        <div className="mobile-menu-tools">
+          <LanguageSwitcher language={language} onChange={setLanguage} />
+          <ProfileMenu
+            isAuthenticated={isAuthenticated}
+            name={displayName}
+            email={displayEmail}
+            onLogin={() => {
+              setMobileMenuOpen(false);
+              openAuthDialog();
+            }}
+            onNavigate={(dest: string) => {
+              setMobileMenuOpen(false);
+              go(dest);
+            }}
+            onLogout={() => {
+              setMobileMenuOpen(false);
+              logoutCustomer();
+            }}
+            language={language}
+          />
+        </div>
       </nav>
-      <div className="market-tools" aria-label={en ? "User tools" : "เครื่องมือผู้ใช้"}>
+      <div className="market-tools desktop-tools" aria-label={en ? "User tools" : "เครื่องมือผู้ใช้"}>
         <LanguageSwitcher language={language} onChange={setLanguage} />
         <ProfileMenu
           isAuthenticated={isAuthenticated}

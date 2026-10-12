@@ -1155,10 +1155,10 @@
     max-width: 580px;
   }
   .culture-cover-controls {
-    top: 16px;
-    right: 16px;
-    bottom: auto;
-    left: auto;
+    top: auto;
+    right: auto;
+    bottom: 14px;
+    left: 16px;
   }
   .culture-calendar-layout {
     grid-template-columns: 1fr 1.1fr;
@@ -1175,7 +1175,7 @@
     height: 36px;
   }
 }
-@media (max-width: 760px) {
+@media (max-width: 768px) {
   .culture-home .culture-container {
     width: calc(100% - 36px);
   }
@@ -1221,8 +1221,10 @@
     height: 29px;
   }
   .culture-cover-controls {
-    top: 8px;
-    right: 10px;
+    top: auto;
+    right: auto;
+    bottom: 10px;
+    left: 12px;
     gap: 7px;
     font-size: 10px;
   }
@@ -1440,7 +1442,7 @@
     gap: 24px;
   }
 }
-@media (max-width: 760px) {
+@media (max-width: 768px) {
   .culture-route {
     padding-block: 10px 48px;
   }

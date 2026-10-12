@@ -77,6 +77,43 @@ export default function CultureHero({ language }: { language: Language }) {
             decoding="async"
           />
         ))}
+        <div className="culture-cover-controls">
+          <span>
+            {String(cover + 1).padStart(2, "0")} /{" "}
+            {String(covers.length).padStart(2, "0")} ·{" "}
+            {en ? covers[cover].en : covers[cover].th}
+          </span>
+          <button
+            type="button"
+            aria-label={en ? "Next cover image" : "ดูภาพปกถัดไป"}
+            onClick={() => {
+              setCover((current) => (current + 1) % covers.length);
+              setPaused(true);
+            }}
+          >
+            <ChevronRight size={20} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            aria-label={
+              paused || reduceMotion
+                ? en
+                  ? "Resume cover slideshow"
+                  : "เล่นภาพปกอัตโนมัติ"
+                : en
+                  ? "Pause cover slideshow"
+                  : "หยุดภาพปกอัตโนมัติ"
+            }
+            onClick={() => setPaused((current) => !current)}
+            disabled={reduceMotion}
+          >
+            {paused || reduceMotion ? (
+              <Play size={15} aria-hidden="true" />
+            ) : (
+              <Pause size={15} aria-hidden="true" />
+            )}
+          </button>
+        </div>
       </div>
       <div className="culture-hero-copy">
         <h1 id="culture-home-title" lang="en">
@@ -104,43 +141,6 @@ export default function CultureHero({ language }: { language: Language }) {
             {en ? "Watch life on board" : "ชมบรรยากาศจริง"}
           </a>
         </div>
-      </div>
-      <div className="culture-cover-controls">
-        <span>
-          {String(cover + 1).padStart(2, "0")} /{" "}
-          {String(covers.length).padStart(2, "0")} ·{" "}
-          {en ? covers[cover].en : covers[cover].th}
-        </span>
-        <button
-          type="button"
-          aria-label={en ? "Next cover image" : "ดูภาพปกถัดไป"}
-          onClick={() => {
-            setCover((current) => (current + 1) % covers.length);
-            setPaused(true);
-          }}
-        >
-          <ChevronRight size={20} aria-hidden="true" />
-        </button>
-        <button
-          type="button"
-          aria-label={
-            paused || reduceMotion
-              ? en
-                ? "Resume cover slideshow"
-                : "เล่นภาพปกอัตโนมัติ"
-              : en
-                ? "Pause cover slideshow"
-                : "หยุดภาพปกอัตโนมัติ"
-          }
-          onClick={() => setPaused((current) => !current)}
-          disabled={reduceMotion}
-        >
-          {paused || reduceMotion ? (
-            <Play size={15} aria-hidden="true" />
-          ) : (
-            <Pause size={15} aria-hidden="true" />
-          )}
-        </button>
       </div>
     </section>
   );
