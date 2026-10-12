@@ -1,14 +1,15 @@
 .ticket-home.culture-home {
-  --culture-navy: #0b2438;
-  --culture-gold: #c2a16b;
-  --culture-paper: #faf8f3;
-  --culture-muted: #60707b;
-  --culture-rule: #dedbd4;
+  --culture-navy: #080c13;
+  --culture-gold: #d4af37;
+  --culture-paper: #080c13;
+  --culture-text: #e5e0d8;
+  --culture-muted: #a0aec0;
+  --culture-rule: rgba(212, 175, 55, 0.2);
   width: 100%;
   margin: 0;
   padding: 0;
   background: var(--culture-paper);
-  color: var(--culture-navy);
+  color: var(--culture-text);
   font-size: 16px;
 }
 .culture-home .culture-container {
@@ -53,7 +54,7 @@
   border: 1px solid var(--culture-gold);
   border-radius: 5px;
   background: var(--culture-gold);
-  color: var(--culture-navy);
+  color: var(--culture-text);
   font-family: inherit;
   font-size: 15px;
   font-weight: 600;
@@ -85,7 +86,7 @@
   cursor: pointer;
 }
 .culture-home .culture-text-link:hover {
-  color: var(--culture-navy);
+  color: var(--culture-text);
 }
 .culture-home .culture-caption {
   margin: 24px 0 0;
@@ -282,8 +283,8 @@
   padding: 8px 16px;
   border: 1px solid var(--culture-rule);
   border-radius: 5px;
-  background: #fff;
-  color: var(--culture-navy);
+  background: #111114 !important;
+  color: var(--culture-text);
   font:
     500 16px/1.5 "Noto Sans Thai",
     Arial,
@@ -309,13 +310,13 @@
   cursor: pointer;
 }
 .culture-months button.active {
-  border-bottom-color: var(--culture-navy);
-  color: var(--culture-navy);
+  border-bottom-color: var(--culture-text);
+  color: var(--culture-text);
   font-weight: 700;
 }
 .culture-months button:hover {
   background: #e9e2d54d;
-  color: var(--culture-navy);
+  color: var(--culture-text);
 }
 .culture-event-dot {
   position: absolute;
@@ -337,7 +338,7 @@
   padding: 26px;
   border: 1px solid var(--culture-rule);
   border-radius: 6px;
-  background: #fff;
+  background: #111114 !important;
 }
 .culture-date-heading {
   display: flex;
@@ -359,7 +360,7 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--culture-navy);
+  color: var(--culture-text);
   cursor: pointer;
 }
 .culture-date-heading button:disabled {
@@ -435,7 +436,7 @@
   padding: 18px;
   border: 1px solid var(--culture-rule);
   border-radius: 6px;
-  background: #fff;
+  background: #111114 !important;
   animation: culture-reveal 0.25s ease;
 }
 .culture-event-panel > img {
@@ -496,7 +497,7 @@
   padding: 42px;
   border: 1px solid var(--culture-rule);
   border-radius: 6px;
-  background: #ffffff66;
+  background: #111114 !important;
   animation: culture-reveal 0.25s ease;
 }
 .culture-calendar-empty > svg {
@@ -842,7 +843,7 @@
   width: 44px;
   height: 44px;
   padding: 0;
-  color: var(--culture-navy);
+  color: var(--culture-text);
   background: transparent;
   border: 1px solid #d2c5b1;
   border-radius: 50%;
@@ -970,7 +971,7 @@
 }
 .culture-space-gallery figcaption {
   padding-top: 12px;
-  color: var(--culture-navy);
+  color: var(--culture-text);
   font-size: 14px;
 }
 .culture-river-context {
@@ -1004,7 +1005,7 @@
 }
 .culture-home .dining-gallery figcaption {
   padding-top: 12px;
-  color: var(--culture-navy);
+  color: var(--culture-text);
   font-size: 14px;
   font-weight: 500;
 }
@@ -1474,5 +1475,15 @@
   }
   .culture-home .culture-button:hover {
     transform: none;
+  }
+}
+
+/* Move the hero text block down as requested */
+.culture-home .culture-hero-copy {
+  margin-top: 80px !important;
+}
+@media (max-width: 991px) {
+  .culture-home .culture-hero-copy {
+    margin-top: 20px !important;
   }
 }

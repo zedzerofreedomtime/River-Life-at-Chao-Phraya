@@ -1,20 +1,23 @@
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 :root {
-  font-family: "Noto Sans Thai", Arial, sans-serif;
-  color: #101e32;
-  background: #fff;
+  font-family: "DM Sans", "DM Sans", "Kanit", Arial, sans-serif;
+  color: #e5e0d8;
+  background: #050507; /* Sleeker true dark from reference */
   font-synthesis: none;
   --customer-width: 1200px;
-  --customer-navy: #102b52;
-  --customer-gold: #c4943f;
-  --customer-border: #dce4ec;
-  --customer-radius: 20px;
-  --heading-font: "Noto Sans Thai", Arial, sans-serif;
+  --customer-navy: #111114; /* Sleek card background */
+  --customer-gold: #c49a45; /* Refined luxury gold */
+  --customer-border: rgba(255, 255, 255, 0.08); /* Minimalist border */
+  --customer-radius: 12px;
+  --heading-font: "DM Sans", "DM Sans", "Kanit", sans-serif; /* No more serifs */
   --page-title-size: clamp(30px, 3vw, 40px);
   --section-title-size: clamp(26px, 2.3vw, 32px);
 }
-html:lang(en) { --heading-font: Georgia, "Times New Roman", serif; }
+html:lang(en) { 
+  font-family: "DM Sans", Arial, sans-serif;
+  --heading-font: "DM Sans", sans-serif; 
+}
 
 .help-page,
 .river-story {
@@ -3546,7 +3549,7 @@ td small {
   padding: 23px 0 17px;
   color: #1c2c43;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 500;
 }
 .market-header nav .active::after {
   height: 2px;
@@ -3630,7 +3633,7 @@ td small {
 .vessel-catalog-hero h1 {
   margin: 0;
   font:
-    700 clamp(33px, 4vw, 51px) "Noto Sans Thai",
+    700 clamp(33px, 4vw, 51px) "Kanit",
     sans-serif;
   letter-spacing: -1.5px;
 }
@@ -3890,7 +3893,7 @@ td small {
 .event-heading-row h2 {
   margin: 0;
   font:
-    700 34px "Noto Sans Thai",
+    700 34px "Kanit",
     sans-serif;
   letter-spacing: -1px;
 }
@@ -3983,7 +3986,7 @@ td small {
 .ticket-picker h2 {
   margin-bottom: 0;
   font:
-    700 34px "Noto Sans Thai",
+    700 34px "Kanit",
     sans-serif;
   letter-spacing: -1px;
 }
@@ -4151,7 +4154,7 @@ td small {
 .wallet-title h1 {
   color: #102641;
   font:
-    700 40px "Noto Sans Thai",
+    700 40px "Kanit",
     sans-serif;
   letter-spacing: -1px;
 }
@@ -5322,7 +5325,7 @@ td small {
   background: linear-gradient(112deg, #0b2447, #124978 62%, #236f8a);
 }
 .ticket-discovery h1 {
-  font-family: "Noto Sans Thai", Arial, sans-serif;
+  font-family: "DM Sans", "Kanit", Arial, sans-serif;
   font-size: clamp(32px, 3.2vw, 44px);
   line-height: 1.2;
 }
@@ -5341,7 +5344,7 @@ td small {
   border-radius: var(--customer-radius);
 }
 .ticket-featured-copy h2 {
-  font-family: "Noto Sans Thai", Arial, sans-serif;
+  font-family: "DM Sans", "Kanit", Arial, sans-serif;
   font-size: clamp(38px, 3.6vw, 52px);
   line-height: 1.15;
 }
@@ -5376,7 +5379,7 @@ td small {
   border-radius: var(--customer-radius);
 }
 .presenter-promo-copy h2 {
-  font-family: "Noto Sans Thai", Arial, sans-serif;
+  font-family: "DM Sans", "Kanit", Arial, sans-serif;
   font-size: clamp(30px, 3vw, 38px);
   line-height: 1.2;
 }
@@ -5387,7 +5390,7 @@ td small {
   margin-block: 60px 80px;
 }
 .ticket-events-heading h2 {
-  font-family: "Noto Sans Thai", Arial, sans-serif;
+  font-family: "DM Sans", "Kanit", Arial, sans-serif;
   font-size: clamp(28px, 2.6vw, 34px);
   line-height: 1.2;
 }
@@ -5405,7 +5408,7 @@ td small {
   background: #fff;
   color: #173457;
   cursor: pointer;
-  font: 700 14px/1.3 "Noto Sans Thai", Arial, sans-serif;
+  font: 700 14px/1.3 "DM Sans", "Kanit", Arial, sans-serif;
 }
 .event-category-filter button.active {
   border-color: #0e315e;
@@ -5435,7 +5438,7 @@ td small {
   border-radius: 9px;
   background: #fff;
   color: #152c48;
-  font: 600 14px "Noto Sans Thai", Arial, sans-serif;
+  font: 600 14px "DM Sans", "Kanit", Arial, sans-serif;
 }
 .event-filter-row input:disabled {
   background: #f4f6f9;
@@ -5989,7 +5992,7 @@ td small {
   text-wrap: balance;
 }
 html:lang(th) .ticket-home .ticket-featured-copy h1 {
-  font-family: "Noto Sans Thai", Arial, sans-serif;
+  font-family: "DM Sans", "Kanit", Arial, sans-serif;
   font-size: clamp(30px, 2.8vw, 40px);
   line-height: 1.3;
   letter-spacing: -.015em;
@@ -6067,4 +6070,716 @@ html:lang(th) .ticket-home .ticket-featured-copy h1 {
   html:lang(th) .ticket-home .ticket-featured-copy h1 { font-size: clamp(30px, 7.5vw, 40px); }
   .ticket-home .featured-facts { gap: 10px; margin-top: 22px; }
   .ticket-home .boat-experience { margin-top: 42px; }
+}
+
+
+/* ==========================================================================
+   DARK LUXURY THEME OVERRIDES 
+   ========================================================================== */
+body, .app-main {
+  background-color: #080c13 !important;
+  color: #e5e0d8 !important;
+}
+
+h1, h2, h3, h4, h5, h6, .text-primary, .help-page-heading > span, .river-story > span {
+  color: #d4af37 !important;
+  font-family: var(--heading-font) !important;
+}
+
+.help-topic-nav button {
+  background: #0d1421 !important;
+  color: #e5e0d8 !important;
+  border-color: rgba(212, 175, 55, 0.3) !important;
+}
+
+/* Force dark background for cards and main containers */
+div {
+  /* Only target elements that had explicit white backgrounds */
+}
+
+/* Header & Footer */
+header, footer {
+  background-color: rgba(16, 43, 82, 0.2
+  ) !important;
+  background-image: none !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2) !important;
+  color: #ffffff !important;
+}
+
+/* Dialogs */
+.MuiPaper-root, .auth-dialog,
+.profile-popover,
+.MuiPaper-root {
+  background-color: #0d1421 !important;
+  color: #e5e0d8 !important;
+  border: 1px solid rgba(212, 175, 55, 0.2) !important;
+}
+
+/* Buttons */
+button {
+  font-family: var(--heading-font) !important;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+}
+
+/* Specific component overrides */
+.river-story, .checkout-page, .payment-page {
+  color: #e5e0d8 !important;
+}
+
+.help-page {
+  background-color: transparent !important;
+}
+
+.help-topic-nav button[data-active="true"] {
+  background-color: #d4af37 !important;
+  color: #080c13 !important;
+}
+
+/* Overriding specific Tailwind light backgrounds */
+.bg-white, .bg-gray-50, .bg-gray-100 {
+  background-color: #0d1421 !important;
+  color: #e5e0d8 !important;
+}
+
+.text-gray-900, .text-gray-800, .text-black {
+  color: #e5e0d8 !important;
+}
+
+.text-gray-500, .text-gray-600 {
+  color: #a0aec0 !important;
+}
+
+.border-gray-200, .border-gray-300 {
+  border-color: rgba(212, 175, 55, 0.2) !important;
+}
+
+/* Luxury accent details */
+::selection {
+  background: #d4af37;
+  color: #080c13;
+}
+
+/* Force pure white text for all header items */
+.market-header nav button,
+.market-header .river-brand,
+.market-header .river-brand span,
+.market-header .market-tools button,
+.market-header .mobile-nav-toggle {
+  color: #ffffff !important;
+}
+
+/* Make sure active state still looks good */
+.market-header nav button.active {
+  color: #d4af37 !important;
+}
+
+/* ==========================================================================
+   LUXURY CARDS STYLING 
+   ========================================================================== */
+.ticket-event-card, 
+.vessel-card, 
+.booking-vessel-card, 
+.concert-home-card, 
+.event-boarding-card, 
+.event-purchase-card, 
+.payment-summary-card, 
+.success-card,
+.wallet-order-card,
+.event-food-menu-card,
+.cruise-menu-original,
+.help-article,
+.ticket-picker,
+.zone-row,
+.river-story,
+.profile-action,
+.auth-dialog,
+.profile-popover,
+.MuiPaper-root {
+  background: #111114 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+  color: #e5e0d8 !important;
+  transition: transform 0.2s ease, border-color 0.2s ease !important;
+  overflow: hidden !important;
+}
+
+/* Ensure images inside cards look good */
+.ticket-event-card > img,
+.vessel-card > img,
+.booking-vessel-card > img,
+.concert-home-card img {
+  border-radius: 16px 16px 0 0 !important;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1) !important;
+}
+
+/* Hover effect for interactive cards */
+.ticket-event-card:hover, 
+.vessel-card:hover, 
+.booking-vessel-card:hover, 
+.concert-home-card:hover,
+button.vessel-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Card Titles */
+.ticket-event-card h3,
+.vessel-card-title h3,
+.concert-home-card h3,
+.payment-summary-card h2,
+.success-card h1,
+.event-boarding-card h2,
+.event-food-menu-card h3 {
+  color: #d4af37 !important;
+  font-family: var(--heading-font) !important;
+}
+
+/* Minor text & borders inside cards */
+.ticket-card-venue, .ticket-card-date, .ticket-card-description,
+.concert-home-card p, .vessel-card-body p {
+  color: #a0aec0 !important;
+}
+
+.success-card dl div, .payment-summary-card dl div {
+  border-color: rgba(212, 175, 55, 0.1) !important;
+}
+
+/* Button Overrides for Luxury Theme */
+.ticket-event-card button,
+.ticket-featured-copy button,
+button[type="submit"],
+.booking-vessel-card > button,
+.concert-home-card button,
+.event-purchase-card button {
+  background: #c49a45 !important;
+  color: #050507 !important;
+  border: none !important;
+  padding: 12px 24px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease !important;
+  text-shadow: none !important;
+}
+
+.ticket-event-card button:hover,
+.ticket-featured-copy button:hover,
+button[type="submit"]:hover,
+.booking-vessel-card > button:hover,
+.concert-home-card button:hover,
+.event-purchase-card button:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(196, 154, 69, 0.4) !important;
+  background: #d4a757 !important;
+}
+
+.ticket-empty-state {
+  border-color: rgba(212, 175, 55, 0.3) !important;
+  color: #a0aec0 !important;
+}
+
+/* ==========================================================================
+   GLOBAL TEXT COLOR FIX (ANTI-DARK TEXT)
+   ========================================================================== */
+/* Override any remaining hardcoded dark text */
+.app-main p,
+.app-main span:not(.river-brand span),
+.app-main li,
+.app-main dt,
+.app-main dd,
+.app-main strong,
+.app-main b,
+.app-main em,
+.app-main div,
+.app-main label,
+.qr-note,
+.flow-steps li span,
+.ticket-card-venue,
+.ticket-card-date,
+.ticket-card-description,
+.MuiPaper-root,
+.MuiDialogContent-root,
+.MuiTypography-root {
+  color: #e5e0d8 !important;
+}
+
+/* Ensure headings remain gold */
+.app-main h1,
+.app-main h2,
+.app-main h3,
+.app-main h4,
+.app-main h5,
+.app-main h6,
+.MuiDialogTitle-root {
+  color: #d4af37 !important;
+}
+
+/* Except buttons and their children should keep button contrast */
+button, button *,
+.MuiButton-root, .MuiButton-root * {
+  color: inherit !important;
+}
+.ticket-event-card button,
+.ticket-featured-copy button,
+button[type="submit"],
+.booking-vessel-card > button,
+.concert-home-card button,
+.event-purchase-card button {
+  color: #080c13 !important;
+}
+
+/* ==========================================================================
+   EVENT PURCHASE CARD IMAGE FIX (COVER IN BOX)
+   ========================================================================== */
+.event-poster img {
+  object-fit: cover !important;
+}
+
+/* ==========================================================================
+   USER REQUESTED OVERRIDES
+   ========================================================================== */
+/* Food menu notice text color -> Blue */
+.event-food-menu-notice {
+  color: #3b82f6 !important; /* Blue color that is legible on dark */
+}
+
+/* Force font-medium (500) globally */
+body, .app-main, .app-main *, h1, h2, h3, h4, h5, h6, p, span, div, a, button, li, dt, dd {
+  font-weight: 500 !important;
+}
+
+/* Fix Nav Button Hover/Active States */
+.market-header nav button:hover,
+.market-header-dark nav button:hover,
+.market-tools button:hover,
+.market-header nav button:focus-visible {
+  color: #d4af37 !important;
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* Remove unwanted hover box-shadow from header navigation buttons */
+.market-header button:hover,
+.market-header-dark button:hover,
+.market-tools button:hover,
+.ticket-nav button:hover,
+.river-brand:hover {
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* Help Menu Dropdown (Popover) styling for Dark Luxury */
+.ticket-menu-popover {
+  background: rgba(13, 20, 33, 0.9) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(212, 175, 55, 0.2) !important;
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.4) !important;
+}
+
+.ticket-menu-popover button {
+  color: #e5e0d8 !important;
+}
+
+.ticket-menu-popover button:hover,
+.ticket-menu-popover button:focus-visible {
+  background: rgba(212, 175, 55, 0.15) !important;
+  color: #d4af37 !important;
+  transform: none !important;
+}
+
+/* Force font-medium globally across all components (including header, footer, modals, popovers) */
+* {
+  font-weight: 500 !important;
+}
+
+/* ==========================================================================
+   CARD INTERNAL FIXES FOR MODERN SAAS LUXURY
+   ========================================================================== */
+/* Fix inner borders */
+.ticket-card-venue,
+.event-purchase-card > div,
+.wallet-order-card > div,
+.event-food-menu-card ul,
+.event-food-menu-card li {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Fix inner colors */
+.vessel-card dd,
+.ticket-card-venue,
+.ticket-card-date {
+  color: #e5e0d8 !important;
+}
+
+.vessel-card dt,
+.ticket-card-description {
+  color: #a0aec0 !important;
+}
+
+/* Fix SVGs to accent color */
+.vessel-card dt svg,
+.ticket-card-date svg,
+.ticket-card-venue svg,
+.concert-home-card p svg {
+  color: #c49a45 !important;
+}
+
+/* Refine Card Padding / Borders */
+.ticket-event-card > div,
+.vessel-card-body,
+.booking-vessel-card > div {
+  padding: 24px !important;
+}
+
+/* Ensure empty states match */
+.ticket-empty-state {
+  border: 1px dashed rgba(255, 255, 255, 0.2) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* ==========================================================================
+   TYPOGRAPHY HIERARCHY FIX (DIMMING SECONDARY TEXT)
+   ========================================================================== */
+/* Make paragraphs, spans, and descriptions a muted gray to reduce brightness */
+p, 
+span:not(.river-brand span), 
+small, 
+dt,
+li,
+.ticket-card-description,
+.vessel-card-body p,
+.concert-home-card p {
+  color: #8b9bb4 !important;
+}
+
+/* Ensure important text remains bright off-white */
+label, 
+strong, 
+b, 
+th,
+td,
+.ticket-card-venue,
+.ticket-card-date,
+.wallet-order-card strong,
+.vessel-card dd,
+.success-card dd,
+.payment-summary-card dd {
+  color: #e5e0d8 !important;
+}
+
+/* Keep headings and titles prominent (Gold/White) */
+h1, h2, h3, h4, h5, h6 {
+  color: #ffffff !important;
+}
+.ticket-event-card h3,
+.vessel-card-title h3,
+.concert-home-card h3,
+.payment-summary-card h2,
+.success-card h1,
+.event-boarding-card h2,
+.event-food-menu-card h3 {
+  color: #c49a45 !important;
+}
+
+/* Do not mute button texts */
+button *,
+.MuiButton-root * {
+  color: inherit !important;
+}
+
+/* Additional Dark Mode Fixes */
+.profile-popover,
+.MuiPaper-root,
+.MuiDialog-paper,
+.language-switcher button.active,
+.help-topic-nav button {
+  background: #111114 !important;
+  color: #e5e0d8 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.profile-popover {
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+.profile-summary {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.profile-summary strong {
+  color: #c49a45 !important;
+}
+
+.profile-summary small {
+  color: #8b9bb4 !important;
+}
+
+.help-topic-nav button {
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.help-topic-nav button.active,
+.help-topic-nav button[data-active="true"] {
+  background: #c49a45 !important;
+  color: #050507 !important;
+  border-color: #c49a45 !important;
+}
+
+.market-tools .profile-login-call {
+  color: #e5e0d8 !important;
+}
+
+.market-tools .profile-login-call:hover {
+  color: #c49a45 !important;
+}
+
+.language-switcher button {
+  color: #8b9bb4 !important;
+}
+
+.language-switcher button.active {
+  color: #c49a45 !important;
+  border-bottom-color: #c49a45 !important;
+  background: transparent !important;
+}
+
+/* Explicit hover state for nav buttons */
+.ticket-nav button:hover,
+.ticket-nav-dropdown > button:hover {
+  color: #c49a45 !important;
+  background: transparent !important;
+}
+
+/* Force DM Sans and Kanit globally for all text */
+* {
+  font-family: "DM Sans", "DM Sans", "Kanit", sans-serif !important;
+}
+
+/* Push content down for all pages except home and event, because the header is now fixed and floats above. */
+.app-main:not(.page-home):not(.page-event) {
+  padding-top: 100px !important;
+}
+
+/* Ensure home and event pages start exactly at the top (underneath the transparent floating header) */
+.page-home, .page-event {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Fix text color for calendar and inputs in dark mode */
+.MuiInputBase-input,
+.MuiInputBase-root,
+.MuiFormLabel-root,
+.MuiInputLabel-root {
+  color: #e5e0d8 !important;
+}
+.MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #d4af37 !important;
+}
+.MuiInputLabel-root.Mui-focused {
+  color: #d4af37 !important;
+}
+
+/* Global fix for form elements text color in dark mode */
+input, select, textarea,
+.culture-year select {
+  color: #e5e0d8 !important;
+  background-color: transparent;
+}
+/* Ensure options inside select are visible on dark background */
+option {
+  background-color: #111114 !important;
+  color: #e5e0d8 !important;
+}
+
+/* Fix Login / Register Tabs text color */
+.auth-tabs button {
+  color: #8b9bb4 !important;
+}
+.auth-tabs button.active {
+  color: #d4af37 !important;
+  border-bottom-color: #d4af37 !important;
+}
+.auth-tabs {
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+.auth-dialog-banner {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2) !important;
+}
+.auth-dialog-banner span {
+  color: #d4af37 !important;
+}
+
+/* Luxury styling for MUI buttons in Auth forms and globally */
+.MuiButton-contained {
+  background-color: #c49a45 !important;
+  color: #050507 !important;
+  font-weight: 600 !important;
+}
+.MuiButton-contained:hover {
+  background-color: #dfb775 !important;
+}
+.MuiButton-contained.Mui-disabled {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.3) !important;
+}
+.MuiButton-outlined {
+  border-color: #c49a45 !important;
+  color: #c49a45 !important;
+}
+.MuiButton-outlined:hover {
+  background-color: rgba(196, 154, 69, 0.1) !important;
+}
+
+.auth-otp-copy {
+  color: #a0aec0 !important;
+}
+
+.orders-heading p {
+  color: #a0aec0 !important;
+}
+
+/* Make auth dialog text and headings gold as requested */
+.orders-heading h1,
+.auth-page h1,
+.auth-dialog-banner span {
+  color: #c49a45 !important;
+}
+
+.MuiFormLabel-root,
+.MuiInputLabel-root,
+.MuiInputBase-input {
+  color: #d4af37 !important;
+}
+
+.MuiOutlinedInput-notchedOutline {
+  border-color: rgba(212, 175, 55, 0.5) !important;
+}
+.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(212, 175, 55, 0.8) !important;
+}
+
+/* Update MUI Contained button disabled state to be Gold with Black text */
+.MuiButton-contained {
+  color: #000000 !important;
+}
+.MuiButton-contained.Mui-disabled {
+  background-color: #c49a45 !important;
+  color: #000000 !important;
+  opacity: 0.6 !important;
+}
+
+/* culture-route-note text to black as requested */
+.culture-route-note {
+  color: #000000 !important;
+}
+
+/* Fix RiverHighlights (Culture Sights) section for Dark Luxury */
+.culture-route-layout {
+  background: #111114 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.culture-sights-controls > button {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #e5e0d8 !important;
+}
+
+.culture-sights-controls > button:hover:not(:disabled) {
+  background: rgba(212, 175, 55, 0.15) !important;
+  color: #d4af37 !important;
+}
+
+.culture-sights-dots span {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.culture-sights-dots [aria-current="true"] span {
+  background: #d4af37 !important;
+}
+
+/* Ensure route note is readable in dark mode */
+.culture-route-note {
+  background: #111114 !important;
+  border-left-color: #d4af37 !important;
+  color: #e5e0d8 !important;
+}
+
+.culture-route-caption {
+  color: #8b9bb4 !important;
+}
+
+.culture-sights-credits,
+.culture-sights-credits summary {
+  color: #8b9bb4 !important;
+}
+
+.culture-route-group h3,
+.culture-route-details h3,
+.culture-sight-copy h3 {
+  color: #d4af37 !important;
+}
+
+/* Fix missed white panels across the checkout and booking flow */
+.map-panel,
+.booking-panel,
+.content-panel,
+.payment-instructions,
+.flow-empty,
+.order-action,
+.payment-summary-note {
+  background: #111114 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #e5e0d8 !important;
+}
+
+.map-panel h2,
+.booking-panel h2,
+.payment-section-title h2,
+.payment-section-title span,
+.payment-summary-note {
+  color: #d4af37 !important;
+}
+
+.map-panel .muted,
+.booking-panel .muted,
+.demo-note,
+.payment-summary-note p,
+.payment-qr-content p {
+  color: #8b9bb4 !important;
+}
+
+/* Also ensure any other random white borders in these cards are translucent */
+.flow-steps {
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+.flow-step:not(.active) span {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+.flow-step.active span {
+  background: #d4af37 !important;
+  color: #050507 !important;
+  border-color: #d4af37 !important;
+}
+.flow-step.active {
+  color: #d4af37 !important;
 }

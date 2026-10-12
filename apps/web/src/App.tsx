@@ -3,22 +3,26 @@ import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import IconButton from "@mui/material/IconButton";
-import { ChevronDown, Menu, X } from "lucide-react";
-import EventDetail from "./EventDetail";
-import Home from "./Home";
-import BoatMap from "./BoatMap";
-import BookingForm from "./BookingForm";
-import MyBooking from "./MyBooking";
-import Payment, { FlowSteps } from "./Payment";
-import BookingSuccess from "./BookingSuccess";
-import TicketWallet from "./TicketWallet";
-import ProfileMenu from "./ProfileMenu";
-import Auth, { type AuthUser } from "./Auth";
-import AdminDashboard from "./AdminDashboard";
-import LanguageSwitcher from "./LanguageSwitcher";
-import { copy, type Language } from "./i18n";
-import { api, formatPier, type Booking, type EventInfo } from "./api";
-import Help, { helpTitle, helpTopics, type HelpTopic } from "./Help";
+import { X } from "lucide-react";
+import Header from "./components/layout/Header";
+import Footer from "./components/layout/Footer";
+import ScrollToTop from "./components/shared/ScrollToTop";
+import EventDetail from "./components/page/EventDetail";
+import Home from "./components/page/Home";
+import BoatMap from "./components/booking/BoatMap";
+import BookingForm from "./components/booking/BookingForm";
+import MyBooking from "./components/page/MyBooking";
+import Payment, { FlowSteps } from "./components/page/Payment";
+import BookingSuccess from "./components/page/BookingSuccess";
+import TicketWallet from "./components/page/TicketWallet";
+import ProfileMenu from "./components/shared/ProfileMenu";
+import Auth, { type AuthUser } from "./components/shared/Auth";
+import AdminDashboard from "./components/page/AdminDashboard";
+import LanguageSwitcher from "./components/shared/LanguageSwitcher";
+import { copy, type Language } from "./data/i18n";
+import { api, formatPier, type Booking, type EventInfo } from "./data/api";
+import { type Booking as ApiBooking } from "./data/api";
+import Help, { helpTitle, helpTopics, type HelpTopic } from "./components/page/Help";
 
 type Page =
   | "home"
@@ -202,105 +206,23 @@ export default function App() {
   const displayEmail = profile.email === "ยังไม่ได้เข้าสู่ระบบ" && en ? "Not logged in" : profile.email;
   return (
     <>
-      <header className={`market-header ${page === "tickets" ? "market-header-dark" : ""}`}>
-        <button
-          className="river-brand"
-          onClick={() => go("home")}
-          aria-label={en ? "Back to cruise homepage" : "กลับไปหน้าจองล่องเรือ"}
-        >
-          <img src="/images/river-life-logo-web.webp" alt="" />
-          <span>
-            RIVER LIFE <small>CHAO PHRAYA CRUISES</small>
-          </span>
-        </button>
-        <button
-          className="mobile-nav-toggle"
-          type="button"
-          aria-label={en ? (mobileMenuOpen ? "Close menu" : "Open menu") : (mobileMenuOpen ? "ปิดเมนู" : "เปิดเมนู")}
-          aria-expanded={mobileMenuOpen}
-          aria-controls="ticket-main-nav"
-          onClick={() => setMobileMenuOpen((current) => !current)}
-        >
-          {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
-        <nav
-          id="ticket-main-nav"
-          ref={navigationRef}
-          className={`ticket-nav ${mobileMenuOpen ? "is-open" : ""}`}
-          aria-label={en ? "Main menu" : "เมนูหลัก"}
-        >
-          {profile.role === "admin" ? (
-            <button className="active" onClick={() => go("dashboard")}>
-              {strings.nav.dashboard}
-            </button>
-          ) : (
-            <>
-              <button
-                className={page === "home" ? "active" : ""}
-                onClick={() => {
-                  setOpenNavigationMenu(null);
-                  go("home");
-                }}
-              >
-                {en ? "Home" : "หน้าแรก"}
-              </button>
-              <button className={page === "event" ? "active" : ""} onClick={() => go("event")}>
-                {en ? "Cruise & book" : "รอบล่องเรือและจอง"}
-              </button>
-              <div className="ticket-nav-dropdown">
-                <button
-                  aria-expanded={openNavigationMenu === "help"}
-                  aria-haspopup="menu"
-                  onClick={() =>
-                    setOpenNavigationMenu((current) =>
-                      current === "help" ? null : "help",
-                    )
-                  }
-                >
-                  {en ? "Help" : "ช่วยเหลือ"}
-                  <ChevronDown aria-hidden="true" size={16} />
-                </button>
-                {openNavigationMenu === "help" && (
-                  <div className="ticket-menu-popover" role="menu">
-                    {helpTopics.map((item) => (
-                      <button
-                        key={item}
-                        role="menuitem"
-                        onClick={() => goHelp(item)}
-                      >
-                        {helpTitle(item, language)}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <button
-                onClick={() => {
-                  setOpenNavigationMenu(null);
-                  go("event");
-                  window.history.replaceState(null, "", "/concert#event-boarding");
-                  requestAnimationFrame(() => document.getElementById("event-boarding")?.scrollIntoView({ block: "start" }));
-                }}
-              >
-                {en ? "Getting there" : "การเดินทาง"}
-              </button>
-            </>
-          )}
-        </nav>
-        <div className="market-tools" aria-label={en ? "User tools" : "เครื่องมือผู้ใช้"}>
-          <LanguageSwitcher language={language} onChange={setLanguage} />
-          <ProfileMenu
-            isAuthenticated={isAuthenticated}
-            name={displayName}
-            email={displayEmail}
-            onLogin={openAuthDialog}
-            onNavigate={go}
-            onLogout={logoutCustomer}
-            language={language}
-          />
-        </div>
-      </header>
-      {event?.demo && <div className="demo-banner">{strings.demo}</div>}
+      <Header 
+        page={page} 
+        language={language} 
+        setLanguage={setLanguage} 
+        mobileMenuOpen={mobileMenuOpen} 
+        setMobileMenuOpen={setMobileMenuOpen}
+        openNavigationMenu={openNavigationMenu}
+        setOpenNavigationMenu={setOpenNavigationMenu}
+        profile={profile}
+        isAuthenticated={isAuthenticated}
+        go={go}
+        goHelp={goHelp}
+        openAuthDialog={openAuthDialog}
+        logoutCustomer={logoutCustomer}
+        navigationRef={navigationRef}
+      />
+      
       <main className={`app-main page-${page}`}>
         {error && (
           <Alert
@@ -374,7 +296,7 @@ export default function App() {
             demo={event?.demo ?? false}
             initial={booking}
             initialToken={token}
-            onCompleted={(updated) => {
+            onCompleted={(updated: Booking) => {
               setBooking(updated);
               go("success");
             }}
@@ -387,8 +309,8 @@ export default function App() {
             demo={event?.demo ?? false}
             initial={booking}
             initialToken={token}
-            onOpenTickets={(updated) => {
-              setBooking(updated);
+            onOpenTickets={(updated?: Booking) => {
+              if (updated) setBooking(updated);
               go("tickets");
             }}
             onOpenOrders={() => go("orders")}
@@ -400,11 +322,11 @@ export default function App() {
             demo={event?.demo ?? false}
             initial={booking}
             initialToken={token}
-            onPay={(updated) => {
+            onPay={(updated: Booking) => {
               setBooking(updated);
               go("payment");
             }}
-            onOpenTickets={(updated) => {
+            onOpenTickets={(updated?: Booking) => {
               if (updated) setBooking(updated);
               go("tickets");
             }}
@@ -471,11 +393,8 @@ export default function App() {
           }}
         />
       </Dialog>
-      <footer>
-        <span className="footer-brand">RIVER LIFE</span>
-        <span>{en ? "Chao Phraya cruises · Special concert sailings" : "ล่องเรือเจ้าพระยา · คอนเสิร์ตรอบพิเศษ"}</span>
-        <span>{en ? "Prices and event details are pending confirmation" : "ราคาและรายละเอียดงานรอยืนยัน"}</span>
-      </footer>
+      <ScrollToTop />
+      <Footer language={language} />
     </>
   );
 }
