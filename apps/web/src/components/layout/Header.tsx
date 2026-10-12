@@ -28,15 +28,15 @@ export default function Header({
   const displayEmail = profile.email === "ยังไม่ได้เข้าสู่ระบบ" && en ? "Not logged in" : profile.email;
 
   return (
-    <header className={`market-header ${page === "tickets" ? "!border-white/10 !text-white" : "!border-[rgba(212,175,55,0.2)] !text-white"} !bg-[#080c13]/40 !fixed !left-0 !right-0 !top-4 !z-50 !max-w-[calc(100%-2rem)] xl:!max-w-7xl !mx-auto !py-[6px] xl:!px-6 !rounded-4xl !backdrop-blur-xl !border !shadow-sm transition-colors duration-300 !font-medium`}>
+    <header className={`market-header ${page === "tickets" ? "!border-white/10 !text-white" : "!border-[rgba(212,175,55,0.3)] !text-white"} !bg-[#080c13]/90 !fixed !left-0 !right-0 !top-4 !z-50 !max-w-[calc(100%-2rem)] xl:!max-w-7xl !mx-auto !py-[8px] xl:!px-6 !rounded-4xl !backdrop-blur-2xl !border !shadow-2xl transition-all duration-300 !font-medium`}>
       <button
         className="river-brand"
         onClick={() => go("home")}
         aria-label={en ? "Back to cruise homepage" : "กลับไปหน้าจองล่องเรือ"}
       >
-        
         <span>
-          RIVER LIFE <small>CHAO PHRAYA CRUISES</small>
+          <strong className="text-white font-bold tracking-wider">RIVER LIFE</strong>
+          <small className="!text-[#d4af37] font-semibold tracking-widest text-[9px]">CHAO PHRAYA CRUISES</small>
         </span>
       </button>
       <button

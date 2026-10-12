@@ -24,6 +24,7 @@ import { copy, type Language } from "./data/i18n";
 import { api, formatPier, type Booking, type EventInfo } from "./data/api";
 import { type Booking as ApiBooking } from "./data/api";
 import Help, { helpTitle, helpTopics, type HelpTopic } from "./components/page/Help";
+import { generateMetadata, applyMetadata } from "./data/metadata";
 
 type Page =
   | "home"
@@ -102,9 +103,15 @@ export default function App() {
   }, []);
   useEffect(() => {
     document.documentElement.lang = language;
-    document.title = language === "en" ? "River Life — Chao Phraya cruises & concert sailings" : "River Life — จองล่องเรือเจ้าพระยาและรอบคอนเสิร์ตพิเศษ";
     localStorage.setItem("riverlife.language", language);
-  }, [language]);
+    const metadata = generateMetadata({
+      page,
+      language,
+      event,
+      helpTopic: page === "help" ? helpTopic : undefined,
+    });
+    applyMetadata(metadata);
+  }, [page, language, event, helpTopic]);
   useEffect(() => {
     void api<AuthUser>("/auth/me")
       .then((user) => {
