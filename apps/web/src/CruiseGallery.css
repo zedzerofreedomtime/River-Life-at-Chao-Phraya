@@ -1,0 +1,180 @@
+.cruise-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+.cruise-photo-grid figure {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid #33404e;
+  border-radius: 16px;
+  background: #111a25;
+}
+.cruise-photo-open {
+  display: block;
+  position: relative;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: #111a25;
+  cursor: pointer;
+  overflow: hidden;
+}
+.cruise-photo-open img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+.cruise-photo-expand {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  color: #fff;
+  background: #07111de6;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.cruise-photo-grid figcaption {
+  padding: 18px;
+  color: #f3f4f6;
+}
+.cruise-photo-grid figcaption strong {
+  font-size: 18px;
+  line-height: 1.5;
+}
+.cruise-photo-grid figcaption p {
+  margin: 8px 0 0;
+  color: #b9c4d1;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.cruise-deck-gallery {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 24px 0 48px;
+}
+.cruise-photo-dialog {
+  width: min(1050px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 16px;
+  box-sizing: border-box;
+  overflow: auto;
+  border: 1px solid #596372;
+  border-radius: 16px;
+  color: #f4f5f7;
+  background: #0b1522;
+}
+.cruise-photo-dialog::backdrop {
+  background: #000c;
+}
+.cruise-photo-dialog > img {
+  display: block;
+  width: 100%;
+  height: min(65dvh, 650px);
+  object-fit: contain;
+}
+.cruise-photo-toolbar,
+.cruise-photo-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.cruise-photo-toolbar {
+  margin-bottom: 12px;
+}
+.cruise-photo-dialog button {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid #5c6775;
+  border-radius: 50%;
+  background: #1c2a3c;
+  color: #fff;
+  cursor: pointer;
+}
+.cruise-photo-controls p {
+  flex: 1;
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.cruise-photo-controls p span {
+  display: block;
+  color: #b9c4d1;
+  font-size: 13px;
+}
+.cruise-photo-open:focus-visible,
+.cruise-photo-dialog button:focus-visible,
+.cruise-video-categories button:focus-visible {
+  outline: 3px solid #edc553;
+  outline-offset: 3px;
+}
+.cruise-video-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 18px;
+}
+.cruise-video-categories button {
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid #566171;
+  border-radius: 999px;
+  color: #e1e7ef;
+  background: #111a25;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+}
+.cruise-video-categories button[aria-pressed="true"] {
+  border-color: #d4af37;
+  background: #d4af37;
+  color: #0b1522;
+}
+.cruise-media-note {
+  color: #b9c4d1;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.cruise-media-note a {
+  color: #edc553;
+  text-underline-offset: 4px;
+}
+.culture-home .onboard-experience-card {
+  background: #111a25;
+  border-color: #33404e;
+}
+.culture-home .onboard-experience-card h3 {
+  color: #edc553 !important;
+}
+.culture-home .onboard-experience-card p,
+.culture-home .onboard-experience-origin {
+  color: #b9c4d1 !important;
+}
+@media (max-width: 960px) {
+  .cruise-photo-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .cruise-photo-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .cruise-photo-controls {
+    gap: 8px;
+  }
+  .cruise-photo-controls p {
+    font-size: 14px;
+  }
+}

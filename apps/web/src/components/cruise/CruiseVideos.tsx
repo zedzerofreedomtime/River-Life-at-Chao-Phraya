@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Play } from "lucide-react";
 import type { Language } from "../../data/i18n";
+import "../../CruiseGallery.css";
 
 const clips = [
   {
@@ -56,6 +57,7 @@ export default function CruiseVideos({ language }: { language: Language }) {
   const players = useRef<(HTMLVideoElement | null)[]>([]);
   const [started, setStarted] = useState(() => clips.map(() => false));
   const [error, setError] = useState<string | null>(null);
+  const [featured, setFeatured] = useState(0);
   const play = (index: number) => {
     setError(null);
     void players.current[index]
@@ -120,8 +122,8 @@ export default function CruiseVideos({ language }: { language: Language }) {
           </h2>
           <p>
             {en
-              ? "Watch our cruise and the dining experience before choosing your sailing."
-              : "ชมคลิปเรือ ท่าเรือ และอาหารจากคอนเทนต์จริง ก่อนตัดสินใจเลือกรอบล่องเรือ"}
+              ? "Explore the vessel, dining and regular on-board performances in real cruise footage. Special concert artists are announced separately for each sailing."
+              : "เลือกชมเรือ อาหาร และการแสดงประจำเรือจากคลิปจริง ส่วนศิลปินคอนเสิร์ตพิเศษจะประกาศแยกตามรอบล่องเรือ"}
           </p>
           <span className="culture-video-origin">
             {en
@@ -130,24 +132,73 @@ export default function CruiseVideos({ language }: { language: Language }) {
           </span>
         </div>
         <div className="culture-video-gallery">
-          <div className="culture-video-feature">{renderClip(clips[0], 0)}</div>
+          <div className="culture-video-feature">
+            <div
+              className="cruise-video-categories"
+              role="group"
+              aria-label={en ? "Choose video category" : "เลือกหมวดคลิป"}
+            >
+              {[
+                { index: 0, th: "เรือและวิว", en: "Cruise & views" },
+                { index: 3, th: "อาหารบนเรือ", en: "Dining" },
+                {
+                  index: 1,
+                  th: "การแสดงและค่ำคืนบนเรือ",
+                  en: "Performances & evening",
+                },
+              ].map((category) => (
+                <button
+                  key={category.index}
+                  type="button"
+                  aria-pressed={featured === category.index}
+                  onClick={() => {
+                    players.current.forEach((player) => player?.pause());
+                    setError(null);
+                    setFeatured(category.index);
+                  }}
+                >
+                  {en ? category.en : category.th}
+                </button>
+              ))}
+            </div>
+            {renderClip(clips[featured], featured)}
+          </div>
           <details
             className="culture-video-extras"
             onToggle={(event) => {
               if (!event.currentTarget.open)
-                players.current.slice(1).forEach((player) => player?.pause());
+                players.current.forEach((player, index) => {
+                  if (index !== featured) player?.pause();
+                });
             }}
           >
             <summary>
               {en
-                ? "Watch the full film (2:21) & more clips"
-                : "ชมคลิปเต็ม 2:21 นาที และคลิปเพิ่มเติม"}
+                ? "More footage & the Pier 4 guide"
+                : "คลิปเพิ่มเติมและทางไปท่าเรือที่ 4"}
             </summary>
             <div className="culture-video-shorts">
-              {clips.slice(1).map((clip, index) => renderClip(clip, index + 1))}
+              {clips.map((clip, index) =>
+                index !== featured ? renderClip(clip, index) : null,
+              )}
             </div>
           </details>
         </div>
+        <p className="cruise-media-note">
+          {en
+            ? "See more recent cruise content on "
+            : "ชมคอนเทนต์ล่าสุดเพิ่มเติมได้ที่ "}
+          <a
+            href="https://www.facebook.com/cruiseunicorn/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Unicorn Cruise Facebook ↗
+          </a>
+          {en
+            ? ". Photos and videos show the atmosphere; food, performances and inclusions may vary by sailing."
+            : " · ภาพและคลิปแสดงบรรยากาศ อาหาร การแสดง และสิ่งที่รวมในแพ็กเกจอาจแตกต่างตามรอบ"}
+        </p>
         {error ? (
           <p className="culture-video-error" role="alert">
             {error}

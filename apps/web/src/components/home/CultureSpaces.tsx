@@ -1,5 +1,6 @@
 import type { Language } from "../../data/i18n";
 import OnboardExperiences from "../cruise/OnboardExperiences";
+import DeckGallery from "../cruise/DeckGallery";
 
 export default function CultureSpaces({ language }: { language: Language }) {
   const en = language === "en";
@@ -9,6 +10,7 @@ export default function CultureSpaces({ language }: { language: Language }) {
       className="culture-spaces culture-container"
       aria-labelledby="culture-spaces-title"
     >
+      <DeckGallery language={language} />
       <OnboardExperiences language={language} />
       <details className="culture-river-context">
         <summary>
@@ -26,9 +28,7 @@ export default function CultureSpaces({ language }: { language: Language }) {
           target="_blank"
           rel="noopener noreferrer"
         >
-          {en
-            ? "Tourism Authority of Thailand"
-            : "การท่องเที่ยวแห่งประเทศไทย"}
+          {en ? "Tourism Authority of Thailand" : "การท่องเที่ยวแห่งประเทศไทย"}
         </a>
         {" · "}
         <a
