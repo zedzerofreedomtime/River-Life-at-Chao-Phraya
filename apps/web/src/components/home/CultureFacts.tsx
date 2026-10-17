@@ -1,14 +1,25 @@
 import { CalendarDays, MapPin, Clock3, Ticket } from "lucide-react";
-import { formatEventDate, formatPier, money, type EventInfo } from "../../data/api";
+import {
+  formatEventDate,
+  formatPier,
+  money,
+  type EventInfo,
+} from "../../data/api";
 import type { Language } from "../../data/i18n";
 
-export default function CultureFacts({ event, language }: { event: EventInfo; language: Language }) {
+export default function CultureFacts({
+  event,
+  language,
+}: {
+  event: EventInfo;
+  language: Language;
+}) {
   const en = language === "en";
   const lowestPrice = event.zones.length
     ? Math.min(...event.zones.map((zone) => zone.price))
     : null;
   const price =
-    lowestPrice === null
+    lowestPrice === null || event.date_is_preview
       ? en
         ? "To be announced"
         : "รอยืนยันราคา"
@@ -30,13 +41,19 @@ export default function CultureFacts({ event, language }: { event: EventInfo; la
             <span>
               {event.date_is_preview
                 ? en
-                  ? "Preview sailing date"
-                  : "วันที่รอบตัวอย่าง"
+                  ? "Sailing date"
+                  : "วันล่องเรือ"
                 : en
                   ? "Featured sailing"
                   : "รอบล่องเรือแนะนำ"}
             </span>
-            <strong>{formatEventDate(event.date, language)}</strong>
+            <strong>
+              {event.date_is_preview
+                ? en
+                  ? "Date to be announced"
+                  : "วันล่องเรือรอประกาศ"
+                : formatEventDate(event.date, language)}
+            </strong>
           </p>
         </div>
         <div>
@@ -52,9 +69,7 @@ export default function CultureFacts({ event, language }: { event: EventInfo; la
           <Clock3 aria-hidden="true" />
           <p>
             <span>
-              {en
-                ? "Boarding " + event.boarding
-                : "ขึ้นเรือ " + event.boarding}
+              {en ? "Boarding " + event.boarding : "ขึ้นเรือ " + event.boarding}
             </span>
             <strong>
               {en
@@ -69,8 +84,8 @@ export default function CultureFacts({ event, language }: { event: EventInfo; la
             <span>
               {event.date_is_preview
                 ? en
-                  ? "Preview price from"
-                  : "ราคาตัวอย่างเริ่มต้น"
+                  ? "Ticket price"
+                  : "ราคาบัตร"
                 : en
                   ? "From, per guest"
                   : "เริ่มต้นต่อท่าน"}

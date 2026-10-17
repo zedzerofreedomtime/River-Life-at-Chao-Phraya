@@ -949,31 +949,6 @@
 .culture-spaces {
   padding-bottom: 70px;
 }
-.culture-space-gallery {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 22px;
-}
-.culture-space-gallery figure {
-  min-width: 0;
-  margin: 0;
-}
-.culture-space-gallery img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1.7;
-  object-fit: cover;
-  border-radius: 5px;
-}
-.culture-space-gallery figure:first-child img {
-  object-position: center 67%;
-}
-.culture-space-gallery figcaption {
-  padding-top: 12px;
-  color: var(--culture-text);
-  font-size: 14px;
-}
 .culture-river-context {
   margin-top: 28px;
   padding-block: 18px;
@@ -1377,13 +1352,6 @@
   .culture-spaces .culture-section-heading {
     flex-direction: column;
     gap: 4px;
-  }
-  .culture-space-gallery {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-  .culture-space-gallery img {
-    aspect-ratio: 1.8;
   }
   .culture-river-context {
     font-size: 12px;

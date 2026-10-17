@@ -7,7 +7,12 @@ import {
   Ticket,
   Utensils,
 } from "lucide-react";
-import { formatEventDate, formatPier, localizeEventTitle, type EventInfo } from "../../data/api";
+import {
+  formatEventDate,
+  formatPier,
+  localizeEventTitle,
+  type EventInfo,
+} from "../../data/api";
 import type { Language } from "../../data/i18n";
 import DiningGallery from "../cruise/DiningGallery";
 import CruiseMenu from "../cruise/CruiseMenu";
@@ -59,7 +64,10 @@ const foodMenu = [
       { th: "ปลาผัดขึ้นฉ่าย", en: "STIR-FRIED FISH WITH CELERY" },
       { th: "หอยชิลีผัดผงหม่าล่า", en: "STIR-FRIED CLAMS WITH MALA POWDER" },
       { th: "ผัดผักซอสน้ำมันหอย", en: "STIR-FRIED VEGETABLES IN OYSTER SAUCE" },
-      { th: "ขนมจีนน้ำยาปลาแซลมอน", en: "SALMON CURRY SAUCE WITH RICE NOODLES" },
+      {
+        th: "ขนมจีนน้ำยาปลาแซลมอน",
+        en: "SALMON CURRY SAUCE WITH RICE NOODLES",
+      },
       { th: "เฟรนฟราย", en: "FRENCH FRIES" },
       { th: "ข้าวผัดไข่", en: "EGG FRIED RICE" },
       { th: "ข้าวสวย", en: "STEAMED RICE" },
@@ -69,7 +77,10 @@ const foodMenu = [
     th: "ของหวาน",
     en: "DESSERTS",
     items: [
-      { th: "กล้วยอบ ซอสคาราเมล & ช็อคโกแลต", en: "BAKED BANANA WITH CARAMEL & CHOCOLATE SAUCE" },
+      {
+        th: "กล้วยอบ ซอสคาราเมล & ช็อคโกแลต",
+        en: "BAKED BANANA WITH CARAMEL & CHOCOLATE SAUCE",
+      },
       { th: "เค้กนานาชนิด", en: "VARIETY OF CAKES" },
       { th: "ผลไม้ตามฤดูกาล", en: "SEASONAL FRUIT" },
       { th: "ชา กาแฟ", en: "COFFEE OR TEA" },
@@ -88,15 +99,25 @@ export default function EventDetail({
 }) {
   const en = language === "en";
   useEffect(() => {
-    if (!["#event-food-menu", "#event-boarding"].includes(window.location.hash)) return;
+    if (!["#event-food-menu", "#event-boarding"].includes(window.location.hash))
+      return;
     const frame = requestAnimationFrame(() => {
-      document.getElementById(window.location.hash.slice(1))?.scrollIntoView({ block: "start" });
+      document
+        .getElementById(window.location.hash.slice(1))
+        ?.scrollIntoView({ block: "start" });
     });
     return () => cancelAnimationFrame(frame);
   }, []);
-  const date = formatEventDate(event.date, language);
+  const date = event.date_is_preview
+    ? en
+      ? "Date to be announced"
+      : "วันล่องเรือรอประกาศ"
+    : formatEventDate(event.date, language);
   const price = Math.min(...event.zones.map((zone) => zone.price)) / 100;
-  const available = event.zones.reduce((total, zone) => total + zone.available, 0);
+  const available = event.zones.reduce(
+    (total, zone) => total + zone.available,
+    0,
+  );
   const details = [
     {
       icon: CalendarDays,
@@ -113,13 +134,23 @@ export default function EventDetail({
     {
       icon: Ticket,
       label: en ? "Tickets from" : "บัตรเริ่มต้น",
-      value: en
-        ? `${new Intl.NumberFormat("th-TH").format(price)} THB`
-        : `${new Intl.NumberFormat("th-TH").format(price)} บาท`,
+      value: event.date_is_preview
+        ? en
+          ? "Price to be announced"
+          : "ราคาจริงรอประกาศ"
+        : en
+          ? `${new Intl.NumberFormat("th-TH").format(price)} THB`
+          : `${new Intl.NumberFormat("th-TH").format(price)} บาท`,
     },
     {
       icon: Ticket,
-      label: en ? "Tickets available" : "บัตรคงเหลือ",
+      label: event.date_is_preview
+        ? en
+          ? "Demo availability"
+          : "โควตาตัวอย่าง"
+        : en
+          ? "Tickets available"
+          : "บัตรคงเหลือ",
       value: en ? `${available} tickets` : `${available} ใบ`,
     },
     {
@@ -152,8 +183,8 @@ export default function EventDetail({
               <h1>{localizeEventTitle(event.title, language)}</h1>
               <p className="event-purchase-summary">
                 {en
-                  ? "Book your sailing with River Life. This special cruise programme brings live music aboard UNICORN CRUISE."
-                  : "จองล่องเรือกับ River Life รอบพิเศษนี้จะพาเสียงเพลงมาอยู่บนเรือ UNICORN CRUISE"}
+                  ? "Every River Life sailing includes a concert aboard UNICORN CRUISE."
+                  : "ทุกรอบล่องเรือ River Life มีคอนเสิร์ตบนเรือ UNICORN CRUISE"}
               </p>
               <dl className="event-key-details">
                 {details.map(({ icon: Icon, label, value }) => (
@@ -168,15 +199,56 @@ export default function EventDetail({
                   </div>
                 ))}
               </dl>
-              <p className="event-price-note">{event.date_is_preview
-                ? (en ? "Preview only: date and ticket prices are examples, not a live event announcement. Do not make a real payment." : "ตัวอย่างเท่านั้น: วันงานและราคาบัตรยังไม่ใช่ประกาศขายจริง กรุณาอย่าชำระเงินจริง")
-                : (en ? "Check the event terms and ticket inclusions before purchasing." : "ตรวจสอบเงื่อนไขงานและสิ่งที่รวมในบัตรก่อนซื้อ")}</p>
+              <div className="booking-before-you-book">
+                <h2>{en ? "Before you book" : "รายละเอียดก่อนจอง"}</h2>
+                <p>
+                  {en
+                    ? "Included: river cruise and on-board concert. See the cruise food menu below; final dining and drink inclusions will be confirmed for each sailing."
+                    : "สิ่งที่รวม: ล่องเรือและคอนเสิร์ตบนเรือ ดูเมนูอาหารด้านล่าง โดยรายละเอียดอาหารและเครื่องดื่มที่รวมในบัตรจะยืนยันตามรอบ"}
+                </p>
+                <p>
+                  {en
+                    ? "Children: age limits, admission and child prices are pending announcement. No child pricing is confirmed yet."
+                    : "เด็ก: เกณฑ์อายุ การเข้าร่วม และราคาสำหรับเด็กรอประกาศ ยังไม่มีอัตราราคาเด็กที่ยืนยัน"}
+                </p>
+                <p>
+                  {en
+                    ? "Booking is by zone and guest count. Specific tables and seats are not assigned at booking."
+                    : "จองแบบโซนและจำนวนคน ยังไม่ระบุโต๊ะหรือเลขที่นั่งเฉพาะ"}
+                </p>
+                {event.date_is_preview && (
+                  <p>
+                    {en
+                      ? "Boarding time and pier above are demonstration details, pending confirmation for the published sailing."
+                      : "เวลาและท่าเรือที่แสดงเป็นข้อมูลประกอบการสาธิต รอยืนยันสำหรับรอบที่ประกาศจริง"}
+                  </p>
+                )}
+              </div>
+              <p className="event-price-note">
+                {event.date_is_preview
+                  ? en
+                    ? "Preview only: date and ticket prices are examples, not a live event announcement. Do not make a real payment."
+                    : "ตัวอย่างเท่านั้น: วันงานและราคาบัตรยังไม่ใช่ประกาศขายจริง กรุณาอย่าชำระเงินจริง"
+                  : en
+                    ? "Check the event terms and ticket inclusions before purchasing."
+                    : "ตรวจสอบเงื่อนไขงานและสิ่งที่รวมในบัตรก่อนซื้อ"}
+              </p>
               <button
                 className="event-buy-button"
                 onClick={() => onStartCheckout()}
                 disabled={available === 0}
               >
-                {available === 0 ? (en ? "Fully booked" : "เต็มแล้ว") : en ? "Choose seating & book" : "เลือกโซนและจองล่องเรือ"}
+                {available === 0
+                  ? en
+                    ? "Fully booked"
+                    : "เต็มแล้ว"
+                  : event.date_is_preview
+                    ? en
+                      ? "Try zone booking"
+                      : "ทดลองเลือกโซนและจอง"
+                    : en
+                      ? "Choose zone & book"
+                      : "เลือกโซนและจองล่องเรือ"}
                 <ArrowRight aria-hidden="true" size={21} />
               </button>
             </div>
@@ -189,8 +261,8 @@ export default function EventDetail({
           <h2>{en ? "About this sailing" : "เกี่ยวกับรอบล่องเรือนี้"}</h2>
           <p>
             {en
-              ? "Book your Chao Phraya journey with River Life aboard UNICORN CRUISE. Dining, river views and on-board entertainment are part of the regular experience. This sailing also features our special concert programme; its artist lineup and ticket inclusions will be announced separately."
-              : "จองล่องเรือเจ้าพระยากับ River Life บนเรือ UNICORN CRUISE มื้ออาหาร วิวแม่น้ำ และความบันเทิงเป็นประสบการณ์พื้นฐานบนเรือ รอบนี้มีโปรแกรมคอนเสิร์ตพิเศษเพิ่มเติม โดยรายชื่อศิลปินและสิ่งที่รวมในบัตรจะประกาศสำหรับรอบนี้"}
+              ? "Cruise the Chao Phraya with River Life aboard UNICORN CRUISE. Every sailing includes an on-board concert. Artist lineups, dates, prices and final ticket inclusions will be announced by sailing."
+              : "ล่องเรือเจ้าพระยากับ River Life บน UNICORN CRUISE พร้อมคอนเสิร์ตบนเรือทุกรอบ รายชื่อศิลปิน วัน ราคา และรายละเอียดบัตรจะประกาศตามรอบล่องเรือ"}
           </p>
           <div className="event-detail-highlights">
             <Highlight
@@ -237,11 +309,19 @@ export default function EventDetail({
         </aside>
       </section>
 
-      <section id="event-food-menu" className="event-food-menu" aria-labelledby="event-food-menu-title">
+      <section
+        id="event-food-menu"
+        className="event-food-menu"
+        aria-labelledby="event-food-menu-title"
+      >
         <div className="event-food-menu-intro">
           <div>
-            <p className="event-food-menu-eyebrow">{en ? "ON-BOARD DINING" : "อาหารบนเรือ"}</p>
-            <h2 id="event-food-menu-title">{en ? "On-board food menu" : "ไลน์อาหารบนเรือ"}</h2>
+            <p className="event-food-menu-eyebrow">
+              {en ? "ON-BOARD DINING" : "อาหารบนเรือ"}
+            </p>
+            <h2 id="event-food-menu-title">
+              {en ? "On-board food menu" : "ไลน์อาหารบนเรือ"}
+            </h2>
             <p>
               {en
                 ? "Explore the UNICORN CRUISE menu, with Thai dishes, seafood and desserts."

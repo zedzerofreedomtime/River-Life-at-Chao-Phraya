@@ -15,10 +15,12 @@ export default function PhotoGallery({
   photos,
   language,
   className = "",
+  viewerLabel,
 }: {
   photos: readonly CruisePhoto[];
   language: Language;
   className?: string;
+  viewerLabel?: string;
 }) {
   const en = language === "en";
   const dialog = useRef<HTMLDialogElement>(null);
@@ -64,7 +66,9 @@ export default function PhotoGallery({
       <dialog
         ref={dialog}
         className="cruise-photo-dialog"
-        aria-label={en ? "Cruise photo viewer" : "ภาพบรรยากาศบนเรือ"}
+        aria-label={
+          viewerLabel ?? (en ? "Cruise photo viewer" : "ภาพบรรยากาศบนเรือ")
+        }
         onKeyDown={(event) => {
           if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
             event.preventDefault();

@@ -11,7 +11,6 @@ export default function ScrollReveal() {
       ".culture-section-heading",
       ".culture-story",
       ".culture-sight-card",
-      ".culture-space-gallery",
       ".dining-gallery",
       ".culture-booking ol li",
       ".onboard-experience-card",

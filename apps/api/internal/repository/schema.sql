@@ -35,6 +35,9 @@ CREATE TABLE IF NOT EXISTS bookings (
  marketing_consent_language text NOT NULL DEFAULT ''
 );
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS attachment_path text NOT NULL DEFAULT '';
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS user_id text REFERENCES users(id);
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS account_token_hash text NOT NULL DEFAULT '';
+CREATE INDEX IF NOT EXISTS bookings_user_created ON bookings(user_id,created_at DESC);
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS slip_hash text NOT NULL DEFAULT '';
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS slip_verification jsonb NOT NULL DEFAULT '{}'::jsonb;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS marketing_consent_at timestamptz;

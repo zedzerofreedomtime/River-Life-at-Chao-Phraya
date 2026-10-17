@@ -5,7 +5,14 @@ import Alert from "@mui/material/Alert";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import { Minus, Plus, Ticket } from "lucide-react";
-import { api, money, newToken, zoneLabel, type Booking, type Zone } from "../../data/api";
+import {
+  api,
+  money,
+  newToken,
+  zoneLabel,
+  type Booking,
+  type Zone,
+} from "../../data/api";
 import type { Language } from "../../data/i18n";
 export default function BookingForm({
   zones,
@@ -83,9 +90,18 @@ export default function BookingForm({
   }
   return (
     <form className="booking-panel" onSubmit={submit}>
-      <h2>{en ? "Choose your places on board" : "เลือกที่นั่งบนเรือ"}</h2>
+      <h2>
+        {en ? "Choose your zone and guests" : "เลือกโซนและจำนวนผู้ร่วมเดินทาง"}
+      </h2>
+      <Alert severity="info">
+        {en
+          ? "This reserves a zone and guest count. Specific tables and seats are not assigned at booking."
+          : "การจองนี้ระบุโซนและจำนวนคน ยังไม่ใช่การเลือกโต๊ะหรือเลขที่นั่งเฉพาะ"}
+      </Alert>
       <p className="muted">
-        {en ? "Select a cruise zone and number of guests" : "เลือกโซน ราคา และจำนวนผู้ร่วมเดินทาง"}
+        {en
+          ? "Select a cruise zone and number of guests"
+          : "เลือกโซน ราคา และจำนวนผู้ร่วมเดินทาง"}
         {isAuthenticated
           ? en
             ? " before confirming your reservation."
@@ -109,12 +125,20 @@ export default function BookingForm({
             }}
           >
             <strong>{zoneLabel(z, language)}</strong>
-            <small>{en ? "Provisional price" : "ราคาชั่วคราว"}</small>
+            <small>
+              {en
+                ? "Demo price · final price to be announced"
+                : "ราคาทดสอบ · ราคาจริงรอประกาศ"}
+            </small>
             <b>{money(z.price)}</b>
             <span className="zone-remaining">
               {z.available > 0
-                ? en ? `${z.available} left` : `เหลือ ${z.available} ใบ`
-                : en ? "Sold out" : "บัตรหมด"}
+                ? en
+                  ? `${z.available} left`
+                  : `เหลือ ${z.available} ใบ`
+                : en
+                  ? "Sold out"
+                  : "บัตรหมด"}
             </span>
           </button>
         ))}
@@ -173,8 +197,12 @@ export default function BookingForm({
             label={
               <span className="consent">
                 {demo
-                  ? (en ? "I understand this is a demo reservation. The event date, prices, inclusions and refund terms are not final, and I must not make a real payment." : "รับทราบว่านี่เป็นการจองทดลอง วันงาน ราคา สิ่งที่รวมในบัตรและเงื่อนไขคืนเงินยังไม่ยืนยัน และจะไม่ชำระเงินจริง")
-                  : (en ? "I have reviewed the event details and booking terms." : "ฉันได้ตรวจสอบรายละเอียดงานและเงื่อนไขการจองแล้ว")}
+                  ? en
+                    ? "I understand this is a demo reservation. The event date, prices, inclusions and refund terms are not final, and I must not make a real payment."
+                    : "รับทราบว่านี่เป็นการจองทดลอง วันงาน ราคา สิ่งที่รวมในบัตรและเงื่อนไขคืนเงินยังไม่ยืนยัน และจะไม่ชำระเงินจริง"
+                  : en
+                    ? "I have reviewed the event details and booking terms."
+                    : "ฉันได้ตรวจสอบรายละเอียดงานและเงื่อนไขการจองแล้ว"}
               </span>
             }
           />
@@ -214,8 +242,12 @@ export default function BookingForm({
             : "กำลังสร้างรายการ…"
           : isAuthenticated
             ? en
-              ? "Confirm reservation and pay"
-              : "ยืนยันการจองและไปชำระเงิน"
+              ? demo
+                ? "Confirm demo reservation"
+                : "Confirm reservation and pay"
+              : demo
+                ? "ยืนยันการจองทดลอง"
+                : "ยืนยันการจองและไปชำระเงิน"
             : en
               ? "Buy tickets"
               : "ซื้อบัตร"}

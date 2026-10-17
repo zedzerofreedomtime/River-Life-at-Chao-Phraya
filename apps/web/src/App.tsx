@@ -16,48 +16,18 @@ import MyBooking from "./components/page/MyBooking";
 import Payment, { FlowSteps } from "./components/page/Payment";
 import BookingSuccess from "./components/page/BookingSuccess";
 import TicketWallet from "./components/page/TicketWallet";
-import ProfileMenu from "./components/shared/ProfileMenu";
 import Auth, { type AuthUser } from "./components/shared/Auth";
 import AdminDashboard from "./components/page/AdminDashboard";
-import LanguageSwitcher from "./components/shared/LanguageSwitcher";
 import { copy, type Language } from "./data/i18n";
 import { api, formatPier, type Booking, type EventInfo } from "./data/api";
-import { type Booking as ApiBooking } from "./data/api";
-import Help, { helpTitle, helpTopics, type HelpTopic } from "./components/page/Help";
+import Help from "./components/page/Help";
+import type { HelpTopic } from "./data/help";
+import { pagePaths, pageFromPath, helpFromPath, type Page, type NavigationMenu } from "./data/navigation";
 import { generateMetadata, applyMetadata } from "./data/metadata";
 
-type Page =
-  | "home"
-  | "event"
-  | "checkout"
-  | "payment"
-  | "success"
-  | "orders"
-  | "tickets"
-  | "auth"
-  | "dashboard"
-  | "help";
-const pagePaths: Record<Page, string> = {
-  home: "/",
-  event: "/concert",
-  checkout: "/checkout",
-  payment: "/payment",
-  success: "/success",
-  orders: "/orders",
-  tickets: "/tickets",
-  auth: "/auth",
-  dashboard: "/dashboard",
-  help: "/help/faq",
-};
-const pathPages: Record<string, Page> = Object.fromEntries(
-  Object.entries(pagePaths).map(([page, path]) => [path, page as Page]),
-) as Record<string, Page>;
 const pageFromLocation = (): Page =>
-  window.location.pathname.startsWith("/help/") ? "help" : pathPages[window.location.pathname] ?? "home";
-const helpFromLocation = (): HelpTopic => {
-  const topic = window.location.pathname.split("/")[2];
-  return helpTopics.includes(topic as HelpTopic) ? topic as HelpTopic : "faq";
-};
+  pageFromPath(window.location.pathname);
+const helpFromLocation = (): HelpTopic => helpFromPath(window.location.pathname);
 export default function App() {
   const [page, setPage] = useState<Page>(pageFromLocation);
   const [event, setEvent] = useState<EventInfo | null>(null);
@@ -84,9 +54,7 @@ export default function App() {
   const [continueCheckoutAfterLogin, setContinueCheckoutAfterLogin] =
     useState(false);
   const [helpTopic, setHelpTopic] = useState<HelpTopic>(helpFromLocation);
-  const [openNavigationMenu, setOpenNavigationMenu] = useState<
-    "events" | "help" | null
-  >(null);
+  const [openNavigationMenu, setOpenNavigationMenu] = useState<NavigationMenu>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigationRef = useRef<HTMLElement>(null);
   const loadEvent = () =>
@@ -210,8 +178,6 @@ export default function App() {
   };
   const strings = copy[language];
   const en = language === "en";
-  const displayName = profile.name === "ผู้ใช้งาน River Life" && en ? "River Life user" : profile.name;
-  const displayEmail = profile.email === "ยังไม่ได้เข้าสู่ระบบ" && en ? "Not logged in" : profile.email;
   return (
     <>
       <Header 
@@ -326,6 +292,10 @@ export default function App() {
         )}
         {page === "orders" && (
           <MyBooking
+            key={isAuthenticated ? "account" : "guest"}
+            isAuthenticated={isAuthenticated}
+            onLogin={openAuthDialog}
+            onAccess={rememberBooking}
             language={language}
             demo={event?.demo ?? false}
             initial={booking}
@@ -341,7 +311,7 @@ export default function App() {
           />
         )}
         {page === "tickets" && (
-          <TicketWallet initial={booking} initialToken={token} language={language} demo={event?.demo ?? false} boardingPier={event ? formatPier(event.pier, event.pier_number, language) : ""} />
+          <TicketWallet key={isAuthenticated ? "account" : "guest"} onOpenOrders={() => go("orders")} initial={booking} initialToken={token} language={language} demo={event?.demo ?? false} boardingPier={event ? formatPier(event.pier, event.pier_number, language) : ""} />
         )}
         {page === "dashboard" && profile.role === "admin" && <AdminDashboard language={language} />}
         {page === "dashboard" && profile.role !== "admin" && (

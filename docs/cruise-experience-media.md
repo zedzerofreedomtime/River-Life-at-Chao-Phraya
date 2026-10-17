@@ -38,3 +38,23 @@ opening/closing fades. No external soundtrack or fabricated narration is added.
 English scene captions are provided as a separate VTT track. The complete
 2:21 film remains available in the expandable video section. All videos load
 on demand, with no autoplay; starting another clip pauses the current clip.
+
+## Riverside night atmosphere (2026-10-14)
+
+Two unchanged JPEG photographs were supplied by the user in
+`drive-download-20261014T085955Z-1-001.zip`:
+
+| Website asset in public/images/river-atmosphere | ZIP entry |
+| --- | --- |
+| iconsiam-night-alangka.jpg | LINE_NOTE_261009_19_0.jpg |
+| pinklao-night-alangka.jpg | LINE_NOTE_261009_3_1.jpg |
+
+The vessel visible in both photographs is labelled Alangka Cruise. These
+assets are used only in the homepage riverside-atmosphere gallery, not as
+UNICORN vessel photographs or proof of a sailing route. Both card captions
+and the enlarged viewer retain this distinction in Thai and English.
+The Pinklao photograph does not add the bridge to the advertised route.
+No boat names, logos, objects or colours were edited. The remaining five
+photographs from the ZIP are not copied into the website. The supplied ZIP
+does not itself establish photographer ownership or publication rights;
+those should be confirmed by the operator before public launch.

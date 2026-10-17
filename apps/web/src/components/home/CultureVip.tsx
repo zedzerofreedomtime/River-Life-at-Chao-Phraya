@@ -8,12 +8,12 @@ export default function CultureVip({ language, onOpenContact }: { language: Lang
       <div className="culture-container">
         <div>
           <h2 id="culture-vip-title">
-            {en ? "A table for your group?" : "อยากได้โต๊ะสำหรับกลุ่มของคุณ?"}
+            {en ? "Planning a group concert cruise?" : "วางแผนล่องเรือชมคอนเสิร์ตเป็นกลุ่ม?"}
           </h2>
           <p>
             {en
-              ? "For VIP tables, prepare your sailing date, guest count and preferred seating. Table availability and prices must be confirmed before payment."
-              : "สำหรับโต๊ะ VIP เตรียมวันล่องเรือ จำนวนผู้ร่วมเดินทาง และพื้นที่ที่ต้องการ โดยต้องยืนยันโต๊ะว่างและราคาก่อนชำระเงิน"}
+              ? "Prepare your preferred sailing and guest count. Bookings currently reserve a zone and guest count; specific tables are not confirmed."
+              : "เตรียมรอบที่สนใจและจำนวนผู้ร่วมเดินทาง ปัจจุบันจองแบบโซนและจำนวนคน ยังไม่มีการยืนยันโต๊ะเฉพาะ"}
           </p>
         </div>
         <div>
@@ -22,7 +22,7 @@ export default function CultureVip({ language, onOpenContact }: { language: Lang
             type="button"
             onClick={onOpenContact}
           >
-            {en ? "Booking & VIP enquiries" : "ข้อมูลติดต่อและสอบถามโต๊ะ VIP"}
+            {en ? "Group booking enquiries" : "สอบถามการจองเป็นกลุ่ม"}
             <ArrowRight size={18} aria-hidden="true" />
           </button>
           <p className="culture-caption">

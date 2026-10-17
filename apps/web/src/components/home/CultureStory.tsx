@@ -31,8 +31,8 @@ export default function CultureStory({ event, language }: { event: EventInfo; la
         </p>
         <p>
           {en
-            ? "UNICORN CRUISE is at the heart of the experience. Our special concert sailings bring live music aboard — look for the programme on each date."
-            : "เรือ UNICORN CRUISE คือหัวใจของประสบการณ์ และในรอบคอนเสิร์ตพิเศษ เราจะพาเสียงเพลงมาอยู่บนเรือ ดูโปรแกรมของแต่ละวันก่อนจอง"}
+            ? "Every River Life sailing aboard UNICORN CRUISE includes an on-board concert. Explore the programme for your chosen sailing."
+            : "ทุกรอบล่องเรือ River Life บน UNICORN CRUISE มีคอนเสิร์ตบนเรือ ชมโปรแกรมของรอบที่สนใจก่อนเลือกจอง"}
         </p>
         <a className="culture-text-link" href="#spaces-on-board">
           {en ? "Explore our boat" : "ทำความรู้จักเรือของเรา"}

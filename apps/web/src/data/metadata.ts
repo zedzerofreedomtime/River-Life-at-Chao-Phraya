@@ -1,19 +1,10 @@
 import type { EventInfo } from "./api";
 import { formatEventDate, formatPier, localizeEventTitle } from "./api";
 import type { Language } from "./i18n";
-import { helpTitle, type HelpTopic } from "../components/page/Help";
+import { helpTitle, type HelpTopic } from "./help";
+import type { Page } from "./navigation";
 
-export type PageName =
-  | "home"
-  | "event"
-  | "checkout"
-  | "payment"
-  | "success"
-  | "orders"
-  | "tickets"
-  | "auth"
-  | "dashboard"
-  | "help";
+export type PageName = Page;
 
 export interface PageMetadata {
   title: string;
@@ -47,7 +38,7 @@ export function generateMetadata({
       return {
         title: en
           ? "River Life — Symphony of the Chao Phraya | Luxury Dinner Cruise & Concert"
-          : "River Life — ล่องเรือแม่น้ำเจ้าพระยา ดินเนอร์หรู และคอนเสิร์ตพิเศษบนเรือ UNICORN CRUISE",
+          : "River Life — ล่องเรือแม่น้ำเจ้าพระยาพร้อมคอนเสิร์ตบนเรือ UNICORN CRUISE ทุกรอบ",
         description: en
           ? "Cruise the Chao Phraya with River Life aboard the UNICORN CRUISE. Experience breathtaking night views of Wat Arun, authentic culinary dining, and unforgettable live concert sailings."
           : "สัมผัสเสน่ห์สายน้ำเจ้าพระยากับ River Life บนเรือ UNICORN CRUISE ชมวิววัดอรุณยามค่ำคืน ลิ้มรสอาหารเลิศรส และดื่มด่ำกับเสียงดนตรีคอนเสิร์ตสดสุดเอ็กซ์คลูซีฟ จองตั๋วออนไลน์ได้ทันที",
@@ -98,8 +89,8 @@ export function generateMetadata({
           "@type": "Event",
           name: eventTitle,
           description: en
-            ? "Special river cruise concert on the Chao Phraya river."
-            : "คอนเสิร์ตพิเศษบนเรือล่องแม่น้ำเจ้าพระยา",
+            ? "Chao Phraya river cruises with an on-board concert on every sailing."
+            : "ล่องเรือแม่น้ำเจ้าพระยาพร้อมคอนเสิร์ตทุกรอบ",
           image: `${baseUrl}/images/boat/unicorn-night-exterior-enhanced-v1.webp`,
           eventStatus: "https://schema.org/EventScheduled",
           eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
@@ -126,10 +117,10 @@ export function generateMetadata({
 
     case "checkout":
       return {
-        title: en ? "Select Seats & Tickets | River Life" : "เลือกที่นั่งและจองตั๋ว | River Life",
+        title: en ? "Choose Zone & Guests | River Life" : "เลือกโซนและจำนวนคน | River Life",
         description: en
-          ? "Select your preferred deck zone and seats aboard UNICORN CRUISE. Open-air rooftop or air-conditioned panorama hall."
-          : "เลือกโซนและที่นั่งบนเรือ UNICORN CRUISE ดาดฟ้าชมวิวเปิดโล่ง 360 องศา หรือห้องปรับอากาศกระจกบานใหญ่",
+          ? "Choose a zone and guest count aboard UNICORN CRUISE. Specific tables and seats are not assigned at booking."
+          : "เลือกโซนและจำนวนผู้ร่วมเดินทางบนเรือ UNICORN CRUISE ยังไม่ระบุโต๊ะหรือเลขที่นั่งเฉพาะ",
         image: defaultImage,
         robots: "noindex, nofollow",
         url: `${baseUrl}/checkout`,

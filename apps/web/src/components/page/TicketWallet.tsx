@@ -15,18 +15,39 @@ import {
   Ticket,
   X,
 } from "lucide-react";
-import { api, localizeEventTitle, statusLabel, type Booking } from "../../data/api";
+import {
+  api,
+  localizeEventTitle,
+  statusLabel,
+  type Booking,
+} from "../../data/api";
 import type { Language } from "../../data/i18n";
 
-type Props = { initial: Booking | null; initialToken: string; language: Language; demo: boolean; boardingPier: string };
+type Props = {
+  initial: Booking | null;
+  initialToken: string;
+  language: Language;
+  demo: boolean;
+  boardingPier: string;
+  onOpenOrders: () => void;
+};
 const zoneName = (zone: string, language: Language) =>
   (language === "en"
     ? { A: "Bow", B: "Stern", C: "Lower deck" }
-    : { A: "โซนหัวเรือ", B: "โซนท้ายเรือ", C: "โซนชั้นล่าง" }
-  )[zone as "A" | "B" | "C"] || `${language === "en" ? "Zone" : "โซน"} ${zone}`;
-const translate = (language: Language, th: string, en: string) => language === "en" ? en : th;
+    : { A: "โซนหัวเรือ", B: "โซนท้ายเรือ", C: "โซนชั้นล่าง" })[
+    zone as "A" | "B" | "C"
+  ] || `${language === "en" ? "Zone" : "โซน"} ${zone}`;
+const translate = (language: Language, th: string, en: string) =>
+  language === "en" ? en : th;
 
-export default function TicketWallet({ initial, initialToken, language, demo, boardingPier }: Props) {
+export default function TicketWallet({
+  initial,
+  initialToken,
+  language,
+  demo,
+  boardingPier,
+  onOpenOrders,
+}: Props) {
   const tr = (th: string, en: string) => translate(language, th, en);
   const concertTitle = localizeEventTitle("Concert on the River", language);
   const [booking, setBooking] = useState<Booking | null>(initial);
@@ -64,7 +85,18 @@ export default function TicketWallet({ initial, initialToken, language, demo, bo
       <section className="wallet-access-shell">
         <div className="wallet-heading">
           <h1>{tr("บัตรของฉัน", "My tickets")}</h1>
-          <p>{tr("กรอกรหัสคำสั่งซื้อและรหัสเข้าถึงส่วนตัวเพื่อเปิดบัตรของคุณ", "Enter your order ID and private access code to open your tickets.")}</p>
+          <Button variant="contained" onClick={onOpenOrders}>
+            {tr(
+              "ดูรายการและตั๋วจากบัญชีของฉัน",
+              "View account bookings and tickets",
+            )}
+          </Button>
+          <p>
+            {tr(
+              "กรอกรหัสคำสั่งซื้อและรหัสเข้าถึงส่วนตัวเพื่อเปิดบัตรของคุณ",
+              "Enter your order ID and private access code to open your tickets.",
+            )}
+          </p>
         </div>
         <div className="access-panel">
           <TextField
@@ -99,9 +131,9 @@ export default function TicketWallet({ initial, initialToken, language, demo, bo
       <aside className="wallet-orders">
         <div className="wallet-orders-head">
           <h2>{tr("คำสั่งซื้อของฉัน", "My bookings")}</h2>
-          <span>
+          <Button onClick={onOpenOrders}>
             {tr("ดูทั้งหมด", "View all")} <ChevronRight size={17} />
-          </span>
+          </Button>
         </div>
         <button
           className="wallet-order-card selected"
@@ -113,8 +145,17 @@ export default function TicketWallet({ initial, initialToken, language, demo, bo
           />
           <span>
             <strong>{concertTitle}</strong>
-            <small>{tr("คำสั่งซื้อ", "Order")} #{shortId(booking.id)}</small>
-            <em>{tickets.length} {language === "en" ? (tickets.length === 1 ? "ticket" : "tickets") : "บัตร"}</em>
+            <small>
+              {tr("คำสั่งซื้อ", "Order")} #{shortId(booking.id)}
+            </small>
+            <em>
+              {tickets.length}{" "}
+              {language === "en"
+                ? tickets.length === 1
+                  ? "ticket"
+                  : "tickets"
+                : "บัตร"}
+            </em>
             <b className={confirmed ? "confirmed" : "review"}>
               {statusLabel(booking.status, language)}
             </b>
@@ -125,11 +166,24 @@ export default function TicketWallet({ initial, initialToken, language, demo, bo
       <main className="wallet-main">
         <div className="wallet-title">
           <h1>{tr("บัตรของฉัน", "My tickets")}</h1>
-          {demo && <Alert severity="warning">{tr("บัตรนี้เป็นบัตรทดสอบ ไม่ใช่บัตรเข้างานจริง และไม่ได้ยืนยันการชำระเงิน", "This is a demo ticket, not valid for boarding. Payment has not been verified.")}</Alert>}
+          {demo && (
+            <Alert severity="warning">
+              {tr(
+                "บัตรนี้เป็นบัตรทดสอบ ไม่ใช่บัตรเข้างานจริง และไม่ได้ยืนยันการชำระเงิน",
+                "This is a demo ticket, not valid for boarding. Payment has not been verified.",
+              )}
+            </Alert>
+          )}
           <p>
             {demo
-              ? tr("ตรวจสอบตัวอย่างบัตรและหน้าจอ QR สำหรับการทดลองเท่านั้น", "Preview your sample ticket and QR screen. It is not valid for boarding.")
-              : tr("ตรวจสอบบัตร เข้างาน และเพลิดเพลินกับประสบการณ์คอนเสิร์ตบนแม่น้ำเจ้าพระยา", "Check your tickets, board the boat, and enjoy a concert on the Chao Phraya River.")}
+              ? tr(
+                  "ตรวจสอบตัวอย่างบัตรและหน้าจอ QR สำหรับการทดลองเท่านั้น",
+                  "Preview your sample ticket and QR screen. It is not valid for boarding.",
+                )
+              : tr(
+                  "ตรวจสอบบัตร เข้างาน และเพลิดเพลินกับประสบการณ์คอนเสิร์ตบนแม่น้ำเจ้าพระยา",
+                  "Check your tickets, board the boat, and enjoy a concert on the Chao Phraya River.",
+                )}
           </p>
         </div>
         <div className="wallet-tabs">
@@ -144,19 +198,25 @@ export default function TicketWallet({ initial, initialToken, language, demo, bo
             {tr("กำลังดำเนินการ", "In progress")} ({confirmed ? 0 : 1})
           </span>
           <span>
-            {tr("ใช้แล้ว", "Used")} ({tickets.filter((ticket) => ticket.checked_in_at).length})
+            {tr("ใช้แล้ว", "Used")} (
+            {tickets.filter((ticket) => ticket.checked_in_at).length})
           </span>
         </div>
         {!confirmed ? (
           <div className="wallet-pending-state">
             <Alert severity="info" className="wallet-status-alert">
-              {tr("คำสั่งซื้อ", "Order")} #{shortId(booking.id)} {tr("อยู่ในสถานะ:", "status:")}{" "}
+              {tr("คำสั่งซื้อ", "Order")} #{shortId(booking.id)}{" "}
+              {tr("อยู่ในสถานะ:", "status:")}{" "}
               {statusLabel(booking.status, language)}
             </Alert>
           </div>
         ) : (
           <>
-            <TicketJourney ticketCount={tickets.length} language={language} boardingPier={boardingPier} />
+            <TicketJourney
+              ticketCount={tickets.length}
+              language={language}
+              boardingPier={boardingPier}
+            />
             <div className="wallet-ticket-workspace">
               <section className="wallet-ticket-stack">
                 <div className="wallet-order-summary">
@@ -167,7 +227,14 @@ export default function TicketWallet({ initial, initialToken, language, demo, bo
                   <span>
                     {tr("คำสั่งซื้อ", "Order")} #{shortId(booking.id)}
                     <b>{tr("ยืนยันแล้ว", "Confirmed")}</b>
-                    <small>{tickets.length} {language === "en" ? (tickets.length === 1 ? "ticket" : "tickets") : "บัตร"}</small>
+                    <small>
+                      {tickets.length}{" "}
+                      {language === "en"
+                        ? tickets.length === 1
+                          ? "ticket"
+                          : "tickets"
+                        : "บัตร"}
+                    </small>
                   </span>
                 </div>
                 {tickets.map((ticket, index) => (
@@ -182,11 +249,10 @@ export default function TicketWallet({ initial, initialToken, language, demo, bo
                     <img src="/images/boat/unicorn-night-exterior.jpg" alt="" />
                     <span>
                       <small>
-                        {tr("บัตรที่", "Ticket")} {index + 1} {tr("จาก", "of")} {tickets.length}
+                        {tr("บัตรที่", "Ticket")} {index + 1} {tr("จาก", "of")}{" "}
+                        {tickets.length}
                       </small>
-                      <strong>
-                        {zoneName(booking.zone_id, language)}
-                      </strong>
+                      <strong>{zoneName(booking.zone_id, language)}</strong>
                       <em>
                         {concertTitle}
                         <br />
@@ -205,14 +271,34 @@ export default function TicketWallet({ initial, initialToken, language, demo, bo
                   <Ticket aria-hidden="true" />
                   <span>
                     <strong>
-                      {tr(`ทั้ง ${tickets.length} บัตรอยู่ในคำสั่งซื้อเดียวกัน`, `All ${tickets.length} tickets are in one order`)}
+                      {tr(
+                        `ทั้ง ${tickets.length} บัตรอยู่ในคำสั่งซื้อเดียวกัน`,
+                        `All ${tickets.length} tickets are in one order`,
+                      )}
                     </strong>
-                    <small>{demo ? tr("บัตรตัวอย่าง ใช้เข้างานจริงไม่ได้", "Sample ticket; not valid for boarding.") : tr("กรุณาแสดงบัตรแต่ละใบเมื่อเข้างาน", "Show each ticket when boarding.")}</small>
+                    <small>
+                      {demo
+                        ? tr(
+                            "บัตรตัวอย่าง ใช้เข้างานจริงไม่ได้",
+                            "Sample ticket; not valid for boarding.",
+                          )
+                        : tr(
+                            "กรุณาแสดงบัตรแต่ละใบเมื่อเข้างาน",
+                            "Show each ticket when boarding.",
+                          )}
+                    </small>
                   </span>
                   <span>
                     <CircleHelp aria-hidden="true" />
-                    <strong>{tr("มีคำถามเกี่ยวกับบัตร?", "Questions about your tickets?")}</strong>
-                    <small>{tr("ดูคำแนะนำการใช้งาน →", "View ticket guidance →")}</small>
+                    <strong>
+                      {tr(
+                        "มีคำถามเกี่ยวกับบัตร?",
+                        "Questions about your tickets?",
+                      )}
+                    </strong>
+                    <small>
+                      {tr("ดูคำแนะนำการใช้งาน →", "View ticket guidance →")}
+                    </small>
                   </span>
                 </div>
               </section>
@@ -282,27 +368,52 @@ function QrDialog({
           {tr("บัตรที่", "Ticket")} {index + 1} {tr("จาก", "of")} {count}
         </span>
         <h2>{zoneName(booking.zone_id, language)}</h2>
-        <p>{concertTitle} · {boardingPier} · 19:00</p>
+        <p>
+          {concertTitle} · {boardingPier} · 19:00
+        </p>
         <QRCodeSVG value={ticketId} size={250} />
         <strong className={checkedIn ? "used" : "available"}>
-          ● {checkedIn ? tr("เช็กอินแล้ว", "Checked in") : tr("พร้อมใช้เข้างาน", "Ready for boarding")}
+          ●{" "}
+          {checkedIn
+            ? tr("เช็กอินแล้ว", "Checked in")
+            : tr("พร้อมใช้เข้างาน", "Ready for boarding")}
         </strong>
-        <small>{tr("แสดง QR นี้ให้เจ้าหน้าที่สแกนที่จุด Check-in", "Show this QR code for scanning at check-in.")}</small>
+        <small>
+          {tr(
+            "แสดง QR นี้ให้เจ้าหน้าที่สแกนที่จุด Check-in",
+            "Show this QR code for scanning at check-in.",
+          )}
+        </small>
       </DialogContent>
     </Dialog>
   );
 }
 
-function TicketJourney({ ticketCount, language, boardingPier }: { ticketCount: number; language: Language; boardingPier: string }) {
+function TicketJourney({
+  ticketCount,
+  language,
+  boardingPier,
+}: {
+  ticketCount: number;
+  language: Language;
+  boardingPier: string;
+}) {
   const tr = (th: string, en: string) => translate(language, th, en);
   return (
     <section className="booking-journey confirmed">
       <div className="booking-journey-head">
         <div>
           <small>{tr("สถานะการจอง", "Booking status")}</small>
-          <strong>{tr("บัตรของคุณพร้อมใช้งานแล้ว", "Your tickets are ready")}</strong>
+          <strong>
+            {tr("บัตรของคุณพร้อมใช้งานแล้ว", "Your tickets are ready")}
+          </strong>
         </div>
-        <span>{tr(`มี ${ticketCount} QR — แสดงทีละใบเมื่อเข้างาน`, `${ticketCount} QR ${ticketCount === 1 ? "code" : "codes"} — show each ticket when boarding`)}</span>
+        <span>
+          {tr(
+            `มี ${ticketCount} QR — แสดงทีละใบเมื่อเข้างาน`,
+            `${ticketCount} QR ${ticketCount === 1 ? "code" : "codes"} — show each ticket when boarding`,
+          )}
+        </span>
       </div>
       <ol className="booking-steps">
         <li className="done">{tr("ยืนยันการจอง", "Booking confirmed")}</li>
@@ -312,11 +423,21 @@ function TicketJourney({ ticketCount, language, boardingPier }: { ticketCount: n
       </ol>
       <div className="boarding-details">
         <span>
-          <MapPin aria-hidden="true" /> {boardingPier} · {tr("จุดขึ้นเรือ", "Boarding pier")}
+          <MapPin aria-hidden="true" /> {boardingPier} ·{" "}
+          {tr("จุดขึ้นเรือ", "Boarding pier")}
         </span>
-        <span>{tr("ขึ้นเรือก่อน 18:45 · ออกเรือ 19:00", "Board by 18:45 · Departure at 19:00")}</span>
         <span>
-          <ShieldAlert aria-hidden="true" /> {tr("มาสายจนไม่ทันเรือถือเป็น No-show", "Missing departure is considered a no-show")}
+          {tr(
+            "ขึ้นเรือก่อน 18:45 · ออกเรือ 19:00",
+            "Board by 18:45 · Departure at 19:00",
+          )}
+        </span>
+        <span>
+          <ShieldAlert aria-hidden="true" />{" "}
+          {tr(
+            "มาสายจนไม่ทันเรือถือเป็น No-show",
+            "Missing departure is considered a no-show",
+          )}
         </span>
       </div>
     </section>
@@ -347,7 +468,10 @@ function TicketPreview({
         {tr("บัตรที่", "Ticket")} {index + 1} {tr("จาก", "of")} {count}
       </span>
       <span className="ticket-state">
-        ● {checkedIn ? tr("เช็กอินแล้ว", "Checked in") : tr("ใช้งานได้", "Available")}
+        ●{" "}
+        {checkedIn
+          ? tr("เช็กอินแล้ว", "Checked in")
+          : tr("ใช้งานได้", "Available")}
       </span>
       <h2>{zoneName(booking.zone_id, language)}</h2>
       <p>
@@ -357,7 +481,8 @@ function TicketPreview({
       </p>
       <QRCodeSVG value={ticketId} size={188} />
       <p className="qr-note">
-        <CircleHelp aria-hidden="true" size={20} /> {tr("แสดง QR Code นี้ที่จุด Check-in", "Show this QR code at check-in")}
+        <CircleHelp aria-hidden="true" size={20} />{" "}
+        {tr("แสดง QR Code นี้ที่จุด Check-in", "Show this QR code at check-in")}
         <br />
         <small>{tr("เพื่อสแกนเข้างาน", "for boarding")}</small>
       </p>
@@ -379,15 +504,28 @@ function TicketPreview({
         <div>
           <dt>{tr("สถานะ", "Status")}</dt>
           <dd className="available">
-            ● {checkedIn ? tr("เช็กอินแล้ว", "Checked in") : tr("ใช้งานได้", "Available")}
+            ●{" "}
+            {checkedIn
+              ? tr("เช็กอินแล้ว", "Checked in")
+              : tr("ใช้งานได้", "Available")}
           </dd>
         </div>
       </dl>
       <div className="ticket-rules">
         <strong>{tr("เงื่อนไขการใช้งาน", "Ticket terms")}</strong>
         <ul>
-          <li>{tr(`บัตรนี้ใช้เข้าร่วมงาน${concertTitle}เท่านั้น`, `This ticket is valid for ${concertTitle} only.`)}</li>
-          <li>{tr("กรุณาแสดง QR Code จากหน้าจอนี้ ไม่อนุญาตให้ใช้ภาพถ่าย", "Show the QR code on this screen; screenshots are not accepted.")}</li>
+          <li>
+            {tr(
+              `บัตรนี้ใช้เข้าร่วมงาน${concertTitle}เท่านั้น`,
+              `This ticket is valid for ${concertTitle} only.`,
+            )}
+          </li>
+          <li>
+            {tr(
+              "กรุณาแสดง QR Code จากหน้าจอนี้ ไม่อนุญาตให้ใช้ภาพถ่าย",
+              "Show the QR code on this screen; screenshots are not accepted.",
+            )}
+          </li>
           <li>{tr("1 บัตร ต่อ 1 ท่าน", "One ticket per person.")}</li>
         </ul>
       </div>

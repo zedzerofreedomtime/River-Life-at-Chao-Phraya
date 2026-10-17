@@ -12,6 +12,9 @@ export default function MyBooking({
   onOpenTickets,
   language,
   demo,
+  isAuthenticated,
+  onLogin,
+  onAccess,
 }: {
   initial: Booking | null;
   initialToken: string;
@@ -19,9 +22,12 @@ export default function MyBooking({
   onOpenTickets?: (booking: Booking) => void;
   language: Language;
   demo: boolean;
+  isAuthenticated: boolean;
+  onLogin: () => void;
+  onAccess: (booking: Booking, token: string) => void;
 }) {
   const en = language === "en";
-  const tr = (th: string, english: string) => en ? english : th;
+  const tr = (th: string, english: string) => (en ? english : th);
   const [booking, setBooking] = useState(initial);
   const [id, setID] = useState(
     initial?.id ?? sessionStorage.getItem("riverlife.booking.id") ?? "",
@@ -31,6 +37,47 @@ export default function MyBooking({
   );
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [history, setHistory] = useState<Booking[]>([]);
+  const [historyBusy, setHistoryBusy] = useState(false);
+  const [historyError, setHistoryError] = useState("");
+  useEffect(() => {
+    let active = true;
+    setHistory([]);
+    if (!isAuthenticated) return;
+    setHistoryBusy(true);
+    setHistoryError("");
+    void api<Booking[]>("/me/bookings")
+      .then((items) => {
+        if (active) setHistory(items);
+      })
+      .catch((cause: Error) => {
+        if (active) setHistoryError(cause.message);
+      })
+      .finally(() => {
+        if (active) setHistoryBusy(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [isAuthenticated]);
+  const openAccountBooking = async (bookingID: string) => {
+    setBusy(true);
+    setError("");
+    try {
+      const result = await api<{ booking: Booking; token: string }>(
+        `/me/bookings/${encodeURIComponent(bookingID)}/access`,
+        { method: "POST" },
+      );
+      setID(result.booking.id);
+      setToken(result.token);
+      setBooking(result.booking);
+      onAccess(result.booking, result.token);
+    } catch (cause) {
+      setError((cause as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const load = async () => {
     setBusy(true);
@@ -42,6 +89,7 @@ export default function MyBooking({
         token,
       );
       setBooking(latest);
+      onAccess(latest, token);
       sessionStorage.setItem("riverlife.booking.id", latest.id);
       sessionStorage.setItem("riverlife.booking.token", token);
     } catch (cause) {
@@ -70,40 +118,100 @@ export default function MyBooking({
     <section className="content-panel">
       <div className="orders-heading">
         <h1>{tr("คำสั่งซื้อของฉัน", "My bookings")}</h1>
-        <p>{tr("แนบรูปประกอบการจอง แล้วรับ QR Ticket", "Upload your payment receipt and track your QR ticket.")}</p>
+        <p>
+          {tr(
+            "ดูรายการจอง สถานะ และเปิดบัตรของคุณได้ที่นี่ หรือกลับมาจากเมนูบัญชี → คำสั่งซื้อของฉัน",
+            "Track bookings and open tickets here. Return via Account → My bookings.",
+          )}
+        </p>
       </div>
-      <div className="grid gap-4 md:grid-cols-3">
-        <TextField
-          label={tr("รหัสการจอง", "Booking ID")}
-          value={id}
-          onChange={(event) => {
-            setID(event.target.value);
-            setBooking(null);
-          }}
-        />
-        <TextField
-          label={tr("รหัสเข้าถึงส่วนตัว", "Private access code")}
-          type="password"
-          value={token}
-          onChange={(event) => {
-            setToken(event.target.value);
-            setBooking(null);
-          }}
-        />
-        <Button
-          variant="outlined"
-          onClick={() => void load()}
-          disabled={busy || !id || !token}
-        >
-          {tr("เปิดคำสั่งซื้อ", "Open booking")}
+      {!isAuthenticated ? (
+        <Button variant="contained" onClick={onLogin}>
+          {tr(
+            "เข้าสู่ระบบเพื่อดูประวัติการจอง",
+            "Log in to view booking history",
+          )}
         </Button>
-      </div>
+      ) : (
+        <section aria-label={tr("ประวัติการจอง", "Booking history")}>
+          <h2>
+            {tr("รายการที่จองด้วยบัญชีนี้", "Bookings made with this account")}
+          </h2>
+          {historyBusy && (
+            <p role="status">{tr("กำลังโหลดรายการ…", "Loading bookings…")}</p>
+          )}
+          {historyError && <Alert severity="error">{historyError}</Alert>}
+          {!historyBusy && !historyError && history.length === 0 && (
+            <p>
+              {tr(
+                "ยังไม่มีรายการที่ผูกกับบัญชีนี้ รายการเก่าเปิดด้วยรหัสส่วนตัวด้านล่างได้",
+                "No account bookings yet. Older bookings can be opened with their private code below.",
+              )}
+            </p>
+          )}
+          <div className="grid gap-3">
+            {history.map((item) => (
+              <article key={item.id} className="booking-detail">
+                <strong>
+                  {tr("โซน", "Zone")} {item.zone_id} · {item.quantity}{" "}
+                  {tr("ท่าน", "guests")} · {money(item.total)}
+                </strong>
+                <p>
+                  #{item.id} · {statusLabel(item.status, language)}
+                </p>
+                <Button
+                  variant="outlined"
+                  disabled={busy}
+                  onClick={() => void openAccountBooking(item.id)}
+                >
+                  {tr("ดูรายละเอียดและบัตร", "View booking and tickets")}
+                </Button>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+      <details open={!isAuthenticated} className="my-4">
+        <summary>
+          {tr(
+            "มีรายการเก่าหรือรหัสส่วนตัว? เปิดรายการที่นี่",
+            "Have an older booking or private code? Open it here",
+          )}
+        </summary>
+        <div className="grid gap-4 md:grid-cols-3">
+          <TextField
+            label={tr("รหัสการจอง", "Booking ID")}
+            value={id}
+            onChange={(event) => {
+              setID(event.target.value);
+              setBooking(null);
+            }}
+          />
+          <TextField
+            label={tr("รหัสเข้าถึงส่วนตัว", "Private access code")}
+            type="password"
+            value={token}
+            onChange={(event) => {
+              setToken(event.target.value);
+              setBooking(null);
+            }}
+          />
+          <Button
+            variant="outlined"
+            onClick={() => void load()}
+            disabled={busy || !id || !token}
+          >
+            {tr("เปิดคำสั่งซื้อ", "Open booking")}
+          </Button>
+        </div>
+      </details>
       {error && <Alert severity="error">{error}</Alert>}
       {booking && (
         <div className="booking-detail">
           <div className="order-status-bar">
             <h3>
-              {tr("โซน", "Zone")} {booking.zone_id} · {booking.quantity} {en ? (booking.quantity === 1 ? "ticket" : "tickets") : "ใบ"} ·{" "}
+              {tr("โซน", "Zone")} {booking.zone_id} · {booking.quantity}{" "}
+              {en ? (booking.quantity === 1 ? "ticket" : "tickets") : "ใบ"} ·{" "}
               {money(booking.total)}
             </h3>
             <strong>{statusLabel(booking.status, language)}</strong>
@@ -112,17 +220,33 @@ export default function MyBooking({
             {tr("ผู้สั่งซื้อ", "Customer")}: {booking.name} · {booking.email}
           </p>
           <Alert severity="info">
-            {tr("เก็บรหัสการจองและรหัสเข้าถึงนี้ไว้เพื่อเปิดบัตรจากเครื่องอื่น", "Keep your booking ID and access code to open tickets on another device.")}
+            {isAuthenticated ? tr("รายการที่จองด้วยบัญชีนี้เปิดจากเครื่องอื่นได้โดยเข้าสู่ระบบ แล้วไปที่คำสั่งซื้อของฉัน ส่วนรายการเก่ายังใช้รหัสส่วนตัวเดิม", "Open account bookings on another device by logging in and visiting My bookings. Older bookings still use their original private code.") : tr(
+              "เก็บรหัสการจองและรหัสเข้าถึงนี้ไว้เพื่อเปิดบัตรจากเครื่องอื่น",
+              "Keep your booking ID and access code to open tickets on another device.",
+            )}
           </Alert>
-          <details className="access-code">
-            <summary>{tr("แสดงรหัสเข้าถึงสำหรับเก็บรักษา", "Show access code to save")}</summary>
+          {!isAuthenticated && <details className="access-code">
+            <summary>
+              {tr("แสดงรหัสเข้าถึงสำหรับเก็บรักษา", "Show access code to save")}
+            </summary>
             <code className="break-all">{token}</code>
-          </details>
+          </details>}
           {booking.status === "held" && (
-            <section className="order-action" aria-label={tr("ชำระเงิน", "Payment")}>
+            <section
+              className="order-action"
+              aria-label={tr("ชำระเงิน", "Payment")}
+            >
               <h3>{tr("รอชำระเงิน", "Awaiting payment")}</h3>
               <p>
-                {demo ? tr("รายการทดลองถูกสำรองไว้ ไปหน้าถัดไปเพื่อแนบภาพตัวอย่าง ห้ามชำระเงินจริง", "Your demo tickets are held. Continue to upload a sample image; do not make a real payment.") : tr("รายการถูกสำรองไว้ กรุณาไปหน้าชำระเงินเพื่อสแกน QR และแนบหลักฐาน", "Your tickets are reserved. Go to payment to scan the QR code and upload your receipt.")}
+                {demo
+                  ? tr(
+                      "รายการทดลองถูกสำรองไว้ ไปขั้นตอนชำระเงินทดสอบเพื่อดำเนินการต่อ",
+                      "Your demo reservation is held. Continue to test payment.",
+                    )
+                  : tr(
+                      "รายการถูกสำรองไว้ กรุณาดำเนินการชำระเงินภายในเวลาที่กำหนด",
+                      "Your reservation is held. Complete payment before the hold expires.",
+                    )}
               </p>
               <Button variant="contained" onClick={() => onPay?.(booking)}>
                 {tr("ไปหน้าชำระเงิน", "Continue to payment")}
@@ -132,9 +256,18 @@ export default function MyBooking({
           {booking.status === "confirmed" && (
             <div className="order-success">
               <div>
-                <strong>{demo ? tr("บันทึกรายการทดลองแล้ว", "Demo booking recorded") : tr("ชำระเงินเรียบร้อยแล้ว", "Payment confirmed")}</strong>
+                <strong>
+                  {demo
+                    ? tr("บันทึกรายการทดลองแล้ว", "Demo booking recorded")
+                    : tr("ชำระเงินเรียบร้อยแล้ว", "Payment confirmed")}
+                </strong>
                 <span>
-                  {booking.tickets.length} {en ? (booking.tickets.length === 1 ? "QR ticket ready" : "QR tickets ready") : "QR Ticket พร้อมใช้งาน"}
+                  {booking.tickets.length}{" "}
+                  {en
+                    ? booking.tickets.length === 1
+                      ? "QR ticket ready"
+                      : "QR tickets ready"
+                    : "QR Ticket พร้อมใช้งาน"}
                 </span>
               </div>
               <Button
@@ -147,7 +280,8 @@ export default function MyBooking({
           )}
           {booking.status !== "held" && booking.status !== "confirmed" && (
             <Alert severity="info" sx={{ mt: 2 }}>
-              {tr("คำสั่งซื้อนี้อยู่ในสถานะ", "Booking status:")} {statusLabel(booking.status, language)}
+              {tr("คำสั่งซื้อนี้อยู่ในสถานะ", "Booking status:")}{" "}
+              {statusLabel(booking.status, language)}
             </Alert>
           )}
         </div>

@@ -8,7 +8,7 @@ export const copy = {
       orders: "คำสั่งซื้อ",
       dashboard: "แดชบอร์ด",
     },
-    steps: ["เลือกรอบล่องเรือ", "เลือกโซนและที่นั่ง", "ชำระเงิน", "ทำรายการสำเร็จ"],
+    steps: ["เลือกรอบล่องเรือ", "เลือกโซนและจำนวนคน", "ชำระเงิน", "ทำรายการสำเร็จ"],
     checkoutTitle: "เลือกโซนและจำนวนผู้ร่วมเดินทาง",
     checkoutCopy: "เลือกพื้นที่บนเรือและจำนวนผู้ร่วมเดินทางของรอบที่จอง ก่อนเข้าสู่ขั้นตอนชำระเงิน",
   },
@@ -19,7 +19,7 @@ export const copy = {
       orders: "My Bookings",
       dashboard: "Dashboard",
     },
-    steps: ["Choose sailing", "Choose zone & places", "Payment", "Confirmed"],
+    steps: ["Choose sailing", "Choose zone & guests", "Payment", "Confirmed"],
     demo: "Demo preview · 21 Nov 2026 and ticket prices are examples only · Do not make a real payment",
     checkoutTitle: "Choose your zone and guests",
     checkoutCopy:

@@ -56,8 +56,8 @@ export default function OnboardExperiences({
           </h2>
           <p>
             {en
-              ? "Dining, river views and entertainment are part of our regular cruise experience. Special concert sailings feature their own announced artist lineups."
-              : "มื้ออาหาร วิวเจ้าพระยา และการแสดงเป็นกิจกรรมพื้นฐานบนเรือของเรา ส่วนคอนเสิร์ตพิเศษจะประกาศศิลปินตามรอบที่จัด"}
+              ? "Enjoy river views, dining and an on-board concert on every sailing. Artist lineups are announced for each sailing."
+              : "สัมผัสวิวเจ้าพระยา มื้ออาหาร และคอนเสิร์ตบนเรือในทุกรอบ รายชื่อศิลปินจะประกาศตามรอบล่องเรือ"}
           </p>
         </div>
       </div>

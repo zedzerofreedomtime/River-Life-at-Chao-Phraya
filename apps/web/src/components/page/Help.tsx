@@ -1,25 +1,7 @@
 import type { Language } from "../../data/i18n";
 
-export type HelpTopic = "contact" | "faq" | "payment" | "refunds" | "tickets";
-
-export const helpTopics: HelpTopic[] = [
-  "contact",
-  "faq",
-  "payment",
-  "refunds",
-  "tickets",
-];
-
-export function helpTitle(topic: HelpTopic, language: Language) {
-  const titles = {
-    contact: ["ติดต่อเรา", "Contact us"],
-    faq: ["ช่วยเหลือ / คำถามที่พบบ่อย", "Help & FAQ"],
-    payment: ["การชำระเงินและแนบสลิป", "Payments & slip upload"],
-    refunds: ["การเลื่อนงาน / คืนเงิน", "Postponement & refunds"],
-    tickets: ["เงื่อนไขการใช้บัตร", "Ticket terms"],
-  };
-  return titles[topic][language === "en" ? 1 : 0];
-}
+import { helpTitle, helpTopics, type HelpTopic } from "../../data/help";
+export { helpTitle, helpTopics, type HelpTopic } from "../../data/help";
 
 export default function Help({
   topic,

@@ -1,0 +1,27 @@
+.river-night-gallery {
+  padding-bottom: 64px;
+  scroll-margin-top: 128px;
+}
+.river-night-gallery .river-night-notice {
+  margin: 0 0 24px;
+  padding: 16px 20px;
+  border-left: 3px solid #d4af37;
+  background: #d4af370c;
+  color: #c5ceda;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.river-night-photo-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (max-width: 600px) {
+  .river-night-gallery {
+    padding-bottom: 38px;
+  }
+  .river-night-photo-grid {
+    grid-template-columns: 1fr;
+  }
+  .river-night-gallery .river-night-notice {
+    padding: 14px 16px;
+  }
+}

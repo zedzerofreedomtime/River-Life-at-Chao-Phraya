@@ -9,8 +9,8 @@ export default function CultureBooking({ language }: { language: Language }) {
           "Pick the date and explore what is included in that sailing.",
         ],
         [
-          "Choose your places",
-          "Sign in, select a zone and the number of guests.",
+          "Choose your zone",
+          "Sign in, select a zone and guest count. Specific tables and seats are not assigned at booking.",
         ],
         ["Review & pay", "Check the sailing details and total before paying."],
         [
@@ -23,7 +23,7 @@ export default function CultureBooking({ language }: { language: Language }) {
           "เลือกรอบล่องเรือ",
           "เลือกวันและดูรายละเอียดประสบการณ์ที่รวมในรอบนั้น",
         ],
-        ["เลือกที่นั่งของคุณ", "เข้าสู่ระบบ เลือกโซนและจำนวนผู้ร่วมเดินทาง"],
+        ["เลือกโซนและจำนวนคน", "เข้าสู่ระบบ เลือกโซนและจำนวนผู้ร่วมเดินทาง ยังไม่ระบุโต๊ะหรือเลขที่นั่ง"],
         ["ตรวจสอบและชำระเงิน", "ดูรายละเอียดรอบล่องเรือและยอดรวมก่อนชำระเงิน"],
         ["พบกันที่ท่าเรือ", "นำ QR Ticket มาแสดงตามเวลาขึ้นเรือของรอบที่จอง"],
       ];

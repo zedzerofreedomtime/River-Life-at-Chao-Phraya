@@ -34,7 +34,7 @@ func (p *Payments) Checkout(ctx context.Context, id, token string, consent bool,
 		return CheckoutResult{}, err
 	}
 	defer tx.Rollback(ctx)
-	b, err := scan(tx.QueryRow(ctx, "SELECT "+columns+" FROM bookings WHERE id=$1 AND token_hash=$2 FOR UPDATE", id, Hash(token)))
+	b, err := scan(tx.QueryRow(ctx, "SELECT "+columns+" FROM bookings WHERE id=$1 AND (token_hash=$2 OR account_token_hash=$2) FOR UPDATE", id, Hash(token)))
 	if err != nil {
 		return CheckoutResult{}, err
 	}

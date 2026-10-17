@@ -126,8 +126,8 @@ export default function CultureHero({ language }: { language: Language }) {
         </p>
         <p className="culture-hero-description">
           {en
-            ? "Cruise the Chao Phraya with River Life. Discover our river experiences and special concert sailings."
-            : "จองล่องเรือเจ้าพระยากับ River Life พร้อมสัมผัสประสบการณ์บนสายน้ำและคอนเสิร์ตในรอบพิเศษ"}
+            ? "Cruise the Chao Phraya with River Life. Every sailing brings a concert on board."
+            : "ล่องเรือเจ้าพระยากับ River Life พร้อมคอนเสิร์ตบนเรือในทุกรอบการเดินทาง"}
         </p>
         <div className="culture-hero-actions">
           <a className="culture-button" href="#cruise-calendar">

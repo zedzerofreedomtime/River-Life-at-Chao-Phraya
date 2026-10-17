@@ -92,8 +92,8 @@ export default function SailingCalendar({
           </h2>
           <p>
             {en
-              ? "Choose a month to explore our sailing schedule and special concert programme."
-              : "เลือกเดือนเพื่อดูรอบล่องเรือของเราและโปรแกรมคอนเสิร์ตรอบพิเศษ"}
+              ? "Every sailing includes an on-board concert. Sailing dates and prices will be announced; calendar entries are demonstrations."
+              : "ทุกรอบล่องเรือมีคอนเสิร์ตบนเรือ วันและราคาจริงรอประกาศ รายการในปฏิทินเป็นตัวอย่างการใช้งาน"}
           </p>
         </div>
         <label className="culture-year">
@@ -242,6 +242,11 @@ export default function SailingCalendar({
                 <ul>
                   <li>
                     <CalendarDays size={18} aria-hidden="true" />
+                    {event.date_is_preview
+                      ? en
+                        ? "Example date: "
+                        : "วันทดสอบ: "
+                      : ""}
                     {formatEventDate(event.date, language)}
                   </li>
                   <li>
@@ -258,17 +263,21 @@ export default function SailingCalendar({
                   </li>
                   <li>
                     <Ticket size={18} aria-hidden="true" />
-                    {lowestPrice === null
+                    {event.date_is_preview
                       ? en
-                        ? "Price to be announced"
-                        : "รอยืนยันราคา"
-                      : en
-                        ? "From THB " +
-                          new Intl.NumberFormat("en-GB").format(
-                            lowestPrice / 100,
-                          ) +
-                          " / guest"
-                        : "เริ่มต้น " + money(lowestPrice) + " / ท่าน"}
+                        ? "Final price to be announced · demo pricing only"
+                        : "ราคาจริงรอประกาศ · ใช้ราคาทดสอบเท่านั้น"
+                      : lowestPrice === null
+                        ? en
+                          ? "Price to be announced"
+                          : "รอยืนยันราคา"
+                        : en
+                          ? "From THB " +
+                            new Intl.NumberFormat("en-GB").format(
+                              lowestPrice / 100,
+                            ) +
+                            " / guest"
+                          : "เริ่มต้น " + money(lowestPrice) + " / ท่าน"}
                   </li>
                 </ul>
                 {event.date_is_preview ? (

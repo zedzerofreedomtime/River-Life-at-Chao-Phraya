@@ -122,8 +122,8 @@ export default function CruiseVideos({ language }: { language: Language }) {
           </h2>
           <p>
             {en
-              ? "Explore the vessel, dining and regular on-board performances in real cruise footage. Special concert artists are announced separately for each sailing."
-              : "เลือกชมเรือ อาหาร และการแสดงประจำเรือจากคลิปจริง ส่วนศิลปินคอนเสิร์ตพิเศษจะประกาศแยกตามรอบล่องเรือ"}
+              ? "Explore the boat, dining and performances in real cruise footage. Every River Life sailing includes an on-board concert; artist lineups are announced by sailing."
+              : "ชมเรือ อาหาร และการแสดงจากคลิปจริง ทุกรอบ River Life มีคอนเสิร์ตบนเรือ โดยรายชื่อศิลปินจะประกาศตามรอบ"}
           </p>
           <span className="culture-video-origin">
             {en

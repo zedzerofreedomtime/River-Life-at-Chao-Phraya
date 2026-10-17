@@ -1,10 +1,28 @@
-import { useRef } from "react";
+import type { Dispatch, RefObject, SetStateAction } from "react";
 import { ChevronDown, Menu, X } from "lucide-react";
 import type { Language } from "../../data/i18n";
 import { copy } from "../../data/i18n";
-import { helpTopics, helpTitle } from "../page/Help";
+import { helpTopics, helpTitle, type HelpTopic } from "../../data/help";
+import type { NavigationMenu, Page } from "../../data/navigation";
 import LanguageSwitcher from "../shared/LanguageSwitcher";
 import ProfileMenu from "../shared/ProfileMenu";
+
+type HeaderProps = {
+  page: Page;
+  language: Language;
+  setLanguage: (language: Language) => void;
+  mobileMenuOpen: boolean;
+  setMobileMenuOpen: Dispatch<SetStateAction<boolean>>;
+  openNavigationMenu: NavigationMenu;
+  setOpenNavigationMenu: Dispatch<SetStateAction<NavigationMenu>>;
+  profile: { name: string; email: string; role: string };
+  isAuthenticated: boolean;
+  go: (page: Page) => void;
+  goHelp: (topic: HelpTopic) => void;
+  openAuthDialog: () => void;
+  logoutCustomer: () => void;
+  navigationRef: RefObject<HTMLElement | null>;
+};
 
 export default function Header({
   page,
@@ -21,9 +39,9 @@ export default function Header({
   openAuthDialog,
   logoutCustomer,
   navigationRef
-}: any) {
+}: HeaderProps) {
   const en = language === "en";
-  const strings = copy[language as Language];
+  const strings = copy[language];
   const displayName = profile.name === "ผู้ใช้งาน River Life" && en ? "River Life user" : profile.name;
   const displayEmail = profile.email === "ยังไม่ได้เข้าสู่ระบบ" && en ? "Not logged in" : profile.email;
 
@@ -45,7 +63,7 @@ export default function Header({
         aria-label={en ? (mobileMenuOpen ? "Close menu" : "Open menu") : (mobileMenuOpen ? "ปิดเมนู" : "เปิดเมนู")}
         aria-expanded={mobileMenuOpen}
         aria-controls="ticket-main-nav"
-        onClick={() => setMobileMenuOpen((current: boolean) => !current)}
+        onClick={() => setMobileMenuOpen((current) => !current)}
       >
         {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
       </button>
@@ -85,7 +103,7 @@ export default function Header({
                 aria-expanded={openNavigationMenu === "help"}
                 aria-haspopup="menu"
                 onClick={() =>
-                  setOpenNavigationMenu((current: any) =>
+                  setOpenNavigationMenu((current) =>
                     current === "help" ? null : "help",
                   )
                 }
@@ -95,7 +113,7 @@ export default function Header({
               </button>
               {openNavigationMenu === "help" && (
                 <div className="ticket-menu-popover" role="menu">
-                  {helpTopics.map((item: any) => (
+                  {helpTopics.map((item) => (
                     <button
                       key={item}
                       role="menuitem"
@@ -133,7 +151,7 @@ export default function Header({
               setMobileMenuOpen(false);
               openAuthDialog();
             }}
-            onNavigate={(dest: string) => {
+            onNavigate={(dest) => {
               setMobileMenuOpen(false);
               go(dest);
             }}

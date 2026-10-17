@@ -3,6 +3,7 @@ import type { Language } from "../../data/i18n";
 import SailingCalendar from "../cruise/SailingCalendar";
 import CruiseVideos from "../cruise/CruiseVideos";
 import RiverHighlights from "../cruise/RiverHighlights";
+import RiverNightGallery from "../cruise/RiverNightGallery";
 import CultureHero from "../home/CultureHero";
 import CultureFacts from "../home/CultureFacts";
 import CultureStory from "../home/CultureStory";
@@ -35,6 +36,7 @@ export default function Home({
       <CruiseVideos language={language} />
       <CultureStory event={event} language={language} />
       <RiverHighlights language={language} />
+      <RiverNightGallery language={language} />
       <CultureSpaces language={language} />
       <CultureDining language={language} />
       <CultureBooking language={language} />
