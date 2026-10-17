@@ -25,6 +25,19 @@ func (s *Server) limiter(limit int) gin.HandlerFunc {
 	}
 }
 func (s *Server) admin(c *gin.Context) {
+	if id, ok := s.userID(c); ok {
+		user, err := s.Service.User(c.Request.Context(), id)
+		if err != nil {
+			fail(c, err)
+			return
+		}
+		if user.Role != service.RoleAdmin {
+			c.AbortWithStatusJSON(403, gin.H{"error": "ไม่มีสิทธิ์เข้าถึงข้อมูลผู้ดูแลระบบ"})
+			return
+		}
+		c.Next()
+		return
+	}
 	v, err := s.Redis.Get(c.Request.Context(), "riverlife:session:"+service.Hash(adminToken(c))).Result()
 	if err != nil || v != "admin" {
 		c.AbortWithStatusJSON(401, gin.H{"error": "กรุณาเข้าสู่ระบบเจ้าหน้าที่"})
@@ -33,6 +46,9 @@ func (s *Server) admin(c *gin.Context) {
 	c.Next()
 }
 func (s *Server) requireRole(role string) gin.HandlerFunc {
+	return s.requireRoles(role)
+}
+func (s *Server) requireRoles(roles ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, ok := s.userID(c)
 		if !ok {
@@ -44,7 +60,14 @@ func (s *Server) requireRole(role string) gin.HandlerFunc {
 			fail(c, err)
 			return
 		}
-		if user.Role != role {
+		allowed := false
+		for _, role := range roles {
+			if user.Role == role {
+				allowed = true
+				break
+			}
+		}
+		if !allowed {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "ไม่มีสิทธิ์เข้าถึงข้อมูลผู้ดูแลระบบ"})
 			return
 		}

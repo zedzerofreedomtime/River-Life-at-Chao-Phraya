@@ -18,5 +18,6 @@ func (s *Server) Router() *gin.Engine {
 	s.bookingRoutes(api)
 	s.authRoutes(api)
 	s.adminRoutes(api)
+	s.staffRoutes(api)
 	return r
 }

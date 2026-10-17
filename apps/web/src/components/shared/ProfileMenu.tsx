@@ -7,8 +7,9 @@ import {
   Ticket,
 } from "lucide-react";
 import type { Language } from "../../data/i18n";
+import { staffHome } from "../../data/navigation";
 
-type Destination = "tickets" | "orders";
+type Destination = "tickets" | "orders" | "dashboard" | "sales" | "operator";
 
 export default function ProfileMenu({
   isAuthenticated,
@@ -18,6 +19,7 @@ export default function ProfileMenu({
   onNavigate,
   onLogout,
   language,
+  role = "user",
 }: {
   isAuthenticated: boolean;
   name: string;
@@ -26,6 +28,7 @@ export default function ProfileMenu({
   onNavigate: (destination: Destination) => void;
   onLogout: () => void;
   language: Language;
+  role?: string;
 }) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -55,6 +58,7 @@ export default function ProfileMenu({
     onLogout();
   };
   const initial = name.trim().charAt(0).toUpperCase() || "R";
+  const workspace = staffHome(role);
 
   if (!isAuthenticated) {
     return (
@@ -98,20 +102,65 @@ export default function ProfileMenu({
             <>
               <strong>{name}</strong>
               <small>{email}</small>
-              <button type="button" onClick={() => navigate("orders")}>
-                {language === "en" ? "My bookings" : "ดูคำสั่งซื้อ"}{" "}
+              <button
+                type="button"
+                onClick={() => navigate((workspace as Destination) || "orders")}
+              >
+                {workspace
+                  ? language === "en"
+                    ? "Staff workspace"
+                    : "พื้นที่ทำงานพนักงาน"
+                  : language === "en"
+                    ? "My bookings"
+                    : "ดูคำสั่งซื้อ"}{" "}
                 <ChevronRight aria-hidden="true" size={19} />
               </button>
             </>
           </div>
           <>
             <div className="profile-actions">
-              <MenuAction icon={Ticket} onClick={() => navigate("tickets")}>
-                {language === "en" ? "My tickets" : "บัตรของฉัน"}
-              </MenuAction>
-              <MenuAction icon={ReceiptText} onClick={() => navigate("orders")}>
-                {language === "en" ? "My bookings" : "คำสั่งซื้อของฉัน"}
-              </MenuAction>
+              {workspace ? (
+                <>
+                  {role === "admin" && (
+                    <MenuAction
+                      icon={ReceiptText}
+                      onClick={() => navigate("dashboard")}
+                    >
+                      {language === "en" ? "Administration" : "จัดการระบบ"}
+                    </MenuAction>
+                  )}
+                  {["sales", "admin"].includes(role) && (
+                    <MenuAction
+                      icon={ReceiptText}
+                      onClick={() => navigate("sales")}
+                    >
+                      {language === "en" ? "Sales workspace" : "ฝ่ายขาย"}
+                    </MenuAction>
+                  )}
+                  {["operator", "admin"].includes(role) && (
+                    <MenuAction
+                      icon={Ticket}
+                      onClick={() => navigate("operator")}
+                    >
+                      {language === "en"
+                        ? "Boarding & check-in"
+                        : "เช็กอินผู้โดยสาร"}
+                    </MenuAction>
+                  )}
+                </>
+              ) : (
+                <>
+                  <MenuAction icon={Ticket} onClick={() => navigate("tickets")}>
+                    {language === "en" ? "My tickets" : "บัตรของฉัน"}
+                  </MenuAction>
+                  <MenuAction
+                    icon={ReceiptText}
+                    onClick={() => navigate("orders")}
+                  >
+                    {language === "en" ? "My bookings" : "คำสั่งซื้อของฉัน"}
+                  </MenuAction>
+                </>
+              )}
             </div>
             <div className="profile-logout">
               <MenuAction icon={LogOut} danger onClick={logout}>

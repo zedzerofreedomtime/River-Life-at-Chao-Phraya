@@ -17,6 +17,16 @@ import (
 
 func TestRouteInventory(t *testing.T) {
 	want := map[string]bool{
+		"GET /api/v1/dashboard/sales":                      true,
+		"POST /api/v1/dashboard/sales/bookings":            true,
+		"POST /api/v1/dashboard/sales/bookings/:id/access": true,
+		"GET /api/v1/dashboard/operator":                   true,
+		"POST /api/v1/dashboard/operator/check-in":         true,
+		"PATCH /api/v1/dashboard/admin/zones/:id":          true,
+		"GET /api/v1/dashboard/admin/users":                true,
+		"PATCH /api/v1/dashboard/admin/users/:id/role":     true,
+		"GET /api/v1/dashboard/admin/program":              true,
+		"PUT /api/v1/dashboard/admin/program":              true,
 		"GET /api/v1/me/bookings":                          true,
 		"POST /api/v1/me/bookings/:id/access":              true,
 		"GET /api/v1/payments/config":                      true,

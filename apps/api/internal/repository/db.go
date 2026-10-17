@@ -47,6 +47,9 @@ func Open(ctx context.Context, url string) (*pgxpool.Pool, error) {
 		err = tx.Commit(ctx)
 	}
 	if err != nil {
+		// Release the failed migration transaction before waiting for the pool.
+		// Closing the pool first would wait forever for this borrowed connection.
+		_ = tx.Rollback(ctx)
 		db.Close()
 		return nil, err
 	}

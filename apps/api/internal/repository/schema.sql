@@ -36,7 +36,10 @@ CREATE TABLE IF NOT EXISTS bookings (
 );
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS attachment_path text NOT NULL DEFAULT '';
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS user_id text REFERENCES users(id);
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS sales_user_id text REFERENCES users(id);
+CREATE INDEX IF NOT EXISTS bookings_sales_created ON bookings(sales_user_id,created_at DESC);
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS account_token_hash text NOT NULL DEFAULT '';
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS sales_token_hash text NOT NULL DEFAULT '';
 CREATE INDEX IF NOT EXISTS bookings_user_created ON bookings(user_id,created_at DESC);
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS slip_hash text NOT NULL DEFAULT '';
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS slip_verification jsonb NOT NULL DEFAULT '{}'::jsonb;
@@ -61,3 +64,13 @@ CREATE TABLE IF NOT EXISTS audit_log (
  action text NOT NULL, created_at timestamptz NOT NULL DEFAULT now()
 );
 INSERT INTO schema_migrations(version) VALUES(1) ON CONFLICT DO NOTHING;
+CREATE TABLE IF NOT EXISTS cruise_program (
+ id integer PRIMARY KEY CHECK(id=1), title text NOT NULL, sailing_date text,
+ boarding text NOT NULL, departure text NOT NULL, pier text NOT NULL,
+ pier_number integer NOT NULL CHECK(pier_number>0), duration_minutes integer NOT NULL CHECK(duration_minutes>0)
+);
+INSERT INTO cruise_program VALUES(1,'Concert on the River',NULL,'18:45','19:00','ICONSIAM',4,120) ON CONFLICT DO NOTHING;
+CREATE TABLE IF NOT EXISTS staff_audit (
+ id bigserial PRIMARY KEY, actor_id text NOT NULL REFERENCES users(id),
+ action text NOT NULL, target_id text NOT NULL, created_at timestamptz NOT NULL DEFAULT now()
+);

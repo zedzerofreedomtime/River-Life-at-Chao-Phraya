@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { CruiseProgrammeContext } from "../shared/CruiseProgramme";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -49,7 +50,8 @@ export default function TicketWallet({
   onOpenOrders,
 }: Props) {
   const tr = (th: string, en: string) => translate(language, th, en);
-  const concertTitle = localizeEventTitle("Concert on the River", language);
+  const programme = useContext(CruiseProgrammeContext);
+  const concertTitle = localizeEventTitle(programme.title, language);
   const [booking, setBooking] = useState<Booking | null>(initial);
   const [id, setId] = useState(
     initial?.id ?? sessionStorage.getItem("riverlife.booking.id") ?? "",
@@ -222,7 +224,7 @@ export default function TicketWallet({
                 <div className="wallet-order-summary">
                   <span>
                     <strong>{concertTitle}</strong>
-                    <small>{boardingPier} · 19:00</small>
+                    <small>{boardingPier} · {programme.departure}</small>
                   </span>
                   <span>
                     {tr("คำสั่งซื้อ", "Order")} #{shortId(booking.id)}
@@ -256,7 +258,7 @@ export default function TicketWallet({
                       <em>
                         {concertTitle}
                         <br />
-                        {boardingPier} · 19:00
+                        {boardingPier} · {programme.departure}
                       </em>
                     </span>
                     <span className="ticket-quantity">
@@ -352,7 +354,8 @@ function QrDialog({
   boardingPier: string;
 }) {
   const tr = (th: string, en: string) => translate(language, th, en);
-  const concertTitle = localizeEventTitle("Concert on the River", language);
+  const programme = useContext(CruiseProgrammeContext);
+  const concertTitle = localizeEventTitle(programme.title, language);
   const checkedIn = booking.tickets[index]?.checked_in_at;
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
@@ -369,9 +372,9 @@ function QrDialog({
         </span>
         <h2>{zoneName(booking.zone_id, language)}</h2>
         <p>
-          {concertTitle} · {boardingPier} · 19:00
+          {concertTitle} · {boardingPier} · {programme.departure}
         </p>
-        <QRCodeSVG value={ticketId} size={250} />
+        <QRCodeSVG value={ticketId} size={250} marginSize={4} />
         <strong className={checkedIn ? "used" : "available"}>
           ●{" "}
           {checkedIn
@@ -398,6 +401,7 @@ function TicketJourney({
   language: Language;
   boardingPier: string;
 }) {
+  const programme = useContext(CruiseProgrammeContext);
   const tr = (th: string, en: string) => translate(language, th, en);
   return (
     <section className="booking-journey confirmed">
@@ -428,8 +432,8 @@ function TicketJourney({
         </span>
         <span>
           {tr(
-            "ขึ้นเรือก่อน 18:45 · ออกเรือ 19:00",
-            "Board by 18:45 · Departure at 19:00",
+            `ขึ้นเรือก่อน ${programme.boarding} · ออกเรือ ${programme.departure}`,
+            `Board by ${programme.boarding} · Departure at ${programme.departure}`,
           )}
         </span>
         <span>
@@ -460,7 +464,8 @@ function TicketPreview({
   boardingPier: string;
 }) {
   const tr = (th: string, en: string) => translate(language, th, en);
-  const concertTitle = localizeEventTitle("Concert on the River", language);
+  const programme = useContext(CruiseProgrammeContext);
+  const concertTitle = localizeEventTitle(programme.title, language);
   const checkedIn = booking.tickets[index]?.checked_in_at;
   return (
     <aside className="qr-ticket">
@@ -477,9 +482,9 @@ function TicketPreview({
       <p>
         {concertTitle}
         <br />
-        {boardingPier} · 19:00
+        {boardingPier} · {programme.departure}
       </p>
-      <QRCodeSVG value={ticketId} size={188} />
+      <QRCodeSVG value={ticketId} size={188} marginSize={4} />
       <p className="qr-note">
         <CircleHelp aria-hidden="true" size={20} />{" "}
         {tr("แสดง QR Code นี้ที่จุด Check-in", "Show this QR code at check-in")}

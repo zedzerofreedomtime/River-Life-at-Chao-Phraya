@@ -180,8 +180,10 @@ export function generateMetadata({
     }
 
     case "dashboard":
+    case "sales":
+    case "operator":
       return {
-        title: "Admin Dashboard | River Life",
+        title: `${page === "sales" ? "Sales workspace" : page === "operator" ? "Boarding & check-in" : "Admin Dashboard"} | River Life`,
         description: "River Life administrative dashboard and management system.",
         robots: "noindex, nofollow",
       };

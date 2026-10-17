@@ -62,7 +62,8 @@ export const money = (n: number) =>
   new Intl.NumberFormat("th-TH", {
     style: "currency",
     currency: "THB",
-    maximumFractionDigits: 0,
+    minimumFractionDigits: n % 100 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
   }).format(n / 100);
 export const labels: Record<string, string> = {
   held: "กำลังดำเนินการ",

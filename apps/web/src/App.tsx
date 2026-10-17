@@ -18,16 +18,26 @@ import BookingSuccess from "./components/page/BookingSuccess";
 import TicketWallet from "./components/page/TicketWallet";
 import Auth, { type AuthUser } from "./components/shared/Auth";
 import AdminDashboard from "./components/page/AdminDashboard";
+import SalesDashboard from "./components/page/SalesDashboard";
+import OperatorDashboard from "./components/page/OperatorDashboard";
+import { CruiseProgrammeContext, defaultProgramme } from "./components/shared/CruiseProgramme";
 import { copy, type Language } from "./data/i18n";
 import { api, formatPier, type Booking, type EventInfo } from "./data/api";
 import Help from "./components/page/Help";
 import type { HelpTopic } from "./data/help";
-import { pagePaths, pageFromPath, helpFromPath, type Page, type NavigationMenu } from "./data/navigation";
+import {
+  pagePaths,
+  pageFromPath,
+  helpFromPath,
+  staffHome,
+  type Page,
+  type NavigationMenu,
+} from "./data/navigation";
 import { generateMetadata, applyMetadata } from "./data/metadata";
 
-const pageFromLocation = (): Page =>
-  pageFromPath(window.location.pathname);
-const helpFromLocation = (): HelpTopic => helpFromPath(window.location.pathname);
+const pageFromLocation = (): Page => pageFromPath(window.location.pathname);
+const helpFromLocation = (): HelpTopic =>
+  helpFromPath(window.location.pathname);
 export default function App() {
   const [page, setPage] = useState<Page>(pageFromLocation);
   const [event, setEvent] = useState<EventInfo | null>(null);
@@ -45,6 +55,7 @@ export default function App() {
     role: sessionStorage.getItem("riverlife.profile.role") || "user",
   }));
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
   const [language, setLanguage] = useState<Language>(() =>
     localStorage.getItem("riverlife.language") === "en" ? "en" : "th",
   );
@@ -54,7 +65,8 @@ export default function App() {
   const [continueCheckoutAfterLogin, setContinueCheckoutAfterLogin] =
     useState(false);
   const [helpTopic, setHelpTopic] = useState<HelpTopic>(helpFromLocation);
-  const [openNavigationMenu, setOpenNavigationMenu] = useState<NavigationMenu>(null);
+  const [openNavigationMenu, setOpenNavigationMenu] =
+    useState<NavigationMenu>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigationRef = useRef<HTMLElement>(null);
   const loadEvent = () =>
@@ -64,7 +76,11 @@ export default function App() {
         setError("");
       })
       .catch(() =>
-        setError(language === "en" ? "Unable to connect to bookings. Please check that the service is available." : "เชื่อมต่อระบบจองไม่ได้ กรุณาตรวจสอบว่า API พร้อมใช้งาน"),
+        setError(
+          language === "en"
+            ? "Unable to connect to bookings. Please check that the service is available."
+            : "เชื่อมต่อระบบจองไม่ได้ กรุณาตรวจสอบว่า API พร้อมใช้งาน",
+        ),
       );
   useEffect(() => {
     void loadEvent();
@@ -100,7 +116,8 @@ export default function App() {
         sessionStorage.setItem("riverlife.profile.role", user.role || "user");
         setIsAuthenticated(true);
       })
-      .catch(() => setIsAuthenticated(false));
+      .catch(() => setIsAuthenticated(false))
+      .finally(() => setAuthReady(true));
   }, []);
   useEffect(() => {
     const handlePopState = () => {
@@ -180,11 +197,11 @@ export default function App() {
   const en = language === "en";
   return (
     <>
-      <Header 
-        page={page} 
-        language={language} 
-        setLanguage={setLanguage} 
-        mobileMenuOpen={mobileMenuOpen} 
+      <Header
+        page={page}
+        language={language}
+        setLanguage={setLanguage}
+        mobileMenuOpen={mobileMenuOpen}
         setMobileMenuOpen={setMobileMenuOpen}
         openNavigationMenu={openNavigationMenu}
         setOpenNavigationMenu={setOpenNavigationMenu}
@@ -196,12 +213,16 @@ export default function App() {
         logoutCustomer={logoutCustomer}
         navigationRef={navigationRef}
       />
-      
+
       <main className={`app-main page-${page}`}>
         {error && (
           <Alert
             severity="error"
-            action={<Button onClick={() => void loadEvent()}>{en ? "Try again" : "ลองใหม่"}</Button>}
+            action={
+              <Button onClick={() => void loadEvent()}>
+                {en ? "Try again" : "ลองใหม่"}
+              </Button>
+            }
           >
             {error}
           </Alert>
@@ -311,14 +332,72 @@ export default function App() {
           />
         )}
         {page === "tickets" && (
-          <TicketWallet key={isAuthenticated ? "account" : "guest"} onOpenOrders={() => go("orders")} initial={booking} initialToken={token} language={language} demo={event?.demo ?? false} boardingPier={event ? formatPier(event.pier, event.pier_number, language) : ""} />
+          <CruiseProgrammeContext.Provider value={event ?? defaultProgramme}>
+          <TicketWallet
+            key={isAuthenticated ? "account" : "guest"}
+            onOpenOrders={() => go("orders")}
+            initial={booking}
+            initialToken={token}
+            language={language}
+            demo={event?.demo ?? false}
+            boardingPier={
+              event ? formatPier(event.pier, event.pier_number, language) : ""
+            }
+          />
+          </CruiseProgrammeContext.Provider>
         )}
-        {page === "dashboard" && profile.role === "admin" && <AdminDashboard language={language} />}
-        {page === "dashboard" && profile.role !== "admin" && (
-          <Alert severity="error">{en ? "This page is for administrators only." : "หน้านี้สำหรับผู้ดูแลระบบเท่านั้น"}</Alert>
+        {page === "dashboard" &&
+          isAuthenticated &&
+          profile.role === "admin" && (
+            <AdminDashboard language={language} currentEmail={profile.email} onSettingsUpdated={() => void loadEvent()} />
+          )}
+        {page === "sales" &&
+          isAuthenticated &&
+          ["sales", "admin"].includes(profile.role) && (
+            <SalesDashboard
+              language={language}
+              onOpen={(b, t, destination) => {
+                rememberBooking(b, t);
+                go(destination);
+              }}
+            />
+          )}
+        {page === "operator" &&
+          isAuthenticated &&
+          ["operator", "admin"].includes(profile.role) && (
+            <OperatorDashboard language={language} />
+          )}
+        {["dashboard", "sales", "operator"].includes(page) && !authReady && (
+          <p role="status">
+            {en ? "Checking staff access…" : "กำลังตรวจสอบสิทธิ์พนักงาน…"}
+          </p>
         )}
-        {page === "help" && <Help topic={helpTopic} language={language} onSelect={goHelp} demo={event?.demo ?? true} />}
-        {!event && !error && <p role="status">{en ? "Loading event…" : "กำลังโหลดรอบการแสดง…"}</p>}
+        {authReady &&
+          ((page === "dashboard" &&
+            (!isAuthenticated || profile.role !== "admin")) ||
+            (page === "sales" &&
+              (!isAuthenticated ||
+                !["sales", "admin"].includes(profile.role))) ||
+            (page === "operator" &&
+              (!isAuthenticated ||
+                !["operator", "admin"].includes(profile.role)))) && (
+            <Alert severity="error">
+              {en
+                ? "You do not have access to this staff workspace."
+                : "บัญชีนี้ไม่มีสิทธิ์เข้าถึงพื้นที่ทำงานนี้"}
+            </Alert>
+          )}
+        {page === "help" && (
+          <Help
+            topic={helpTopic}
+            language={language}
+            onSelect={goHelp}
+            demo={event?.demo ?? true}
+          />
+        )}
+        {!event && !error && (
+          <p role="status">{en ? "Loading event…" : "กำลังโหลดรอบการแสดง…"}</p>
+        )}
       </main>
       <Dialog
         open={authDialogOpen}
@@ -359,13 +438,12 @@ export default function App() {
             setIsAuthenticated(true);
             setAuthDialogOpen(false);
             const destination =
-              user.role === "admin"
-                ? "dashboard"
-                : continueCheckoutAfterLogin
-                  ? "checkout"
-                  : page === "auth"
-                    ? "home"
-                    : page;
+              staffHome(user.role ?? "user") ??
+              (continueCheckoutAfterLogin
+                ? "checkout"
+                : page === "auth"
+                  ? "home"
+                  : page);
             setContinueCheckoutAfterLogin(false);
             go(destination);
           }}

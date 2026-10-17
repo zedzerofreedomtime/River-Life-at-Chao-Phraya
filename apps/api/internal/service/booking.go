@@ -24,12 +24,13 @@ type Zone struct {
 	Available int    `json:"available"`
 }
 type Input struct {
-	UserID    string `json:"-"`
-	ZoneID    string `json:"zone_id" binding:"required"`
-	Name      string `json:"name" binding:"required,max=120"`
-	Email     string `json:"email" binding:"required,email,max=200"`
-	Quantity  int    `json:"quantity" binding:"required,min=1,max=10"`
-	AgentCode string `json:"agent_code" binding:"max=40"`
+	UserID      string `json:"-"`
+	SalesUserID string `json:"-"`
+	ZoneID      string `json:"zone_id" binding:"required"`
+	Name        string `json:"name" binding:"required,max=120"`
+	Email       string `json:"email" binding:"required,email,max=200"`
+	Quantity    int    `json:"quantity" binding:"required,min=1,max=10"`
+	AgentCode   string `json:"agent_code" binding:"max=40"`
 }
 type Booking struct {
 	ID                       string     `json:"id"`
@@ -106,15 +107,24 @@ func (s *Service) Create(ctx context.Context, in Input, key, token string) (Book
 	}
 	defer tx.Rollback(ctx)
 	// Same idempotency key serializes before inventory locks; token is supplied by client for safe retry.
+	if in.SalesUserID != "" {
+		var actor string
+		if err = tx.QueryRow(ctx, "SELECT id FROM users WHERE id=$1 AND role IN ('sales','admin') FOR SHARE", in.SalesUserID).Scan(&actor); err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				return Booking{}, ErrConflict
+			}
+			return Booking{}, err
+		}
+	}
 	if _, err = tx.Exec(ctx, "SELECT pg_advisory_xact_lock(hashtextextended($1,0))", key); err != nil {
 		return Booking{}, err
 	}
 	raw, _ := json.Marshal(in)
 	fingerprint := Hash(string(raw))
-	var oldID, oldHash, oldToken, oldUser string
-	err = tx.QueryRow(ctx, "SELECT id,request_hash,token_hash,COALESCE(user_id,'') FROM bookings WHERE request_key=$1", key).Scan(&oldID, &oldHash, &oldToken, &oldUser)
+	var oldID, oldHash, oldToken, oldUser, oldSales string
+	err = tx.QueryRow(ctx, "SELECT id,request_hash,token_hash,COALESCE(user_id,''),COALESCE(sales_user_id,'') FROM bookings WHERE request_key=$1", key).Scan(&oldID, &oldHash, &oldToken, &oldUser, &oldSales)
 	if err == nil {
-		if oldHash != fingerprint || oldToken != Hash(token) || oldUser != in.UserID {
+		if oldHash != fingerprint || oldToken != Hash(token) || oldUser != in.UserID || oldSales != in.SalesUserID {
 			return Booking{}, ErrConflict
 		}
 		// Release this connection before reading the result through the pool.
@@ -153,6 +163,11 @@ func (s *Service) Create(ctx context.Context, in Input, key, token string) (Book
 			return b, err
 		}
 	}
+	if in.SalesUserID != "" {
+		if _, err = tx.Exec(ctx, "UPDATE bookings SET sales_user_id=$2 WHERE id=$1", id, in.SalesUserID); err != nil {
+			return b, err
+		}
+	}
 	err = tx.Commit(ctx)
 	return b, err
 }
@@ -172,7 +187,7 @@ func (s *Service) SubmitAttachment(ctx context.Context, id, token, path string, 
 		marketing_consent_at=CASE WHEN $4 THEN now() ELSE NULL END,
 		marketing_consent_version=CASE WHEN $4 THEN $5 ELSE '' END,
 		marketing_consent_language=CASE WHEN $4 THEN $6 ELSE '' END
-		WHERE id=$1 AND (token_hash=$2 OR account_token_hash=$2) AND status='held' AND expires_at>now()
+		WHERE id=$1 AND (token_hash=$2 OR account_token_hash=$2 OR sales_token_hash=$2) AND status='held' AND expires_at>now()
 		AND NOT EXISTS(SELECT 1 FROM stripe_checkouts WHERE booking_id=$1) RETURNING quantity`, id, Hash(token), path, marketingConsent, MarketingConsentVersion, language).Scan(&quantity)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return ErrConflict
@@ -197,7 +212,7 @@ func (s *Service) SubmitAttachment(ctx context.Context, id, token, path string, 
 }
 
 func (s *Service) Get(ctx context.Context, id, token string, admin bool) (Booking, error) {
-	b, err := scan(s.DB.QueryRow(ctx, "SELECT "+columns+" FROM bookings WHERE id=$1 AND ($2 OR token_hash=$3 OR account_token_hash=$3)", id, admin, Hash(token)))
+	b, err := scan(s.DB.QueryRow(ctx, "SELECT "+columns+" FROM bookings WHERE id=$1 AND ($2 OR token_hash=$3 OR account_token_hash=$3 OR sales_token_hash=$3)", id, admin, Hash(token)))
 	if err != nil {
 		return b, err
 	}
@@ -326,7 +341,7 @@ func (s *Service) CancelByAdmin(ctx context.Context, id string) error {
 	}
 	return tx.Commit(ctx)
 }
-func (s *Service) CheckIn(ctx context.Context, token string) error {
+func (s *Service) CheckIn(ctx context.Context, token string, actors ...string) error {
 	tx, err := s.DB.Begin(ctx)
 	if err != nil {
 		return err
@@ -349,6 +364,11 @@ func (s *Service) CheckIn(ctx context.Context, token string) error {
 	}
 	if _, err = tx.Exec(ctx, "INSERT INTO audit_log(booking_id,action) VALUES($1,'ticket_checked_in')", id); err != nil {
 		return err
+	}
+	if len(actors) > 0 && actors[0] != "" {
+		if _, err = tx.Exec(ctx, "INSERT INTO staff_audit(actor_id,action,target_id) VALUES($1,'ticket_checked_in',$2)", actors[0], id); err != nil {
+			return err
+		}
 	}
 	return tx.Commit(ctx)
 }

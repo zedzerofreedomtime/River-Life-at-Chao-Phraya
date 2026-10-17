@@ -10,10 +10,13 @@ export const pagePaths = {
   tickets: "/tickets",
   auth: "/auth",
   dashboard: "/dashboard",
+  sales: "/sales",
+  operator: "/operator",
   help: "/help/faq",
 } as const;
 
 export type Page = keyof typeof pagePaths;
+export const staffHome = (role: string): Page | null => role === "admin" ? "dashboard" : role === "sales" ? "sales" : role === "operator" ? "operator" : null;
 export type NavigationMenu = "events" | "help" | null;
 
 const pathPages = new Map<string, Page>(

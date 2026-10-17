@@ -13,11 +13,12 @@
     "@emotion/styled": "^11.14.0",
     "@mui/material": "^7.3.0",
     "@tailwindcss/vite": "^4.1.0",
-    "tailwindcss": "^4.1.0",
+    "jsqr": "^1.4.0",
+    "lucide-react": "^0.468.0",
+    "qrcode.react": "^4.2.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "qrcode.react": "^4.2.0",
-    "lucide-react": "^0.468.0"
+    "tailwindcss": "^4.1.0"
   },
   "devDependencies": {
     "@types/react": "^19.1.0",

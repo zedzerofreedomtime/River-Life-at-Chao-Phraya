@@ -7,14 +7,31 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { BarChart3, Clock3, TicketCheck, Users } from "lucide-react";
-import { api, money, statusLabel, zoneLabel, type AdminDashboardData } from "../../data/api";
+import {
+  api,
+  money,
+  statusLabel,
+  zoneLabel,
+  type AdminDashboardData,
+} from "../../data/api";
 import type { Language } from "../../data/i18n";
+import AdminTools from "../staff/AdminTools";
+import { BookingFilters, filterBookings } from "../staff/StaffTools";
+import "../../Staff.css";
 
 const number = (value: number) => new Intl.NumberFormat("th-TH").format(value);
 
-export default function AdminDashboard({ language }: { language: Language }) {
+export default function AdminDashboard({
+  language,
+  currentEmail,
+  onSettingsUpdated,
+}: {
+  language: Language;
+  currentEmail: string;
+  onSettingsUpdated: () => void;
+}) {
   const en = language === "en";
-  const tr = (th: string, english: string) => en ? english : th;
+  const tr = (th: string, english: string) => (en ? english : th);
   const [data, setData] = useState<AdminDashboardData | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -22,6 +39,8 @@ export default function AdminDashboard({ language }: { language: Language }) {
     AdminDashboardData["bookings"][number] | null
   >(null);
   const [cancelling, setCancelling] = useState(false);
+  const [query, setQuery] = useState(""),
+    [status, setStatus] = useState("");
 
   const load = async () => {
     setLoading(true);
@@ -64,8 +83,15 @@ export default function AdminDashboard({ language }: { language: Language }) {
       <div className="admin-dashboard-heading">
         <div>
           <span>RIVER LIFE · ADMIN</span>
-          <h1 id="admin-dashboard-title">{tr("ภาพรวมผู้ดูแลระบบ", "Admin overview")}</h1>
-          <p>{tr("ข้อมูลคำสั่งซื้อ สมาชิก และโควตาเรือทั้งหมดในระบบ", "Bookings, members, and ticket availability")}</p>
+          <h1 id="admin-dashboard-title">
+            {tr("ภาพรวมผู้ดูแลระบบ", "Admin overview")}
+          </h1>
+          <p>
+            {tr(
+              "ข้อมูลคำสั่งซื้อ สมาชิก และโควตาเรือทั้งหมดในระบบ",
+              "Bookings, members, and ticket availability",
+            )}
+          </p>
         </div>
         <Button
           variant="outlined"
@@ -77,7 +103,9 @@ export default function AdminDashboard({ language }: { language: Language }) {
       </div>
       {error ? <Alert severity="error">{error}</Alert> : null}
       {loading && !data ? (
-        <p role="status">{tr("กำลังโหลดข้อมูลผู้ดูแลระบบ…", "Loading dashboard…")}</p>
+        <p role="status">
+          {tr("กำลังโหลดข้อมูลผู้ดูแลระบบ…", "Loading dashboard…")}
+        </p>
       ) : null}
       {data ? (
         <>
@@ -108,9 +136,15 @@ export default function AdminDashboard({ language }: { language: Language }) {
             aria-labelledby="admin-zone-title"
           >
             <div>
-              <h2 id="admin-zone-title">{tr("สถานะโควตาเรือ", "Ticket availability")}</h2>
+              <h2 id="admin-zone-title">
+                {tr("สถานะโควตาเรือ", "Ticket availability")}
+              </h2>
               <p>
-                {tr("รายการพักชำระเงินที่ยังไม่หมดเวลา", "Active payment holds")}: {number(data.active_holds)}
+                {tr(
+                  "รายการพักชำระเงินที่ยังไม่หมดเวลา",
+                  "Active payment holds",
+                )}
+                : {number(data.active_holds)}
               </p>
             </div>
             <div className="admin-zone-grid">
@@ -118,9 +152,12 @@ export default function AdminDashboard({ language }: { language: Language }) {
                 <article key={zone.id}>
                   <strong>{zoneLabel(zone, language)}</strong>
                   <span>
-                    {number(zone.available)} / {number(zone.capacity)} {tr("ที่ว่าง", "available")}
+                    {number(zone.available)} / {number(zone.capacity)}{" "}
+                    {tr("ที่ว่าง", "available")}
                   </span>
-                  <small>{money(zone.price)} / {tr("ใบ", "ticket")}</small>
+                  <small>
+                    {money(zone.price)} / {tr("ใบ", "ticket")}
+                  </small>
                 </article>
               ))}
             </div>
@@ -131,12 +168,36 @@ export default function AdminDashboard({ language }: { language: Language }) {
           >
             <div className="admin-panel-heading">
               <div>
-                <h2 id="admin-bookings-title">{tr("คำสั่งซื้อทั้งหมด", "Bookings")}</h2>
-                <p>{tr("แสดง 200 รายการล่าสุด พร้อมข้อมูลการจองและสถานะ", "Latest 200 bookings, with customer and status details")}</p>
+                <h2 id="admin-bookings-title">
+                  {tr("คำสั่งซื้อทั้งหมด", "Bookings")}
+                </h2>
+                <p>
+                  {tr(
+                    "แสดง 200 รายการล่าสุด พร้อมข้อมูลการจองและสถานะ",
+                    "Latest 200 bookings, with customer and status details",
+                  )}
+                </p>
               </div>
-              <strong>{number(data.bookings.length)} {tr("รายการ", "bookings")}</strong>
+              <strong>
+                {number(data.bookings.length)} {tr("รายการ", "bookings")}
+              </strong>
             </div>
-            <div className="table-wrap">
+            <BookingFilters
+              query={query}
+              setQuery={setQuery}
+              status={status}
+              setStatus={setStatus}
+              language={language}
+            />
+            <div
+              className="table-wrap"
+              role="region"
+              aria-label={tr(
+                "ตารางคำสั่งซื้อ เลื่อนแนวนอนได้",
+                "Bookings table, scroll horizontally",
+              )}
+              tabIndex={0}
+            >
               <table>
                 <thead>
                   <tr>
@@ -151,49 +212,77 @@ export default function AdminDashboard({ language }: { language: Language }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.bookings.map((booking) => (
-                    <tr key={booking.id}>
-                      <td>
-                        <code>{booking.id}</code>
-                      </td>
-                      <td>
-                        <strong>{booking.name}</strong>
-                        <small>{booking.email}</small>
-                      </td>
-                      <td>{booking.zone_id}</td>
-                      <td>{number(booking.quantity)} {tr("ใบ", "tickets")}</td>
-                      <td>{money(booking.total)}</td>
-                      <td>
-                        <span
-                          className={`admin-status status-${booking.status}`}
-                        >
-                          {statusLabel(booking.status, language)}
-                        </span>
-                      </td>
-                      <td>{booking.marketing_consent_at ? <><span>{new Date(booking.marketing_consent_at).toLocaleString(en ? "en-GB" : "th-TH")}</span><small>{booking.marketing_consent_version} · {booking.marketing_consent_language.toUpperCase()}</small></> : tr("ไม่มีหลักฐานการยินยอม", "No consent recorded")}</td>
-                      <td>
-                        {booking.status === "held" ||
-                        booking.status === "confirmed" ? (
-                          <Button
-                            color="error"
-                            size="small"
-                            onClick={() => setCancelTarget(booking)}
+                  {filterBookings(data.bookings, query, status).map(
+                    (booking) => (
+                      <tr key={booking.id}>
+                        <td>
+                          <code>{booking.id}</code>
+                        </td>
+                        <td>
+                          <strong>{booking.name}</strong>
+                          <small>{booking.email}</small>
+                        </td>
+                        <td>{booking.zone_id}</td>
+                        <td>
+                          {number(booking.quantity)} {tr("ใบ", "tickets")}
+                        </td>
+                        <td>{money(booking.total)}</td>
+                        <td>
+                          <span
+                            className={`admin-status status-${booking.status}`}
                           >
-                            {tr("ยกเลิกการจอง", "Cancel booking")}
-                          </Button>
-                        ) : (
-                          <span className="admin-action-muted">—</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                            {statusLabel(booking.status, language)}
+                          </span>
+                        </td>
+                        <td>
+                          {booking.marketing_consent_at ? (
+                            <>
+                              <span>
+                                {new Date(
+                                  booking.marketing_consent_at,
+                                ).toLocaleString(en ? "en-GB" : "th-TH")}
+                              </span>
+                              <small>
+                                {booking.marketing_consent_version} ·{" "}
+                                {booking.marketing_consent_language.toUpperCase()}
+                              </small>
+                            </>
+                          ) : (
+                            tr("ไม่มีหลักฐานการยินยอม", "No consent recorded")
+                          )}
+                        </td>
+                        <td>
+                          {booking.status === "held" ||
+                          booking.status === "confirmed" ? (
+                            <Button
+                              color="error"
+                              size="small"
+                              onClick={() => setCancelTarget(booking)}
+                            >
+                              {tr("ยกเลิกการจอง", "Cancel booking")}
+                            </Button>
+                          ) : (
+                            <span className="admin-action-muted">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    ),
+                  )}
                 </tbody>
               </table>
-              {data.bookings.length === 0 ? (
-                <p className="admin-empty">{tr("ยังไม่มีคำสั่งซื้อในระบบ", "No bookings yet")}</p>
+              {filterBookings(data.bookings, query, status).length === 0 ? (
+                <p className="admin-empty">
+                  {tr("ยังไม่มีคำสั่งซื้อในระบบ", "No bookings yet")}
+                </p>
               ) : null}
             </div>
           </section>
+          <AdminTools
+            language={language}
+            zones={data.zones}
+            currentEmail={currentEmail}
+            onUpdated={() => { void load(); onSettingsUpdated(); }}
+          />
         </>
       ) : null}
       <Dialog
