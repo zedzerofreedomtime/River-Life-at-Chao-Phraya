@@ -1,0 +1,160 @@
+/* River Life cinematic system. Imported after the existing functional surfaces. */
+:root { --cinema-bg:#080e19; --cinema-surface:#121e2c; --cinema-gold:var(--rl-gold); --cinema-text:var(--rl-text); --cinema-muted:#b3c0d0; --cinema-line:#293849; --customer-gold:var(--cinema-gold); --customer-navy:var(--cinema-surface); --customer-border:var(--cinema-line); color-scheme:dark; }
+html { scroll-behavior:smooth; scroll-padding-top:100px; }
+body, #root { background:var(--cinema-bg)!important; color:var(--cinema-text); }
+body { margin:0; }
+button, a, input, select, summary { -webkit-tap-highlight-color:transparent; }
+:is(button,a,input,select,summary):focus-visible { outline:2px solid var(--cinema-gold); outline-offset:5px; }
+.app-main { min-height:65vh; }
+.app-main :is(h1,h2,h3,h4), .MuiDialogTitle-root { color:var(--cinema-text)!important; letter-spacing:-.025em; }
+.app-main :is(p,li,dt,dd) { line-height:1.75; }
+.app-main:not(.page-home):not(.page-event) { padding-top:110px!important; padding-bottom:72px; }
+.market-header.cinema-header { position:fixed; top:0; left:0; right:0; z-index:50; max-width:none; min-height:82px; margin:0; padding:0 max(32px,calc((100vw - 1360px)/2)); gap:28px; border:0; border-bottom:1px solid rgb(var(--rl-gold-rgb) / .32); border-radius:0; background:rgba(8,14,25,.95); backdrop-filter:blur(18px); box-shadow:none; }
+.cinema-header .river-brand { min-width:200px; }
+.cinema-header .river-brand strong { font-size:24px; letter-spacing:.2em!important; color:var(--cinema-gold)!important; font-weight:500!important; }
+.cinema-header .river-brand small { display:none; }
+.cinema-header .ticket-nav { gap:28px; }
+.cinema-header nav button { font-size:14px; min-height:60px; }
+.cinema-header nav button.active { color:var(--cinema-gold)!important; }
+.cinema-header nav button.active::after { display:block; background:var(--cinema-gold); }
+.cinema-header .market-tools { gap:18px; }
+.cinema-header .ticket-menu-popover, .profile-popover { background:var(--cinema-surface)!important; border:1px solid var(--cinema-line)!important; border-radius:8px; }
+.ticket-home.culture-home { --culture-navy:var(--cinema-bg); --culture-paper:var(--cinema-bg); --culture-gold:var(--cinema-gold); --culture-text:var(--cinema-text); --culture-muted:var(--cinema-muted); --culture-rule:var(--cinema-line); background:var(--cinema-bg); }
+.culture-home .culture-container { width:min(1320px,calc(100% - 96px)); }
+.culture-home h2 { font-size:clamp(30px,3.6vw,54px); font-weight:500; line-height:1.22; }
+.culture-home h3 { font-size:22px; font-weight:500; }
+.culture-home .culture-section-heading { margin-bottom:36px; gap:40px; }
+.culture-home .culture-section-heading p, .culture-home .culture-caption { color:var(--cinema-muted)!important; }
+.culture-home .culture-text-link { color:var(--cinema-gold)!important; }
+.culture-home .culture-button, .cinema-button { min-height:52px; padding:14px 26px; display:inline-flex; align-items:center; justify-content:center; gap:18px; border:1px solid var(--cinema-gold); border-radius:6px; background:var(--cinema-gold); color:#080e19!important; font-size:15px; font-weight:600; text-decoration:none; transition:background .2s,transform .2s; }
+.culture-home .culture-button:hover, .cinema-button:hover { background:#ecd0a0; transform:translateY(-2px); }
+.cinema-button-outline { background:rgba(8,14,25,.35); color:#fff!important; }
+.cinema-button-outline:hover { background:rgba(8,14,25,.8); }
+.cinema-hero { position:relative; isolation:isolate; min-height:660px; height:calc(100svh - 112px); max-height:1050px; overflow:hidden; background:var(--cinema-bg); }
+.cinema-hero-film { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.cinema-hero-shade { position:absolute; inset:0; background:linear-gradient(180deg,rgba(2,7,15,.8),rgba(2,7,15,.5) 36%,rgba(2,7,15,.05) 70%,rgba(2,7,15,.65)); pointer-events:none; }
+.cinema-hero-copy { position:relative; z-index:1; text-align:center; width:min(1300px,calc(100% - 64px)); margin:auto; padding-top:clamp(150px,18vh,220px); }
+.culture-home .cinema-hero #culture-home-title { margin:0; color:#fff!important; font-size:clamp(42px,4.6vw,74px); font-weight:500; line-height:1.08; letter-spacing:-.045em; animation:cinema-enter .9s ease both; }
+.cinema-mobile-break { display:none; }
+.cinema-tagline { font-size:clamp(17px,2.1vw,30px); color:#f0d4a6!important; margin:20px 0 32px; }
+.cinema-actions { display:flex; justify-content:center; gap:20px; flex-wrap:wrap; }
+.cinema-hero-controls { position:absolute; z-index:2; right:4vw; bottom:28px; display:flex; gap:16px; align-items:center; }
+.cinema-hero-controls a { display:flex; align-items:center; gap:12px; font-size:13px; color:#fff; text-decoration:none; background:rgba(8,14,25,.6); padding:10px 16px; border-radius:24px; }
+.cinema-hero-controls button { display:grid; place-items:center; width:44px; height:44px; color:#fff; border:1px solid var(--cinema-gold); border-radius:50%; background:rgba(8,14,25,.7); cursor:pointer; }
+.cinema-film-error { position:absolute; bottom:80px; right:4vw; background:var(--cinema-bg); padding:8px 16px; font-size:13px; }
+.culture-home .culture-facts { border-top:1px solid var(--cinema-gold); border-bottom:1px solid var(--cinema-line); background:var(--cinema-bg); padding:26px 0; }
+.culture-facts strong { font-weight:500; font-size:16px; }
+.culture-facts svg { color:var(--cinema-gold); }
+.signature-experience { padding-block:100px 60px; }
+.signature-intro { display:flex; justify-content:space-between; align-items:end; gap:50px; margin-bottom:34px; }
+.signature-intro h2 em { color:var(--cinema-gold)!important; font-style:normal; }
+.signature-intro p { max-width:650px; color:var(--cinema-muted)!important; }
+.signature-intro .signature-side-note { max-width:260px; white-space:pre-line; border-left:1px solid var(--cinema-gold); padding-left:24px; font-size:14px; }
+.signature-media { display:grid; grid-template-columns:2fr 1fr; gap:24px; align-items:stretch; }
+.signature-media figure { margin:0; position:relative; min-width:0; overflow:hidden; border-radius:8px; background:var(--cinema-surface); }
+.signature-media video { display:block; width:100%; aspect-ratio:2/1; object-fit:cover; }
+.signature-media figcaption { display:flex; justify-content:space-between; padding:18px 22px; font-size:16px; }
+.signature-dinner img { position:absolute; width:100%; height:100%; object-fit:cover; }
+.signature-dinner figcaption { position:absolute; bottom:0; width:100%; background:linear-gradient(transparent,rgba(0,0,0,.9)); padding-top:60px; }
+.signature-rail { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:24px; margin-top:30px; }
+.signature-rail a { text-decoration:none; }
+.signature-rail img { width:100%; height:auto; aspect-ratio:1.9; object-fit:cover; border-radius:8px; transition:filter .25s; }
+.signature-rail a:hover img { filter:brightness(1.12); }
+.signature-rail h3 { margin-top:14px; font-size:20px; }
+.culture-home .culture-videos { padding:80px 0; background:#0d1724; border-block:1px solid var(--cinema-line); }
+.culture-home .culture-videos-layout { gap:48px; }
+.culture-home .culture-videos-copy h2 { font-size:clamp(30px,3vw,44px); }
+.culture-video-frame, .culture-sight-image, .cruise-photo-card { border-radius:8px!important; }
+.culture-home .culture-calendar, .culture-home .culture-story, .culture-home .culture-sights, .culture-home .culture-dining, .culture-home .culture-spaces, .culture-home .culture-booking { padding-block:88px; margin-block:0; }
+.culture-home .culture-story { gap:64px; border-top:1px solid var(--cinema-line); }
+.culture-story > img { border-radius:8px; }
+.cinema-dining-intro { display:grid; grid-template-columns:1.35fr 1fr; align-items:center; gap:56px; margin-bottom:38px; }
+.cinema-dining-intro > img { width:100%; aspect-ratio:1.5; height:auto; object-fit:cover; border-radius:8px; }
+.cinema-dining-intro p { margin-block:24px; color:var(--cinema-muted)!important; }
+.culture-home .culture-dining { border-top:1px solid var(--cinema-line); }
+.culture-home .culture-calendar { border-top:1px solid var(--cinema-line); }
+.culture-home .culture-vip { background:#132232; border-block:1px solid #405063; padding-block:64px; }
+.culture-home .culture-vip .culture-button { color:#080e19!important; }
+.culture-home .culture-booking li > span { color:var(--cinema-gold)!important; font-weight:400; font-size:40px; }
+.culture-home .culture-calendar-layout, .culture-home .culture-date-grid, .culture-home .culture-event-panel, .culture-home .culture-calendar-empty { background:var(--cinema-surface)!important; border-color:var(--cinema-line)!important; border-radius:8px!important; }
+.culture-home .culture-months button.active { background:var(--cinema-gold)!important; color:var(--cinema-bg)!important; }
+.culture-home .culture-sight-copy h3 { color:var(--cinema-text)!important; }
+.culture-home .culture-sight-copy p { color:var(--cinema-muted)!important; }
+/* Functional pages: shared surfaces, inputs and readable hierarchy. */
+.app-main :is(.booking-panel,.booking-summary,.flow-empty,.payment-instructions,.payment-summary-card,.success-card,.content-panel,.booking-detail,.help-article,.event-purchase-card,.event-boarding-card,.event-food-menu-card,.wallet-orders,.wallet-main,.wallet-ticket-stack,.booking-journey,.staff-panel,.staff-metric,.staff-zone-editor) { background:var(--cinema-surface)!important; border:1px solid var(--cinema-line)!important; border-radius:8px!important; box-shadow:none!important; }
+.app-main :is(.flow-heading,.checkout-heading,.orders-heading,.wallet-heading,.staff-heading) { margin-bottom:32px; }
+.app-main :is(.flow-heading,.checkout-heading,.orders-heading,.wallet-heading,.staff-heading) h1 { font-size:clamp(28px,3vw,44px)!important; font-weight:500!important; }
+.MuiOutlinedInput-root { background:#0b1522!important; border-radius:6px!important; }
+.MuiOutlinedInput-notchedOutline { border-color:#526174!important; }
+.MuiInputLabel-root { color:#b3c0d0!important; }
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline { border-color:var(--cinema-gold)!important; }
+.MuiButton-containedPrimary { background:var(--cinema-gold)!important; color:var(--cinema-bg)!important; border-radius:6px!important; padding:12px 22px!important; }
+.MuiButton-containedPrimary:hover { background:#ecd0a0!important; }
+.MuiButton-containedPrimary.Mui-disabled { background:#38404a!important; color:#a4aab2!important; }
+.MuiButton-outlinedPrimary, .MuiButton-textPrimary { color:var(--cinema-gold)!important; }
+.MuiDialog-paper { background:var(--cinema-surface)!important; border:1px solid #405063; border-radius:12px!important; }
+.auth-dialog-banner { border-bottom:1px solid var(--cinema-line)!important; background:var(--cinema-bg)!important; }
+.auth-page.auth-modal-content { border:0!important; background:var(--cinema-surface)!important; box-shadow:none!important; }
+.auth-modal-content h1 { color:var(--cinema-text)!important; }
+.auth-dialog .MuiTabs-indicator { background:var(--cinema-gold); }
+.zone-options button { background:#0b1522!important; border:1px solid #526174!important; border-radius:8px!important; padding:18px!important; }
+.zone-options button.active { border-color:var(--cinema-gold)!important; background:#252a2b!important; }
+.zone-options button.active strong, .app-main .price { color:var(--cinema-gold)!important; }
+.event-purchase-hero { padding-top:118px!important; background:var(--cinema-bg)!important; }
+.event-purchase-card { overflow:hidden; }
+.event-purchase-card .event-poster { align-self:start; border-radius:8px; }
+.event-purchase-info { padding:36px!important; }
+.event-purchase-info h1 { font-size:clamp(30px,3vw,46px)!important; }
+.event-purchase-info .event-buy-button { background:var(--cinema-gold)!important; }
+.wallet-dashboard { background:transparent!important; border:0!important; gap:24px; }
+.wallet-orders { align-self:start; }
+.wallet-order-card.selected, .wallet-ticket.selected { background:#252a2b!important; border-color:var(--cinema-gold)!important; }
+.wallet-tabs button.active { border-color:var(--cinema-gold)!important; color:var(--cinema-gold)!important; }
+.app-main .qr-ticket { background:#fff!important; color:#102033!important; border-radius:8px!important; }
+.app-main .qr-ticket :is(p,span,strong,b,dt,dd,h2,h3,li,div), .qr-dialog-content :is(p,span,strong,dt,dd,h2,h3) { color:#102033!important; }
+.qr-dialog-content { background:#fff!important; color:#102033!important; }
+.staff-workspace, .admin-dashboard { width:min(1320px,calc(100% - 32px)); }
+.staff-metric { border-top:2px solid var(--cinema-gold)!important; }
+.staff-metric strong { font-size:36px; font-weight:500; }
+.staff-panel input, .staff-panel select, .staff-zone-editor input { background:#0b1522!important; color:var(--cinema-text)!important; border-color:#526174!important; border-radius:6px; }
+.staff-workspace button, .admin-dashboard .staff-panel button { background:var(--cinema-gold); border-color:var(--cinema-gold); }
+.staff-booking-row { border-color:var(--cinema-line)!important; background:#0b1522!important; border-radius:6px; }
+.contact-channel-card { border-radius:8px!important; background:var(--cinema-surface)!important; border-color:var(--cinema-line)!important; }
+footer { background:#050b13!important; border-top:1px solid var(--cinema-line); padding:44px max(32px,calc((100vw - 1320px)/2)); color:var(--cinema-muted)!important; }
+footer .footer-brand { color:var(--cinema-gold)!important; letter-spacing:.2em; }
+@keyframes cinema-enter { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+@media(min-width:1000px) { .operator-workbench { display:grid; grid-template-columns:1.5fr 1fr; gap:24px; align-items:start; } .operator-scanner { grid-column:2; grid-row:1; } .operator-passengers { grid-column:1; grid-row:1; } }
+@media(max-width:1100px) { .cinema-header .ticket-nav { gap:18px; } .cinema-header .river-brand { min-width:160px; } .cinema-header .river-brand strong { font-size:20px; } .signature-intro .signature-side-note { display:none; } }
+@media(max-width:800px) {
+  .market-header.cinema-header { min-height:72px; padding:12px 22px; gap:12px; flex-wrap:wrap; }
+  .cinema-header .river-brand { min-width:0; }
+  .cinema-header .mobile-nav-toggle { margin-left:auto; width:44px; height:44px; border:1px solid var(--cinema-line); border-radius:6px; background:transparent; }
+  .cinema-header .ticket-nav.is-open { position:absolute; top:72px; left:0; right:0; background:var(--cinema-bg)!important; border-bottom:1px solid var(--cinema-line); border-radius:0; padding:20px 24px; max-height:calc(100dvh - 72px); overflow:auto; }
+  .cinema-header .market-tools { margin-left:0; }
+  .culture-home .culture-container { width:calc(100% - 40px); }
+  .cinema-hero { height:80svh; min-height:590px; }
+  .cinema-hero-copy { padding-top:150px; width:calc(100% - 40px); }
+  .culture-home .cinema-hero #culture-home-title { font-size:clamp(37px,7vw,56px)!important; }
+  .cinema-mobile-break { display:block; }
+  .cinema-tagline { font-size:17px; margin:20px 0 28px; }
+  .cinema-actions { gap:12px; }
+  .cinema-button { min-height:48px; padding:12px 18px; font-size:14px; }
+  .cinema-hero-controls { bottom:22px; right:20px; }
+  .culture-home .culture-facts { padding:22px 0; }
+  .signature-experience { padding-block:64px 40px; }
+  .signature-media { grid-template-columns:1fr; gap:20px; }
+  .signature-dinner { min-height:260px; }
+  .signature-rail { gap:16px; grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .signature-rail h3 { font-size:16px; line-height:1.5; }
+  .signature-rail img { aspect-ratio:1; }
+  .culture-home .culture-calendar, .culture-home .culture-story, .culture-home .culture-sights, .culture-home .culture-dining, .culture-home .culture-spaces, .culture-home .culture-booking { padding-block:54px; }
+  .cinema-dining-intro { grid-template-columns:1fr; gap:28px; }
+  .culture-home .culture-videos { padding:54px 0; }
+  .culture-home .culture-story { gap:28px; }
+  .event-purchase-info { padding:24px!important; }
+  .wallet-dashboard { gap:16px; }
+  footer { padding:32px 22px; flex-direction:column; align-items:flex-start; gap:16px; }
+  footer span:last-child { margin-left:0; }
+}
+@media(max-width:480px) { .cinema-header .market-tools { gap:10px; } .signature-rail { grid-template-columns:1fr; } .signature-rail a { display:grid; grid-template-columns:100px 1fr; gap:18px; align-items:center; } .signature-rail img { width:100px; aspect-ratio:1.3; } .signature-rail h3 { margin:0; } .signature-intro h2 { font-size:34px; } }
+@media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { animation:none!important; transition:none!important; } }

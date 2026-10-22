@@ -10,10 +10,8 @@ import ScrollToTop from "./components/shared/ScrollToTop";
 import ScrollReveal from "./components/shared/ScrollReveal";
 import EventDetail from "./components/page/EventDetail";
 import Home from "./components/page/Home";
-import BoatMap from "./components/booking/BoatMap";
-import BookingForm from "./components/booking/BookingForm";
 import MyBooking from "./components/page/MyBooking";
-import Payment, { FlowSteps } from "./components/page/Payment";
+import Payment from "./components/page/Payment";
 import BookingSuccess from "./components/page/BookingSuccess";
 import TicketWallet from "./components/page/TicketWallet";
 import Auth, { type AuthUser } from "./components/shared/Auth";
@@ -21,9 +19,10 @@ import AdminDashboard from "./components/page/AdminDashboard";
 import SalesDashboard from "./components/page/SalesDashboard";
 import OperatorDashboard from "./components/page/OperatorDashboard";
 import { CruiseProgrammeContext, defaultProgramme } from "./components/shared/CruiseProgramme";
-import { copy, type Language } from "./data/i18n";
+import type { Language } from "./data/i18n";
 import { api, formatPier, type Booking, type EventInfo } from "./data/api";
 import Help from "./components/page/Help";
+import TablePreview from "./components/page/TablePreview";
 import type { HelpTopic } from "./data/help";
 import {
   pagePaths,
@@ -42,7 +41,6 @@ export default function App() {
   const [page, setPage] = useState<Page>(pageFromLocation);
   const [event, setEvent] = useState<EventInfo | null>(null);
   const [error, setError] = useState("");
-  const [zone, setZone] = useState("A");
   const [booking, setBooking] = useState<Booking | null>(null);
   const [token, setToken] = useState("");
   const [profile, setProfile] = useState(() => ({
@@ -62,8 +60,6 @@ export default function App() {
   const [authDialogOpen, setAuthDialogOpen] = useState(
     () => pageFromLocation() === "auth",
   );
-  const [continueCheckoutAfterLogin, setContinueCheckoutAfterLogin] =
-    useState(false);
   const [helpTopic, setHelpTopic] = useState<HelpTopic>(helpFromLocation);
   const [openNavigationMenu, setOpenNavigationMenu] =
     useState<NavigationMenu>(null);
@@ -128,6 +124,11 @@ export default function App() {
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
   useEffect(() => {
+    if (page !== "checkout") return;
+    window.history.replaceState(null, "", pagePaths.tablePreview);
+    setPage("tablePreview");
+  }, [page]);
+  useEffect(() => {
     if (!openNavigationMenu) return;
     const closeMenu = (event: MouseEvent) => {
       if (!navigationRef.current?.contains(event.target as Node)) {
@@ -148,10 +149,6 @@ export default function App() {
     setOpenNavigationMenu(null);
     if (next === "home" || next === "event") void loadEvent();
   };
-  const goCheckout = (preferredZone?: string) => {
-    if (preferredZone) setZone(preferredZone);
-    go("checkout");
-  };
   const goHelp = (topic: HelpTopic) => {
     window.history.pushState(null, "", `/help/${topic}`);
     setHelpTopic(topic);
@@ -160,14 +157,9 @@ export default function App() {
     setMobileMenuOpen(false);
     setOpenNavigationMenu(null);
   };
-  const requireLoginForCheckout = () => {
-    setContinueCheckoutAfterLogin(true);
-    setAuthDialogOpen(true);
-  };
   const openAuthDialog = () => setAuthDialogOpen(true);
   const closeAuthDialog = () => {
     setAuthDialogOpen(false);
-    setContinueCheckoutAfterLogin(false);
     if (page === "auth") go("home");
   };
   const rememberBooking = (data: Booking, accessToken: string) => {
@@ -193,7 +185,6 @@ export default function App() {
     });
     go("home");
   };
-  const strings = copy[language];
   const en = language === "en";
   return (
     <>
@@ -215,6 +206,13 @@ export default function App() {
       />
 
       <main className={`app-main page-${page}`}>
+        {(page === "tablePreview" || page === "checkout") && <TablePreview
+          language={language}
+          isAuthenticated={isAuthenticated}
+          onRequireLogin={openAuthDialog}
+          onBooked={(data, accessToken) => { rememberBooking(data, accessToken); go("payment"); }}
+          onBack={() => go("event")}
+        />}
         {error && (
           <Alert
             severity="error"
@@ -230,13 +228,7 @@ export default function App() {
         {page === "event" && event && (
           <EventDetail
             event={event}
-            onStartCheckout={() => {
-              if (isAuthenticated) {
-                goCheckout();
-                return;
-              }
-              requireLoginForCheckout();
-            }}
+            onStartCheckout={() => go("tablePreview")}
             language={language}
           />
         )}
@@ -245,45 +237,7 @@ export default function App() {
             event={event}
             language={language}
             onOpenConcert={() => go("event")}
-            onOpenContact={() => goHelp("contact")}
           />
-        )}
-        {page === "checkout" && event && (
-          <section className="checkout-page">
-            <button className="back-link" onClick={() => go("event")}>
-              ←{" "}
-              {language === "en"
-                ? "Back to concert details"
-                : "กลับไปดูรายละเอียดคอนเสิร์ต"}
-            </button>
-            <FlowSteps activeStep={1} language={language} />
-            <div className="checkout-heading">
-              <h1>{strings.checkoutTitle}</h1>
-              <p>{strings.checkoutCopy}</p>
-            </div>
-            <div className="booking-layout">
-              <BoatMap
-                zones={event.zones}
-                selected={zone}
-                language={language}
-              />
-              <BookingForm
-                zones={event.zones}
-                selected={zone}
-                onSelect={setZone}
-                onBooked={(data, accessToken) => {
-                  rememberBooking(data, accessToken);
-                  go("payment");
-                }}
-                isAuthenticated={isAuthenticated}
-                onRequireLogin={requireLoginForCheckout}
-                accountName={profile.name}
-                accountEmail={profile.email}
-                language={language}
-                demo={event.demo}
-              />
-            </div>
-          </section>
         )}
         {page === "payment" && (
           <Payment
@@ -334,6 +288,7 @@ export default function App() {
         {page === "tickets" && (
           <CruiseProgrammeContext.Provider value={event ?? defaultProgramme}>
           <TicketWallet
+            onOpenHelp={() => goHelp("tickets")}
             key={isAuthenticated ? "account" : "guest"}
             onOpenOrders={() => go("orders")}
             initial={booking}
@@ -439,12 +394,9 @@ export default function App() {
             setAuthDialogOpen(false);
             const destination =
               staffHome(user.role ?? "user") ??
-              (continueCheckoutAfterLogin
-                ? "checkout"
-                : page === "auth"
+              (page === "auth"
                   ? "home"
                   : page);
-            setContinueCheckoutAfterLogin(false);
             go(destination);
           }}
         />

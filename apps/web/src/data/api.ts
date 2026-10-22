@@ -34,6 +34,7 @@ export const localizeEventTitle = (title: string, language: "th" | "en") =>
     ? language === "en" ? "Concert Cruise on the Chao Phraya" : "ล่องเรือพร้อมคอนเสิร์ตบนเจ้าพระยา"
     : title;
 export type Booking = {
+  email_delivery_enabled?: boolean;
   id: string;
   zone_id: string;
   name: string;
@@ -47,7 +48,20 @@ export type Booking = {
   marketing_consent_at: string | null;
   marketing_consent_version: string;
   marketing_consent_language: string;
-  tickets: { id: string; checked_in_at: string | null }[];
+  tickets: { id: string; checked_in_at: string | null; table_id?: string }[];
+  table_ids?: string[];
+  guest_count?: number;
+};
+export type TableCatalogue = {
+  enabled: boolean;
+  demo: boolean;
+  tables: {
+    id: string;
+    deck: "upper" | "lower";
+    seats: number;
+    price: number;
+    status: "available" | "held" | "sold" | "blocked";
+  }[];
 };
 export type AdminDashboardData = {
   booking_count: number;
@@ -65,6 +79,10 @@ export const money = (n: number) =>
     minimumFractionDigits: n % 100 === 0 ? 0 : 2,
     maximumFractionDigits: 2,
   }).format(n / 100);
+export const bookingItemLabel = (booking: Pick<Booking, "zone_id" | "table_ids">, language: "th" | "en") =>
+  booking.table_ids?.length
+    ? `${language === "en" ? "Tables" : "โต๊ะ"} ${booking.table_ids.join(", ")}`
+    : `${language === "en" ? "Zone" : "โซน"} ${booking.zone_id}`;
 export const labels: Record<string, string> = {
   held: "กำลังดำเนินการ",
   review: "กำลังดำเนินการ",
@@ -99,12 +117,17 @@ const englishApiMessages: Record<string, string> = {
   "ไม่มีสิทธิ์เข้าถึงข้อมูลผู้ดูแลระบบ": "You do not have access to this page.",
   "กรุณาเข้าสู่ระบบก่อนซื้อบัตร": "Please log in before buying tickets.",
   "ระบบส่งอีเมล OTP ยังไม่ได้ตั้งค่า": "Email verification is not configured.",
+  "กรุณายอมรับเงื่อนไขการจองและการชำระเงิน": "Please accept the booking and payment terms.",
+  "ส่งอีเมล OTP ไม่สำเร็จ กรุณาลองอีกครั้ง": "Unable to send the verification email. Please try again.",
+  "กรุณารอ 60 วินาทีก่อนขอ OTP อีกครั้ง": "Please wait 60 seconds before requesting another code.",
   "รหัส OTP หมดอายุหรือไม่ถูกต้อง": "The OTP is invalid or has expired.",
+  "สิทธิ์ตั้งรหัสผ่านหมดอายุ กรุณาขอ OTP ใหม่": "Your password reset session has expired. Please request a new code.",
   "Google Sign-In ยังไม่ได้ตั้งค่า": "Google Sign-In is not configured.",
   "รหัสผ่านไม่ถูกต้อง": "Incorrect password.",
   "อีเมลนี้สมัครสมาชิกแล้ว": "This email is already registered.",
   "อีเมลหรือรหัสผ่านไม่ถูกต้อง": "Incorrect email or password.",
   "รายการเปลี่ยนแปลงหรือโควตาไม่เพียงพอ": "Availability has changed or there are not enough tickets.",
+  "บัตรนี้เช็กอินแล้ว": "This ticket has already been checked in.",
 };
 export async function api<T>(
   path: string,
@@ -123,6 +146,7 @@ export async function api<T>(
     } catch {
       /* preserve recoverable message */
     }
+    if (message === "รายการเปลี่ยนแปลงหรือโควตาไม่เพียงพอ: บัตรนี้เช็กอินแล้ว") message = "บัตรนี้เช็กอินแล้ว";
     if (localStorage.getItem("riverlife.language") === "en") {
       message = englishApiMessages[message] || (/[ก-๙]/.test(message) ? "Request failed. Please try again." : message);
     }

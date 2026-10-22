@@ -4,6 +4,7 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import { api } from "../../data/api";
 import type { Language } from "../../data/i18n";
+import PasswordReset from "./PasswordReset";
 
 export type AuthUser = {
   id: string;
@@ -36,6 +37,7 @@ export default function Auth({
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const isSignup = mode === "signup";
+  const [resetOpen, setResetOpen] = useState(false);
 
   const switchMode = (next: Mode) => {
     setMode(next);
@@ -116,19 +118,19 @@ export default function Auth({
         onChange={(event) => setName(event.target.value)}
       />
       <TextField
-        label={en ? "Email" : "อีเมล"}
-        type="email"
-        autoComplete="email"
-        value={email}
-        onChange={(event) => setEmail(event.target.value)}
-      />
-      <TextField
         label={en ? "Password" : "รหัสผ่าน"}
         type="password"
         autoComplete="new-password"
         helperText={en ? "At least 8 characters" : "อย่างน้อย 8 ตัวอักษร"}
         value={password}
         onChange={(event) => setPassword(event.target.value)}
+      />
+      <TextField
+        label={en ? "Email" : "อีเมล"}
+        type="email"
+        autoComplete="email"
+        value={email}
+        onChange={(event) => setEmail(event.target.value)}
       />
       <Button
         variant="contained"
@@ -175,6 +177,21 @@ export default function Auth({
       </Button>
     </>
   );
+
+  if (resetOpen)
+    return (
+      <PasswordReset
+        language={language}
+        initialEmail={email}
+        modal={modal}
+        onBack={() => {
+          setResetOpen(false);
+          setPassword("");
+          setError("");
+          setMessage("");
+        }}
+      />
+    );
 
   return (
     <section
@@ -240,13 +257,24 @@ export default function Auth({
               : "กรอกอีเมลและรหัสผ่านเพื่อเข้าสู่ระบบ"}
         </p>
       </div>
-      <form className="auth-form" onSubmit={(event) => {
-        event.preventDefault();
-        if (busy) return;
-        if (!isSignup && email && password) void login();
-        else if (isSignup && signupStep === "details" && email && name.trim().length >= 2 && password.length >= 8) void requestOTP();
-        else if (isSignup && signupStep === "otp" && code.length === 6) void verifyOTP();
-      }}>
+      <form
+        className="auth-form"
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (busy) return;
+          if (!isSignup && email && password) void login();
+          else if (
+            isSignup &&
+            signupStep === "details" &&
+            email &&
+            name.trim().length >= 2 &&
+            password.length >= 8
+          )
+            void requestOTP();
+          else if (isSignup && signupStep === "otp" && code.length === 6)
+            void verifyOTP();
+        }}
+      >
         {isSignup ? (
           signupStep === "details" ? (
             details
@@ -277,6 +305,16 @@ export default function Auth({
               disabled={busy || !email || !password}
             >
               {en ? "Log in" : "เข้าสู่ระบบ"}
+            </Button>
+            <Button
+              type="button"
+              disabled={busy}
+              onClick={() => {
+                setPassword("");
+                setResetOpen(true);
+              }}
+            >
+              {en ? "Forgot password?" : "ลืมรหัสผ่าน?"}
             </Button>
           </>
         )}

@@ -1,8 +1,11 @@
-import type { Dispatch, RefObject, SetStateAction } from "react";
-import { ChevronDown, Menu, X } from "lucide-react";
+import type { Dispatch, ReactNode, RefObject, SetStateAction } from "react";
+import Drawer from "@mui/material/Drawer";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import "../../Header.css";
+import { Menu, X } from "lucide-react";
 import type { Language } from "../../data/i18n";
 import { copy } from "../../data/i18n";
-import { helpTopics, helpTitle, type HelpTopic } from "../../data/help";
+import type { HelpTopic } from "../../data/help";
 import type { NavigationMenu, Page } from "../../data/navigation";
 import LanguageSwitcher from "../shared/LanguageSwitcher";
 import ProfileMenu from "../shared/ProfileMenu";
@@ -24,13 +27,57 @@ type HeaderProps = {
   navigationRef: RefObject<HTMLElement | null>;
 };
 
+function NavigationSurface({
+  mobile,
+  open,
+  onClose,
+  en,
+  children,
+}: {
+  mobile: boolean;
+  open: boolean;
+  onClose: () => void;
+  en: boolean;
+  children: ReactNode;
+}) {
+  const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
+  if (!mobile) return children;
+  return (
+    <Drawer
+      anchor="right"
+      open={open}
+      onClose={onClose}
+      transitionDuration={reduced ? 0 : { enter: 320, exit: 240 }}
+      slotProps={{
+        paper: {
+          className: "river-mobile-drawer",
+          role: "dialog",
+          "aria-modal": true,
+          "aria-label": en ? "Main menu" : "เมนูหลัก",
+        },
+      }}
+    >
+      <div className="river-drawer-heading">
+        <span>RIVER LIFE</span>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={en ? "Close menu" : "ปิดเมนู"}
+        >
+          <X size={22} />
+        </button>
+      </div>
+      {children}
+    </Drawer>
+  );
+}
+
 export default function Header({
   page,
   language,
   setLanguage,
   mobileMenuOpen,
   setMobileMenuOpen,
-  openNavigationMenu,
   setOpenNavigationMenu,
   profile,
   isAuthenticated,
@@ -41,6 +88,7 @@ export default function Header({
   navigationRef,
 }: HeaderProps) {
   const en = language === "en";
+  const mobile = useMediaQuery("(max-width:1024px)");
   const strings = copy[language];
   const displayName =
     profile.name === "ผู้ใช้งาน River Life" && en
@@ -53,7 +101,7 @@ export default function Header({
 
   return (
     <header
-      className={`market-header ${page === "tickets" ? "!border-white/10 !text-white" : "!border-[rgba(212,175,55,0.3)] !text-white"} !bg-[#080c13]/90 !fixed !left-0 !right-0 !top-4 !z-50 !max-w-[calc(100%-2rem)] xl:!max-w-7xl !mx-auto !py-[8px] xl:!px-6 !rounded-4xl !backdrop-blur-2xl !border !shadow-2xl transition-all duration-300 !font-medium`}
+      className={`market-header cinema-header ${page === "home" ? "cinema-header-home" : ""}`}
     >
       <button
         className="river-brand"
@@ -64,7 +112,7 @@ export default function Header({
           <strong className="text-white font-bold tracking-wider">
             RIVER LIFE
           </strong>
-          <small className="!text-[#d4af37] font-semibold tracking-widest text-[9px]">
+          <small className="river-brand-caption font-semibold tracking-widest text-[9px]">
             CHAO PHRAYA CRUISES
           </small>
         </span>
@@ -87,141 +135,131 @@ export default function Header({
       >
         {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
       </button>
-      <nav
-        id="ticket-main-nav"
-        ref={navigationRef}
-        className={`ticket-nav ${mobileMenuOpen ? "is-open" : ""}`}
-        aria-label={en ? "Main menu" : "เมนูหลัก"}
+      <NavigationSurface
+        mobile={mobile}
+        open={mobileMenuOpen}
+        en={en}
+        onClose={() => {
+          setMobileMenuOpen(false);
+          setOpenNavigationMenu(null);
+        }}
       >
-        {isAuthenticated &&
-        ["admin", "sales", "operator"].includes(profile.role) ? (
-          <>
-            {profile.role === "admin" && (
+        <nav
+          id="ticket-main-nav"
+          ref={navigationRef}
+          className={`ticket-nav ${mobileMenuOpen ? "is-open" : ""}`}
+          aria-label={en ? "Main menu" : "เมนูหลัก"}
+        >
+          {isAuthenticated &&
+          ["admin", "sales", "operator"].includes(profile.role) ? (
+            <>
+              {profile.role === "admin" && (
+                <button
+                  className="active"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    go("dashboard");
+                  }}
+                >
+                  {strings.nav.dashboard}
+                </button>
+              )}
+              {["sales", "admin"].includes(profile.role) && (
+                <button
+                  className={page === "sales" ? "active" : ""}
+                  onClick={() => go("sales")}
+                >
+                  {en ? "Sales" : "ฝ่ายขาย"}
+                </button>
+              )}
+              {["operator", "admin"].includes(profile.role) && (
+                <button
+                  className={page === "operator" ? "active" : ""}
+                  onClick={() => go("operator")}
+                >
+                  {en ? "Boarding" : "เช็กอิน"}
+                </button>
+              )}
+              <button onClick={() => go("home")}>
+                {en ? "Customer website" : "หน้าเว็บไซต์ลูกค้า"}
+              </button>
+            </>
+          ) : (
+            <>
               <button
-                className="active"
+                className={page === "home" ? "active" : ""}
                 onClick={() => {
+                  setOpenNavigationMenu(null);
                   setMobileMenuOpen(false);
-                  go("dashboard");
+                  go("home");
                 }}
               >
-                {strings.nav.dashboard}
+                {en ? "Home" : "หน้าแรก"}
               </button>
-            )}
-            {["sales", "admin"].includes(profile.role) && (
               <button
-                className={page === "sales" ? "active" : ""}
-                onClick={() => go("sales")}
+                className={page === "event" ? "active" : ""}
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  go("event");
+                }}
               >
-                {en ? "Sales" : "ฝ่ายขาย"}
+                {en ? "Cruise & book" : "รอบล่องเรือและจอง"}
               </button>
-            )}
-            {["operator", "admin"].includes(profile.role) && (
               <button
-                className={page === "operator" ? "active" : ""}
-                onClick={() => go("operator")}
+                className={page === "help" ? "active" : ""}
+                onClick={() => {
+                  setOpenNavigationMenu(null);
+                  setMobileMenuOpen(false);
+                  goHelp("contact");
+                }}
               >
-                {en ? "Boarding" : "เช็กอิน"}
+                {en ? "Contact us" : "ติดต่อเรา"}
               </button>
-            )}
-            <button onClick={() => go("home")}>
-              {en ? "Customer website" : "หน้าเว็บไซต์ลูกค้า"}
-            </button>
-          </>
-        ) : (
-          <>
-            <button
-              className={page === "home" ? "active" : ""}
-              onClick={() => {
-                setOpenNavigationMenu(null);
-                setMobileMenuOpen(false);
-                go("home");
-              }}
-            >
-              {en ? "Home" : "หน้าแรก"}
-            </button>
-            <button
-              className={page === "event" ? "active" : ""}
-              onClick={() => {
-                setMobileMenuOpen(false);
-                go("event");
-              }}
-            >
-              {en ? "Cruise & book" : "รอบล่องเรือและจอง"}
-            </button>
-            <div className="ticket-nav-dropdown">
               <button
-                aria-expanded={openNavigationMenu === "help"}
-                aria-haspopup="menu"
-                onClick={() =>
-                  setOpenNavigationMenu((current) =>
-                    current === "help" ? null : "help",
-                  )
-                }
+                onClick={() => {
+                  setOpenNavigationMenu(null);
+                  setMobileMenuOpen(false);
+                  go("event");
+                  window.history.replaceState(
+                    null,
+                    "",
+                    "/concert#event-boarding",
+                  );
+                  requestAnimationFrame(() =>
+                    document
+                      .getElementById("event-boarding")
+                      ?.scrollIntoView({ block: "start" }),
+                  );
+                }}
               >
-                {en ? "Help" : "ช่วยเหลือ"}
-                <ChevronDown aria-hidden="true" size={16} />
+                {en ? "Getting there" : "การเดินทาง"}
               </button>
-              {openNavigationMenu === "help" && (
-                <div className="ticket-menu-popover" role="menu">
-                  {helpTopics.map((item) => (
-                    <button
-                      key={item}
-                      role="menuitem"
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        goHelp(item);
-                      }}
-                    >
-                      {helpTitle(item, language)}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <button
-              onClick={() => {
-                setOpenNavigationMenu(null);
+            </>
+          )}
+          <div className="mobile-menu-tools">
+            <LanguageSwitcher language={language} onChange={setLanguage} />
+            <ProfileMenu
+              role={profile.role}
+              isAuthenticated={isAuthenticated}
+              name={displayName}
+              email={displayEmail}
+              onLogin={() => {
                 setMobileMenuOpen(false);
-                go("event");
-                window.history.replaceState(
-                  null,
-                  "",
-                  "/concert#event-boarding",
-                );
-                requestAnimationFrame(() =>
-                  document
-                    .getElementById("event-boarding")
-                    ?.scrollIntoView({ block: "start" }),
-                );
+                openAuthDialog();
               }}
-            >
-              {en ? "Getting there" : "การเดินทาง"}
-            </button>
-          </>
-        )}
-        <div className="mobile-menu-tools">
-          <LanguageSwitcher language={language} onChange={setLanguage} />
-          <ProfileMenu
-            role={profile.role}
-            isAuthenticated={isAuthenticated}
-            name={displayName}
-            email={displayEmail}
-            onLogin={() => {
-              setMobileMenuOpen(false);
-              openAuthDialog();
-            }}
-            onNavigate={(dest) => {
-              setMobileMenuOpen(false);
-              go(dest);
-            }}
-            onLogout={() => {
-              setMobileMenuOpen(false);
-              logoutCustomer();
-            }}
-            language={language}
-          />
-        </div>
-      </nav>
+              onNavigate={(dest) => {
+                setMobileMenuOpen(false);
+                go(dest);
+              }}
+              onLogout={() => {
+                setMobileMenuOpen(false);
+                logoutCustomer();
+              }}
+              language={language}
+            />
+          </div>
+        </nav>
+      </NavigationSurface>
       <div
         className="market-tools desktop-tools"
         aria-label={en ? "User tools" : "เครื่องมือผู้ใช้"}

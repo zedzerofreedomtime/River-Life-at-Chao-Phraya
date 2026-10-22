@@ -13,6 +13,7 @@ export const pagePaths = {
   sales: "/sales",
   operator: "/operator",
   help: "/help/faq",
+  tablePreview: "/table-preview",
 } as const;
 
 export type Page = keyof typeof pagePaths;

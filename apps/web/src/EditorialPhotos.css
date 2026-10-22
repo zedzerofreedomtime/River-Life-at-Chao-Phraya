@@ -1,0 +1,74 @@
+/* Photography-specific framing; keep full originals in the photo viewer. */
+.motion-home .mj-gallery.mj-card-slider .mj-frame {
+  aspect-ratio: 4 / 3;
+}
+.culture-home .cinema-dining-intro {
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+  gap: clamp(28px, 5vw, 80px);
+}
+.culture-home .cinema-dining-intro > img {
+  aspect-ratio: 3 / 4;
+  max-height: 680px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.cruise-photo-open[data-photo-format="portrait"] img {
+  aspect-ratio: 3 / 4;
+}
+.culture-home .culture-dining .cruise-photo-grid.cruise-food-gallery {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+.cruise-food-gallery figure {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+.cruise-food-gallery .cruise-photo-open {
+  border-radius: 8px;
+}
+.cruise-food-gallery figcaption {
+  padding: 16px 0;
+}
+.cruise-food-gallery figcaption strong {
+  font-size: 16px;
+}
+.cruise-food-gallery figcaption p {
+  font-size: 12px;
+}
+.cruise-food-gallery .cruise-photo-expand {
+  font-size: 10px;
+}
+.culture-home .cruise-deck-gallery .cruise-photo-open img {
+  aspect-ratio: 16 / 10;
+}
+.event-purchase-card .event-poster {
+  aspect-ratio: 16 / 9;
+}
+.event-purchase-card .event-poster::after {
+  inset: 0;
+  background: linear-gradient(transparent 62%, rgba(7, 14, 20, 0.62));
+}
+@media (max-width: 960px) {
+  .culture-home .culture-dining .cruise-photo-grid.cruise-food-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 680px) {
+  .culture-home .cinema-dining-intro {
+    grid-template-columns: 1fr;
+  }
+  .culture-home .cinema-dining-intro > img {
+    aspect-ratio: 4 / 5;
+    max-height: 540px;
+  }
+  .culture-home .culture-dining .cruise-photo-grid.cruise-food-gallery {
+    gap: 14px;
+  }
+  .cruise-food-gallery figcaption strong {
+    font-size: 14px;
+  }
+  .cruise-food-gallery figcaption p {
+    font-size: 11px;
+  }
+}

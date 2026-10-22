@@ -12,8 +12,8 @@ export default function CultureVip({ language, onOpenContact }: { language: Lang
           </h2>
           <p>
             {en
-              ? "Prepare your preferred sailing and guest count. Bookings currently reserve a zone and guest count; specific tables are not confirmed."
-              : "เตรียมรอบที่สนใจและจำนวนผู้ร่วมเดินทาง ปัจจุบันจองแบบโซนและจำนวนคน ยังไม่มีการยืนยันโต๊ะเฉพาะ"}
+              ? "Prepare your preferred sailing, party size and table preferences. The proposed bow-stage layout requires operator approval before real table sales."
+              : "เตรียมรอบที่สนใจ จำนวนคน และโต๊ะที่ต้องการ ผังเวทีหัวเรือที่เสนอจะต้องให้ผู้ประกอบการรับรองก่อนเปิดขายโต๊ะจริง"}
           </p>
         </div>
         <div>
@@ -27,8 +27,8 @@ export default function CultureVip({ language, onOpenContact }: { language: Lang
           </button>
           <p className="culture-caption">
             {en
-              ? "Our contact details are pending confirmation."
-              : "ช่องทางติดต่อของเรารอยืนยัน"}
+              ? "Talk to River Life on LINE or Facebook."
+              : "พูดคุยกับ River Life ผ่าน LINE หรือ Facebook"}
           </p>
         </div>
       </div>

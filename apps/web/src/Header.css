@@ -1,0 +1,116 @@
+/* Portal-based mobile navigation: opaque, scrollable and focus-contained by MUI. */
+.river-mobile-drawer.MuiDrawer-paper {
+  width: min(360px, calc(100vw - 24px));
+  top: max(12px, env(safe-area-inset-top));
+  bottom: auto;
+  height: auto;
+  max-height: min(480px, calc(100dvh - 24px - env(safe-area-inset-top)));
+  overflow-y: auto;
+  box-sizing: border-box;
+  background: #0b131c;
+  color: var(--rl-text);
+  background-image: none;
+  border-left: 1px solid rgb(var(--rl-gold-rgb) / 0.333);
+  padding: 16px 20px;
+}
+.river-drawer-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgb(var(--rl-gold-rgb) / 0.267);
+}
+.river-drawer-heading > span {
+  letter-spacing: 0.2em;
+  font-size: 18px;
+}
+.river-drawer-heading > button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border: 1px solid rgb(var(--rl-gold-rgb) / 0.533);
+  border-radius: 6px;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+.river-mobile-drawer .ticket-nav {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0;
+  padding-top: 8px;
+  width: 100%;
+}
+.river-mobile-drawer .ticket-nav > button,
+.river-mobile-drawer .ticket-nav-dropdown > button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 1px solid #ffffff18;
+  border-radius: 0;
+  background: transparent;
+  color: var(--rl-text);
+  text-align: left;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.river-mobile-drawer .ticket-nav > button.active {
+  color: var(--rl-gold-fill) !important;
+}
+.river-mobile-drawer .ticket-nav > button.active::after {
+  display: none;
+}
+.river-mobile-drawer .ticket-nav-dropdown {
+  width: 100%;
+}
+.river-mobile-drawer .ticket-menu-popover {
+  position: static;
+  width: 100%;
+  min-width: 0;
+  padding: 8px;
+  margin: 8px 0;
+  background: #162333;
+  border: 1px solid #ffffff18;
+  border-radius: 6px;
+  box-shadow: none;
+}
+.river-mobile-drawer .ticket-menu-popover button {
+  width: 100%;
+  padding: 14px 10px;
+  color: var(--rl-text);
+  background: transparent;
+  text-align: left;
+}
+.river-mobile-drawer .mobile-menu-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+  padding-top: 12px;
+  padding-bottom: 0;
+}
+.river-mobile-drawer .profile-login-call {
+  color: var(--rl-text);
+}
+.river-mobile-drawer .profile-popover {
+  right: 0;
+  max-width: calc(100vw - 72px);
+}
+@media (max-height: 500px) {
+  .river-mobile-drawer .mobile-menu-tools {
+    padding-top: 20px;
+  }
+}

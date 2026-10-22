@@ -17,7 +17,7 @@
   min-width: 0;
 }
 .staff-heading > div > span {
-  color: #d4af37;
+  color: var(--rl-gold);
   font-size: 12px;
   letter-spacing: 0.12em;
 }

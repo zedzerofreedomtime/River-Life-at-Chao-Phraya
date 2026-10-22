@@ -82,6 +82,7 @@ export default function SailingCalendar({
   return (
     <section
       id="cruise-calendar"
+      data-home-section="calendar"
       className="culture-calendar culture-container"
       aria-labelledby="culture-calendar-title"
     >
@@ -292,7 +293,7 @@ export default function SailingCalendar({
                   type="button"
                   onClick={onOpenConcert}
                 >
-                  {en ? "View sailing & seating" : "ดูรอบล่องเรือและโซนที่นั่ง"}
+                  {en ? "View sailing & tables" : "ดูรอบล่องเรือและโต๊ะ"}
                   <ArrowRight size={18} aria-hidden="true" />
                 </button>
               </div>
@@ -334,8 +335,8 @@ export default function SailingCalendar({
       </div>
       <p className="culture-caption">
         {en
-          ? "The annual schedule will be updated as sailing dates are confirmed. Concerts are included only in the specified sailings."
-          : "ตารางตลอดปีจะอัปเดตเมื่อยืนยันรอบล่องเรือ คอนเสิร์ตมีเฉพาะรอบที่ระบุในโปรแกรม"}
+          ? "The annual schedule will be updated as sailing dates are confirmed. Every sailing includes an on-board concert; artist lineups are announced by sailing."
+          : "ตารางตลอดปีจะอัปเดตเมื่อยืนยันรอบล่องเรือ ทุกรอบมีคอนเสิร์ตบนเรือ รายชื่อศิลปินประกาศตามรอบ"}
       </p>
     </section>
   );

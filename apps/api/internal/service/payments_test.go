@@ -38,7 +38,7 @@ func TestStripePaymentLifecycle(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer db.Close()
-	s := &Service{DB: db}
+	s := &Service{DB: db, DemoConfirmation: true}
 	zone := "stripe-test-" + Token()[:12]
 	if _, err = db.Exec(ctx, "INSERT INTO zones(id,name,capacity,price) VALUES($1,'Stripe test',2,12300)", zone); err != nil {
 		t.Fatal(err)
@@ -72,6 +72,10 @@ func TestStripePaymentLifecycle(t *testing.T) {
 	}
 	if fake.creates != 1 {
 		t.Fatal("duplicate Stripe session")
+	}
+	var accepted int
+	if err = db.QueryRow(ctx, "SELECT count(*) FROM audit_log WHERE booking_id=$1 AND action=$2", b.ID, BookingTermsVersion+":accepted:en").Scan(&accepted); err != nil || accepted == 0 {
+		t.Fatal("booking terms acceptance not recorded")
 	}
 	if err = s.SubmitAttachment(ctx, b.ID, token, "test.jpg", false, "en"); !errors.Is(err, ErrConflict) {
 		t.Fatal("receipt bypasses Stripe")

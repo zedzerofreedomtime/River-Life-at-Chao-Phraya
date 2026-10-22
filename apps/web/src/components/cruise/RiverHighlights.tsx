@@ -156,7 +156,7 @@ export default function RiverHighlights({ language }: { language: Language }) {
               : "กรุงเทพฯ ในมุมมองจากสายน้ำ"}
           </span>
           <h2 id="culture-route-title">
-            {en ? "The sights along our journey" : "จุดหมายของเรา"}
+            {en ? "Along the Chao Phraya" : "เสน่ห์สองฝั่งเจ้าพระยา"}
           </h2>
           <p>
             {en
@@ -219,7 +219,7 @@ export default function RiverHighlights({ language }: { language: Language }) {
                 />
                 <span>
                   <Camera size={14} aria-hidden="true" />
-                  {en ? "PHOTO SPOT" : "จุดถ่ายภาพ"}
+                  {en ? "PHOTO VIEWS FROM ON BOARD" : "มุมถ่ายภาพจากเรือ"}
                 </span>
               </div>
               <div className="culture-sight-copy">

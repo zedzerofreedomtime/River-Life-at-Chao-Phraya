@@ -1,44 +1,49 @@
 import type { Language } from "../../data/i18n";
 import PhotoGallery from "../shared/PhotoGallery";
+import { editorialPhotos } from "../../data/editorialPhotos";
+import "../../EditorialPhotos.css";
 
 const photos = [
   {
-    src: "/images/experiences/seafood.jpg",
+    ...editorialPhotos.seafood,
+    format: "portrait" as const,
     th: "ซีฟู้ดบนเรือ",
     en: "Seafood on board",
-    detailTh: "ภาพอาหารจริงจากคลิปของเรือ",
-    detailEn: "Real food captured in the cruise film.",
+    detailTh: "ภาพอาหารจริงจากเรือ เมนูขึ้นอยู่กับรอบงาน",
+    detailEn: "Cruise-supplied food photo. Menus vary by sailing.",
   },
   {
-    src: "/images/experiences/buffet.jpg",
-    th: "ไลน์อาหารบนเรือ",
-    en: "On-board buffet",
-    detailTh: "ชมการจัดไลน์อาหารและพื้นที่ให้บริการ",
-    detailEn: "A closer look at the buffet and serving area.",
+    ...editorialPhotos.food,
+    format: "portrait" as const,
+    th: "สีสันของมื้ออาหาร",
+    en: "Flavours of the evening",
+    detailTh: "ตัวอย่างอาหารที่เรือจัดเตรียม",
+    detailEn: "A selection photographed on board.",
   },
   {
-    src: "/images/boat/unicorn-table-spread.jpg",
-    th: "อาหารบนโต๊ะมื้อค่ำ",
-    en: "Dinner at your table",
-    detailTh: "ตัวอย่างอาหารและการจัดโต๊ะจากภาพของเรือ",
-    detailEn: "A sample of dishes and table setting in the cruise photos.",
+    ...editorialPhotos.salmon,
+    format: "portrait" as const,
+    th: "แซลมอนบนโต๊ะอาหาร",
+    en: "Salmon, served on board",
+    detailTh: "ดูภาพใหญ่ประกอบเมนูของรอบที่เลือก",
+    detailEn: "Explore the photo alongside your sailing’s menu.",
   },
   {
-    src: "/images/boat/unicorn-dining-dishes.jpg",
-    th: "รายละเอียดมื้ออาหาร",
-    en: "A closer look at dining",
-    detailTh: "ดูภาพใหญ่ประกอบเมนูต้นฉบับที่เรือส่งให้",
-    detailEn: "Explore the photo alongside the cruise-supplied menu.",
-  },
-  {
-    src: "/images/experiences/dining.jpg",
-    th: "มื้ออาหารพร้อมวิวเจ้าพระยา",
-    en: "Dining with Chao Phraya views",
-    detailTh: "บรรยากาศริมราวเรือระหว่างรับประทานอาหาร",
-    detailEn: "The riverside atmosphere during dinner.",
+    ...editorialPhotos.curry,
+    format: "portrait" as const,
+    th: "รสชาติอาหารไทย",
+    en: "Thai flavours",
+    detailTh: "ภาพอาหารจริง ไม่ใช่ภาพจำลอง",
+    detailEn: "Real food photography, not an illustration.",
   },
 ];
 
 export default function DiningGallery({ language }: { language: Language }) {
-  return <PhotoGallery photos={photos} language={language} />;
+  return (
+    <PhotoGallery
+      photos={photos}
+      language={language}
+      className="cruise-food-gallery"
+    />
+  );
 }

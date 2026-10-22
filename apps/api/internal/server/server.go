@@ -17,4 +17,7 @@ type Server struct {
 	GoogleClientSecret  string
 	Payments            *service.Payments
 	StripeWebhookSecret string
+	OTPMailer           service.OTPMailer
+	DemoOTP             bool
+	BookingEmailEnabled bool
 }

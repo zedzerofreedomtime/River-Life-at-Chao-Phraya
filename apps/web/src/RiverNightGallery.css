@@ -5,8 +5,8 @@
 .river-night-gallery .river-night-notice {
   margin: 0 0 24px;
   padding: 16px 20px;
-  border-left: 3px solid #d4af37;
-  background: #d4af370c;
+  border-left: 3px solid var(--rl-gold);
+  background: rgb(var(--rl-gold-rgb) / 0.047);
   color: #c5ceda;
   font-size: 14px;
   line-height: 1.8;

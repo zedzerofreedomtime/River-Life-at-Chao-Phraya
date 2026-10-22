@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import { api, statusLabel, money, type Booking } from "../../data/api";
+import { api, statusLabel, money, bookingItemLabel, type Booking } from "../../data/api";
 import type { Language } from "../../data/i18n";
 
 export default function MyBooking({
@@ -153,7 +153,7 @@ export default function MyBooking({
             {history.map((item) => (
               <article key={item.id} className="booking-detail">
                 <strong>
-                  {tr("โซน", "Zone")} {item.zone_id} · {item.quantity}{" "}
+                  {bookingItemLabel(item, language)} · {item.quantity}{" "}
                   {tr("ท่าน", "guests")} · {money(item.total)}
                 </strong>
                 <p>
@@ -210,7 +210,7 @@ export default function MyBooking({
         <div className="booking-detail">
           <div className="order-status-bar">
             <h3>
-              {tr("โซน", "Zone")} {booking.zone_id} · {booking.quantity}{" "}
+              {bookingItemLabel(booking, language)} · {booking.quantity}{" "}
               {en ? (booking.quantity === 1 ? "ticket" : "tickets") : "ใบ"} ·{" "}
               {money(booking.total)}
             </h3>

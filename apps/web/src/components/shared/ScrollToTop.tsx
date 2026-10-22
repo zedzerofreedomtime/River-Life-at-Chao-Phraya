@@ -20,15 +20,17 @@ export default function ScrollToTop() {
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
-      behavior: "smooth"
+      behavior: "smooth",
     });
   };
 
   return (
     <button
       onClick={scrollToTop}
-      className={`fixed bottom-6 right-6 p-3 rounded-full bg-[#d4af37] text-[#080c13] shadow-lg transition-all duration-300 z-50 hover:bg-[#b8962c] hover:shadow-xl hover:-translate-y-1 ${
-        isVisible ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
+      className={`river-scroll-top fixed bottom-6 right-6 p-3 rounded-full transition-all duration-300 z-50 hover:-translate-y-1 ${
+        isVisible
+          ? "opacity-100 visible"
+          : "opacity-0 invisible pointer-events-none"
       }`}
       aria-label="Scroll to top"
     >

@@ -33,6 +33,14 @@ services:
       WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      OTP_DELIVERY_MODE: ${OTP_DELIVERY_MODE:-smtp}
+      BOOKING_EMAIL_MODE: ${BOOKING_EMAIL_MODE:-smtp}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_TLS_MODE: ${SMTP_TLS_MODE:-starttls}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
       GIN_MODE: release
     ports: ["127.0.0.1:8088:8080"]
     volumes: ["uploads:/data/uploads"]

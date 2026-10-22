@@ -1,0 +1,76 @@
+.wallet-dashboard .wallet-tabs button {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 0 12px 10px;
+  color: #a0aec0;
+  font: inherit;
+  cursor: pointer;
+}
+.wallet-dashboard .wallet-tabs button.active {
+  color: var(--rl-gold);
+  border-bottom-color: var(--rl-gold);
+}
+.wallet-dashboard .wallet-tabs button:focus-visible,
+.wallet-dashboard .wallet-guidance:focus-visible {
+  outline: 2px solid var(--rl-gold);
+  outline-offset: 4px;
+}
+.wallet-dashboard .wallet-guidance {
+  background: transparent;
+  border: 0;
+  color: var(--rl-gold);
+  font: inherit;
+  text-align: start;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 6px 0;
+}
+.wallet-dashboard .wallet-copy {
+  border: 1px solid #53647b;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--rl-gold);
+  padding: 8px;
+  cursor: pointer;
+}
+.wallet-dashboard .qr-ticket {
+  background: #101824 !important;
+  border-color: #344155 !important;
+  color: #eef2f7 !important;
+}
+.wallet-dashboard .qr-ticket :is(span, p, dt, dd, small) {
+  color: #c0ccda !important;
+}
+.wallet-dashboard .qr-ticket h2 {
+  color: var(--rl-gold) !important;
+}
+.wallet-dashboard .qr-ticket .ticket-state,
+.wallet-dashboard .qr-ticket dd.available {
+  color: #8de0b8 !important;
+}
+.wallet-dashboard .qr-ticket .ticket-state.used,
+.wallet-dashboard .qr-ticket dd.used {
+  color: #f0c574 !important;
+}
+.wallet-dashboard .qr-ticket .qr-note,
+.wallet-dashboard .qr-ticket .qr-note small {
+  background: #172536 !important;
+  color: #eef2f7 !important;
+}
+.wallet-dashboard .qr-ticket > svg {
+  background: #fff;
+  max-width: 100%;
+  height: auto;
+}
+@media (max-width: 600px) {
+  .wallet-dashboard .wallet-tabs {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .wallet-dashboard .wallet-tabs button {
+    font-size: 13px;
+    padding-inline: 5px;
+  }
+}

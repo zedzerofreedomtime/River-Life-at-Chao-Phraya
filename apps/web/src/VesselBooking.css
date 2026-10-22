@@ -1,0 +1,962 @@
+/* Booking redesign: one model, explicit floors, native readable controls. */
+.app-main.page-tablePreview {
+  padding: 106px 28px 64px !important;
+  background: #09131d;
+}
+.vessel-booking {
+  --vessel-gold: var(--rl-gold);
+  --vessel-teal: #71cabe;
+  --vessel-text: #f1f1eb;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: min(1460px, 100%);
+  color: var(--vessel-text);
+}
+.vessel-booking button {
+  font-family: inherit;
+}
+.vessel-page-heading {
+  order: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 12px 0 6px;
+}
+.vessel-booking h1 {
+  font-size: clamp(30px, 3.2vw, 45px) !important;
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+  font-weight: 600 !important;
+  margin: 0 0 8px;
+}
+.vessel-booking .preview-subtitle {
+  margin: 0;
+  font-size: 16px;
+  color: #a9b8c4;
+}
+.vessel-booking .preview-notice {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #b8c1ca;
+  font-size: 12px;
+  gap: 8px;
+}
+.vessel-booking .preview-workspace {
+  order: 1;
+  grid-template-columns: minmax(0, 1fr) 326px;
+  gap: 20px;
+}
+.vessel-booking .preview-plan {
+  background: #0c1924;
+  border: 1px solid #293b49;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.vessel-deck-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 12px;
+  background: #09131d;
+  border-bottom: 1px solid #293b49;
+}
+.vessel-booking .vessel-deck-choice {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  min-height: 88px;
+  text-align: left;
+  border: 1px solid #334453;
+  border-radius: 6px;
+  background: #101f2b;
+  color: #e8edf0;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+.vessel-booking .vessel-deck-choice[aria-pressed="true"] {
+  border-color: var(--vessel-gold);
+  background: #29271f;
+  box-shadow: inset 0 0 0 1px rgb(var(--rl-gold-rgb) / 0.110);
+}
+.vessel-booking .vessel-deck-choice:hover {
+  background: #25333c;
+}
+.deck-profile {
+  width: 88px;
+  height: 42px;
+  flex-shrink: 0;
+}
+.vessel-deck-choice > span:not(.deck-choice-circle) {
+  display: grid;
+  gap: 3px;
+}
+.vessel-deck-choice strong {
+  color: #f4f2eb;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.vessel-deck-choice[aria-pressed="true"] strong {
+  color: var(--vessel-gold);
+}
+.vessel-deck-choice small {
+  font-size: 12px;
+  color: #b5c0c9;
+}
+.deck-choice-check,
+.deck-choice-circle {
+  margin-left: auto;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+.deck-choice-check {
+  padding: 3px;
+  border-radius: 50%;
+  background: var(--vessel-gold);
+  color: #1e231f;
+}
+.deck-choice-circle {
+  border: 1px solid #53616c;
+  border-radius: 50%;
+}
+.vessel-canvas-frame {
+  position: relative;
+}
+.vessel-view-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 18px 20px 8px;
+}
+.vessel-active-deck {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  min-width: 0;
+}
+.vessel-active-deck svg {
+  color: var(--vessel-gold);
+  flex-shrink: 0;
+}
+.vessel-active-deck strong {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.vessel-active-deck > span {
+  color: #aab9c6;
+  font-size: 13px;
+}
+.vessel-mode-buttons {
+  display: flex;
+  padding: 3px;
+  border: 1px solid #30414e;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+.vessel-booking .vessel-mode-buttons button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: #c4d0d9;
+  font-size: 12px;
+  cursor: pointer;
+}
+.vessel-booking .vessel-mode-buttons button[aria-pressed="true"] {
+  color: #17202a;
+  background: var(--vessel-gold);
+  font-weight: 600;
+}
+.vessel-booking .vessel-mode-buttons button:disabled {
+  opacity: 0.45;
+}
+.vessel-booking .vessel-cutaway-note {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 0 20px;
+  margin: 0;
+  color: #a9b8c4;
+  font-size: 12px;
+  min-height: 28px;
+}
+.vessel-cutaway-note svg {
+  color: #d9bf8a;
+  flex-shrink: 0;
+}
+.vessel-scene {
+  position: relative;
+  width: 100%;
+  height: clamp(460px, 35vw, 520px);
+  overflow: hidden;
+  background: #0b2130;
+  isolation: isolate;
+}
+.vessel-scene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 70px 15px #0c192440;
+}
+.vessel-scene > canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: pan-y;
+}
+.vessel-scene > canvas:active {
+  cursor: grabbing;
+}
+.vessel-scene.is-top-view > canvas {
+  cursor: default;
+}
+.vessel-scene.is-top-view .vessel-label-anchor {
+  width: 48px;
+  height: 36px;
+}
+.vessel-booking
+  .vessel-scene.is-top-view
+  .vessel-label-anchor
+  .preview-table.on-map {
+  width: 48px;
+  min-width: 48px;
+  height: 36px;
+  min-height: 36px;
+}
+.vessel-booking
+  .vessel-scene.is-top-view
+  .vessel-label-anchor
+  .preview-table.on-map
+  strong {
+  font-size: 13px;
+}
+.vessel-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+  z-index: 2;
+}
+.vessel-label-anchor {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 36px;
+  height: 25px;
+  pointer-events: auto;
+  will-change: transform;
+}
+.vessel-booking .vessel-label-anchor .preview-table.on-map {
+  position: static;
+  transform: none;
+  left: auto;
+  top: auto;
+  width: 36px;
+  min-width: 36px;
+  height: 25px;
+  min-height: 25px;
+  margin: 0;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #8dd7ce;
+  border-radius: 4px;
+  background: #163c40f5;
+  color: #e6fff9;
+  box-shadow: 0 2px 5px #0008;
+  font-size: 11px;
+  cursor: pointer;
+}
+.vessel-booking .vessel-label-anchor .preview-table.on-map::before,
+.vessel-booking .vessel-label-anchor .preview-table.on-map::after {
+  display: none;
+}
+.vessel-booking .vessel-label-anchor .preview-table.on-map .preview-table-face {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.vessel-booking .vessel-label-anchor .preview-table.on-map strong {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  color: inherit;
+}
+.vessel-booking .vessel-label-anchor .preview-table.on-map small {
+  display: none;
+}
+.vessel-booking .vessel-label-anchor .preview-table.on-map.state-selected {
+  border: 2px solid #ffe4a1;
+  background: #e4c078;
+  color: #14252c;
+  box-shadow: 0 0 0 3px #e4c07835;
+}
+.vessel-booking
+  .vessel-label-anchor
+  .preview-table.on-map.state-selected
+  small {
+  color: #2c3e3d;
+}
+.vessel-booking
+  .vessel-label-anchor
+  .preview-table.on-map:is(.state-sold, .state-held, .state-blocked) {
+  background: #3b4651ed;
+  color: #cad2d8;
+  border-color: #86919b;
+  cursor: not-allowed;
+  opacity: 1;
+}
+.vessel-booking
+  .vessel-label-anchor
+  .preview-table.on-map:is(.state-sold, .state-held, .state-blocked)
+  small {
+  color: #b5bfc7;
+}
+.vessel-booking .vessel-label-anchor .preview-table.on-map.state-held {
+  border-style: dashed;
+}
+.vessel-booking .vessel-label-anchor .preview-table.on-map > svg {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  right: -3px;
+  top: -4px;
+  padding: 1px;
+  border-radius: 50%;
+  background: #213942;
+  color: #fff;
+}
+.vessel-booking .vessel-service {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  width: auto;
+  max-width: 160px;
+  height: auto;
+  min-height: 0;
+  border: 1px solid #ac976a;
+  background: #182632ed;
+  color: #f1dec0;
+  padding: 5px 9px;
+  border-radius: 3px;
+  font-size: 10px;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px #0004;
+}
+.vessel-booking .vessel-buffet {
+  border-color: #a7b9c0;
+  color: #dbe4e7;
+  writing-mode: horizontal-tb;
+  padding: 9px 4px;
+}
+.vessel-scene:not(.is-top-view) .vessel-buffet {
+  display: none; /* The toolbar already identifies it; do not cover table IDs in orbit view. */
+}
+.vessel-orientation {
+  position: absolute;
+  bottom: 14px;
+  left: 20px;
+  color: #a0bac6;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  z-index: 3;
+  pointer-events: none;
+}
+.vessel-bow-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 8px 0;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  text-shadow: 0 1px 3px #000;
+  pointer-events: none;
+}
+.vessel-camera-controls {
+  position: absolute;
+  right: 16px;
+  bottom: 60px;
+  z-index: 4;
+  display: grid;
+  gap: 5px;
+}
+.vessel-booking .vessel-camera-controls button {
+  width: 38px;
+  height: 38px;
+  border: 1px solid #526472;
+  border-radius: 5px;
+  background: #0d1d2bf2;
+  color: #dae6ec;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.vessel-booking .vessel-camera-controls button:disabled {
+  color: #697d89;
+  border-color: #30404a;
+  cursor: not-allowed;
+}
+.vessel-interaction-hint {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 12px 20px;
+  color: #bccad4;
+  font-size: 11px;
+}
+.vessel-interaction-hint svg {
+  flex-shrink: 0;
+  color: #dbbd82;
+}
+.vessel-booking .preview-legend {
+  padding: 14px 20px 4px;
+  gap: 10px 18px;
+  font-size: 11px;
+}
+.vessel-booking .preview-simulated {
+  padding: 0 20px 14px;
+  margin: 8px 0 0;
+  font-size: 10px;
+  line-height: 1.7;
+}
+.vessel-booking .preview-summary {
+  top: 102px;
+  background: #0e1b27;
+  border-color: #293b49;
+  padding: 24px;
+}
+.vessel-booking .preview-summary h2 {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.vessel-booking .preview-summary h2 svg {
+  color: #dabe83;
+}
+.vessel-guest-stepper {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  border: 1px solid #425564;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.vessel-booking .vessel-guest-stepper input {
+  text-align: center;
+  border: 0;
+  border-radius: 0;
+  padding: 9px;
+  background: #132431;
+  min-height: 46px;
+  appearance: textfield;
+  -moz-appearance: textfield;
+  font-size: 18px;
+}
+.vessel-guest-stepper input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+.vessel-guest-stepper button {
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: #1b2d3b;
+  color: #d7e0e7;
+  cursor: pointer;
+}
+.vessel-guest-stepper button:disabled {
+  opacity: 0.4;
+}
+.vessel-booking .preview-selected > div {
+  border-width: 1px;
+  border-left-width: 3px;
+  background: rgb(var(--rl-gold-rgb) / 0.031);
+  border-color: #9e8759;
+}
+.vessel-booking .preview-selected strong {
+  font-size: 20px;
+  color: var(--vessel-gold);
+}
+.vessel-booking .preview-selected small {
+  font-size: 12px;
+  margin-top: 3px;
+}
+.vessel-booking .preview-seat-total {
+  margin-top: 14px;
+  font-size: 12px;
+  color: #b7c6cf;
+}
+.vessel-booking .preview-summary .MuiButton-root {
+  background: var(--vessel-gold) !important;
+  min-height: 52px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.vessel-booking .preview-summary .MuiButton-root.Mui-disabled {
+  color: #9cabb6 !important;
+  background: #263744 !important;
+}
+.vessel-booking .preview-local-only {
+  padding: 12px 0;
+  margin: 16px 0 8px;
+  background: none;
+  border: 0;
+  gap: 8px;
+}
+.vessel-booking .preview-local-only p {
+  font-size: 11px;
+  line-height: 1.7;
+}
+.vessel-booking .preview-table-list {
+  padding: 30px;
+  gap: 18px;
+  min-height: 510px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.vessel-booking .preview-table.in-list {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  min-height: 72px;
+  padding: 12px;
+  background: #15363d;
+  border: 1px solid #589b98;
+  border-radius: 5px;
+  color: #edfff9;
+  font-size: 14px;
+}
+.vessel-booking .preview-table.in-list::before,
+.vessel-booking .preview-table.in-list::after {
+  display: none;
+}
+.vessel-booking .preview-table.in-list strong {
+  font-size: 17px;
+}
+.vessel-booking .preview-table.in-list small {
+  display: block;
+  font-size: 11px;
+  color: #c3d7d6;
+}
+.vessel-booking .preview-table.in-list.state-selected {
+  background: #daba78;
+  color: #10252e;
+  border-color: #f6dca4;
+}
+.vessel-booking .preview-table.in-list.state-selected small {
+  color: #2e4140;
+}
+.vessel-booking
+  .preview-table.in-list:is(.state-sold, .state-held, .state-blocked) {
+  background: #25333f;
+  color: #b7c2cc;
+  border-color: #566775;
+}
+.vessel-booking .vessel-reference-note {
+  order: 2;
+  margin: 0;
+  background: none;
+  border: 0;
+  border-top: 1px solid #293b49;
+  padding: 16px 0 0;
+}
+.vessel-booking .vessel-reference-note h2 {
+  font-size: 15px;
+}
+.vessel-booking .vessel-reference-note p {
+  color: #aab9c6;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.vessel-booking .vessel-reference-note .preview-reference-thumb {
+  width: 90px;
+}
+.vessel-deck-explainer {
+  order: 3;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.vessel-booking .vessel-deck-explainer > button {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  padding: 0;
+  text-align: left;
+  background: #0e1b27;
+  border: 1px solid #293b49;
+  border-radius: 6px;
+  overflow: hidden;
+  color: #e9eceb;
+  cursor: pointer;
+}
+.vessel-booking .vessel-deck-explainer > button.is-active {
+  border-color: #a58b59;
+}
+.vessel-deck-explainer img {
+  width: 40%;
+  height: 150px;
+  object-fit: cover;
+}
+.vessel-deck-explainer > button > span {
+  display: grid;
+  gap: 8px;
+  padding: 16px 16px 16px 0;
+}
+.vessel-deck-explainer .deck-profile {
+  display: none;
+}
+.vessel-deck-explainer strong {
+  font-size: 16px;
+  font-weight: 600;
+}
+.vessel-deck-explainer small {
+  font-size: 12px;
+  color: #aab9c6;
+  line-height: 1.6;
+}
+.vessel-booking .preview-real-vessel {
+  order: 4;
+  margin: 0;
+}
+.vessel-booking .preview-research {
+  order: 5;
+  margin-top: 0;
+}
+.vessel-loading {
+  min-height: 520px;
+  display: flex;
+  gap: 12px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #cbb789;
+  font-size: 14px;
+  background: #0b2130;
+}
+.vessel-booking .vessel-fallback {
+  padding: 12px 20px;
+  color: #ead2a5;
+  font-size: 13px;
+}
+.vessel-booking :is(button, a, input):focus-visible {
+  outline: 3px solid #ffe09f;
+  outline-offset: 3px;
+}
+/* Scope out legacy global !important typography without changing other routes. */
+.vessel-booking,
+.vessel-booking * {
+  font-family: "DM Sans", "Noto Sans Thai", sans-serif !important;
+}
+.vessel-booking :is(button, input) {
+  font-family: inherit !important;
+}
+.vessel-booking :is(p, span, small, strong, label, svg) {
+  color: inherit !important;
+}
+.vessel-booking .preview-subtitle,
+.vessel-booking .vessel-reference-note p,
+.vessel-booking .preview-selected > p,
+.vessel-booking .preview-simulated {
+  color: #adbdc9 !important;
+}
+.vessel-booking .vessel-deck-choice strong,
+.vessel-booking .vessel-active-deck strong,
+.vessel-booking .vessel-deck-explainer strong {
+  font-weight: 600 !important;
+}
+.vessel-booking .vessel-deck-choice[aria-pressed="true"] strong,
+.vessel-booking .preview-selected strong {
+  color: var(--vessel-gold) !important;
+}
+.vessel-booking .vessel-deck-choice small,
+.vessel-booking .vessel-active-deck > span,
+.vessel-booking .vessel-deck-explainer small,
+.vessel-booking .vessel-cutaway-note,
+.vessel-booking .preview-selected small,
+.vessel-booking .preview-local-only p,
+.vessel-booking .preview-notice {
+  color: #aebdc8 !important;
+}
+.vessel-booking .vessel-mode-buttons button[aria-pressed="true"] {
+  color: #17202a !important;
+}
+.vessel-booking .vessel-label-anchor .preview-table.on-map strong {
+  color: inherit !important;
+  font-weight: 600 !important;
+}
+.vessel-booking .vessel-label-anchor .preview-table.on-map.state-selected {
+  color: #122831 !important;
+}
+.vessel-booking .preview-payment-total strong {
+  color: var(--vessel-gold) !important;
+  font-weight: 600 !important;
+}
+@media (max-width: 1160px) {
+  .vessel-booking .preview-workspace {
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 14px;
+  }
+  .vessel-booking .preview-summary {
+    padding: 20px;
+  }
+  .deck-profile {
+    width: 64px;
+  }
+  .vessel-booking .vessel-deck-choice {
+    gap: 8px;
+    padding: 12px;
+  }
+  .vessel-active-deck > span {
+    display: none;
+  }
+  .vessel-view-toolbar {
+    padding: 14px 16px 8px;
+  }
+  .vessel-mode-buttons svg {
+    display: none;
+  }
+}
+@media (max-width: 960px) {
+  .app-main.page-tablePreview {
+    padding: 100px 20px 40px !important;
+  }
+  .vessel-page-heading {
+    align-items: flex-start;
+  }
+  .vessel-booking .preview-workspace {
+    grid-template-columns: 1fr;
+  }
+  .vessel-booking .preview-summary {
+    position: static;
+  }
+  .vessel-active-deck > span {
+    display: inline;
+  }
+  .vessel-mode-buttons svg {
+    display: block;
+  }
+  .vessel-scene {
+    height: 550px;
+  }
+  .vessel-deck-choices .deck-profile {
+    width: 88px;
+  }
+  .vessel-booking .preview-selected {
+    min-height: 44px;
+  }
+  .vessel-booking .preview-summary h2 {
+    font-size: 22px;
+  }
+  .vessel-deck-explainer {
+    gap: 12px;
+  }
+}
+@media (max-width: 600px) {
+  .app-main.page-tablePreview {
+    padding: 94px 12px 30px !important;
+  }
+  .vessel-booking {
+    gap: 16px;
+  }
+  .vessel-page-heading {
+    display: block;
+    padding: 4px 4px 0;
+  }
+  .vessel-booking h1 {
+    font-size: 31px !important;
+  }
+  .vessel-booking .preview-subtitle {
+    font-size: 13px;
+  }
+  .vessel-booking .preview-notice {
+    font-size: 10px;
+    margin-top: 12px;
+  }
+  .vessel-deck-choices {
+    padding: 10px;
+    gap: 8px;
+  }
+  .vessel-booking .vessel-deck-choice {
+    padding: 10px;
+    gap: 7px;
+    min-height: 100px;
+    flex-wrap: wrap;
+    position: relative;
+  }
+  .vessel-deck-choices .deck-profile {
+    width: 67px;
+    height: 30px;
+  }
+  .vessel-deck-choice > span:not(.deck-choice-circle) {
+    width: 100%;
+  }
+  .vessel-deck-choice strong {
+    font-size: 18px;
+  }
+  .vessel-deck-choice small {
+    font-size: 10px;
+  }
+  .deck-choice-check,
+  .deck-choice-circle {
+    position: absolute;
+    top: 14px;
+    right: 10px;
+    width: 17px;
+    height: 17px;
+  }
+  .vessel-view-toolbar {
+    gap: 8px;
+    padding: 14px 12px 8px;
+    flex-wrap: wrap;
+  }
+  .vessel-active-deck {
+    font-size: 15px;
+  }
+  .vessel-active-deck > span {
+    font-size: 10px;
+  }
+  .vessel-mode-buttons {
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 2px;
+  }
+  .vessel-booking .vessel-mode-buttons button {
+    min-height: 36px;
+    flex: 1;
+  }
+  .vessel-booking .vessel-cutaway-note {
+    padding: 0 12px 8px;
+    font-size: 10px;
+    align-items: flex-start;
+    line-height: 1.6;
+  }
+  .vessel-cutaway-note svg {
+    margin-top: 2px;
+  }
+  .vessel-scene {
+    height: 680px;
+  }
+  .vessel-scene.is-top-view .vessel-label-anchor {
+    width: 44px;
+    height: 44px;
+  }
+  .vessel-booking
+    .vessel-scene.is-top-view
+    .vessel-label-anchor
+    .preview-table.on-map {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+  .vessel-booking
+    .vessel-scene.is-top-view
+    .vessel-label-anchor
+    .preview-table.on-map
+    strong {
+    font-size: 12px;
+  }
+  .vessel-camera-controls {
+    right: 9px;
+    bottom: 66px;
+    gap: 6px;
+  }
+  .vessel-booking .vessel-camera-controls button {
+    width: 36px;
+    height: 36px;
+  }
+  .vessel-interaction-hint {
+    padding: 12px;
+    font-size: 10px;
+    align-items: flex-start;
+  }
+  .vessel-interaction-hint svg {
+    margin-top: 2px;
+  }
+  .vessel-booking .preview-legend {
+    padding: 12px 12px 0;
+    gap: 8px 12px;
+    font-size: 10px;
+  }
+  .vessel-booking .preview-legend i {
+    width: 12px;
+    height: 12px;
+  }
+  .vessel-booking .preview-simulated {
+    padding: 0 12px 12px;
+    font-size: 10px;
+  }
+  .vessel-booking .vessel-service {
+    font-size: 9px;
+    padding: 4px 6px;
+  }
+  .vessel-booking .vessel-buffet {
+    padding: 6px 3px;
+  }
+  .vessel-booking .is-top-view .vessel-buffet {
+    writing-mode: vertical-rl;
+  }
+  .vessel-orientation {
+    left: 12px;
+    font-size: 9px;
+  }
+  .vessel-booking .preview-table-list {
+    padding: 20px 16px;
+    gap: 14px 12px;
+    min-height: 530px;
+  }
+  .vessel-booking .preview-table.in-list {
+    min-height: 64px;
+    padding: 8px;
+  }
+  .vessel-deck-explainer {
+    grid-template-columns: 1fr;
+  }
+  .vessel-deck-explainer img {
+    height: 120px;
+  }
+  .vessel-deck-explainer strong {
+    font-size: 14px;
+  }
+  .vessel-deck-explainer small {
+    font-size: 11px;
+  }
+  .vessel-booking .vessel-reference-note .preview-reference-thumb {
+    display: none;
+  }
+  .vessel-booking .vessel-reference-note {
+    display: block;
+    padding: 14px 4px 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vessel-booking *,
+  .vessel-labels {
+    transition: none !important;
+    animation: none !important;
+  }
+}

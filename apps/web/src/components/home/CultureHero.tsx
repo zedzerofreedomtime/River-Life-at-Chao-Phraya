@@ -1,147 +1,72 @@
-import { useEffect, useState } from "react";
-import { ArrowRight, ChevronRight, Pause, Play } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowDown, ArrowRight, Pause, Play } from "lucide-react";
 import type { Language } from "../../data/i18n";
-
-const covers = [
-  {
-    src: "/images/river-life-culture-hero-v5.webp",
-    width: 1902,
-    height: 827,
-    th: "ภาพแคมเปญ",
-    en: "Campaign image",
-    altTh:
-      "ภาพแคมเปญจัดองค์ประกอบเรือ UNICORN CRUISE พรีเซนเตอร์ชุดแดงทอง และวัดอรุณ",
-    altEn:
-      "Campaign composite of UNICORN CRUISE, the presenter in her red and gold gown, and Wat Arun",
-  },
-  {
-    src: "/images/boat/unicorn-night-exterior-enhanced-v1.webp",
-    width: 1717,
-    height: 916,
-    th: "ภาพเรือปรับความคมชัด",
-    en: "Enhanced cruise photo",
-    altTh:
-      "ภาพเรือ UNICORN CRUISE เต็มลำบนแม่น้ำเจ้าพระยา ปรับความคมชัดด้วย AI จากภาพถ่ายต้นฉบับ",
-    altEn:
-      "AI-enhanced original photograph of the complete UNICORN CRUISE vessel on the Chao Phraya",
-  },
-];
 
 export default function CultureHero({ language }: { language: Language }) {
   const en = language === "en";
-  const [cover, setCover] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const [interacting, setInteracting] = useState(false);
-  const [reduceMotion, setReduceMotion] = useState(
-    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  const video = useRef<HTMLVideoElement>(null);
+  const section = useRef<HTMLElement>(null);
+  const [paused, setPaused] = useState(true);
+  const [error, setError] = useState(false);
+  const manuallyPaused = useRef(false);
+  const [autoAllowed, setAutoAllowed] = useState(() =>
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
+    !(navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData,
   );
-
   useEffect(() => {
-    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setReduceMotion(query.matches);
-    query.addEventListener("change", update);
-    return () => query.removeEventListener("change", update);
+    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => {
+      const allowed = !preference.matches && !(navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+      setAutoAllowed(allowed);
+      if (!allowed) video.current?.pause();
+    };
+    preference.addEventListener("change", update);
+    return () => preference.removeEventListener("change", update);
   }, []);
-
   useEffect(() => {
-    if (paused || interacting || reduceMotion) return;
-    const timer = window.setInterval(
-      () => setCover((current) => (current + 1) % covers.length),
-      10000,
-    );
-    return () => window.clearInterval(timer);
-  }, [paused, interacting, reduceMotion]);
-
+    const player = video.current;
+    const target = section.current;
+    if (!player || !target) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) player.pause();
+      else if (autoAllowed && !manuallyPaused.current && !document.hidden) void player.play().catch(() => setPaused(true));
+    }, { threshold: 0.15 });
+    const visibility = () => { if (document.hidden) player.pause(); };
+    observer.observe(target);
+    document.addEventListener("visibilitychange", visibility);
+    return () => { observer.disconnect(); document.removeEventListener("visibilitychange", visibility); };
+  }, [autoAllowed]);
+  const toggle = async () => {
+    const player = video.current;
+    if (!player) return;
+    if (!player.paused) { manuallyPaused.current = true; player.pause(); }
+    else { manuallyPaused.current = false; try { await player.play(); } catch { setError(true); } }
+  };
   return (
-    <section
-      className="culture-hero"
-      aria-labelledby="culture-home-title"
-      onMouseEnter={() => setInteracting(true)}
-      onMouseLeave={() => setInteracting(false)}
-      onFocusCapture={() => setInteracting(true)}
-      onBlurCapture={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget)) setInteracting(false);
-      }}
-    >
-      <div className="culture-cover-images">
-        {covers.map((image, index) => (
-          <img
-            key={image.src}
-            src={image.src}
-            alt={index === cover ? (en ? image.altEn : image.altTh) : ""}
-            aria-hidden={index !== cover}
-            className={index === cover ? "is-current" : ""}
-            width={image.width}
-            height={image.height}
-            fetchPriority={index === 0 ? "high" : "low"}
-            decoding="async"
-          />
-        ))}
-        <div className="culture-cover-controls">
-          <span>
-            {String(cover + 1).padStart(2, "0")} /{" "}
-            {String(covers.length).padStart(2, "0")} ·{" "}
-            {en ? covers[cover].en : covers[cover].th}
-          </span>
-          <button
-            type="button"
-            aria-label={en ? "Next cover image" : "ดูภาพปกถัดไป"}
-            onClick={() => {
-              setCover((current) => (current + 1) % covers.length);
-              setPaused(true);
-            }}
-          >
-            <ChevronRight size={20} aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            aria-label={
-              paused || reduceMotion
-                ? en
-                  ? "Resume cover slideshow"
-                  : "เล่นภาพปกอัตโนมัติ"
-                : en
-                  ? "Pause cover slideshow"
-                  : "หยุดภาพปกอัตโนมัติ"
-            }
-            onClick={() => setPaused((current) => !current)}
-            disabled={reduceMotion}
-          >
-            {paused || reduceMotion ? (
-              <Play size={15} aria-hidden="true" />
-            ) : (
-              <Pause size={15} aria-hidden="true" />
-            )}
-          </button>
+    <section ref={section} className="cinema-hero" aria-labelledby="culture-home-title">
+      <video ref={video} className="cinema-hero-film" muted loop playsInline
+        preload={autoAllowed ? "metadata" : "none"}
+        poster="/images/boat/unicorn-night-exterior-enhanced-v1.webp"
+        onPlay={() => setPaused(false)} onPause={() => setPaused(true)} onError={() => setError(true)}
+        aria-label={en ? "Cruise, dining, Hanuman performance and Chao Phraya views" : "เรือ อาหาร การแสดงหนุมาน และวิวเจ้าพระยา"}>
+        <source src="/videos/riverlife-cinematic-30s.mp4" type="video/mp4" />
+      </video>
+      <div className="cinema-hero-shade" />
+      <div className="cinema-hero-copy">
+        <h1 id="culture-home-title" lang="en">Symphony of<br className="cinema-mobile-break" /> the Chao Phraya</h1>
+        <p className="cinema-tagline" lang="en">A River of Culture. A Night of Music.</p>
+        <div className="cinema-actions">
+          <a className="cinema-button" href="#life-on-board">{en ? "Explore the experience" : "สำรวจประสบการณ์"}<ArrowDown size={18} /></a>
+          <a className="cinema-button cinema-button-outline" href="#cruise-calendar">{en ? "Cruises & Booking" : "ดูรอบและจอง"}<ArrowRight size={18} /></a>
         </div>
       </div>
-      <div className="culture-hero-copy">
-        <h1 id="culture-home-title" lang="en">
-          Symphony of
-          <br />
-          the Chao Phraya
-        </h1>
-        <p className="culture-tagline" lang="en">
-          A River of Culture. A Night of Music.
-        </p>
-        <p className="culture-hero-description">
-          {en
-            ? "Cruise the Chao Phraya with River Life. Every sailing brings a concert on board."
-            : "ล่องเรือเจ้าพระยากับ River Life พร้อมคอนเสิร์ตบนเรือในทุกรอบการเดินทาง"}
-        </p>
-        <div className="culture-hero-actions">
-          <a className="culture-button" href="#cruise-calendar">
-            {en ? "Explore cruise dates" : "ดูรอบล่องเรือ"}
-            <ArrowRight size={19} aria-hidden="true" />
-          </a>
-          <a className="culture-watch-link" href="#life-on-board">
-            <span>
-              <Play size={17} fill="currentColor" aria-hidden="true" />
-            </span>
-            {en ? "Watch life on board" : "ชมบรรยากาศจริง"}
-          </a>
-        </div>
+      <div className="cinema-hero-controls">
+        <a href="#life-on-board">{en ? "Watch the full film" : "ชมคลิปพร้อมเสียง"}<Play size={15} /></a>
+        <button type="button" onClick={() => void toggle()} disabled={error} aria-label={paused ? (en ? "Play opening film" : "เล่นวิดีโอเปิดหน้าเว็บ") : (en ? "Pause opening film" : "หยุดวิดีโอเปิดหน้าเว็บ")}>
+          {paused ? <Play size={18} /> : <Pause size={18} />}
+        </button>
       </div>
+      {error ? <p className="cinema-film-error" role="status">{en ? "Video unavailable. Explore the cruise below." : "วิดีโอไม่พร้อมใช้งาน ชมรายละเอียดเรือด้านล่างได้เลย"}</p> : null}
     </section>
   );
 }

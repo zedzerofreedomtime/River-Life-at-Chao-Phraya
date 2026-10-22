@@ -9,7 +9,7 @@
   overflow: hidden;
   border: 1px solid #33404e;
   border-radius: 16px;
-  background: #111a25;
+  background: var(--rl-surface);
 }
 .cruise-photo-open {
   display: block;
@@ -17,7 +17,7 @@
   width: 100%;
   padding: 0;
   border: 0;
-  background: #111a25;
+  background: var(--rl-surface);
   cursor: pointer;
   overflow: hidden;
 }
@@ -58,6 +58,37 @@
 .cruise-deck-gallery {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   margin: 24px 0 48px;
+}
+.cruise-photo-grid.cruise-onboard-gallery {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-block: 24px;
+}
+@media (max-width: 1100px) {
+  .cruise-photo-grid.cruise-onboard-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .cruise-photo-grid.cruise-onboard-gallery {
+    grid-template-columns: 1fr;
+  }
+}
+.cruise-deck-gallery figure:nth-child(-n + 2) img {
+  object-position: center 80%;
+}
+.event-vessel-gallery {
+  width: min(1320px, calc(100% - 40px));
+  margin: 64px auto;
+}
+.event-vessel-gallery h2 {
+  font-size: clamp(24px, 3vw, 36px);
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+.event-vessel-gallery .culture-section-heading p {
+  max-width: 800px;
+  color: #b9c4d1;
+  line-height: 1.8;
 }
 .cruise-photo-dialog {
   width: min(1050px, calc(100vw - 32px));
@@ -131,14 +162,14 @@
   border: 1px solid #566171;
   border-radius: 999px;
   color: #e1e7ef;
-  background: #111a25;
+  background: var(--rl-surface);
   cursor: pointer;
   font: inherit;
   font-size: 14px;
 }
 .cruise-video-categories button[aria-pressed="true"] {
-  border-color: #d4af37;
-  background: #d4af37;
+  border-color: var(--rl-gold);
+  background: var(--rl-gold);
   color: #0b1522;
 }
 .cruise-media-note {
@@ -151,7 +182,7 @@
   text-underline-offset: 4px;
 }
 .culture-home .onboard-experience-card {
-  background: #111a25;
+  background: var(--rl-surface);
   border-color: #33404e;
 }
 .culture-home .onboard-experience-card h3 {

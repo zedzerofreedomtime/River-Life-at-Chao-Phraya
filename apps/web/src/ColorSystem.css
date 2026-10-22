@@ -1,0 +1,148 @@
+/* Shared brand palette. Keep semantic statuses, QR codes and real media intact. */
+:root {
+  --rl-bg: #080e19;
+  --rl-surface: #121e2c;
+  --rl-surface-raised: #192838;
+  --rl-text: #f4efe6;
+  --rl-muted: #b3c0d0;
+  --rl-line: #344456;
+  --rl-gold: #c9ad7c;
+  --rl-gold-rgb: 201 173 124;
+  --rl-gold-fill: #e4c78f;
+  --rl-gold-hover: #d6b779;
+  --rl-on-gold: #080e19;
+  --cinema-bg: var(--rl-bg);
+  --cinema-surface: var(--rl-surface);
+  --cinema-gold: var(--rl-gold);
+  --cinema-text: var(--rl-text);
+  --cinema-muted: var(--rl-muted);
+  --cinema-line: var(--rl-line);
+}
+
+/* An opaque shared navbar cannot pick up different colors from each page. */
+.market-header.cinema-header,
+.market-header.cinema-header.cinema-header-home {
+  background: var(--rl-bg) !important;
+  background-image: none !important;
+  border-bottom: 1px solid var(--rl-line) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.market-header.cinema-header .river-brand strong,
+.river-brand-caption,
+.river-mobile-drawer .river-drawer-heading > span,
+footer .footer-brand {
+  color: var(--rl-gold) !important;
+  font-weight: 500 !important;
+}
+.auth-dialog .auth-dialog-banner > span {
+  color: var(--rl-gold) !important;
+}
+.market-header.cinema-header nav button,
+.river-mobile-drawer .ticket-nav > button {
+  color: var(--rl-text) !important;
+}
+.market-header.cinema-header nav button.active,
+.river-mobile-drawer .ticket-nav > button.active,
+.language-switcher button.active {
+  color: var(--rl-gold) !important;
+}
+.river-mobile-drawer.MuiDrawer-paper {
+  background: var(--rl-bg) !important;
+  color: var(--rl-text) !important;
+  border-color: var(--rl-line) !important;
+}
+footer {
+  background: var(--rl-bg) !important;
+  color: var(--rl-muted) !important;
+  border-color: var(--rl-line) !important;
+  backdrop-filter: none !important;
+}
+
+/* Flat champagne buttons, with a dark label in normal/hover/focus states. */
+.MuiButton-containedPrimary:not(.Mui-disabled),
+.page-event .event-purchase-info .event-buy-button:not(:disabled),
+.culture-home .culture-button:not(.culture-button-outline),
+.cinema-button,
+.motion-home .mj-book,
+.motion-home .mj-hero-actions .MuiButton-root.mj-outline:last-child,
+.river-scroll-top,
+.preview-summary .preview-checkout:not(:disabled) {
+  background: var(--rl-gold-fill) !important;
+  color: var(--rl-on-gold) !important;
+  border-color: var(--rl-gold-fill) !important;
+  box-shadow: none !important;
+}
+.MuiButton-containedPrimary:not(.Mui-disabled):hover,
+.page-event .event-purchase-info .event-buy-button:not(:disabled):hover,
+.culture-home .culture-button:not(.culture-button-outline):hover,
+.cinema-button:hover,
+.motion-home .mj-book:hover,
+.motion-home .mj-hero-actions .MuiButton-root.mj-outline:hover,
+.river-scroll-top:hover,
+.preview-summary .preview-checkout:not(:disabled):hover {
+  background: var(--rl-gold-hover) !important;
+  color: var(--rl-on-gold) !important;
+  border-color: var(--rl-gold-hover) !important;
+  box-shadow: none !important;
+}
+button:hover,
+.MuiButton-root:hover,
+.river-contact-card a:hover {
+  box-shadow: none !important;
+}
+.page-event .event-key-details dt {
+  background: rgb(var(--rl-gold-rgb) / 0.1) !important;
+  border-color: rgb(var(--rl-gold-rgb) / 0.35) !important;
+  color: var(--rl-gold) !important;
+}
+.MuiButton-containedPrimary.Mui-disabled {
+  background: #303e4d !important;
+  color: #b3c0d0 !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+.MuiInputBase-input {
+  color: var(--rl-text) !important;
+}
+.MuiInputLabel-root {
+  color: var(--rl-muted) !important;
+}
+.MuiInputLabel-root.Mui-focused {
+  color: var(--rl-gold) !important;
+}
+.MuiInputLabel-root.Mui-error,
+.MuiFormHelperText-root.Mui-error {
+  color: #ffb4ab !important;
+}
+.MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline {
+  border-color: #ffb4ab !important;
+}
+.MuiAlert-standardError {
+  background: #331f25 !important;
+  color: #ffdad6 !important;
+}
+.MuiAlert-standardSuccess {
+  background: #142c26 !important;
+  color: #b9efcc !important;
+}
+.MuiAlert-standardWarning {
+  background: #302817 !important;
+  color: #f4d592 !important;
+}
+.MuiAlert-standardInfo {
+  background: #162b3a !important;
+  color: #c2e4ff !important;
+}
+.MuiButton-containedError:not(.Mui-disabled) {
+  background: #ffb4ab !important;
+  color: #420e12 !important;
+}
+.MuiButton-containedSuccess:not(.Mui-disabled) {
+  background: #9edbb5 !important;
+  color: #092519 !important;
+}
+::selection {
+  background: var(--rl-gold-fill);
+  color: var(--rl-on-gold);
+}

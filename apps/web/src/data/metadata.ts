@@ -34,6 +34,8 @@ export function generateMetadata({
   const defaultImage = `${baseUrl}/images/river-life-culture-hero-v5.webp`;
 
   switch (page) {
+    case "tablePreview":
+      return { title: en ? "Unicorn Cruise · Table layout preview — River Life" : "ทดลองผังโต๊ะ Unicorn Cruise — River Life", description: en ? "Illustrative table selection. Not an official deck plan or booking." : "ทดลองเลือกโต๊ะ ไม่ใช่ผังจริงที่เรือยืนยันหรือการจอง", robots: "noindex, nofollow", url: `${baseUrl}/table-preview` };
     case "home":
       return {
         title: en

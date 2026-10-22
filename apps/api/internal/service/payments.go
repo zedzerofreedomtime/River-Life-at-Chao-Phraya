@@ -52,6 +52,9 @@ func (p *Payments) Checkout(ctx context.Context, id, token string, consent bool,
 	if capacity-used < b.Quantity {
 		return CheckoutResult{}, ErrConflict
 	}
+	if err = checkTableConflict(ctx, tx, b.TableIDs, id); err != nil {
+		return CheckoutResult{}, err
+	}
 	var sessionID string
 	err = tx.QueryRow(ctx, "SELECT session_id FROM stripe_checkouts WHERE booking_id=$1", id).Scan(&sessionID)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
@@ -86,6 +89,11 @@ func (p *Payments) Checkout(ctx context.Context, id, token string, consent bool,
 			}},
 		}
 		params.SetIdempotencyKey("riverlife-checkout-" + id)
+		if len(b.TableIDs) > 0 {
+			params.LineItems[0].Quantity = stripe.Int64(int64(len(b.TableIDs)))
+			params.LineItems[0].PriceData.UnitAmount = stripe.Int64(int64(b.Total / len(b.TableIDs)))
+			params.LineItems[0].PriceData.ProductData.Name = stripe.String("River Life · Demo table(s) " + strings.Join(b.TableIDs, ", "))
+		}
 		checkout, err = p.Client.Create(ctx, params)
 	}
 	if err != nil {
@@ -102,6 +110,9 @@ func (p *Payments) Checkout(ctx context.Context, id, token string, consent bool,
 		marketing_consent_version=CASE WHEN $3 THEN $4 ELSE '' END,
 		marketing_consent_language=CASE WHEN $3 THEN $5 ELSE '' END WHERE id=$1`, id, checkout.ExpiresAt, consent, MarketingConsentVersion, language)
 	if err != nil {
+		return CheckoutResult{}, err
+	}
+	if _, err = tx.Exec(ctx, "INSERT INTO audit_log(booking_id,action) VALUES($1,$2)", id, BookingTermsVersion+":accepted:"+language); err != nil {
 		return CheckoutResult{}, err
 	}
 	if err = tx.Commit(ctx); err != nil {
@@ -185,11 +196,14 @@ func (p *Payments) confirm(ctx context.Context, id string, session *stripe.Check
 		// Never oversell if a webhook arrives after the reservation was released.
 		return fmt.Errorf("%w: paid booking requires staff reconciliation", ErrConflict)
 	}
+	if err = checkTableConflict(ctx, tx, b.TableIDs, id); err != nil {
+		return fmt.Errorf("%w: paid table requires staff reconciliation", err)
+	}
 	if _, err = tx.Exec(ctx, "UPDATE bookings SET status='confirmed' WHERE id=$1", id); err != nil {
 		return err
 	}
 	for i := 0; i < b.Quantity; i++ {
-		if _, err = tx.Exec(ctx, "INSERT INTO tickets(id,booking_id) VALUES($1,$2)", Token(), id); err != nil {
+		if _, err = tx.Exec(ctx, "INSERT INTO tickets(id,booking_id,table_id) VALUES($1,$2,$3)", Token(), id, tableForTicket(b.TableIDs, i)); err != nil {
 			return err
 		}
 	}

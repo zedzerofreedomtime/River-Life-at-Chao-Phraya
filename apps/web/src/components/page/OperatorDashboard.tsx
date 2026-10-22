@@ -117,7 +117,8 @@ export default function OperatorDashboard({
           value={total - checked}
         />
       </div>
-      <section className="staff-panel">
+      <div className="operator-workbench">
+      <section className="staff-panel operator-scanner">
         <h2>{en ? "Scan a ticket" : "สแกนบัตรผู้โดยสาร"}</h2>
         <TicketScanner
           language={language}
@@ -156,7 +157,7 @@ export default function OperatorDashboard({
           </button>
         </form>
       </section>
-      <section className="staff-panel">
+      <section className="staff-panel operator-passengers">
         <h2>{en ? "Passenger list" : "รายชื่อผู้โดยสาร"}</h2>
         <div className="staff-filter-row">
           <label>
@@ -201,6 +202,7 @@ export default function OperatorDashboard({
           ))}
         </div>
       </section>
+      </div>
     </section>
   );
 }

@@ -2,6 +2,7 @@ package server
 
 import (
 	"bytes"
+	"context"
 	"crypto/subtle"
 	"encoding/json"
 	"errors"
@@ -29,6 +30,22 @@ func (s *Server) authRoutes(api *gin.RouterGroup) {
 			bad(c)
 			return
 		}
+		if s.OTPMailer == nil && !(s.Demo && s.DemoOTP) {
+			c.AbortWithStatusJSON(503, gin.H{"error": "ระบบส่งอีเมล OTP ยังไม่ได้ตั้งค่า"})
+			return
+		}
+		// Per-address cooldown supplements the existing per-IP rate limit.
+		key := "riverlife:otp:" + service.Hash(email)
+		locked, err := s.Redis.SetNX(c.Request.Context(), key+":cooldown", "1", time.Minute).Result()
+		if err != nil {
+			fail(c, err)
+			return
+		}
+		if !locked {
+			c.Header("Retry-After", "60")
+			c.AbortWithStatusJSON(429, gin.H{"error": "กรุณารอ 60 วินาทีก่อนขอ OTP อีกครั้ง"})
+			return
+		}
 		passwordHash, err := service.PasswordHash(in.Password)
 		if err != nil {
 			fail(c, err)
@@ -40,15 +57,23 @@ func (s *Server) authRoutes(api *gin.RouterGroup) {
 			return
 		}
 		encoded, _ := json.Marshal(otpChallenge{CodeHash: service.Hash(code), Name: strings.TrimSpace(in.Name), PasswordHash: passwordHash})
-		if err = s.Redis.Set(c.Request.Context(), "riverlife:otp:"+service.Hash(email), encoded, 10*time.Minute).Err(); err != nil {
+		if err = s.Redis.Set(c.Request.Context(), key, encoded, 10*time.Minute).Err(); err != nil {
 			fail(c, err)
 			return
 		}
-		if !s.Demo {
-			c.AbortWithStatusJSON(503, gin.H{"error": "ระบบส่งอีเมล OTP ยังไม่ได้ตั้งค่า"})
+		if s.OTPMailer != nil {
+			if err = s.OTPMailer.SendOTP(c.Request.Context(), email, code); err != nil {
+				// Only remove our own challenge if a newer request has replaced it.
+				cleanup, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+				defer cancel()
+				_ = s.Redis.Eval(cleanup, `if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1],KEYS[2]) end return 0`, []string{key, key + ":cooldown"}, string(encoded)).Err()
+				c.AbortWithStatusJSON(503, gin.H{"error": "ส่งอีเมล OTP ไม่สำเร็จ กรุณาลองอีกครั้ง"})
+				return
+			}
+			c.JSON(202, gin.H{"message": "ส่งรหัส OTP ไปยังอีเมลแล้ว กรุณาตรวจสอบกล่องจดหมายและจดหมายขยะ"})
 			return
 		}
-		c.JSON(202, gin.H{"message": "ส่งรหัส OTP แล้ว", "demo_code": code})
+		c.JSON(202, gin.H{"message": "โหมดทดสอบเท่านั้น ยังไม่ได้ส่งอีเมล", "demo_code": code})
 	})
 	api.POST("/auth/signup/verify", s.limiter(8), func(c *gin.Context) {
 		var in struct {
@@ -75,8 +100,13 @@ func (s *Server) authRoutes(api *gin.RouterGroup) {
 			c.AbortWithStatusJSON(401, gin.H{"error": "รหัส OTP หมดอายุหรือไม่ถูกต้อง"})
 			return
 		}
-		if err = s.Redis.Del(c.Request.Context(), key).Err(); err != nil {
+		consumed, err := s.Redis.Eval(c.Request.Context(), `if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]) end return 0`, []string{key}, string(raw)).Int()
+		if err != nil {
 			fail(c, err)
+			return
+		}
+		if consumed != 1 {
+			c.AbortWithStatusJSON(401, gin.H{"error": "รหัส OTP หมดอายุหรือไม่ถูกต้อง"})
 			return
 		}
 		user, err := s.Service.CreateMember(c.Request.Context(), email, challenge.Name, challenge.PasswordHash)
@@ -84,7 +114,7 @@ func (s *Server) authRoutes(api *gin.RouterGroup) {
 			fail(c, err)
 			return
 		}
-		if err = s.setUserSession(c, user.ID); err != nil {
+		if err = s.setUserSession(c, user.ID, user.AuthVersion); err != nil {
 			fail(c, err)
 			return
 		}
@@ -113,7 +143,7 @@ func (s *Server) authRoutes(api *gin.RouterGroup) {
 			fail(c, err)
 			return
 		}
-		if err = s.setUserSession(c, user.ID); err != nil {
+		if err = s.setUserSession(c, user.ID, user.AuthVersion); err != nil {
 			fail(c, err)
 			return
 		}

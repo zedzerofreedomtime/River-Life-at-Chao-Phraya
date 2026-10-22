@@ -9,6 +9,10 @@ export type CruisePhoto = {
   en: string;
   detailTh: string;
   detailEn: string;
+  width?: number;
+  height?: number;
+  position?: string;
+  format?: "portrait" | "landscape";
 };
 
 export default function PhotoGallery({
@@ -38,6 +42,7 @@ export default function PhotoGallery({
             <button
               type="button"
               className="cruise-photo-open"
+              data-photo-format={item.format}
               aria-label={`${en ? "View photo: " : "ดูภาพ: "}${en ? item.en : item.th}`}
               onClick={() => {
                 setSelected(index);
@@ -47,8 +52,10 @@ export default function PhotoGallery({
               <img
                 src={item.src}
                 alt={en ? item.en : item.th}
-                width={1200}
-                height={800}
+                width={item.width ?? 1200}
+                height={item.height ?? 800}
+                style={{ objectPosition: item.position }}
+                decoding="async"
                 loading="lazy"
               />
               <span className="cruise-photo-expand">
@@ -92,8 +99,8 @@ export default function PhotoGallery({
         <img
           src={photo.src}
           alt={en ? photo.en : photo.th}
-          width={1200}
-          height={800}
+          width={photo.width ?? 1200}
+          height={photo.height ?? 800}
         />
         <div className="cruise-photo-controls">
           <button

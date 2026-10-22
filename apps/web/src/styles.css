@@ -2,12 +2,12 @@
 @import "tailwindcss";
 :root {
   font-family: "DM Sans", "DM Sans", "Kanit", Arial, sans-serif;
-  color: #e5e0d8;
+  color: var(--rl-text);
   background: #050507; /* Sleeker true dark from reference */
   font-synthesis: none;
   --customer-width: 1200px;
-  --customer-navy: #111114; /* Sleek card background */
-  --customer-gold: #c49a45; /* Refined luxury gold */
+  --customer-navy: var(--rl-surface); /* Sleek card background */
+  --customer-gold: var(--rl-gold); /* Refined luxury gold */
   --customer-border: rgba(255, 255, 255, 0.08); /* Minimalist border */
   --customer-radius: 12px;
   --heading-font: "DM Sans", "DM Sans", "Kanit", sans-serif; /* No more serifs */
@@ -118,7 +118,7 @@ html:lang(en) {
   display: grid;
   justify-items: start;
   align-content: start;
-  border-bottom: 3px solid #bd9048;
+  border-bottom: 3px solid var(--rl-gold);
   background: linear-gradient(135deg, #071c37 0%, #0d3765 68%, #1a4c70 100%);
   color: #fff;
 }
@@ -555,7 +555,7 @@ body {
 }
 .wallet-tabs .active {
   color: #101e32;
-  border-bottom: 3px solid #b89152;
+  border-bottom: 3px solid var(--rl-gold);
 }
 .wallet-ticket {
   width: 100%;
@@ -573,12 +573,12 @@ body {
   cursor: pointer;
 }
 .wallet-ticket.selected {
-  border-color: #b89152;
-  box-shadow: inset 3px 0 #b89152;
+  border-color: var(--rl-gold);
+  box-shadow: inset 3px 0 var(--rl-gold);
   background: #fffdf8;
 }
 .wallet-ticket svg {
-  color: #b89152;
+  color: var(--rl-gold);
 }
 .wallet-ticket span {
   display: grid;
@@ -1354,7 +1354,7 @@ button {
 }
 button:focus-visible,
 a:focus-visible {
-  outline: 3px solid #b89152;
+  outline: 3px solid var(--rl-gold);
   outline-offset: 3px;
 }
 h2 {
@@ -1401,7 +1401,7 @@ nav button {
 nav .active:after {
   content: "";
   height: 3px;
-  background: #aa8040;
+  background: var(--rl-gold);
   position: absolute;
   bottom: 0;
   left: 0;
@@ -1484,13 +1484,13 @@ main {
 .vessel-zone.selected {
   background: #ecdfbc;
   color: #705320;
-  border-color: #aa8040;
+  border-color: var(--rl-gold);
 }
 .vessel-zone:hover {
-  box-shadow: inset 0 0 0 1px #aa8040;
+  box-shadow: inset 0 0 0 1px var(--rl-gold);
 }
 .vessel-zone:focus-visible {
-  outline: 3px solid #aa8040;
+  outline: 3px solid var(--rl-gold);
   outline-offset: 3px;
 }
 .vessel-lower {
@@ -1582,12 +1582,12 @@ main {
   color: #102641;
 }
 .flow-steps li.done span {
-  border-color: #ba8d47;
-  background: #ba8d47;
+  border-color: var(--rl-gold);
+  background: var(--rl-gold);
   color: #fff;
 }
 .flow-steps li.done::before {
-  background: #ba8d47;
+  background: var(--rl-gold);
 }
 .flow-heading {
   margin: 22px 0;
@@ -1625,7 +1625,7 @@ main {
   padding: 28px;
 }
 .payment-section-title > span {
-  color: #a77831;
+  color: var(--rl-gold);
   font-size: 13px;
   font-weight: 700;
 }
@@ -1665,7 +1665,7 @@ main {
 .payment-amount {
   display: block;
   margin-bottom: 10px;
-  color: #a77831;
+  color: var(--rl-gold);
   font-size: 31px;
 }
 .payment-qr-content small {
@@ -1755,7 +1755,7 @@ main {
   font-weight: 700;
 }
 .payment-total strong {
-  color: #a77831;
+  color: var(--rl-gold);
   font-size: 28px;
 }
 .payment-summary-note {
@@ -2009,9 +2009,9 @@ main {
   min-width: 0;
 }
 .zone-options button.active {
-  border-color: #aa8040;
+  border-color: var(--rl-gold);
   background: #fffcf6;
-  box-shadow: inset 0 0 0 1px #aa8040;
+  box-shadow: inset 0 0 0 1px var(--rl-gold);
 }
 .zone-options strong,
 .zone-options small,
@@ -2131,7 +2131,7 @@ footer span:last-child {
   margin-top: 25px;
 }
 .ticket {
-  border: 1px dashed #aa8040;
+  border: 1px dashed var(--rl-gold);
   padding: 22px;
   max-width: 245px;
   text-align: center;
@@ -2276,7 +2276,7 @@ td small {
   cursor: pointer;
 }
 .market-tools .language-switcher button.active {
-  border-bottom-color: #bd9048;
+  border-bottom-color: var(--rl-gold);
   color: #102641;
 }
 .market-header {
@@ -2314,7 +2314,7 @@ td small {
   letter-spacing: -1px;
 }
 .access-panel .MuiButton-contained {
-  background: #bd9048;
+  background: var(--rl-gold);
 }
 .wallet-dashboard {
   display: grid;
@@ -2419,7 +2419,7 @@ td small {
 .wallet-tabs .active {
   color: #102641;
   border-bottom-width: 3px;
-  border-color: #bd9048;
+  border-color: var(--rl-gold);
 }
 .wallet-status-alert {
   max-width: 1040px;
@@ -2505,7 +2505,7 @@ td small {
   content: "✓";
 }
 .booking-steps li.current::before {
-  border: 5px solid #bd9048;
+  border: 5px solid var(--rl-gold);
   color: #8d682b;
 }
 .boarding-details {
@@ -2568,8 +2568,8 @@ td small {
   border-radius: 9px;
 }
 .wallet-ticket.selected {
-  border-color: #bd9048;
-  box-shadow: inset 0 0 0 1px #bd9048;
+  border-color: var(--rl-gold);
+  box-shadow: inset 0 0 0 1px var(--rl-gold);
   background: #fff;
 }
 .wallet-ticket img {
@@ -2608,7 +2608,7 @@ td small {
   align-self: center;
   min-width: 105px;
   padding: 11px 16px;
-  border: 1px solid #bd9048;
+  border: 1px solid var(--rl-gold);
   border-radius: 6px;
   color: #a9782d;
   font-size: 16px;
@@ -2617,7 +2617,7 @@ td small {
 }
 .wallet-ticket.selected .show-qr {
   border: 0;
-  background: #bd9048;
+  background: var(--rl-gold);
   color: #fff;
 }
 .wallet-help {
@@ -3160,16 +3160,16 @@ td small {
     height: 38px;
     flex: 0 0 auto;
     place-items: center;
-    border: 1px solid rgba(212, 175, 55, 0.3);
+    border: 1px solid rgb(var(--rl-gold-rgb) / 0.3);
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.06);
-    color: #d4af37;
+    color: var(--rl-gold);
     cursor: pointer;
     transition: background 0.2s, border-color 0.2s;
   }
   .mobile-nav-toggle:hover {
-    background: rgba(212, 175, 55, 0.15);
-    border-color: #d4af37;
+    background: rgb(var(--rl-gold-rgb) / 0.15);
+    border-color: var(--rl-gold);
   }
   .market-header nav {
     display: none;
@@ -3184,7 +3184,7 @@ td small {
     flex-direction: column;
     gap: 4px;
     padding: 16px 20px;
-    border: 1px solid rgba(212, 175, 55, 0.2);
+    border: 1px solid rgb(var(--rl-gold-rgb) / 0.2);
     border-radius: 18px;
     background: rgba(14, 14, 18, 0.96);
     backdrop-filter: blur(24px);
@@ -3198,7 +3198,7 @@ td small {
     min-height: 44px;
     padding: 12px 8px;
     font-size: 15px;
-    color: #e5e0d8;
+    color: var(--rl-text);
     background: transparent;
     border: 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
@@ -3210,7 +3210,7 @@ td small {
   }
   .ticket-nav > button.active,
   .ticket-nav-dropdown > button.active {
-    color: #d4af37 !important;
+    color: var(--rl-gold) !important;
     font-weight: 600;
   }
   .ticket-nav > button:hover,
@@ -3229,14 +3229,14 @@ td small {
     box-shadow: none;
   }
   .ticket-menu-popover button {
-    color: #e5e0d8;
+    color: var(--rl-text);
     padding: 10px 12px;
     width: 100%;
     text-align: left;
   }
   .ticket-menu-popover button:hover {
-    background: rgba(212, 175, 55, 0.1);
-    color: #d4af37;
+    background: rgb(var(--rl-gold-rgb) / 0.1);
+    color: var(--rl-gold);
   }
   .mobile-menu-tools {
     display: flex;
@@ -3249,7 +3249,7 @@ td small {
     gap: 12px;
   }
   .mobile-menu-tools .profile-trigger {
-    color: #d4af37;
+    color: var(--rl-gold);
   }
   .desktop-tools {
     display: none !important;
@@ -3328,8 +3328,8 @@ td small {
    DARK LUXURY THEME OVERRIDES 
    ========================================================================== */
 body, .app-main {
-  background-color: #080c13 !important;
-  color: #e5e0d8 !important;
+  background-color: var(--rl-bg) !important;
+  color: var(--rl-text) !important;
 }
 
 h1,
@@ -3340,14 +3340,14 @@ h5,
 h6,
 .text-primary,
 .help-page-heading > span {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
   font-family: var(--heading-font) !important;
 }
 
 .help-topic-nav button {
-  background: #0d1421 !important;
-  color: #e5e0d8 !important;
-  border-color: rgba(212, 175, 55, 0.3) !important;
+  background: var(--rl-surface) !important;
+  color: var(--rl-text) !important;
+  border-color: rgb(var(--rl-gold-rgb) / 0.3) !important;
 }
 
 /* Force dark background for cards and main containers */
@@ -3362,7 +3362,7 @@ header, footer {
   background-image: none !important;
   backdrop-filter: blur(24px) !important;
   -webkit-backdrop-filter: blur(8px) !important;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.2) !important;
+  border-bottom: 1px solid rgb(var(--rl-gold-rgb) / 0.2) !important;
   color: #ffffff !important;
 }
 
@@ -3370,9 +3370,9 @@ header, footer {
 .MuiPaper-root, .auth-dialog,
 .profile-popover,
 .MuiPaper-root {
-  background-color: #0d1421 !important;
-  color: #e5e0d8 !important;
-  border: 1px solid rgba(212, 175, 55, 0.2) !important;
+  background-color: var(--rl-surface) !important;
+  color: var(--rl-text) !important;
+  border: 1px solid rgb(var(--rl-gold-rgb) / 0.2) !important;
 }
 
 /* Buttons */
@@ -3382,13 +3382,13 @@ button {
 }
 
 button:hover {
-  box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+  box-shadow: 0 0 15px rgb(var(--rl-gold-rgb) / 0.4);
 }
 
 /* Specific component overrides */
 .checkout-page,
 .payment-page {
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 
 .help-page {
@@ -3396,18 +3396,18 @@ button:hover {
 }
 
 .help-topic-nav button[data-active="true"] {
-  background-color: #d4af37 !important;
-  color: #080c13 !important;
+  background-color: var(--rl-gold) !important;
+  color: var(--rl-bg) !important;
 }
 
 /* Overriding specific Tailwind light backgrounds */
 .bg-white, .bg-gray-50, .bg-gray-100 {
-  background-color: #0d1421 !important;
-  color: #e5e0d8 !important;
+  background-color: var(--rl-surface) !important;
+  color: var(--rl-text) !important;
 }
 
 .text-gray-900, .text-gray-800, .text-black {
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 
 .text-gray-500, .text-gray-600 {
@@ -3415,13 +3415,13 @@ button:hover {
 }
 
 .border-gray-200, .border-gray-300 {
-  border-color: rgba(212, 175, 55, 0.2) !important;
+  border-color: rgb(var(--rl-gold-rgb) / 0.2) !important;
 }
 
 /* Luxury accent details */
 ::selection {
-  background: #d4af37;
-  color: #080c13;
+  background: var(--rl-gold);
+  color: var(--rl-bg);
 }
 
 /* High-contrast Logo and Header items */
@@ -3445,14 +3445,14 @@ button:hover {
 }
 
 .market-header .river-brand small {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
   font-weight: 600 !important;
   letter-spacing: 2px !important;
-  text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+  text-shadow: 0 0 10px rgb(var(--rl-gold-rgb) / 0.4);
 }
 
 .market-header nav button.active {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
   font-weight: 600 !important;
 }
 
@@ -3460,22 +3460,22 @@ button:hover {
    CONCERT & EVENT DETAIL PAGE (/concert) - High Contrast Dark Luxury Theme
    ========================================================================== */
 .page-event {
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 
 .page-event .event-breadcrumb {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
   font-weight: 600 !important;
 }
 
 .page-event .event-purchase-card {
-  background: #111114 !important;
+  background: var(--rl-surface) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6) !important;
 }
 
 .page-event .event-purchase-info {
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 
 .page-event .event-purchase-info h1 {
@@ -3490,9 +3490,9 @@ button:hover {
 }
 
 .page-event .event-key-details dt {
-  background: rgba(212, 175, 55, 0.12) !important;
-  color: #d4af37 !important;
-  border: 1px solid rgba(212, 175, 55, 0.25) !important;
+  background: rgb(var(--rl-gold-rgb) / 0.12) !important;
+  color: var(--rl-gold) !important;
+  border: 1px solid rgb(var(--rl-gold-rgb) / 0.25) !important;
 }
 
 .page-event .event-key-details dd span {
@@ -3507,25 +3507,25 @@ button:hover {
 }
 
 .page-event .event-buy-button {
-  background: linear-gradient(135deg, #d4af37, #b8962c) !important;
-  color: #080c13 !important;
+  background: linear-gradient(135deg, var(--rl-gold), var(--rl-gold)) !important;
+  color: var(--rl-bg) !important;
   font-weight: 700 !important;
-  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.35) !important;
+  box-shadow: 0 4px 20px rgb(var(--rl-gold-rgb) / 0.35) !important;
 }
 
 .page-event .event-buy-button:hover:not(:disabled) {
-  background: linear-gradient(135deg, #f0c75e, #d4af37) !important;
+  background: linear-gradient(135deg, var(--rl-gold), var(--rl-gold)) !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5) !important;
+  box-shadow: 0 8px 25px rgb(var(--rl-gold-rgb) / 0.5) !important;
 }
 
 /* Event detail content & Highlights */
 .page-event .event-detail-content {
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 
 .page-event .event-detail-content h2 {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
   font-family: var(--heading-font) !important;
 }
 
@@ -3538,9 +3538,9 @@ button:hover {
 }
 
 .page-event .event-detail-highlights span {
-  background: rgba(212, 175, 55, 0.12) !important;
-  color: #d4af37 !important;
-  border: 1px solid rgba(212, 175, 55, 0.25) !important;
+  background: rgb(var(--rl-gold-rgb) / 0.12) !important;
+  color: var(--rl-gold) !important;
+  border: 1px solid rgb(var(--rl-gold-rgb) / 0.25) !important;
 }
 
 .page-event .event-detail-highlights strong {
@@ -3553,13 +3553,13 @@ button:hover {
 
 /* Boarding point card */
 .page-event .event-boarding-card {
-  background: #111114 !important;
+  background: var(--rl-surface) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 
 .page-event .event-boarding-card h2 {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
   font-family: var(--heading-font) !important;
 }
 
@@ -3577,16 +3577,16 @@ button:hover {
 
 /* Food menu on event page */
 .page-event .event-food-menu {
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 
 .page-event .event-food-menu h2 {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
   font-family: var(--heading-font) !important;
 }
 
 .page-event .event-food-menu-eyebrow {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
 }
 
 .page-event .event-food-menu-intro p {
@@ -3594,23 +3594,23 @@ button:hover {
 }
 
 .page-event .event-food-menu-card {
-  background: #111114 !important;
+  background: var(--rl-surface) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 
 .page-event .event-food-menu-card h3 {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
 .page-event .event-food-menu-card ul,
 .page-event .event-food-menu-card li {
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 
 .page-event .event-food-menu-card li::marker {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
 }
 
 /* ==========================================================================
@@ -3628,11 +3628,11 @@ button:hover {
 .auth-dialog,
 .profile-popover,
 .MuiPaper-root {
-  background: #111114 !important;
+  background: var(--rl-surface) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: 16px !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
   transition: transform 0.2s ease, border-color 0.2s ease !important;
   overflow: hidden !important;
 }
@@ -3646,20 +3646,20 @@ button:hover {
 .success-card h1,
 .event-boarding-card h2,
 .event-food-menu-card h3 {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
   font-family: var(--heading-font) !important;
 }
 
 /* Minor text & borders inside cards */
 
 .success-card dl div, .payment-summary-card dl div {
-  border-color: rgba(212, 175, 55, 0.1) !important;
+  border-color: rgb(var(--rl-gold-rgb) / 0.1) !important;
 }
 
 /* Button Overrides for Luxury Theme */
 button[type="submit"],
 .event-purchase-card button {
-  background: #c49a45 !important;
+  background: var(--rl-gold) !important;
   color: #050507 !important;
   border: none !important;
   padding: 12px 24px !important;
@@ -3673,7 +3673,7 @@ button[type="submit"],
 button[type="submit"]:hover,
 .event-purchase-card button:hover {
   transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(196, 154, 69, 0.4) !important;
+  box-shadow: 0 4px 12px rgb(var(--rl-gold-rgb) / 0.4) !important;
   background: #d4a757 !important;
 }
 
@@ -3696,7 +3696,7 @@ button[type="submit"]:hover,
 .MuiPaper-root,
 .MuiDialogContent-root,
 .MuiTypography-root {
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 
 /* Ensure headings remain gold */
@@ -3707,7 +3707,7 @@ button[type="submit"]:hover,
 .app-main h5,
 .app-main h6,
 .MuiDialogTitle-root {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
 }
 
 /* Except buttons and their children should keep button contrast */
@@ -3717,7 +3717,7 @@ button, button *,
 }
 button[type="submit"],
 .event-purchase-card button {
-  color: #080c13 !important;
+  color: var(--rl-bg) !important;
 }
 
 /* ==========================================================================
@@ -3733,9 +3733,9 @@ button[type="submit"],
 /* Food menu notice high-contrast styling */
 .event-food-menu-notice,
 .page-event .event-food-menu-notice {
-  background: rgba(212, 175, 55, 0.1) !important;
-  border: 1px solid rgba(212, 175, 55, 0.35) !important;
-  border-left: 4px solid #d4af37 !important;
+  background: rgb(var(--rl-gold-rgb) / 0.1) !important;
+  border: 1px solid rgb(var(--rl-gold-rgb) / 0.35) !important;
+  border-left: 4px solid var(--rl-gold) !important;
   border-radius: 10px !important;
   color: #ffffff !important;
   font-size: 14px !important;
@@ -3753,7 +3753,7 @@ body, .app-main, .app-main *, h1, h2, h3, h4, h5, h6, p, span, div, a, button, l
 .market-header nav button:hover,
 .market-tools button:hover,
 .market-header nav button:focus-visible {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
   transform: translateY(-1px);
   transition: all 0.2s ease;
 }
@@ -3772,18 +3772,18 @@ body, .app-main, .app-main *, h1, h2, h3, h4, h5, h6, p, span, div, a, button, l
   background: rgba(13, 20, 33, 0.9) !important;
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
-  border: 1px solid rgba(212, 175, 55, 0.2) !important;
+  border: 1px solid rgb(var(--rl-gold-rgb) / 0.2) !important;
   box-shadow: 0 16px 42px rgba(0, 0, 0, 0.4) !important;
 }
 
 .ticket-menu-popover button {
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 
 .ticket-menu-popover button:hover,
 .ticket-menu-popover button:focus-visible {
-  background: rgba(212, 175, 55, 0.15) !important;
-  color: #d4af37 !important;
+  background: rgb(var(--rl-gold-rgb) / 0.15) !important;
+  color: var(--rl-gold) !important;
   transform: none !important;
 }
 
@@ -3814,13 +3814,11 @@ body, .app-main, .app-main *, h1, h2, h3, h4, h5, h6, p, span, div, a, button, l
 /* ==========================================================================
    TYPOGRAPHY HIERARCHY FIX (DIMMING SECONDARY TEXT)
    ========================================================================== */
-/* Make paragraphs, spans, and descriptions a muted gray to reduce brightness */
+/* Descriptions may be muted, but labels, brand marks and statuses inherit
+   their component color instead of being globally forced to blue-gray. */
 p,
-span:not(.river-brand span),
-small,
-dt,
-li {
-  color: #8b9bb4 !important;
+small {
+  color: var(--rl-muted);
 }
 
 /* Ensure important text remains bright off-white */
@@ -3832,7 +3830,7 @@ td,
 .wallet-order-card strong,
 .success-card dd,
 .payment-summary-card dd {
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 
 /* Keep headings and titles prominent (Gold/White) */
@@ -3843,7 +3841,7 @@ h1, h2, h3, h4, h5, h6 {
 .success-card h1,
 .event-boarding-card h2,
 .event-food-menu-card h3 {
-  color: #c49a45 !important;
+  color: var(--rl-gold) !important;
 }
 
 /* Do not mute button texts */
@@ -3858,8 +3856,8 @@ button *,
 .MuiDialog-paper,
 .language-switcher button.active,
 .help-topic-nav button {
-  background: #111114 !important;
-  color: #e5e0d8 !important;
+  background: var(--rl-surface) !important;
+  color: var(--rl-text) !important;
   border-color: rgba(255, 255, 255, 0.08) !important;
 }
 
@@ -3874,7 +3872,7 @@ button *,
 }
 
 .profile-summary strong {
-  color: #c49a45 !important;
+  color: var(--rl-gold) !important;
 }
 
 .profile-summary small {
@@ -3887,17 +3885,17 @@ button *,
 
 .help-topic-nav button.active,
 .help-topic-nav button[data-active="true"] {
-  background: #c49a45 !important;
+  background: var(--rl-gold) !important;
   color: #050507 !important;
-  border-color: #c49a45 !important;
+  border-color: var(--rl-gold) !important;
 }
 
 .market-tools .profile-login-call {
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 
 .market-tools .profile-login-call:hover {
-  color: #c49a45 !important;
+  color: var(--rl-gold) !important;
 }
 
 .language-switcher button {
@@ -3905,15 +3903,15 @@ button *,
 }
 
 .language-switcher button.active {
-  color: #c49a45 !important;
-  border-bottom-color: #c49a45 !important;
+  color: var(--rl-gold) !important;
+  border-bottom-color: var(--rl-gold) !important;
   background: transparent !important;
 }
 
 /* Explicit hover state for nav buttons */
 .ticket-nav button:hover,
 .ticket-nav-dropdown > button:hover {
-  color: #c49a45 !important;
+  color: var(--rl-gold) !important;
   background: transparent !important;
 }
 
@@ -3939,7 +3937,7 @@ button *,
 .MuiInputBase-root,
 .MuiFormLabel-root,
 .MuiInputLabel-root {
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 .MuiOutlinedInput-notchedOutline {
   border-color: rgba(255, 255, 255, 0.2) !important;
@@ -3948,22 +3946,22 @@ button *,
   border-color: rgba(255, 255, 255, 0.4) !important;
 }
 .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
-  border-color: #d4af37 !important;
+  border-color: var(--rl-gold) !important;
 }
 .MuiInputLabel-root.Mui-focused {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
 }
 
 /* Global fix for form elements text color in dark mode */
 input, select, textarea,
 .culture-year select {
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
   background-color: transparent;
 }
 /* Ensure options inside select are visible on dark background */
 option {
-  background-color: #111114 !important;
-  color: #e5e0d8 !important;
+  background-color: var(--rl-surface) !important;
+  color: var(--rl-text) !important;
 }
 
 /* Fix Login / Register Tabs text color */
@@ -3971,39 +3969,39 @@ option {
   color: #8b9bb4 !important;
 }
 .auth-tabs button.active {
-  color: #d4af37 !important;
-  border-bottom-color: #d4af37 !important;
+  color: var(--rl-gold) !important;
+  border-bottom-color: var(--rl-gold) !important;
 }
 .auth-tabs {
   border-bottom-color: rgba(255, 255, 255, 0.1) !important;
 }
 .auth-dialog-banner {
   background: rgba(255, 255, 255, 0.03) !important;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.2) !important;
+  border-bottom: 1px solid rgb(var(--rl-gold-rgb) / 0.2) !important;
 }
 .auth-dialog-banner span {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
 }
 
 /* Luxury styling for MUI buttons in Auth forms and globally */
 .MuiButton-contained {
-  background-color: #c49a45 !important;
+  background-color: var(--rl-gold) !important;
   color: #050507 !important;
   font-weight: 600 !important;
 }
 .MuiButton-contained:hover {
-  background-color: #dfb775 !important;
+  background-color: var(--rl-gold) !important;
 }
 .MuiButton-contained.Mui-disabled {
   background-color: rgba(255, 255, 255, 0.1) !important;
   color: rgba(255, 255, 255, 0.3) !important;
 }
 .MuiButton-outlined {
-  border-color: #c49a45 !important;
-  color: #c49a45 !important;
+  border-color: var(--rl-gold) !important;
+  color: var(--rl-gold) !important;
 }
 .MuiButton-outlined:hover {
-  background-color: rgba(196, 154, 69, 0.1) !important;
+  background-color: rgb(var(--rl-gold-rgb) / 0.1) !important;
 }
 
 .auth-otp-copy {
@@ -4018,20 +4016,20 @@ option {
 .orders-heading h1,
 .auth-page h1,
 .auth-dialog-banner span {
-  color: #c49a45 !important;
+  color: var(--rl-gold) !important;
 }
 
 .MuiFormLabel-root,
 .MuiInputLabel-root,
 .MuiInputBase-input {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
 }
 
 .MuiOutlinedInput-notchedOutline {
-  border-color: rgba(212, 175, 55, 0.5) !important;
+  border-color: rgb(var(--rl-gold-rgb) / 0.5) !important;
 }
 .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
-  border-color: rgba(212, 175, 55, 0.8) !important;
+  border-color: rgb(var(--rl-gold-rgb) / 0.8) !important;
 }
 
 /* Update MUI Contained button disabled state to be Gold with Black text */
@@ -4039,7 +4037,7 @@ option {
   color: #000000 !important;
 }
 .MuiButton-contained.Mui-disabled {
-  background-color: #c49a45 !important;
+  background-color: var(--rl-gold) !important;
   color: #000000 !important;
   opacity: 0.6 !important;
 }
@@ -4051,18 +4049,18 @@ option {
 
 /* Fix RiverHighlights (Culture Sights) section for Dark Luxury */
 .culture-route-layout {
-  background: #111114 !important;
+  background: var(--rl-surface) !important;
   border-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 .culture-sights-controls > button {
   border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 
 .culture-sights-controls > button:hover:not(:disabled) {
-  background: rgba(212, 175, 55, 0.15) !important;
-  color: #d4af37 !important;
+  background: rgb(var(--rl-gold-rgb) / 0.15) !important;
+  color: var(--rl-gold) !important;
 }
 
 .culture-sights-dots span {
@@ -4070,14 +4068,14 @@ option {
 }
 
 .culture-sights-dots [aria-current="true"] span {
-  background: #d4af37 !important;
+  background: var(--rl-gold) !important;
 }
 
 /* Ensure route note is readable in dark mode */
 .culture-route-note {
-  background: #111114 !important;
-  border-left-color: #d4af37 !important;
-  color: #e5e0d8 !important;
+  background: var(--rl-surface) !important;
+  border-left-color: var(--rl-gold) !important;
+  color: var(--rl-text) !important;
 }
 
 .culture-route-caption {
@@ -4092,7 +4090,7 @@ option {
 .culture-route-group h3,
 .culture-route-details h3,
 .culture-sight-copy h3 {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
 }
 
 /* Fix missed white panels across the checkout and booking flow */
@@ -4103,9 +4101,9 @@ option {
 .flow-empty,
 .order-action,
 .payment-summary-note {
-  background: #111114 !important;
+  background: var(--rl-surface) !important;
   border-color: rgba(255, 255, 255, 0.08) !important;
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 
 .map-panel h2,
@@ -4113,7 +4111,7 @@ option {
 .payment-section-title h2,
 .payment-section-title span,
 .payment-summary-note {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
 }
 
 .map-panel .muted,
@@ -4132,12 +4130,12 @@ option {
   color: rgba(255, 255, 255, 0.4) !important;
 }
 .flow-step.active span {
-  background: #d4af37 !important;
+  background: var(--rl-gold) !important;
   color: #050507 !important;
-  border-color: #d4af37 !important;
+  border-color: var(--rl-gold) !important;
 }
 .flow-step.active {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
 }
 
 /* ==========================================================================
@@ -4485,7 +4483,7 @@ video {
 .culture-home .culture-button:hover,
 .order-action button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.38) !important;
+  box-shadow: 0 8px 24px rgb(var(--rl-gold-rgb) / 0.38) !important;
 }
 
 /* 4. Luxury Card Hover Lift & Image Zoom */
@@ -4503,8 +4501,8 @@ video {
 .dining-gallery figure:hover {
   transform: translateY(-6px) scale(1.012);
   box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7),
-              0 0 24px rgba(212, 175, 55, 0.15) !important;
-  border-color: rgba(212, 175, 55, 0.45) !important;
+              0 0 24px rgb(var(--rl-gold-rgb) / 0.15) !important;
+  border-color: rgb(var(--rl-gold-rgb) / 0.45) !important;
 }
 
 .culture-sight-card img,
@@ -4523,10 +4521,10 @@ video {
 /* 5. Gold Badge Breathing Glow */
 @keyframes badgeGlowPulse {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4);
+    box-shadow: 0 0 0 0 rgb(var(--rl-gold-rgb) / 0.4);
   }
   50% {
-    box-shadow: 0 0 10px 2px rgba(212, 175, 55, 0.65);
+    box-shadow: 0 0 10px 2px rgb(var(--rl-gold-rgb) / 0.65);
   }
 }
 
@@ -4600,21 +4598,21 @@ video {
 
 /* --- 1. SUCCESS PAGE (/success) --- */
 .success-page {
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 
 .success-card {
-  background: #111114 !important;
+  background: var(--rl-surface) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6) !important;
   border-radius: 20px !important;
   padding: 48px 40px !important;
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 
 .success-card > svg {
-  color: #d4af37 !important;
-  filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.4));
+  color: var(--rl-gold) !important;
+  filter: drop-shadow(0 0 12px rgb(var(--rl-gold-rgb) / 0.4));
 }
 
 .success-card h1 {
@@ -4658,27 +4656,27 @@ video {
 }
 
 .success-actions .MuiButton-contained {
-  background: linear-gradient(135deg, #d4af37, #b8962c) !important;
-  color: #080c13 !important;
+  background: linear-gradient(135deg, var(--rl-gold), var(--rl-gold)) !important;
+  color: var(--rl-bg) !important;
   font-weight: 700 !important;
   border: 0 !important;
-  box-shadow: 0 4px 18px rgba(212, 175, 55, 0.3) !important;
+  box-shadow: 0 4px 18px rgb(var(--rl-gold-rgb) / 0.3) !important;
 }
 
 .success-actions .MuiButton-contained:hover {
-  background: linear-gradient(135deg, #f0c75e, #d4af37) !important;
-  box-shadow: 0 6px 24px rgba(212, 175, 55, 0.5) !important;
+  background: linear-gradient(135deg, var(--rl-gold), var(--rl-gold)) !important;
+  box-shadow: 0 6px 24px rgb(var(--rl-gold-rgb) / 0.5) !important;
 }
 
 /* --- 2. TICKETS & ORDERS (/tickets, /orders) --- */
 .page-tickets,
 .wallet-dashboard,
 .wallet-access-shell {
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 
 .wallet-dashboard {
-  background: #111114 !important;
+  background: var(--rl-surface) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: 18px !important;
   overflow: hidden !important;
@@ -4690,7 +4688,7 @@ video {
 }
 
 .wallet-orders-head h2 {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
   font-family: var(--heading-font) !important;
   font-weight: 700 !important;
 }
@@ -4702,19 +4700,19 @@ video {
 .wallet-order-card {
   background: rgba(255, 255, 255, 0.03) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
   transition: all 0.2s ease !important;
 }
 
 .wallet-order-card:hover {
   background: rgba(255, 255, 255, 0.06) !important;
-  border-color: rgba(212, 175, 55, 0.3) !important;
+  border-color: rgb(var(--rl-gold-rgb) / 0.3) !important;
 }
 
 .wallet-order-card.selected {
-  background: rgba(212, 175, 55, 0.1) !important;
-  border-color: #d4af37 !important;
-  box-shadow: 0 0 16px rgba(212, 175, 55, 0.15) !important;
+  background: rgb(var(--rl-gold-rgb) / 0.1) !important;
+  border-color: var(--rl-gold) !important;
+  box-shadow: 0 0 16px rgb(var(--rl-gold-rgb) / 0.15) !important;
 }
 
 .wallet-order-card strong {
@@ -4727,11 +4725,11 @@ video {
 }
 
 .wallet-order-card em {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
 }
 
 .wallet-main {
-  background: #111114 !important;
+  background: var(--rl-surface) !important;
 }
 
 .wallet-title h1,
@@ -4756,8 +4754,8 @@ video {
 }
 
 .wallet-tabs span.active {
-  color: #d4af37 !important;
-  border-bottom: 2px solid #d4af37 !important;
+  color: var(--rl-gold) !important;
+  border-bottom: 2px solid var(--rl-gold) !important;
   font-weight: 600 !important;
 }
 
@@ -4769,7 +4767,7 @@ video {
 
 .wallet-order-summary {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 
 .wallet-order-summary strong {
@@ -4781,19 +4779,19 @@ video {
 }
 
 .wallet-order-summary b {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
 }
 
 .wallet-ticket {
   background: rgba(255, 255, 255, 0.03) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
   border-radius: 12px !important;
 }
 
 .wallet-ticket.selected {
-  background: rgba(212, 175, 55, 0.08) !important;
-  border-color: #d4af37 !important;
+  background: rgb(var(--rl-gold-rgb) / 0.08) !important;
+  border-color: var(--rl-gold) !important;
 }
 
 .wallet-ticket > span strong {
@@ -4807,28 +4805,28 @@ video {
 
 .ticket-quantity {
   background: rgba(255, 255, 255, 0.04) !important;
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
 .show-qr,
 .wallet-ticket.selected .show-qr {
-  background: linear-gradient(135deg, #d4af37, #b8962c) !important;
-  color: #080c13 !important;
+  background: linear-gradient(135deg, var(--rl-gold), var(--rl-gold)) !important;
+  color: var(--rl-bg) !important;
   font-weight: 700 !important;
   border: 0 !important;
 }
 
 .access-panel {
-  background: #111114 !important;
+  background: var(--rl-surface) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: 16px !important;
   padding: 32px !important;
 }
 
 .access-panel .MuiButton-contained {
-  background: linear-gradient(135deg, #d4af37, #b8962c) !important;
-  color: #080c13 !important;
+  background: linear-gradient(135deg, var(--rl-gold), var(--rl-gold)) !important;
+  color: var(--rl-bg) !important;
   font-weight: 700 !important;
 }
 
@@ -4840,11 +4838,11 @@ video {
 }
 
 .booking-journey h2 {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
 }
 
 .booking-step {
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 
 .booking-step strong {
@@ -4856,9 +4854,9 @@ video {
 }
 
 .booking-step span {
-  background: rgba(212, 175, 55, 0.12) !important;
-  color: #d4af37 !important;
-  border: 1px solid rgba(212, 175, 55, 0.3) !important;
+  background: rgb(var(--rl-gold-rgb) / 0.12) !important;
+  color: var(--rl-gold) !important;
+  border: 1px solid rgb(var(--rl-gold-rgb) / 0.3) !important;
 }
 
 /* --- 3. CHECKOUT & BOOKING FLOW (/checkout) --- */
@@ -4871,16 +4869,16 @@ video {
 .booking-panel,
 .map-panel,
 .content-panel {
-  background: #111114 !important;
+  background: var(--rl-surface) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: 18px !important;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5) !important;
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 
 .booking-panel h2,
 .map-panel h2 {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
   font-family: var(--heading-font) !important;
   font-weight: 700 !important;
 }
@@ -4891,7 +4889,7 @@ video {
 }
 
 .field-label {
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
   font-weight: 600 !important;
 }
 
@@ -4899,19 +4897,19 @@ video {
   background: rgba(255, 255, 255, 0.03) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   border-radius: 12px !important;
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
   transition: all 0.25s ease !important;
 }
 
 .zone-options button:hover:not(:disabled) {
-  border-color: rgba(212, 175, 55, 0.5) !important;
-  background: rgba(212, 175, 55, 0.06) !important;
+  border-color: rgb(var(--rl-gold-rgb) / 0.5) !important;
+  background: rgb(var(--rl-gold-rgb) / 0.06) !important;
 }
 
 .zone-options button.active {
-  background: rgba(212, 175, 55, 0.12) !important;
-  border-color: #d4af37 !important;
-  box-shadow: 0 0 16px rgba(212, 175, 55, 0.2) !important;
+  background: rgb(var(--rl-gold-rgb) / 0.12) !important;
+  border-color: var(--rl-gold) !important;
+  box-shadow: 0 0 16px rgb(var(--rl-gold-rgb) / 0.2) !important;
 }
 
 .zone-options strong {
@@ -4926,7 +4924,7 @@ video {
 }
 
 .zone-options b {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
   font-size: 18px !important;
   font-weight: 700 !important;
 }
@@ -4937,14 +4935,14 @@ video {
 }
 
 .counter button {
-  border: 1px solid rgba(212, 175, 55, 0.3) !important;
+  border: 1px solid rgb(var(--rl-gold-rgb) / 0.3) !important;
   background: rgba(255, 255, 255, 0.04) !important;
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
   border-radius: 8px !important;
 }
 
 .counter button:hover:not(:disabled) {
-  background: rgba(212, 175, 55, 0.15) !important;
+  background: rgb(var(--rl-gold-rgb) / 0.15) !important;
 }
 
 .counter output {
@@ -4954,7 +4952,7 @@ video {
 }
 
 .price {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
   font-size: 26px !important;
   font-weight: 700 !important;
 }
@@ -4987,17 +4985,17 @@ video {
 }
 
 .booking-login-prompt {
-  background: rgba(212, 175, 55, 0.08) !important;
-  border-left: 3px solid #d4af37 !important;
-  color: #e5e0d8 !important;
+  background: rgb(var(--rl-gold-rgb) / 0.08) !important;
+  border-left: 3px solid var(--rl-gold) !important;
+  color: var(--rl-text) !important;
   border-radius: 8px !important;
 }
 
 .flow-empty {
-  background: #111114 !important;
+  background: var(--rl-surface) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: 18px !important;
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
   padding: 40px !important;
   text-align: center !important;
 }
@@ -5014,10 +5012,10 @@ video {
 /* --- 4. PAYMENT PAGE (/payment) --- */
 .payment-instructions,
 .payment-summary-card {
-  background: #111114 !important;
+  background: var(--rl-surface) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: 18px !important;
-  color: #e5e0d8 !important;
+  color: var(--rl-text) !important;
 }
 
 .flow-heading h1 {
@@ -5030,7 +5028,7 @@ video {
 }
 
 .payment-section-title span {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
 }
 
 .payment-section-title h2,
@@ -5054,7 +5052,7 @@ video {
 }
 
 .payment-amount {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
   font-weight: 700 !important;
 }
 
@@ -5084,9 +5082,9 @@ video {
 }
 
 .payment-summary-note {
-  background: rgba(212, 175, 55, 0.06) !important;
-  border: 1px solid rgba(212, 175, 55, 0.25) !important;
-  color: #e5e0d8 !important;
+  background: rgb(var(--rl-gold-rgb) / 0.06) !important;
+  border: 1px solid rgb(var(--rl-gold-rgb) / 0.25) !important;
+  color: var(--rl-text) !important;
 }
 
 /* Stepper on flow pages */
@@ -5104,18 +5102,26 @@ video {
 }
 
 .flow-step.active {
-  color: #d4af37 !important;
+  color: var(--rl-gold) !important;
 }
 
 .flow-step.active span {
-  background: #d4af37 !important;
-  color: #080c13 !important;
-  border-color: #d4af37 !important;
+  background: var(--rl-gold) !important;
+  color: var(--rl-bg) !important;
+  border-color: var(--rl-gold) !important;
 }
 
 
 
 /* Purchase essentials remain next to the booking action on every viewport. */
-.booking-before-you-book { margin: 1rem 0; padding: 1rem; border: 1px solid rgba(212,175,55,.35); border-radius: 12px; }
+.booking-before-you-book { margin: 1rem 0; padding: 1rem; border: 1px solid rgb(var(--rl-gold-rgb) / .35); border-radius: 12px; }
 .booking-before-you-book h2 { font-size: 1.05rem; margin: 0 0 .6rem; }
 .booking-before-you-book p { font-size: .9rem; line-height: 1.7; margin: .5rem 0; overflow-wrap: anywhere; }
+
+/* Let narrow checkout grid tracks shrink without pushing the page sideways. */
+.checkout-page .booking-layout > * { min-width: 0; }
+.checkout-page .booking-panel { width: 100%; box-sizing: border-box; overflow-wrap: anywhere; }
+@media (max-width: 600px) {
+  .checkout-page .booking-layout { grid-template-columns: minmax(0, 1fr); }
+  .checkout-page .quantity-row { flex-wrap: wrap; gap: 12px; }
+}

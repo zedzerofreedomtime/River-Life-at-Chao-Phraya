@@ -13,3 +13,9 @@ photographs illustrate locations, not the exact onboard views of every sailing.
 
 Attribution and license links are also available in the homepage photography
 credits disclosure. No photographer endorsement is implied.
+
+## Larger homepage variants
+
+`wat-arun-riverside-hq.webp` is converted from the same original Commons image, 2337x1558, rather than the 960px thumbnail. `iconsiam-twilight-hq.webp` is converted from its 2560x1920 original. Author/license/source are unchanged; these are WebP quality94 conversions, not upscales.
+
+`rama-viii-supplied-hq.webp` is a native 1632x832 crop from the supplied Unicorn Cruise dinner film at100.5s. It does not use the Stygiangloom image; the old file and its attribution remain for other uses. No route/visibility guarantee is implied.

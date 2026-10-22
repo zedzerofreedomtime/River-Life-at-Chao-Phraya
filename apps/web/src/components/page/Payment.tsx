@@ -4,7 +4,7 @@ import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import Dialog from "@mui/material/Dialog";
 import { CheckCircle2, Clock3, X } from "lucide-react";
-import { api, money, type Booking } from "../../data/api";
+import { api, money, bookingItemLabel, type Booking } from "../../data/api";
 import type { Language } from "../../data/i18n";
 
 export default function Payment({
@@ -28,8 +28,12 @@ export default function Payment({
   const [token] = useState(
     initialToken || sessionStorage.getItem("riverlife.booking.token") || "",
   );
+  const [restoring, setRestoring] = useState(() => !initial && Boolean(sessionStorage.getItem("riverlife.booking.id") && (initialToken || sessionStorage.getItem("riverlife.booking.token"))));
   const [attachment, setAttachment] = useState<File | null>(null);
   const [marketingAccepted, setMarketingAccepted] = useState(false);
+  const [bookingTermsAccepted, setBookingTermsAccepted] = useState(false);
+  const [bookingTermsOpen, setBookingTermsOpen] = useState(false);
+  useEffect(() => { setBookingTermsAccepted(false); }, [initial?.id]);
   const [marketingDialogOpen, setMarketingDialogOpen] = useState(false);
   const [termsReadToEnd, setTermsReadToEnd] = useState(false);
   const [error, setError] = useState("");
@@ -77,10 +81,11 @@ export default function Payment({
 
   useEffect(() => {
     const id = initial?.id || sessionStorage.getItem("riverlife.booking.id");
-    if (!id || !token) return;
+    if (!id || !token) { setRestoring(false); return; }
     void api<Booking>(`/bookings/${encodeURIComponent(id)}`, {}, token)
       .then((updated) => setBooking((current) => current?.status === "confirmed" ? current : updated))
-      .catch((cause: Error) => setError(cause.message));
+      .catch((cause: Error) => setError(cause.message))
+      .finally(() => setRestoring(false));
   }, [initial?.id, token]);
 
   const chooseAttachment = (file: File | null) => {
@@ -105,7 +110,7 @@ export default function Payment({
   };
 
   const completePayment = async () => {
-    if (!booking || !attachment || !canSubmit || busy) return;
+    if (!booking || !attachment || !canSubmit || !bookingTermsAccepted || busy) return;
     setBusy(true);
     setError("");
     try {
@@ -113,6 +118,8 @@ export default function Payment({
       form.append("attachment", attachment);
       form.append("marketing_consent", String(marketingAccepted));
       form.append("marketing_consent_language", language);
+      form.append("booking_terms_accepted", "true");
+      form.append("booking_terms_version", "booking-terms-v1");
       const updated = await api<Booking>(
         `/bookings/${booking.id}/attachment`,
         { method: "POST", body: form },
@@ -128,13 +135,13 @@ export default function Payment({
   };
 
   const startStripeCheckout = async () => {
-    if (!booking || !canSubmit || busy) return;
+    if (!booking || !canSubmit || !bookingTermsAccepted || busy) return;
     setBusy(true);
     setError("");
     try {
       const checkout = await api<{ url: string }>(`/bookings/${booking.id}/checkout`, {
         method: "POST",
-        body: JSON.stringify({ language, marketing_consent: marketingAccepted }),
+        body: JSON.stringify({ language, marketing_consent: marketingAccepted, booking_terms_accepted: true, booking_terms_version: "booking-terms-v1" }),
       }, token);
       const target = new URL(checkout.url);
       if (target.protocol !== "https:" || target.hostname !== "checkout.stripe.com") throw new Error("Invalid checkout URL");
@@ -145,7 +152,7 @@ export default function Payment({
     }
   };
 
-  if (!paymentConfig || checkingStripe) {
+  if (!paymentConfig || checkingStripe || restoring) {
     return <section className="flow-page flow-empty">
       <h1>{checkingStripe ? tr("กำลังตรวจสอบการชำระเงิน…", "Checking your payment…") : tr("กำลังโหลดช่องทางชำระเงิน…", "Loading payment methods…")}</h1>
       {error && <Alert severity="error">{error}</Alert>}
@@ -158,9 +165,9 @@ export default function Payment({
       <section className="flow-page flow-empty">
         {error && <Alert severity="error">{error}</Alert>}
         <h1>{tr("ไม่พบรายการชำระเงิน", "No payment found")}</h1>
-        <p>{tr("เริ่มเลือกคอนเสิร์ตและโซนบัตรใหม่ เพื่อสร้างรายการซื้อบัตร", "Choose a concert and ticket zone to start a new booking.")}</p>
+        <p>{tr("เลือกรอบเรือและโต๊ะ เพื่อสร้างรายการซื้อบัตร", "Choose your sailing and tables to start a booking.")}</p>
         <Button variant="contained" onClick={onBackToZones}>
-          {tr("กลับไปเลือกโซน", "Back to zones")}
+          {tr("กลับไปเลือกโต๊ะ", "Back to tables")}
         </Button>
       </section>
     );
@@ -182,7 +189,7 @@ export default function Payment({
     return <section className="flow-page flow-empty">
       <h1>{expired ? tr("หมดเวลาสำรองบัตร", "Reservation expired") : tr("รายการนี้ไม่สามารถชำระเงินได้", "Payment unavailable for this booking")}</h1>
       <p>{booking.status === "review" ? tr("ได้รับหลักฐานแล้ว กรุณาตรวจสอบสถานะในคำสั่งซื้อ ไม่ต้องส่งซ้ำ", "Your receipt is under review. Check your booking status; do not submit it again.") : tr("กรุณากลับไปเลือกบัตรเพื่อสร้างรายการใหม่", "Please choose tickets to create a new booking.")}</p>
-      <Button variant="contained" onClick={onBackToZones}>{tr("กลับไปเลือกโซน", "Back to zones")}</Button>
+      <Button variant="contained" onClick={onBackToZones}>{tr("กลับไปเลือกโต๊ะ", "Back to tables")}</Button>
     </section>;
   }
 
@@ -190,7 +197,7 @@ export default function Payment({
     <section className="flow-page payment-page">
       <FlowSteps activeStep={2} language={language} />
       <button className="back-link" onClick={onBackToZones} disabled={busy}>
-        ← {tr("กลับไปเลือกโซน", "Back to zones")}
+        ← {tr("กลับไปเลือกโต๊ะ", "Back to tables")}
       </button>
       <div className="flow-heading">
         <h1>{tr("ชำระเงิน", "Payment")}</h1>
@@ -252,6 +259,17 @@ export default function Payment({
           </div>
           </>}
           <div className="marketing-consent">
+            <Checkbox checked={bookingTermsAccepted} disabled={busy}
+              onChange={(_, checked) => setBookingTermsAccepted(checked)}
+              inputProps={{ "aria-label": tr("ยอมรับเงื่อนไขการจองและการชำระเงิน (จำเป็น)", "Accept booking and payment terms (required)") }} />
+            <p>
+              {tr("ฉันยอมรับ", "I accept the")}{" "}
+              <button type="button" disabled={busy} onClick={() => setBookingTermsOpen(true)}>
+                {tr("เงื่อนไขการจองและการชำระเงิน", "booking and payment terms")}
+              </button>{" "}{tr("(จำเป็น)", "(required)")}
+            </p>
+          </div>
+          <div className="marketing-consent">
             <Checkbox checked={marketingAccepted} onChange={(_, checked) => {
               if (checked) openMarketingTerms();
               else setMarketingAccepted(false);
@@ -260,7 +278,7 @@ export default function Payment({
               {tr("ฉันยินดีรับ", "I agree to receive")}{" "}
               <button type="button" onClick={openMarketingTerms}>
                 {tr("ข้อมูลและสิทธิพิเศษทางการตลาด", "marketing news and special offers")}
-              </button>
+              </button>{" "}{tr("(ไม่บังคับ)", "(optional)")}
             </p>
           </div>
         </article>
@@ -269,8 +287,9 @@ export default function Payment({
           <div className="payment-order-summary">
             <span>{tr("รหัสคำสั่งซื้อ", "Order ID")}</span>
             <b>#{booking.id.toUpperCase()}</b>
-            <span>{tr("โซนบัตร", "Ticket zone")}</span>
-            <b>{tr("โซน", "Zone")} {booking.zone_id} · {({ A: tr("หัวเรือ", "Bow"), B: tr("ท้ายเรือ", "Stern"), C: tr("ชั้นล่าง", "Lower deck") } as Record<string, string>)[booking.zone_id] || booking.zone_id}</b>
+            <span>{booking.table_ids?.length ? tr("โต๊ะที่สำรอง", "Reserved tables") : tr("โซนบัตร", "Ticket zone")}</span>
+            <b>{bookingItemLabel(booking, language)}</b>
+            {!!booking.table_ids?.length && <><span>{tr("ผู้ร่วมเดินทาง", "Attending guests")}</span><b>{booking.guest_count} {tr("คน", "guests")} · {tr("จองเต็มโต๊ะ", "Whole-table reservation")}</b></>}
             <span>{tr("จำนวนบัตร", "Tickets")}</span>
             <b>{booking.quantity} {en ? (booking.quantity === 1 ? "ticket" : "tickets") : "ใบ"}</b>
           </div>
@@ -287,12 +306,31 @@ export default function Payment({
         className="payment-confirm"
         variant="contained"
         fullWidth
-        disabled={busy || (!stripeEnabled && !attachment)}
+        disabled={busy || !bookingTermsAccepted || (!stripeEnabled && !attachment)}
         onClick={() => void (stripeEnabled ? startStripeCheckout() : completePayment())}
         startIcon={<CheckCircle2 size={18} />}
       >
         {busy ? tr("กำลังดำเนินการ…", "Processing…") : stripeEnabled ? tr("ไปชำระเงินกับ Stripe (ทดลอง)", "Continue to Stripe (test)") : demo ? tr("ส่งภาพตัวอย่าง", "Submit sample image") : tr("ยืนยันการชำระเงิน", "Submit payment")}
       </Button>
+      {!bookingTermsAccepted && <p role="status">{tr("กรุณายอมรับเงื่อนไขการจองและการชำระเงินก่อนดำเนินการ ไม่จำเป็นต้องยินยอมรับข่าวสารการตลาด", "Please accept the booking and payment terms to continue. Marketing consent is optional.")}</p>}
+      <Dialog open={bookingTermsOpen} onClose={() => setBookingTermsOpen(false)}
+        aria-labelledby="booking-terms-title" maxWidth="sm" fullWidth className="marketing-dialog">
+        <section className="marketing-terms-modal">
+          <div className="marketing-terms-header">
+            <h2 id="booking-terms-title">{tr("เงื่อนไขการจองและการชำระเงิน", "Booking and payment terms")}</h2>
+            <button type="button" aria-label={tr("ปิดเงื่อนไขการจอง", "Close booking terms")} onClick={() => setBookingTermsOpen(false)}><X aria-hidden="true" size={21} /></button>
+          </div>
+          <div className="marketing-terms-scroll">
+            <p>{tr("เวอร์ชัน booking-terms-v1 · สำหรับระบบสาธิต", "Version booking-terms-v1 · Demonstration system")}</p>
+            <p>{booking.table_ids?.length ? tr("ตรวจสอบเลขโต๊ะ ผู้ร่วมเดินทาง และยอดรวม จองเต็มโต๊ะตามจำนวนที่นั่งที่แสดง ผัง ราคา และตั๋วนี้ใช้ทดสอบระบบเท่านั้น ไม่ใช่สิทธิ์ขึ้นเรือจริง", "Check table IDs, guest count and total. Whole tables are reserved for the displayed seats. Layout, prices and tickets are for testing only, not actual boarding rights.") : tr("โปรดตรวจสอบข้อมูลผู้จอง โซน จำนวนผู้ร่วมเดินทาง และยอดรวมให้ถูกต้องก่อนดำเนินการ การจองนี้เป็นการเลือกโซน ไม่ใช่การระบุโต๊ะหรือที่นั่งเฉพาะ", "Check the booking details, zone, guest count and total before continuing. This is a zone reservation, not an assigned table or seat.")}</p>
+            <p>{tr("รายการที่ยังไม่ชำระเงินมีเวลาสำรองสิทธิ์จำกัดตามที่ระบบแสดง ระบบจะออกตั๋วหลังยืนยันผลตามขั้นตอนชำระเงิน ไม่ใช่เพียงเปิดหน้าชำระเงิน", "Unpaid reservations have a limited hold period shown by the system. Tickets are issued after payment confirmation, not merely after opening checkout.")}</p>
+            <p>{tr("ขณะนี้เป็นระบบสาธิต วัน ราคา และรายละเอียดที่รอยืนยันไม่ใช่ข้อเสนอขายจริง ห้ามโอนเงินจริงหรือใช้บัตรจริงในการทดสอบ และตั๋วทดสอบไม่ใช่สิทธิ์ขึ้นเรือจริง", "This is a demonstration. Unconfirmed dates, prices and details are not a live sales offer. Do not transfer real money or use a real payment card. Test tickets do not grant actual boarding rights.")}</p>
+            <p>{tr("เงื่อนไขการเปลี่ยนแปลง ยกเลิก และคืนเงินสำหรับการขายจริงยังรอยืนยันจากผู้จัด ก่อนเปิดขายจริงต้องประกาศเงื่อนไขเหล่านี้ให้ครบถ้วน", "Live-sale change, cancellation and refund terms are awaiting organizer confirmation and must be published before live sales begin.")}</p>
+            <p>{tr("การรับข่าวสารการตลาดเป็นตัวเลือกแยกต่างหาก การไม่ยินยอมไม่กระทบการดำเนินการจอง", "Marketing consent is a separate choice. Declining marketing does not prevent your booking.")}</p>
+          </div>
+          <Button variant="contained" onClick={() => setBookingTermsOpen(false)}>{tr("ปิดรายละเอียด", "Close details")}</Button>
+        </section>
+      </Dialog>
       <Dialog
         open={marketingDialogOpen}
         onClose={() => setMarketingDialogOpen(false)}
@@ -366,8 +404,8 @@ export function FlowSteps({
 }) {
   const steps =
     language === "en"
-      ? ["Concert", "Zones & tickets", "Payment", "Complete"]
-      : ["เลือกคอนเสิร์ต", "เลือกโซนและบัตร", "ชำระเงิน", "ทำรายการสำเร็จ"];
+      ? ["Concert", "Choose tables", "Payment", "Complete"]
+      : ["เลือกคอนเสิร์ต", "เลือกโต๊ะ", "ชำระเงิน", "ทำรายการสำเร็จ"];
   return (
     <ol className="flow-steps" aria-label={language === "en" ? "Booking steps" : "ขั้นตอนการจอง"}>
       {steps.map((step, index) => (

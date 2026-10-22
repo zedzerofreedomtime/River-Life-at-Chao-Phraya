@@ -53,7 +53,7 @@ func main() {
 			os.Exit(1)
 		}
 	}
-	bookingService := &service.Service{DB: db}
+	bookingService := &service.Service{DB: db, TableBookingDemo: demo, DemoConfirmation: demo}
 	if err = bookingService.AutoConfirmReviews(ctx); err != nil {
 		slog.Error("automatic confirmation migration failed")
 		os.Exit(1)
@@ -63,6 +63,49 @@ func main() {
 		webOrigin = "http://localhost:3000"
 	}
 	app := &server.Server{Service: bookingService, Redis: cache, UploadDir: uploadDir, AdminPassword: password, CookieSecure: os.Getenv("COOKIE_SECURE") == "true", Demo: demo, WebOrigin: webOrigin, GoogleClientID: os.Getenv("GOOGLE_CLIENT_ID"), GoogleClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET")}
+	mode := os.Getenv("OTP_DELIVERY_MODE")
+	if mode == "" {
+		mode = "smtp"
+	}
+	var smtpMailer *service.SMTPMailer
+	if os.Getenv("SMTP_HOST") != "" {
+		port, tlsMode := os.Getenv("SMTP_PORT"), os.Getenv("SMTP_TLS_MODE")
+		if port == "" {
+			port = "587"
+		}
+		if tlsMode == "" {
+			tlsMode = "starttls"
+		}
+		mailer := service.SMTPMailer{Host: os.Getenv("SMTP_HOST"), Port: port, TLSMode: tlsMode, Username: os.Getenv("SMTP_USERNAME"), Password: os.Getenv("SMTP_PASSWORD"), From: os.Getenv("SMTP_FROM")}
+		if err = mailer.Validate(); err != nil {
+			slog.Error("invalid SMTP configuration; check SMTP environment variables")
+			os.Exit(1)
+		}
+		smtpMailer = &mailer
+	}
+	app.BookingEmailEnabled, err = bookingEmailEnabled(os.Getenv("BOOKING_EMAIL_MODE"), smtpMailer != nil)
+	if err != nil {
+		slog.Error("BOOKING_EMAIL_MODE must be smtp or disabled")
+		os.Exit(1)
+	}
+	switch mode {
+	case "smtp":
+		if smtpMailer != nil {
+			app.OTPMailer = *smtpMailer
+		} else {
+			slog.Warn("SMTP is not configured; email signup is disabled")
+		}
+	case "demo":
+		if !demo {
+			slog.Error("demo OTP delivery requires DEMO_MODE=true")
+			os.Exit(1)
+		}
+		app.DemoOTP = true
+		slog.Warn("demo OTP delivery enabled; OTP emails will not be sent")
+	default:
+		slog.Error("OTP_DELIVERY_MODE must be smtp or demo")
+		os.Exit(1)
+	}
 	if key := os.Getenv("STRIPE_SECRET_KEY"); key != "" {
 		if !demo || !strings.HasPrefix(key, "sk_test_") {
 			slog.Error("Stripe integration currently supports demo mode and test keys only")
@@ -71,6 +114,11 @@ func main() {
 		client := stripe.NewClient(key)
 		app.Payments = &service.Payments{Bookings: bookingService, Client: client.V1CheckoutSessions, WebOrigin: webOrigin}
 		app.StripeWebhookSecret = os.Getenv("STRIPE_WEBHOOK_SECRET")
+	}
+	if app.BookingEmailEnabled {
+		go service.RunBookingEmails(ctx, db, *smtpMailer, demo)
+	} else {
+		slog.Warn("booking email delivery disabled; queued messages will wait for SMTP configuration")
 	}
 	srv := &http.Server{Addr: ":8080", Handler: app.Router(), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 20 * time.Second, WriteTimeout: 30 * time.Second, IdleTimeout: 60 * time.Second}
 	go func() {

@@ -17,6 +17,7 @@ func (s *Server) Router() *gin.Engine {
 	s.publicRoutes(api)
 	s.bookingRoutes(api)
 	s.authRoutes(api)
+	s.passwordResetRoutes(api)
 	s.adminRoutes(api)
 	s.staffRoutes(api)
 	return r

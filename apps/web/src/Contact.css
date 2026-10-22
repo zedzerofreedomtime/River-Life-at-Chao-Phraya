@@ -1,0 +1,15 @@
+.river-contact { margin-bottom: 28px; color: var(--rl-text); }
+.river-contact-intro { max-width: 800px; line-height: 1.8; color: #b8c5d5; margin: 0 0 24px; }
+.river-contact-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.river-contact-card { display: flex; flex-direction: column; align-items: flex-start; padding: clamp(22px, 3vw, 36px); border: 1px solid #343942; border-radius: 20px; background: var(--rl-surface); min-width: 0; }
+.river-contact-channel { color: #b1cbff; font-size: 12px; letter-spacing: .12em; font-weight: 700; }
+.river-contact-card h2 { font-size: clamp(22px, 2vw, 28px); color: #fff; margin: 14px 0 8px; overflow-wrap: anywhere; }
+.river-contact-card p { line-height: 1.8; color: #bdc8d6; margin: 0 0 18px; }
+.river-contact-id { color: #bce6c9; margin-bottom: 18px; font-weight: 600; }
+.river-contact-card a { display: inline-flex; align-items: center; justify-content: center; margin-top: auto; min-height: 48px; padding: 12px 20px; border-radius: 10px; background: #b9d0ff; color: #081626; font-weight: 700; text-decoration: none; }
+.river-contact-line a { background: #74e49b; }
+.river-contact-line .river-contact-channel { color: #9de7b5; }
+.river-contact-card a:hover { filter: brightness(1.1); }
+.river-contact-card a:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+.river-contact-security { color: #b8c5d5; font-size: 13px; line-height: 1.8; margin: 20px 0 0; }
+@media (max-width: 640px) { .river-contact-grid { grid-template-columns: minmax(0, 1fr); } .river-contact-card a { width: 100%; box-sizing: border-box; } }

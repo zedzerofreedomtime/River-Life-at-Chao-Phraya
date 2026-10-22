@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"riverlife/api/internal/service"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -26,11 +27,17 @@ func (s *Server) paymentRoutes(api *gin.RouterGroup) {
 			return
 		}
 		var in struct {
-			Language         string `json:"language"`
-			MarketingConsent bool   `json:"marketing_consent"`
+			Language             string `json:"language"`
+			MarketingConsent     bool   `json:"marketing_consent"`
+			BookingTermsAccepted bool   `json:"booking_terms_accepted"`
+			BookingTermsVersion  string `json:"booking_terms_version"`
 		}
 		if c.ShouldBindJSON(&in) != nil || (in.Language != "th" && in.Language != "en") {
 			bad(c)
+			return
+		}
+		if !in.BookingTermsAccepted || in.BookingTermsVersion != service.BookingTermsVersion {
+			c.JSON(400, gin.H{"error": "กรุณายอมรับเงื่อนไขการจองและการชำระเงิน"})
 			return
 		}
 		ctx, cancel := paymentContext(c)

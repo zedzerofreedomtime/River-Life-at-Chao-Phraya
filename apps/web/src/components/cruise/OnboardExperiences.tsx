@@ -1,9 +1,11 @@
 import type { Language } from "../../data/i18n";
 import "../../OnboardExperiences.css";
+import { editorialPhotos } from "../../data/editorialPhotos";
 
-const experiences = [
+export const onboardExperiences = [
   {
     image: "cruise",
+    photo: editorialPhotos.exterior,
     th: "ล่องเรือ UNICORN CRUISE",
     en: "Cruise aboard UNICORN",
     textTh: "ชมกรุงเทพฯ จากสายน้ำบนเรือของเรา",
@@ -11,13 +13,15 @@ const experiences = [
   },
   {
     image: "buffet",
-    th: "ไลน์อาหารบนเรือ",
+    photo: editorialPhotos.food,
+    th: "มื้ออาหารบนเรือ",
     en: "On-board dining",
     textTh: "อาหารหลากหลาย ซีฟู้ด และของหวานตามเมนูของเรือ",
     textEn: "A selection of dishes, seafood and desserts from the cruise menu.",
   },
   {
     image: "dining",
+    photo: editorialPhotos.covered,
     th: "มื้ออาหารพร้อมวิวแม่น้ำ",
     en: "Dine beside the river",
     textTh: "รับประทานอาหารและเก็บภาพบรรยากาศริมฝั่งจากโต๊ะบนเรือ",
@@ -25,6 +29,12 @@ const experiences = [
   },
   {
     image: "entertainment",
+    photo: {
+      src: "/images/experiences/hanuman-hq.webp",
+      width: 1632,
+      height: 832,
+      position: "50% 34%",
+    },
     th: "การแสดงและเสียงเพลง",
     en: "Thai performances & music",
     textTh: "สัมผัสการแสดงไทยและความบันเทิงที่เป็นส่วนหนึ่งของค่ำคืนบนเรือ",
@@ -33,6 +43,7 @@ const experiences = [
   },
   {
     image: "river-view",
+    photo: editorialPhotos.table,
     th: "ชมวิวและถ่ายภาพเจ้าพระยา",
     en: "River views & photo moments",
     textTh: "ชมวัดสำคัญ สะพาน และแสงเมืองริมแม่น้ำจากบนเรือ",
@@ -62,13 +73,15 @@ export default function OnboardExperiences({
         </div>
       </div>
       <div className="onboard-experience-grid">
-        {experiences.map((experience) => (
+        {onboardExperiences.map((experience) => (
           <article className="onboard-experience-card" key={experience.image}>
             <img
-              src={`/images/experiences/${experience.image}.jpg`}
+              src={experience.photo.src}
               alt={en ? experience.en : experience.th}
-              width={1200}
-              height={624}
+              width={experience.photo.width}
+              height={experience.photo.height}
+              style={{ objectPosition: experience.photo.position }}
+              decoding="async"
               loading="lazy"
             />
             <div>
@@ -79,7 +92,9 @@ export default function OnboardExperiences({
         ))}
       </div>
       <p className="onboard-experience-origin">
-        {en ? "Real moments from our cruise film." : "ภาพจริงจากคลิปของเรือ"}
+        {en
+          ? "Real photographs and film stills supplied by the cruise. Menus and event arrangements vary by sailing."
+          : "ภาพถ่ายและภาพจากคลิปที่เรือจัดส่งให้ เมนูและการจัดงานขึ้นอยู่กับรอบล่องเรือ"}
       </p>
     </div>
   );

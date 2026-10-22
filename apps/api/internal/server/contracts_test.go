@@ -17,6 +17,8 @@ import (
 
 func TestRouteInventory(t *testing.T) {
 	want := map[string]bool{
+		"GET /api/v1/tables":                               true,
+		"POST /api/v1/table-bookings":                      true,
 		"GET /api/v1/dashboard/sales":                      true,
 		"POST /api/v1/dashboard/sales/bookings":            true,
 		"POST /api/v1/dashboard/sales/bookings/:id/access": true,
@@ -39,6 +41,9 @@ func TestRouteInventory(t *testing.T) {
 		"GET /api/v1/bookings/:id":                         true,
 		"POST /api/v1/bookings/:id/attachment":             true,
 		"POST /api/v1/auth/signup/request":                 true,
+		"POST /api/v1/auth/password-reset/request":         true,
+		"POST /api/v1/auth/password-reset/verify":          true,
+		"POST /api/v1/auth/password-reset/complete":        true,
 		"POST /api/v1/auth/signup/verify":                  true,
 		"POST /api/v1/auth/login":                          true,
 		"GET /api/v1/auth/me":                              true,

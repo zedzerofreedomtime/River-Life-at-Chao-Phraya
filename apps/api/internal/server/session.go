@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/mail"
 	"riverlife/api/internal/service"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -37,11 +38,31 @@ func (s *Server) userID(c *gin.Context) (string, bool) {
 		return "", false
 	}
 	v, err := s.Redis.Get(c.Request.Context(), "riverlife:user-session:"+service.Hash(t)).Result()
-	return v, err == nil && v != ""
+	if err != nil || v == "" {
+		return "", false
+	}
+	id, versionText, versioned := strings.Cut(v, ":")
+	version := 0 // Existing sessions remain valid until the first password reset.
+	if versioned {
+		version, err = strconv.Atoi(versionText)
+		if err != nil {
+			return "", false
+		}
+	}
+	var current int
+	err = s.Service.DB.QueryRow(c.Request.Context(), "SELECT auth_version FROM users WHERE id=$1", id).Scan(&current)
+	return id, err == nil && current == version
 }
-func (s *Server) setUserSession(c *gin.Context, userID string) error {
+func (s *Server) setUserSession(c *gin.Context, userID string, expectedVersion ...int) error {
 	t := service.Token()
-	if err := s.Redis.Set(c.Request.Context(), "riverlife:user-session:"+service.Hash(t), userID, 7*24*time.Hour).Err(); err != nil {
+	var version int
+	if err := s.Service.DB.QueryRow(c.Request.Context(), "SELECT auth_version FROM users WHERE id=$1", userID).Scan(&version); err != nil {
+		return err
+	}
+	if len(expectedVersion) > 0 && version != expectedVersion[0] {
+		return service.ErrInvalidCredentials
+	}
+	if err := s.Redis.Set(c.Request.Context(), "riverlife:user-session:"+service.Hash(t), fmt.Sprintf("%s:%d", userID, version), 7*24*time.Hour).Err(); err != nil {
 		return err
 	}
 	c.SetSameSite(http.SameSiteLaxMode)

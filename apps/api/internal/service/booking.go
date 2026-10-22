@@ -15,7 +15,11 @@ import (
 
 var ErrConflict = errors.New("รายการเปลี่ยนแปลงหรือโควตาไม่เพียงพอ")
 
-type Service struct{ DB *pgxpool.Pool }
+type Service struct {
+	DB               *pgxpool.Pool
+	TableBookingDemo bool
+	DemoConfirmation bool
+}
 type Zone struct {
 	ID        string `json:"id"`
 	Name      string `json:"name"`
@@ -24,15 +28,19 @@ type Zone struct {
 	Available int    `json:"available"`
 }
 type Input struct {
-	UserID      string `json:"-"`
-	SalesUserID string `json:"-"`
-	ZoneID      string `json:"zone_id" binding:"required"`
-	Name        string `json:"name" binding:"required,max=120"`
-	Email       string `json:"email" binding:"required,email,max=200"`
-	Quantity    int    `json:"quantity" binding:"required,min=1,max=10"`
-	AgentCode   string `json:"agent_code" binding:"max=40"`
+	UserID        string   `json:"-"`
+	SalesUserID   string   `json:"-"`
+	ZoneID        string   `json:"zone_id" binding:"required"`
+	Name          string   `json:"name" binding:"required,max=120"`
+	Email         string   `json:"email" binding:"required,email,max=200"`
+	Quantity      int      `json:"quantity" binding:"required,min=1,max=10"`
+	AgentCode     string   `json:"agent_code" binding:"max=40"`
+	TableIDs      []string `json:"table_ids,omitempty"`
+	GuestCount    int      `json:"guest_count,omitempty"`
+	ExpectedTotal int      `json:"expected_total,omitempty"`
 }
 type Booking struct {
+	EmailDeliveryEnabled     bool       `json:"email_delivery_enabled"`
 	ID                       string     `json:"id"`
 	ZoneID                   string     `json:"zone_id"`
 	Name                     string     `json:"name"`
@@ -47,10 +55,13 @@ type Booking struct {
 	MarketingConsentVersion  string     `json:"marketing_consent_version"`
 	MarketingConsentLanguage string     `json:"marketing_consent_language"`
 	Tickets                  []Ticket   `json:"tickets"`
+	TableIDs                 []string   `json:"table_ids"`
+	GuestCount               int        `json:"guest_count"`
 }
 type Ticket struct {
 	ID          string     `json:"id"`
 	CheckedInAt *time.Time `json:"checked_in_at"`
+	TableID     string     `json:"table_id"`
 }
 
 // AdminDashboard is the operational overview exposed only to the signed-in
@@ -75,10 +86,10 @@ func Token() string {
 }
 func Hash(v string) string { h := sha256.Sum256([]byte(v)); return hex.EncodeToString(h[:]) }
 
-const columns = "id,zone_id,name,email,quantity,total,CASE WHEN status='held' AND expires_at<=now() THEN 'expired' ELSE status END,expires_at,agent_code,(attachment_path<>''),marketing_consent_at,marketing_consent_version,marketing_consent_language"
+const columns = "id,zone_id,name,email,quantity,total,CASE WHEN status='held' AND expires_at<=now() THEN 'expired' ELSE status END,expires_at,agent_code,(attachment_path<>''),marketing_consent_at,marketing_consent_version,marketing_consent_language,table_ids,guest_count"
 
 func scan(row pgx.Row) (b Booking, err error) {
-	err = row.Scan(&b.ID, &b.ZoneID, &b.Name, &b.Email, &b.Quantity, &b.Total, &b.Status, &b.ExpiresAt, &b.AgentCode, &b.HasAttachment, &b.MarketingConsentAt, &b.MarketingConsentVersion, &b.MarketingConsentLanguage)
+	err = row.Scan(&b.ID, &b.ZoneID, &b.Name, &b.Email, &b.Quantity, &b.Total, &b.Status, &b.ExpiresAt, &b.AgentCode, &b.HasAttachment, &b.MarketingConsentAt, &b.MarketingConsentVersion, &b.MarketingConsentLanguage, &b.TableIDs, &b.GuestCount)
 	b.Tickets = []Ticket{}
 	return
 }
@@ -101,6 +112,18 @@ func (s *Service) Zones(ctx context.Context) ([]Zone, error) {
 
 // Create reserves a booking until the customer attaches an image.
 func (s *Service) Create(ctx context.Context, in Input, key, token string) (Booking, error) {
+	if len(in.TableIDs) > 0 {
+		if !s.TableBookingDemo {
+			return Booking{}, ErrConflict
+		}
+		var err error
+		in, err = normalizeTableInput(in)
+		if err != nil {
+			return Booking{}, err
+		}
+	} else {
+		in.GuestCount = 0
+	}
 	tx, err := s.DB.Begin(ctx)
 	if err != nil {
 		return Booking{}, err
@@ -147,11 +170,22 @@ func (s *Service) Create(ctx context.Context, in Input, key, token string) (Book
 	if err != nil {
 		return Booking{}, err
 	}
-	if in.Quantity < 1 || in.Quantity > 10 || capacity-used < in.Quantity {
+	if in.Quantity < 1 || (len(in.TableIDs) == 0 && in.Quantity > 10) || in.Quantity > 120 || capacity-used < in.Quantity {
 		return Booking{}, ErrConflict
 	}
+	if len(in.TableIDs) > 0 {
+		if in.ExpectedTotal != price*in.Quantity {
+			return Booking{}, ErrConflict
+		}
+		if err = checkTableConflict(ctx, tx, in.TableIDs, ""); err != nil {
+			return Booking{}, err
+		}
+	}
 	id := Token()[:20]
-	b, err := scan(tx.QueryRow(ctx, "INSERT INTO bookings(id,token_hash,request_key,request_hash,zone_id,name,email,quantity,total,agent_code,status,expires_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'held',now()+interval '15 minutes') RETURNING "+columns, id, Hash(token), key, fingerprint, in.ZoneID, in.Name, in.Email, in.Quantity, price*in.Quantity, in.AgentCode))
+	if in.TableIDs == nil {
+		in.TableIDs = []string{}
+	}
+	b, err := scan(tx.QueryRow(ctx, "INSERT INTO bookings(id,token_hash,request_key,request_hash,zone_id,name,email,quantity,total,agent_code,status,expires_at,table_ids,guest_count) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'held',now()+interval '15 minutes',$11,$12) RETURNING "+columns, id, Hash(token), key, fingerprint, in.ZoneID, in.Name, in.Email, in.Quantity, price*in.Quantity, in.AgentCode, in.TableIDs, in.GuestCount))
 	if err != nil {
 		return b, err
 	}
@@ -175,20 +209,26 @@ func (s *Service) Create(ctx context.Context, in Input, key, token string) (Book
 // SubmitAttachment accepts an image as booking evidence only. It deliberately does
 // not validate, inspect, or infer whether a payment slip is genuine.
 const MarketingConsentVersion = "marketing-consent-v1"
+const BookingTermsVersion = "booking-terms-v1"
 
 func (s *Service) SubmitAttachment(ctx context.Context, id, token, path string, marketingConsent bool, language string) error {
+	// An uploaded file is not proof of payment. Only the demo may auto-confirm.
+	if !s.DemoConfirmation {
+		return ErrConflict
+	}
 	tx, err := s.DB.Begin(ctx)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback(ctx)
 	var quantity int
+	var tableIDs []string
 	err = tx.QueryRow(ctx, `UPDATE bookings SET status='confirmed',attachment_path=$3,
 		marketing_consent_at=CASE WHEN $4 THEN now() ELSE NULL END,
 		marketing_consent_version=CASE WHEN $4 THEN $5 ELSE '' END,
 		marketing_consent_language=CASE WHEN $4 THEN $6 ELSE '' END
 		WHERE id=$1 AND (token_hash=$2 OR account_token_hash=$2 OR sales_token_hash=$2) AND status='held' AND expires_at>now()
-		AND NOT EXISTS(SELECT 1 FROM stripe_checkouts WHERE booking_id=$1) RETURNING quantity`, id, Hash(token), path, marketingConsent, MarketingConsentVersion, language).Scan(&quantity)
+		AND NOT EXISTS(SELECT 1 FROM stripe_checkouts WHERE booking_id=$1) RETURNING quantity,table_ids`, id, Hash(token), path, marketingConsent, MarketingConsentVersion, language).Scan(&quantity, &tableIDs)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return ErrConflict
 	}
@@ -196,7 +236,7 @@ func (s *Service) SubmitAttachment(ctx context.Context, id, token, path string, 
 		return err
 	}
 	for i := 0; i < quantity; i++ {
-		if _, err = tx.Exec(ctx, "INSERT INTO tickets(id,booking_id) VALUES($1,$2)", Token(), id); err != nil {
+		if _, err = tx.Exec(ctx, "INSERT INTO tickets(id,booking_id,table_id) VALUES($1,$2,$3)", Token(), id, tableForTicket(tableIDs, i)); err != nil {
 			return err
 		}
 	}
@@ -208,6 +248,9 @@ func (s *Service) SubmitAttachment(ctx context.Context, id, token, path string, 
 			return err
 		}
 	}
+	if _, err = tx.Exec(ctx, "INSERT INTO audit_log(booking_id,action) VALUES($1,$2)", id, BookingTermsVersion+":accepted:"+language); err != nil {
+		return err
+	}
 	return tx.Commit(ctx)
 }
 
@@ -216,14 +259,14 @@ func (s *Service) Get(ctx context.Context, id, token string, admin bool) (Bookin
 	if err != nil {
 		return b, err
 	}
-	rows, err := s.DB.Query(ctx, "SELECT id,checked_in_at FROM tickets WHERE booking_id=$1 ORDER BY id", id)
+	rows, err := s.DB.Query(ctx, "SELECT id,checked_in_at,table_id FROM tickets WHERE booking_id=$1 ORDER BY id", id)
 	if err != nil {
 		return b, err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var t Ticket
-		if err = rows.Scan(&t.ID, &t.CheckedInAt); err != nil {
+		if err = rows.Scan(&t.ID, &t.CheckedInAt, &t.TableID); err != nil {
 			return b, err
 		}
 		b.Tickets = append(b.Tickets, t)
@@ -233,6 +276,9 @@ func (s *Service) Get(ctx context.Context, id, token string, admin bool) (Bookin
 
 // AutoConfirmReviews upgrades bookings created by the legacy review workflow.
 func (s *Service) AutoConfirmReviews(ctx context.Context) error {
+	if !s.DemoConfirmation {
+		return nil
+	}
 	tx, err := s.DB.Begin(ctx)
 	if err != nil {
 		return err

@@ -31,7 +31,7 @@ func TestInventoryLifecycle(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer db.Close()
-	s := Service{DB: db}
+	s := Service{DB: db, DemoConfirmation: true}
 	zone := "test-" + Token()[:12]
 	_, err = db.Exec(ctx, "INSERT INTO zones(id,name,capacity,price) VALUES($1,'Test',3,10000)", zone)
 	if err != nil {

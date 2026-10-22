@@ -20,7 +20,7 @@ func TestStaffBookingAndBoarding(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer db.Close()
-	s := &Service{DB: db}
+	s := &Service{DB: db, DemoConfirmation: true}
 	sale, other, customer, admin := Token(), Token(), Token(), Token()
 	zone := "staff-" + Token()[:12]
 	for id, role := range map[string]string{sale: RoleSales, other: RoleOperator, customer: RoleUser, admin: RoleAdmin} {

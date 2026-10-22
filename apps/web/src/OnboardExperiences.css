@@ -12,7 +12,7 @@
   min-width: 0;
   overflow: hidden;
   background: #fffdf8;
-  border: 1px solid #e5e0d7;
+  border: 1px solid var(--rl-text);
   border-radius: 6px;
 }
 .onboard-experience-card:nth-child(n + 4) {

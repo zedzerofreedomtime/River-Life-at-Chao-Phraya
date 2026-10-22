@@ -16,7 +16,7 @@ export default function ScrollReveal() {
       ".onboard-experience-card",
       ".culture-route-layout",
       ".culture-calendar",
-      ".culture-facts .culture-container > div"
+      ".culture-facts .culture-container > div",
     ];
 
     const observer = new IntersectionObserver(
@@ -31,10 +31,12 @@ export default function ScrollReveal() {
       {
         rootMargin: "0px 0px -60px 0px",
         threshold: 0.08,
-      }
+      },
     );
 
-    const elements = document.querySelectorAll(selectors.join(", "));
+    const elements = [
+      ...document.querySelectorAll(selectors.join(", ")),
+    ].filter((element) => !element.closest(".motion-home"));
     elements.forEach((el) => {
       if (!el.classList.contains("scroll-reveal")) {
         el.classList.add("scroll-reveal");

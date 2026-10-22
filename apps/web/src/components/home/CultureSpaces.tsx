@@ -1,17 +1,65 @@
 import type { Language } from "../../data/i18n";
-import OnboardExperiences from "../cruise/OnboardExperiences";
-import DeckGallery from "../cruise/DeckGallery";
+import { onboardExperiences } from "../cruise/OnboardExperiences";
+import { deckPhotos } from "../cruise/DeckGallery";
+import PhotoGallery, { type CruisePhoto } from "../shared/PhotoGallery";
+
+// Six distinct real views: vessel, both decks, dining, performance and river.
+const onboardPhotos: readonly CruisePhoto[] = [
+  deckPhotos[0],
+  deckPhotos[2],
+  deckPhotos[3],
+  ...onboardExperiences
+    .filter((experience) =>
+      ["buffet", "entertainment", "river-view"].includes(experience.image),
+    )
+    .map((experience) => ({
+      ...experience.photo,
+      th: experience.th,
+      en: experience.en,
+      detailTh: experience.textTh,
+      detailEn: experience.textEn,
+    })),
+];
 
 export default function CultureSpaces({ language }: { language: Language }) {
   const en = language === "en";
   return (
     <section
       id="spaces-on-board"
+      data-home-section="gallery"
       className="culture-spaces culture-container"
       aria-labelledby="culture-spaces-title"
     >
-      <DeckGallery language={language} />
-      <OnboardExperiences language={language} />
+      <div className="culture-section-heading">
+        <div>
+          <p className="home-section-label">CRUISE GALLERY</p>
+          <h2 id="culture-spaces-title">
+            {en
+              ? "Life aboard Unicorn Cruise"
+              : "บรรยากาศจริงบนเรือ Unicorn Cruise"}
+          </h2>
+          <p>
+            {en
+              ? "Explore the open-air upper deck, indoor dining and the moments on board — food, Thai performances, music and Chao Phraya views, brought together by River Life."
+              : "รู้จักพื้นที่ชั้นบนกลางแจ้งและห้องอาหารชั้นล่าง พร้อมมื้ออาหาร การแสดงไทย เสียงเพลง และวิวเจ้าพระยา ในประสบการณ์เดียวของ River Life"}
+          </p>
+        </div>
+      </div>
+      <PhotoGallery
+        photos={onboardPhotos}
+        language={language}
+        className="cruise-onboard-gallery"
+        viewerLabel={
+          en
+            ? "Unicorn Cruise spaces and experiences"
+            : "ภาพพื้นที่และประสบการณ์บนเรือ Unicorn Cruise"
+        }
+      />
+      <p className="onboard-experience-origin">
+        {en
+          ? "Real photographs and film stills supplied by the cruise. Table arrangements, menus and performances depend on the selected sailing."
+          : "ภาพถ่ายและภาพจากคลิปที่เรือจัดส่งให้ การจัดโต๊ะ เมนู และการแสดงขึ้นอยู่กับรอบล่องเรือที่เลือก"}
+      </p>
       <details className="culture-river-context">
         <summary>
           {en

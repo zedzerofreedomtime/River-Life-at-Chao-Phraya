@@ -19,10 +19,11 @@ const (
 )
 
 type User struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
-	Role  string `json:"role"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Email       string `json:"email"`
+	Role        string `json:"role"`
+	AuthVersion int    `json:"-"`
 }
 
 func (s *Service) UpsertUser(ctx context.Context, email, name, provider, subject string) (User, error) {
@@ -80,7 +81,7 @@ func (s *Service) AuthenticateEmailPassword(ctx context.Context, email, password
 	email = strings.ToLower(strings.TrimSpace(email))
 	var user User
 	var passwordHash string
-	err := s.DB.QueryRow(ctx, "SELECT id,name,email,role,password_hash FROM users WHERE email=$1", email).Scan(&user.ID, &user.Name, &user.Email, &user.Role, &passwordHash)
+	err := s.DB.QueryRow(ctx, "SELECT id,name,email,role,password_hash,auth_version FROM users WHERE email=$1", email).Scan(&user.ID, &user.Name, &user.Email, &user.Role, &passwordHash, &user.AuthVersion)
 	if err != nil || passwordHash == "" || bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password)) != nil {
 		return User{}, ErrInvalidCredentials
 	}

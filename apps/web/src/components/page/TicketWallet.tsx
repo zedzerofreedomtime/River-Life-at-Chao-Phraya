@@ -18,11 +18,13 @@ import {
 } from "lucide-react";
 import {
   api,
+  bookingItemLabel,
   localizeEventTitle,
   statusLabel,
   type Booking,
 } from "../../data/api";
 import type { Language } from "../../data/i18n";
+import "../../TicketWallet.css";
 
 type Props = {
   initial: Booking | null;
@@ -31,6 +33,7 @@ type Props = {
   demo: boolean;
   boardingPier: string;
   onOpenOrders: () => void;
+  onOpenHelp: () => void;
 };
 const zoneName = (zone: string, language: Language) =>
   (language === "en"
@@ -48,6 +51,7 @@ export default function TicketWallet({
   demo,
   boardingPier,
   onOpenOrders,
+  onOpenHelp,
 }: Props) {
   const tr = (th: string, en: string) => translate(language, th, en);
   const programme = useContext(CruiseProgrammeContext);
@@ -63,6 +67,9 @@ export default function TicketWallet({
   const [busy, setBusy] = useState(false);
   const [selected, setSelected] = useState(0);
   const [qrOpen, setQrOpen] = useState(false);
+  const [ticketTab, setTicketTab] = useState<
+    "available" | "progress" | "used" | null
+  >(null);
   const load = async () => {
     if (!id || !token) return;
     setBusy(true);
@@ -79,8 +86,36 @@ export default function TicketWallet({
     }
   };
   useEffect(() => {
-    if (!initial && id && token) void load();
-  }, []);
+    if (!id || !token) return;
+    let stopped = false;
+    const controller = new AbortController();
+    const refresh = async () => {
+      try {
+        const latest = await api<Booking>(
+          `/bookings/${encodeURIComponent(id)}`,
+          { signal: controller.signal },
+          token,
+        );
+        if (!stopped) {
+          setBooking(latest);
+          setError("");
+        }
+      } catch (cause) {
+        if (!stopped) setError((cause as Error).message);
+      }
+    };
+    void refresh();
+    const timer = window.setInterval(() => {
+      if (!document.hidden) void refresh();
+    }, 15000);
+    window.addEventListener("focus", refresh);
+    return () => {
+      stopped = true;
+      controller.abort();
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refresh);
+    };
+  }, [id, token]);
 
   if (!booking) {
     return (
@@ -126,8 +161,29 @@ export default function TicketWallet({
   }
 
   const tickets = booking.tickets ?? [];
-  const active = tickets[selected];
   const confirmed = booking.status === "confirmed";
+  const availableCount = confirmed
+    ? tickets.filter((t) => !t.checked_in_at).length
+    : 0;
+  const usedCount = tickets.filter((t) => t.checked_in_at).length;
+  const activeTab =
+    ticketTab ??
+    (availableCount > 0 ? "available" : usedCount > 0 ? "used" : "progress");
+  const visibleTickets = tickets
+    .map((ticket, index) => ({ ticket, index }))
+    .filter(
+      ({ ticket }) =>
+        confirmed &&
+        (activeTab === "available"
+          ? !ticket.checked_in_at
+          : activeTab === "used"
+            ? !!ticket.checked_in_at
+            : false),
+    );
+  const activeIndex = visibleTickets.some(({ index }) => index === selected)
+    ? selected
+    : visibleTickets[0]?.index;
+  const active = activeIndex === undefined ? undefined : tickets[activeIndex];
   return (
     <section className="wallet-dashboard">
       <aside className="wallet-orders">
@@ -168,6 +224,10 @@ export default function TicketWallet({
       <main className="wallet-main">
         <div className="wallet-title">
           <h1>{tr("บัตรของฉัน", "My tickets")}</h1>
+          <Button onClick={() => void load()} disabled={busy}>
+            {tr("โหลดสถานะบัตรล่าสุด", "Refresh ticket status")}
+          </Button>
+          {error && <Alert severity="error">{error}</Alert>}
           {demo && (
             <Alert severity="warning">
               {tr(
@@ -188,25 +248,62 @@ export default function TicketWallet({
                 )}
           </p>
         </div>
-        <div className="wallet-tabs">
-          <span className={confirmed ? "active" : ""}>
+        <div
+          className="wallet-tabs"
+          role="tablist"
+          aria-label={tr("สถานะบัตร", "Ticket status")}
+        >
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === "available"}
+            className={activeTab === "available" ? "active" : ""}
+            onClick={() => {
+              setTicketTab("available");
+              setQrOpen(false);
+            }}
+          >
             {tr("บัตรที่ใช้งานได้", "Available tickets")} (
             {confirmed
               ? tickets.filter((ticket) => !ticket.checked_in_at).length
               : 0}
             )
-          </span>
-          <span className={!confirmed ? "active" : ""}>
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === "progress"}
+            className={activeTab === "progress" ? "active" : ""}
+            onClick={() => {
+              setTicketTab("progress");
+              setQrOpen(false);
+            }}
+          >
             {tr("กำลังดำเนินการ", "In progress")} ({confirmed ? 0 : 1})
-          </span>
-          <span>
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === "used"}
+            className={activeTab === "used" ? "active" : ""}
+            onClick={() => {
+              setTicketTab("used");
+              setQrOpen(false);
+            }}
+          >
             {tr("ใช้แล้ว", "Used")} (
             {tickets.filter((ticket) => ticket.checked_in_at).length})
-          </span>
+          </button>
         </div>
-        {!confirmed ? (
+        {activeTab === "progress" || !confirmed ? (
           <div className="wallet-pending-state">
             <Alert severity="info" className="wallet-status-alert">
+              {confirmed
+                ? tr(
+                    "ไม่มีรายการกำลังดำเนินการในคำสั่งซื้อนี้ · ",
+                    "No pending items in this order · ",
+                  )
+                : ""}
               {tr("คำสั่งซื้อ", "Order")} #{shortId(booking.id)}{" "}
               {tr("อยู่ในสถานะ:", "status:")}{" "}
               {statusLabel(booking.status, language)}
@@ -216,6 +313,7 @@ export default function TicketWallet({
           <>
             <TicketJourney
               ticketCount={tickets.length}
+              usedCount={usedCount}
               language={language}
               boardingPier={boardingPier}
             />
@@ -224,7 +322,9 @@ export default function TicketWallet({
                 <div className="wallet-order-summary">
                   <span>
                     <strong>{concertTitle}</strong>
-                    <small>{boardingPier} · {programme.departure}</small>
+                    <small>
+                      {boardingPier} · {programme.departure}
+                    </small>
                   </span>
                   <span>
                     {tr("คำสั่งซื้อ", "Order")} #{shortId(booking.id)}
@@ -239,10 +339,20 @@ export default function TicketWallet({
                     </small>
                   </span>
                 </div>
-                {tickets.map((ticket, index) => (
+                {visibleTickets.length === 0 && (
+                  <Alert severity="info">
+                    {activeTab === "used"
+                      ? tr("ยังไม่มีบัตรที่ใช้แล้ว", "No used tickets")
+                      : tr(
+                          "ไม่มีบัตรที่พร้อมใช้งานในคำสั่งซื้อนี้",
+                          "No available tickets in this order",
+                        )}
+                  </Alert>
+                )}
+                {visibleTickets.map(({ ticket, index }) => (
                   <button
                     key={ticket.id}
-                    className={`wallet-ticket ${selected === index ? "selected" : ""}`}
+                    className={`wallet-ticket ${activeIndex === index ? "selected" : ""}`}
                     onClick={() => {
                       setSelected(index);
                       setQrOpen(true);
@@ -254,7 +364,7 @@ export default function TicketWallet({
                         {tr("บัตรที่", "Ticket")} {index + 1} {tr("จาก", "of")}{" "}
                         {tickets.length}
                       </small>
-                      <strong>{zoneName(booking.zone_id, language)}</strong>
+                      <strong>{ticket.table_id ? `${tr("โต๊ะ", "Table")} ${ticket.table_id}` : booking.table_ids?.length ? bookingItemLabel(booking, language) : zoneName(booking.zone_id, language)}</strong>
                       <em>
                         {concertTitle}
                         <br />
@@ -266,7 +376,11 @@ export default function TicketWallet({
                       <b>1</b>
                       <em>{tr("ใบ", "ticket")}</em>
                     </span>
-                    <span className="show-qr">{tr("แสดง QR", "Show QR")}</span>
+                    <span className="show-qr">
+                      {ticket.checked_in_at
+                        ? tr("ดูบัตรใช้แล้ว", "View used ticket")
+                        : tr("แสดง QR", "Show QR")}
+                    </span>
                   </button>
                 ))}
                 <div className="wallet-help">
@@ -298,9 +412,13 @@ export default function TicketWallet({
                         "Questions about your tickets?",
                       )}
                     </strong>
-                    <small>
+                    <button
+                      type="button"
+                      className="wallet-guidance"
+                      onClick={onOpenHelp}
+                    >
                       {tr("ดูคำแนะนำการใช้งาน →", "View ticket guidance →")}
-                    </small>
+                    </button>
                   </span>
                 </div>
               </section>
@@ -308,7 +426,7 @@ export default function TicketWallet({
                 <TicketPreview
                   booking={booking}
                   ticketId={active.id}
-                  index={selected}
+                  index={activeIndex!}
                   count={tickets.length}
                   language={language}
                   boardingPier={boardingPier}
@@ -321,7 +439,7 @@ export default function TicketWallet({
                 onClose={() => setQrOpen(false)}
                 booking={booking}
                 ticketId={active.id}
-                index={selected}
+                index={activeIndex!}
                 count={tickets.length}
                 language={language}
                 boardingPier={boardingPier}
@@ -370,7 +488,7 @@ function QrDialog({
         <span>
           {tr("บัตรที่", "Ticket")} {index + 1} {tr("จาก", "of")} {count}
         </span>
-        <h2>{zoneName(booking.zone_id, language)}</h2>
+        <h2>{booking.tickets[index]?.table_id ? `${tr("โต๊ะ", "Table")} ${booking.tickets[index].table_id}` : booking.table_ids?.length ? bookingItemLabel(booking, language) : zoneName(booking.zone_id, language)}</h2>
         <p>
           {concertTitle} · {boardingPier} · {programme.departure}
         </p>
@@ -383,8 +501,12 @@ function QrDialog({
         </strong>
         <small>
           {tr(
-            "แสดง QR นี้ให้เจ้าหน้าที่สแกนที่จุด Check-in",
-            "Show this QR code for scanning at check-in.",
+            checkedIn
+              ? "บัตรนี้เช็กอินแล้ว ใช้เข้างานซ้ำไม่ได้"
+              : "แสดง QR นี้ให้เจ้าหน้าที่สแกนที่จุด Check-in",
+            checkedIn
+              ? "This ticket has been checked in and cannot be used again."
+              : "Show this QR code for scanning at check-in.",
           )}
         </small>
       </DialogContent>
@@ -394,10 +516,12 @@ function QrDialog({
 
 function TicketJourney({
   ticketCount,
+  usedCount,
   language,
   boardingPier,
 }: {
   ticketCount: number;
+  usedCount: number;
   language: Language;
   boardingPier: string;
 }) {
@@ -409,21 +533,41 @@ function TicketJourney({
         <div>
           <small>{tr("สถานะการจอง", "Booking status")}</small>
           <strong>
-            {tr("บัตรของคุณพร้อมใช้งานแล้ว", "Your tickets are ready")}
+            {usedCount === ticketCount && ticketCount > 0
+              ? tr("เช็กอินครบทุกบัตรแล้ว", "All tickets have been checked in")
+              : usedCount > 0
+                ? tr(
+                    `เช็กอินแล้ว ${usedCount} จาก ${ticketCount} บัตร`,
+                    `${usedCount} of ${ticketCount} tickets checked in`,
+                  )
+                : tr("บัตรของคุณพร้อมใช้งานแล้ว", "Your tickets are ready")}
           </strong>
         </div>
         <span>
-          {tr(
-            `มี ${ticketCount} QR — แสดงทีละใบเมื่อเข้างาน`,
-            `${ticketCount} QR ${ticketCount === 1 ? "code" : "codes"} — show each ticket when boarding`,
-          )}
+          {usedCount === ticketCount && ticketCount > 0
+            ? tr(
+                "บัตรทั้งหมดใช้แล้ว ไม่สามารถใช้เข้างานซ้ำได้",
+                "All tickets have been used and cannot be reused",
+              )
+            : tr(
+                `มี ${ticketCount} QR — แสดงทีละใบเมื่อเข้างาน`,
+                `${ticketCount} QR ${ticketCount === 1 ? "code" : "codes"} — show each ticket when boarding`,
+              )}
         </span>
       </div>
       <ol className="booking-steps">
         <li className="done">{tr("ยืนยันการจอง", "Booking confirmed")}</li>
-        <li className="done">{tr("แนบรูปประกอบ", "Receipt uploaded")}</li>
-        <li className="current">{tr("รับ QR Ticket", "QR ticket issued")}</li>
-        <li>{tr("สแกนเข้างาน", "Scan at boarding")}</li>
+        <li className="done">
+          {tr("ยืนยันสถานะรายการ", "Order status confirmed")}
+        </li>
+        <li className="done">{tr("รับ QR Ticket", "QR ticket issued")}</li>
+        <li
+          className={
+            usedCount === ticketCount && ticketCount > 0 ? "done" : "current"
+          }
+        >
+          {tr("สแกนเข้างาน", "Scan at boarding")}
+        </li>
       </ol>
       <div className="boarding-details">
         <span>
@@ -467,18 +611,33 @@ function TicketPreview({
   const programme = useContext(CruiseProgrammeContext);
   const concertTitle = localizeEventTitle(programme.title, language);
   const checkedIn = booking.tickets[index]?.checked_in_at;
+  const [copyMessage, setCopyMessage] = useState("");
+  useEffect(() => setCopyMessage(""), [ticketId]);
+  const copyTicket = async () => {
+    try {
+      await navigator.clipboard.writeText(ticketId);
+      setCopyMessage(tr("คัดลอกรหัสบัตรแล้ว", "Ticket code copied"));
+    } catch {
+      setCopyMessage(
+        tr(
+          "คัดลอกไม่ได้ กรุณาแสดง QR แทน",
+          "Unable to copy. Please show the QR code instead.",
+        ),
+      );
+    }
+  };
   return (
     <aside className="qr-ticket">
       <span className="qr-ticket-count">
         {tr("บัตรที่", "Ticket")} {index + 1} {tr("จาก", "of")} {count}
       </span>
-      <span className="ticket-state">
+      <span className={`ticket-state ${checkedIn ? "used" : "available"}`}>
         ●{" "}
         {checkedIn
           ? tr("เช็กอินแล้ว", "Checked in")
           : tr("ใช้งานได้", "Available")}
       </span>
-      <h2>{zoneName(booking.zone_id, language)}</h2>
+      <h2>{booking.tickets[index]?.table_id ? `${tr("โต๊ะ", "Table")} ${booking.tickets[index].table_id}` : booking.table_ids?.length ? bookingItemLabel(booking, language) : zoneName(booking.zone_id, language)}</h2>
       <p>
         {concertTitle}
         <br />
@@ -487,15 +646,35 @@ function TicketPreview({
       <QRCodeSVG value={ticketId} size={188} marginSize={4} />
       <p className="qr-note">
         <CircleHelp aria-hidden="true" size={20} />{" "}
-        {tr("แสดง QR Code นี้ที่จุด Check-in", "Show this QR code at check-in")}
+        {checkedIn
+          ? tr(
+              "บัตรนี้ใช้แล้ว ใช้ซ้ำไม่ได้",
+              "This ticket is used and cannot be reused",
+            )
+          : tr(
+              "แสดง QR Code นี้ที่จุด Check-in",
+              "Show this QR code at check-in",
+            )}
         <br />
-        <small>{tr("เพื่อสแกนเข้างาน", "for boarding")}</small>
+        <small>
+          {checkedIn
+            ? tr("เก็บไว้ดูประวัติเท่านั้น", "For your records only")
+            : tr("เพื่อสแกนเข้างาน", "for boarding")}
+        </small>
       </p>
       <dl>
         <div>
           <dt>{tr("หมายเลขบัตร", "Ticket number")}</dt>
           <dd>
-            {ticketId.slice(0, 14).toUpperCase()} <Copy size={16} />
+            {ticketId.slice(0, 14).toUpperCase()}
+            <button
+              type="button"
+              className="wallet-copy"
+              aria-label={tr("คัดลอกรหัสบัตร", "Copy ticket code")}
+              onClick={() => void copyTicket()}
+            >
+              <Copy aria-hidden="true" size={16} />
+            </button>
           </dd>
         </div>
         <div>
@@ -508,7 +687,7 @@ function TicketPreview({
         </div>
         <div>
           <dt>{tr("สถานะ", "Status")}</dt>
-          <dd className="available">
+          <dd className={checkedIn ? "used" : "available"}>
             ●{" "}
             {checkedIn
               ? tr("เช็กอินแล้ว", "Checked in")
@@ -516,6 +695,7 @@ function TicketPreview({
           </dd>
         </div>
       </dl>
+      {copyMessage && <p role="status">{copyMessage}</p>}
       <div className="ticket-rules">
         <strong>{tr("เงื่อนไขการใช้งาน", "Ticket terms")}</strong>
         <ul>
@@ -527,8 +707,8 @@ function TicketPreview({
           </li>
           <li>
             {tr(
-              "กรุณาแสดง QR Code จากหน้าจอนี้ ไม่อนุญาตให้ใช้ภาพถ่าย",
-              "Show the QR code on this screen; screenshots are not accepted.",
+              "เก็บ QR และรหัสบัตรเป็นส่วนตัว ไม่ส่งให้ผู้ที่ไม่เกี่ยวข้อง",
+              "Keep your QR and ticket code private; do not share them with others.",
             )}
           </li>
           <li>{tr("1 บัตร ต่อ 1 ท่าน", "One ticket per person.")}</li>

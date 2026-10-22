@@ -1,0 +1,38 @@
+/* Thai UI copy uses font-semibold. Explicit English passages keep their own
+   hierarchy; font files already include Kanit 600. */
+:root[lang="th"]
+  body
+  :is(
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p,
+    span,
+    div,
+    a,
+    button,
+    li,
+    dt,
+    dd,
+    label,
+    strong,
+    em,
+    i,
+    figcaption,
+    caption,
+    legend,
+    b,
+    small,
+    input,
+    textarea,
+    select,
+    option,
+    th,
+    td,
+    summary
+  ):not(:lang(en)) {
+  font-weight: 600 !important;
+}

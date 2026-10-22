@@ -1,10 +1,10 @@
 .ticket-home.culture-home {
-  --culture-navy: #080c13;
-  --culture-gold: #d4af37;
-  --culture-paper: #080c13;
-  --culture-text: #e5e0d8;
+  --culture-navy: var(--rl-bg);
+  --culture-gold: var(--rl-gold);
+  --culture-paper: var(--rl-bg);
+  --culture-text: var(--rl-text);
   --culture-muted: #a0aec0;
-  --culture-rule: rgba(212, 175, 55, 0.2);
+  --culture-rule: rgb(var(--rl-gold-rgb) / 0.2);
   width: 100%;
   margin: 0;
   padding: 0;
@@ -283,7 +283,7 @@
   padding: 8px 16px;
   border: 1px solid var(--culture-rule);
   border-radius: 5px;
-  background: #111114 !important;
+  background: var(--rl-surface) !important;
   color: var(--culture-text);
   font:
     500 16px/1.5 "Noto Sans Thai",
@@ -338,7 +338,7 @@
   padding: 26px;
   border: 1px solid var(--culture-rule);
   border-radius: 6px;
-  background: #111114 !important;
+  background: var(--rl-surface) !important;
 }
 .culture-date-heading {
   display: flex;
@@ -436,7 +436,7 @@
   padding: 18px;
   border: 1px solid var(--culture-rule);
   border-radius: 6px;
-  background: #111114 !important;
+  background: var(--rl-surface) !important;
   animation: culture-reveal 0.25s ease;
 }
 .culture-event-panel > img {
@@ -497,7 +497,7 @@
   padding: 42px;
   border: 1px solid var(--culture-rule);
   border-radius: 6px;
-  background: #111114 !important;
+  background: var(--rl-surface) !important;
   animation: culture-reveal 0.25s ease;
 }
 .culture-calendar-empty > svg {
@@ -528,7 +528,7 @@
   line-height: 1.2;
 }
 .culture-videos-copy em {
-  color: #dfb775;
+  color: var(--rl-gold);
   font-style: normal;
 }
 .culture-videos-copy p {
@@ -587,7 +587,7 @@
 }
 .culture-video-extras summary {
   padding: 16px 0 0;
-  color: #dfb775;
+  color: var(--rl-gold);
   cursor: pointer;
   font-size: 13px;
 }
@@ -640,7 +640,7 @@
 .culture-video-error {
   grid-column: 1 / -1;
   padding: 16px;
-  border: 1px solid #dfb775;
+  border: 1px solid var(--rl-gold);
   border-radius: 4px;
   color: #f6d8a5;
 }
@@ -688,7 +688,7 @@
   align-items: center;
   padding: clamp(22px, 4vw, 48px);
   background: #f0eee8;
-  border: 1px solid #e5e0d7;
+  border: 1px solid var(--rl-text);
   border-radius: 8px;
 }
 .culture-route-photo {
@@ -1446,6 +1446,35 @@
   .culture-home .culture-button:hover {
     transform: none;
   }
+}
+
+.home-section-label {
+  color: var(--rl-gold);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+}
+footer:has(.footer-photo-credits) { flex-wrap: wrap; }
+.footer-photo-credits { flex: 0 0 100%; min-width: 0; font-size: 12px; line-height: 1.7; }
+.footer-photo-credits summary { cursor: pointer; }
+.footer-photo-credits ul { padding-left: 20px; overflow-wrap: anywhere; }
+.home-final-cta {
+  text-align: center;
+  padding-block: clamp(64px, 8vw, 112px);
+  border-top: 1px solid rgb(var(--rl-gold-rgb) / 0.200);
+  background: radial-gradient(ellipse at 50% 100%, #23344366, transparent 75%);
+}
+.home-final-cta h2 {
+  font-size: clamp(32px, 4vw, 56px);
+  margin: 12px 0;
+}
+.home-final-cta > p:not(.home-section-label) {
+  color: #b9c4d0;
+  margin: 0 0 28px;
+}
+.home-final-cta .MuiButton-root {
+  min-height: 52px;
+  padding-inline: 28px;
 }
 
 /* Move the hero text block down as requested */

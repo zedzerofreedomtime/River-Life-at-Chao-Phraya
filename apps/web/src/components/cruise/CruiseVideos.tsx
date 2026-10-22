@@ -184,21 +184,6 @@ export default function CruiseVideos({ language }: { language: Language }) {
             </div>
           </details>
         </div>
-        <p className="cruise-media-note">
-          {en
-            ? "See more recent cruise content on "
-            : "ชมคอนเทนต์ล่าสุดเพิ่มเติมได้ที่ "}
-          <a
-            href="https://www.facebook.com/cruiseunicorn/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Unicorn Cruise Facebook ↗
-          </a>
-          {en
-            ? ". Photos and videos show the atmosphere; food, performances and inclusions may vary by sailing."
-            : " · ภาพและคลิปแสดงบรรยากาศ อาหาร การแสดง และสิ่งที่รวมในแพ็กเกจอาจแตกต่างตามรอบ"}
-        </p>
         {error ? (
           <p className="culture-video-error" role="alert">
             {error}

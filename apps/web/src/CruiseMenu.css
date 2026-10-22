@@ -12,7 +12,7 @@
 }
 .cruise-menu-preview {
   display: block;
-  border: 1px solid #e5e0d7;
+  border: 1px solid var(--rl-text);
   border-radius: 3px;
   overflow: hidden;
 }
