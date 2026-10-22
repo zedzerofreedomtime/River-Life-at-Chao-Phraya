@@ -6,7 +6,7 @@ test.use({
 for (const width of [320, 390, 768, 1440]) {
   test(`contact validates and prepares LINE draft at ${width}px`, async ({
     page,
-  }) => {
+  }, testInfo) => {
     await page.setViewportSize({ width, height: 1000 });
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
@@ -53,7 +53,7 @@ for (const width of [320, 390, 768, 1440]) {
     expect(errors).toEqual([]);
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({
-      path: `C:/Users/friend/AppData/Local/Temp/riverlife-contact-${width}.png`,
+      path: testInfo.outputPath(`contact-${width}.png`),
       fullPage: true,
     });
   });
@@ -66,9 +66,7 @@ test("English form and optional phone validation", async ({ page }) => {
   await page.getByLabel("Last name").fill("User");
   await page.locator("#contact-email").fill("test@example.com");
   await page.getByLabel("Phone number (optional)").fill("invalid");
-  await page
-    .locator("#contact-message")
-    .fill("A test booking enquiry");
+  await page.locator("#contact-message").fill("A test booking enquiry");
   await page
     .getByRole("button", { name: "Prepare message", exact: true })
     .click();

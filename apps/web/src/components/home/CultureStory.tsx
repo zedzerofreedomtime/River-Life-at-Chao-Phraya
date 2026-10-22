@@ -2,7 +2,13 @@ import { ArrowRight } from "lucide-react";
 import { formatPier, type EventInfo } from "../../data/api";
 import type { Language } from "../../data/i18n";
 
-export default function CultureStory({ event, language }: { event: EventInfo; language: Language }) {
+export default function CultureStory({
+  event,
+  language,
+}: {
+  event: EventInfo;
+  language: Language;
+}) {
   const en = language === "en";
   return (
     <section

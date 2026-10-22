@@ -2,7 +2,13 @@ import { useEffect, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import { CircleCheckBig, Ticket } from "lucide-react";
-import { api, money, statusLabel, bookingItemLabel, type Booking } from "../../data/api";
+import {
+  api,
+  money,
+  statusLabel,
+  bookingItemLabel,
+  type Booking,
+} from "../../data/api";
 import { FlowSteps } from "./Payment";
 import type { Language } from "../../data/i18n";
 
@@ -139,25 +145,35 @@ export default function BookingSuccess({
                 <dd>{money(booking.total)}</dd>
               </div>
             </dl>
-            {booking.status === "confirmed" && booking.email_delivery_enabled && (
-              <p>
-                {tr(
-                  "ระบบจะส่งอีเมลแยก 2 ฉบับ: รายละเอียดการจอง และตั๋วเรือพร้อม QR ไปที่ ",
-                  "Two separate emails will be sent: your booking details and your cruise tickets with QR codes, to ",
-                )}
-                <strong>{booking.email}</strong>
-                {tr(" กรุณาตรวจสอบกล่องจดหมายและโฟลเดอร์สแปม", ". Please check your inbox and spam folder.")}
-              </p>
-            )}
-              {booking.status === "confirmed" && !booking.email_delivery_enabled && (
-                <p>{tr("ยังไม่ได้เปิดบริการส่งอีเมล ดูรายละเอียดการจองและเปิดตั๋วได้จากหน้านี้หรือคำสั่งซื้อของฉัน", "Email delivery is not enabled. View your booking and tickets here or in My bookings.")}</p>
+            {booking.status === "confirmed" &&
+              booking.email_delivery_enabled && (
+                <p>
+                  {tr(
+                    "ระบบจะส่งอีเมลแยก 2 ฉบับ: รายละเอียดการจอง และตั๋วเรือพร้อม QR ไปที่ ",
+                    "Two separate emails will be sent: your booking details and your cruise tickets with QR codes, to ",
+                  )}
+                  <strong>{booking.email}</strong>
+                  {tr(
+                    " กรุณาตรวจสอบกล่องจดหมายและโฟลเดอร์สแปม",
+                    ". Please check your inbox and spam folder.",
+                  )}
+                </p>
               )}
-              <p>
-                {tr(
-                  "กลับมาดูรายการนี้และตั๋วได้ที่เมนูบัญชี → คำสั่งซื้อของฉัน โดยเข้าสู่ระบบด้วยบัญชีที่จอง",
-                  "Return to this booking and tickets via Account → My bookings, using the same account.",
-                )}
-              </p>
+            {booking.status === "confirmed" &&
+              !booking.email_delivery_enabled && (
+                <p>
+                  {tr(
+                    "ยังไม่ได้เปิดบริการส่งอีเมล ดูรายละเอียดการจองและเปิดตั๋วได้จากหน้านี้หรือคำสั่งซื้อของฉัน",
+                    "Email delivery is not enabled. View your booking and tickets here or in My bookings.",
+                  )}
+                </p>
+              )}
+            <p>
+              {tr(
+                "กลับมาดูรายการนี้และตั๋วได้ที่เมนูบัญชี → คำสั่งซื้อของฉัน โดยเข้าสู่ระบบด้วยบัญชีที่จอง",
+                "Return to this booking and tickets via Account → My bookings, using the same account.",
+              )}
+            </p>
             <div className="success-actions">
               {booking.status === "confirmed" && (
                 <Button

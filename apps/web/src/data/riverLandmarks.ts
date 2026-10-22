@@ -131,7 +131,8 @@ export const riverLandmarks: readonly RiverLandmark[] = [
       "สะพานพาดข้ามทั้งสองฝั่ง มองด้านหน้าเมื่อเข้าใกล้และเหนือศีรษะหากเรือลอดใต้ ไม่กำหนดเป็นซ้ายหรือขวา",
     viewEn:
       "A cross-river structure: ahead on approach and overhead if the boat passes underneath, not exclusively left or right.",
-    source: "https://artsandculture.google.com/asset/people-gathered-at-the-memorial-bridge-after-the-opening-ceremony/DAHNIOikrYF5eg",
+    source:
+      "https://artsandculture.google.com/asset/people-gathered-at-the-memorial-bridge-after-the-opening-ceremony/DAHNIOikrYF5eg",
     sourceLabel: "King Prajadhipok Museum / Google Arts & Culture",
     image: "/images/landmarks/guide/memorial-bridge.jpg",
     position: "50% 66%",

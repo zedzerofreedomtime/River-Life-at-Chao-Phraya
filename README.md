@@ -20,9 +20,15 @@ This starts a test event with 350 provisional seats and explicitly labeled test 
 
 With Docker services running, `npm run test:smoke` checks the web, same-origin API, database/Redis health and unauthenticated staff access. These are HTTP tests and do not require a browser download.
 
-`go test ./...` and `go vet ./...` from apps/api. Integration tests require `TEST_DATABASE_URL` and `TEST_REDIS_URL`; they create uniquely named fixtures and clean up only those fixtures. Tests cover overselling under 12 concurrent requests, idempotent retries, access rejection, approval, ticket generation, repeat check-in, no-show conflict, expired quota reclamation, and Redis TTL.
+`go test -race -count=1 -p 1 ./...` and `go vet ./...` from apps/api. Integration tests require `TEST_DATABASE_URL` and `TEST_REDIS_URL`; they create uniquely named fixtures and clean up only those fixtures. Run packages sequentially because they bootstrap DDL against the same test database; parallel package startup can deadlock with another package's booking transaction. This does not disable the concurrency scenarios inside tests. Tests cover overselling under 12 concurrent requests, idempotent retries, access rejection, approval, ticket generation, repeat check-in, no-show conflict, expired quota reclamation, and Redis TTL. Do not share this database with a running API or browser booking tests: the email worker test consumes pending jobs globally.
 
-Docker may be used instead of installing Go. Use the same Go version as apps/api/Dockerfile. CI runs frontend build and real PostgreSQL/Redis integration tests.
+Docker may be used instead of installing Go. Use the same Go version as apps/api/Dockerfile. CI runs formatting, frontend build, real PostgreSQL/Redis integration tests, and the Chromium Playwright suite against a disposable Docker Compose stack.
+
+Run `npm run format:check`, `npm run typecheck`, and `npm audit` for local checks. Install the browser with `npx playwright install chromium`.
+
+The full browser suite (`npx playwright test --workers=2`) now includes a real demo booking and writes test records. Use a **fresh isolated database and Redis**, no payment-provider credentials, `OTP_DELIVERY_MODE=demo`, and `BOOKING_EMAIL_MODE=disabled`. Set `TEST_BASE_URL` to that test web server and `E2E_ALLOW_WRITES=1` before running. Never point this command at the customer database. The booking test fails safely without the explicit opt-in and expects the seeded U05 table to be available. Recreate the disposable stack between full runs. It tests invalid uploads, demo confirmation, four tickets surviving reload, mobile layout, and WCAG AA text contrast on the confirmed wallet; it does not verify real payment settlement or email delivery.
+
+CI uploads Playwright reports/screenshots and removes only its own `riverlife-ci` containers and volumes afterward. Test screenshots use portable Playwright output paths.
 
 See [architecture](docs/architecture.md) for implemented scope and production gaps, and [API contract](docs/api.md) for frontend/backend mapping. Database and uploads persist across `docker compose down`; do not use `down -v` unless you intend to remove them.
 

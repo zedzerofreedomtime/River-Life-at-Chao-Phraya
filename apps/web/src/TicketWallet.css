@@ -74,3 +74,22 @@
     padding-inline: 5px;
   }
 }
+.app-main .wallet-dashboard .wallet-help {
+  background: var(--rl-surface-raised);
+  color: var(--rl-text);
+}
+.app-main .wallet-dashboard .wallet-help small {
+  color: var(--rl-muted);
+}
+.app-main .wallet-dashboard .wallet-order-card b.confirmed {
+  background: #142c26 !important;
+  color: #b9efcc !important;
+}
+.app-main .wallet-dashboard .wallet-order-card b.review {
+  background: #302817 !important;
+  color: #f4d592 !important;
+}
+.app-main .wallet-dashboard .wallet-ticket .show-qr {
+  background: var(--rl-gold-fill) !important;
+  color: var(--rl-on-gold) !important;
+}

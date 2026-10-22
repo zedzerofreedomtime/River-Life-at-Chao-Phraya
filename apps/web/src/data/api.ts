@@ -26,12 +26,22 @@ export const formatEventDate = (date: string | null, language: "th" | "en") =>
         year: "numeric",
         timeZone: "UTC",
       }).format(new Date(`${date}T00:00:00Z`))
-    : language === "en" ? "Date to be announced" : "รอยืนยันวันจัดงาน";
-export const formatPier = (pier: string, number: number, language: "th" | "en") =>
-  language === "en" ? `${pier} Pier ${number}` : `ท่าเรือ ${pier} ท่าที่ ${number}`;
+    : language === "en"
+      ? "Date to be announced"
+      : "รอยืนยันวันจัดงาน";
+export const formatPier = (
+  pier: string,
+  number: number,
+  language: "th" | "en",
+) =>
+  language === "en"
+    ? `${pier} Pier ${number}`
+    : `ท่าเรือ ${pier} ท่าที่ ${number}`;
 export const localizeEventTitle = (title: string, language: "th" | "en") =>
   title === "Concert on the River"
-    ? language === "en" ? "Concert Cruise on the Chao Phraya" : "ล่องเรือพร้อมคอนเสิร์ตบนเจ้าพระยา"
+    ? language === "en"
+      ? "Concert Cruise on the Chao Phraya"
+      : "ล่องเรือพร้อมคอนเสิร์ตบนเจ้าพระยา"
     : title;
 export type Booking = {
   email_delivery_enabled?: boolean;
@@ -79,7 +89,10 @@ export const money = (n: number) =>
     minimumFractionDigits: n % 100 === 0 ? 0 : 2,
     maximumFractionDigits: 2,
   }).format(n / 100);
-export const bookingItemLabel = (booking: Pick<Booking, "zone_id" | "table_ids">, language: "th" | "en") =>
+export const bookingItemLabel = (
+  booking: Pick<Booking, "zone_id" | "table_ids">,
+  language: "th" | "en",
+) =>
   booking.table_ids?.length
     ? `${language === "en" ? "Tables" : "โต๊ะ"} ${booking.table_ids.join(", ")}`
     : `${language === "en" ? "Zone" : "โซน"} ${booking.zone_id}`;
@@ -93,41 +106,53 @@ export const labels: Record<string, string> = {
 };
 export const statusLabel = (status: string, language: "th" | "en") =>
   language === "en"
-    ? ({
-        held: "Awaiting payment",
-        review: "Under review",
-        confirmed: "Confirmed",
-        expired: "Reservation expired",
-        cancelled: "Cancelled",
-        no_show: "No-show",
-      } as Record<string, string>)[status] || status
+    ? (
+        {
+          held: "Awaiting payment",
+          review: "Under review",
+          confirmed: "Confirmed",
+          expired: "Reservation expired",
+          cancelled: "Cancelled",
+          no_show: "No-show",
+        } as Record<string, string>
+      )[status] || status
     : labels[status] || status;
 export const zoneLabel = (zone: Zone, language: "th" | "en") =>
   language === "en"
-    ? ({ A: "Bow", B: "Stern", C: "Lower deck" } as Record<string, string>)[zone.id] || zone.name
+    ? ({ A: "Bow", B: "Stern", C: "Lower deck" } as Record<string, string>)[
+        zone.id
+      ] || zone.name
     : zone.name;
 const englishApiMessages: Record<string, string> = {
   "ระบบไม่พร้อม กรุณาลองใหม่": "Service unavailable. Please try again.",
-  "ไม่พบรายการ": "Booking not found.",
-  "ข้อมูลไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง": "Please check the information and try again.",
-  "ระบบจำกัดการใช้งานไม่พร้อม กรุณาลองใหม่": "Service temporarily unavailable. Please try again.",
-  "ทำรายการถี่เกินไป กรุณารอ 1 นาที": "Too many requests. Please wait one minute.",
-  "กรุณาเข้าสู่ระบบเจ้าหน้าที่": "Staff login required.",
-  "กรุณาเข้าสู่ระบบ": "Please log in.",
-  "ไม่มีสิทธิ์เข้าถึงข้อมูลผู้ดูแลระบบ": "You do not have access to this page.",
-  "กรุณาเข้าสู่ระบบก่อนซื้อบัตร": "Please log in before buying tickets.",
+  ไม่พบรายการ: "Booking not found.",
+  "ข้อมูลไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง":
+    "Please check the information and try again.",
+  "ระบบจำกัดการใช้งานไม่พร้อม กรุณาลองใหม่":
+    "Service temporarily unavailable. Please try again.",
+  "ทำรายการถี่เกินไป กรุณารอ 1 นาที":
+    "Too many requests. Please wait one minute.",
+  กรุณาเข้าสู่ระบบเจ้าหน้าที่: "Staff login required.",
+  กรุณาเข้าสู่ระบบ: "Please log in.",
+  ไม่มีสิทธิ์เข้าถึงข้อมูลผู้ดูแลระบบ: "You do not have access to this page.",
+  กรุณาเข้าสู่ระบบก่อนซื้อบัตร: "Please log in before buying tickets.",
   "ระบบส่งอีเมล OTP ยังไม่ได้ตั้งค่า": "Email verification is not configured.",
-  "กรุณายอมรับเงื่อนไขการจองและการชำระเงิน": "Please accept the booking and payment terms.",
-  "ส่งอีเมล OTP ไม่สำเร็จ กรุณาลองอีกครั้ง": "Unable to send the verification email. Please try again.",
-  "กรุณารอ 60 วินาทีก่อนขอ OTP อีกครั้ง": "Please wait 60 seconds before requesting another code.",
+  กรุณายอมรับเงื่อนไขการจองและการชำระเงิน:
+    "Please accept the booking and payment terms.",
+  "ส่งอีเมล OTP ไม่สำเร็จ กรุณาลองอีกครั้ง":
+    "Unable to send the verification email. Please try again.",
+  "กรุณารอ 60 วินาทีก่อนขอ OTP อีกครั้ง":
+    "Please wait 60 seconds before requesting another code.",
   "รหัส OTP หมดอายุหรือไม่ถูกต้อง": "The OTP is invalid or has expired.",
-  "สิทธิ์ตั้งรหัสผ่านหมดอายุ กรุณาขอ OTP ใหม่": "Your password reset session has expired. Please request a new code.",
+  "สิทธิ์ตั้งรหัสผ่านหมดอายุ กรุณาขอ OTP ใหม่":
+    "Your password reset session has expired. Please request a new code.",
   "Google Sign-In ยังไม่ได้ตั้งค่า": "Google Sign-In is not configured.",
-  "รหัสผ่านไม่ถูกต้อง": "Incorrect password.",
-  "อีเมลนี้สมัครสมาชิกแล้ว": "This email is already registered.",
-  "อีเมลหรือรหัสผ่านไม่ถูกต้อง": "Incorrect email or password.",
-  "รายการเปลี่ยนแปลงหรือโควตาไม่เพียงพอ": "Availability has changed or there are not enough tickets.",
-  "บัตรนี้เช็กอินแล้ว": "This ticket has already been checked in.",
+  รหัสผ่านไม่ถูกต้อง: "Incorrect password.",
+  อีเมลนี้สมัครสมาชิกแล้ว: "This email is already registered.",
+  อีเมลหรือรหัสผ่านไม่ถูกต้อง: "Incorrect email or password.",
+  รายการเปลี่ยนแปลงหรือโควตาไม่เพียงพอ:
+    "Availability has changed or there are not enough tickets.",
+  บัตรนี้เช็กอินแล้ว: "This ticket has already been checked in.",
 };
 export async function api<T>(
   path: string,
@@ -146,9 +171,12 @@ export async function api<T>(
     } catch {
       /* preserve recoverable message */
     }
-    if (message === "รายการเปลี่ยนแปลงหรือโควตาไม่เพียงพอ: บัตรนี้เช็กอินแล้ว") message = "บัตรนี้เช็กอินแล้ว";
+    if (message === "รายการเปลี่ยนแปลงหรือโควตาไม่เพียงพอ: บัตรนี้เช็กอินแล้ว")
+      message = "บัตรนี้เช็กอินแล้ว";
     if (localStorage.getItem("riverlife.language") === "en") {
-      message = englishApiMessages[message] || (/[ก-๙]/.test(message) ? "Request failed. Please try again." : message);
+      message =
+        englishApiMessages[message] ||
+        (/[ก-๙]/.test(message) ? "Request failed. Please try again." : message);
     }
     throw new Error(message);
   }

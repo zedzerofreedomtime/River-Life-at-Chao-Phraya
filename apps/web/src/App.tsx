@@ -18,7 +18,10 @@ import Auth, { type AuthUser } from "./components/shared/Auth";
 import AdminDashboard from "./components/page/AdminDashboard";
 import SalesDashboard from "./components/page/SalesDashboard";
 import OperatorDashboard from "./components/page/OperatorDashboard";
-import { CruiseProgrammeContext, defaultProgramme } from "./components/shared/CruiseProgramme";
+import {
+  CruiseProgrammeContext,
+  defaultProgramme,
+} from "./components/shared/CruiseProgramme";
 import type { Language } from "./data/i18n";
 import { api, formatPier, type Booking, type EventInfo } from "./data/api";
 import Help from "./components/page/Help";
@@ -206,13 +209,18 @@ export default function App() {
       />
 
       <main className={`app-main page-${page}`}>
-        {(page === "tablePreview" || page === "checkout") && <TablePreview
-          language={language}
-          isAuthenticated={isAuthenticated}
-          onRequireLogin={openAuthDialog}
-          onBooked={(data, accessToken) => { rememberBooking(data, accessToken); go("payment"); }}
-          onBack={() => go("event")}
-        />}
+        {(page === "tablePreview" || page === "checkout") && (
+          <TablePreview
+            language={language}
+            isAuthenticated={isAuthenticated}
+            onRequireLogin={openAuthDialog}
+            onBooked={(data, accessToken) => {
+              rememberBooking(data, accessToken);
+              go("payment");
+            }}
+            onBack={() => go("event")}
+          />
+        )}
         {error && (
           <Alert
             severity="error"
@@ -287,24 +295,28 @@ export default function App() {
         )}
         {page === "tickets" && (
           <CruiseProgrammeContext.Provider value={event ?? defaultProgramme}>
-          <TicketWallet
-            onOpenHelp={() => goHelp("tickets")}
-            key={isAuthenticated ? "account" : "guest"}
-            onOpenOrders={() => go("orders")}
-            initial={booking}
-            initialToken={token}
-            language={language}
-            demo={event?.demo ?? false}
-            boardingPier={
-              event ? formatPier(event.pier, event.pier_number, language) : ""
-            }
-          />
+            <TicketWallet
+              onOpenHelp={() => goHelp("tickets")}
+              key={isAuthenticated ? "account" : "guest"}
+              onOpenOrders={() => go("orders")}
+              initial={booking}
+              initialToken={token}
+              language={language}
+              demo={event?.demo ?? false}
+              boardingPier={
+                event ? formatPier(event.pier, event.pier_number, language) : ""
+              }
+            />
           </CruiseProgrammeContext.Provider>
         )}
         {page === "dashboard" &&
           isAuthenticated &&
           profile.role === "admin" && (
-            <AdminDashboard language={language} currentEmail={profile.email} onSettingsUpdated={() => void loadEvent()} />
+            <AdminDashboard
+              language={language}
+              currentEmail={profile.email}
+              onSettingsUpdated={() => void loadEvent()}
+            />
           )}
         {page === "sales" &&
           isAuthenticated &&
@@ -394,9 +406,7 @@ export default function App() {
             setAuthDialogOpen(false);
             const destination =
               staffHome(user.role ?? "user") ??
-              (page === "auth"
-                  ? "home"
-                  : page);
+              (page === "auth" ? "home" : page);
             go(destination);
           }}
         />

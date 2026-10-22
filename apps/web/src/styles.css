@@ -10,13 +10,14 @@
   --customer-gold: var(--rl-gold); /* Refined luxury gold */
   --customer-border: rgba(255, 255, 255, 0.08); /* Minimalist border */
   --customer-radius: 12px;
-  --heading-font: "DM Sans", "DM Sans", "Kanit", sans-serif; /* No more serifs */
+  --heading-font:
+    "DM Sans", "DM Sans", "Kanit", sans-serif; /* No more serifs */
   --page-title-size: clamp(30px, 3vw, 40px);
   --section-title-size: clamp(26px, 2.3vw, 32px);
 }
-html:lang(en) { 
+html:lang(en) {
   font-family: "DM Sans", Arial, sans-serif;
-  --heading-font: "DM Sans", sans-serif; 
+  --heading-font: "DM Sans", sans-serif;
 }
 
 .help-page {
@@ -28,14 +29,16 @@ html:lang(en) {
   color: #a67a2f;
   font-size: 13px;
   font-weight: 700;
-  letter-spacing: .12em;
+  letter-spacing: 0.12em;
 }
 .help-page h1 {
   font-family: var(--heading-font);
   font-size: var(--section-title-size);
   margin: 12px 0 20px;
 }
-.help-page h1 { font-size: var(--page-title-size); }
+.help-page h1 {
+  font-size: var(--page-title-size);
+}
 .help-topic-nav {
   display: flex;
   flex-wrap: wrap;
@@ -62,8 +65,12 @@ html:lang(en) {
   background: #fff;
   line-height: 1.8;
 }
-.help-article p:first-child { margin-top: 0; }
-.help-article p:last-child { margin-bottom: 0; }
+.help-article p:first-child {
+  margin-top: 0;
+}
+.help-article p:last-child {
+  margin-bottom: 0;
+}
 
 /* Customer profile menu */
 .profile-menu {
@@ -726,8 +733,8 @@ body {
     padding: 0;
   }
   .wallet-heading h1,
-.orders-heading h1,
-.checkout-heading h1 {
+  .orders-heading h1,
+  .checkout-heading h1 {
     font-size: 32px;
   }
   .access-panel {
@@ -3165,7 +3172,9 @@ td small {
     background: rgba(255, 255, 255, 0.06);
     color: var(--rl-gold);
     cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
+    transition:
+      background 0.2s,
+      border-color 0.2s;
   }
   .mobile-nav-toggle:hover {
     background: rgb(var(--rl-gold-rgb) / 0.15);
@@ -3285,7 +3294,10 @@ td small {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
 }
-.dining-gallery figure { margin: 0; min-width: 0; }
+.dining-gallery figure {
+  margin: 0;
+  min-width: 0;
+}
 .dining-gallery img {
   display: block;
   width: 100%;
@@ -3300,15 +3312,27 @@ td small {
   font-size: 15px;
   font-weight: 600;
 }
-#event-food-menu { scroll-margin-top: 100px; }
-.event-food-menu .dining-gallery { margin-bottom: 36px; }
+#event-food-menu {
+  scroll-margin-top: 100px;
+}
+.event-food-menu .dining-gallery {
+  margin-bottom: 36px;
+}
 @media (max-width: 800px) {
-  .dining-gallery { grid-template-columns: 1fr; gap: 28px; }
-  .dining-gallery img { aspect-ratio: 4 / 3; object-position: center 65%; }
+  .dining-gallery {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .dining-gallery img {
+    aspect-ratio: 4 / 3;
+    object-position: center 65%;
+  }
 }
 
 /* Ticket-first homepage. Keep these scoped overrides after older page styles. */
-#event-boarding { scroll-margin-top: 120px; }
+#event-boarding {
+  scroll-margin-top: 120px;
+}
 .payment-qr-placeholder {
   display: grid;
   width: min(100%, 220px);
@@ -3323,11 +3347,11 @@ td small {
   text-align: center;
 }
 
-
 /* ==========================================================================
    DARK LUXURY THEME OVERRIDES 
    ========================================================================== */
-body, .app-main {
+body,
+.app-main {
   background-color: var(--rl-bg) !important;
   color: var(--rl-text) !important;
 }
@@ -3356,9 +3380,9 @@ div {
 }
 
 /* Header & Footer */
-header, footer {
-  background-color: rgba(16, 43, 82, 0.2
-  ) !important;
+header,
+footer {
+  background-color: rgba(16, 43, 82, 0.2) !important;
   background-image: none !important;
   backdrop-filter: blur(24px) !important;
   -webkit-backdrop-filter: blur(8px) !important;
@@ -3367,7 +3391,8 @@ header, footer {
 }
 
 /* Dialogs */
-.MuiPaper-root, .auth-dialog,
+.MuiPaper-root,
+.auth-dialog,
 .profile-popover,
 .MuiPaper-root {
   background-color: var(--rl-surface) !important;
@@ -3401,20 +3426,26 @@ button:hover {
 }
 
 /* Overriding specific Tailwind light backgrounds */
-.bg-white, .bg-gray-50, .bg-gray-100 {
+.bg-white,
+.bg-gray-50,
+.bg-gray-100 {
   background-color: var(--rl-surface) !important;
   color: var(--rl-text) !important;
 }
 
-.text-gray-900, .text-gray-800, .text-black {
+.text-gray-900,
+.text-gray-800,
+.text-black {
   color: var(--rl-text) !important;
 }
 
-.text-gray-500, .text-gray-600 {
+.text-gray-500,
+.text-gray-600 {
   color: #a0aec0 !important;
 }
 
-.border-gray-200, .border-gray-300 {
+.border-gray-200,
+.border-gray-300 {
   border-color: rgb(var(--rl-gold-rgb) / 0.2) !important;
 }
 
@@ -3507,14 +3538,22 @@ button:hover {
 }
 
 .page-event .event-buy-button {
-  background: linear-gradient(135deg, var(--rl-gold), var(--rl-gold)) !important;
+  background: linear-gradient(
+    135deg,
+    var(--rl-gold),
+    var(--rl-gold)
+  ) !important;
   color: var(--rl-bg) !important;
   font-weight: 700 !important;
   box-shadow: 0 4px 20px rgb(var(--rl-gold-rgb) / 0.35) !important;
 }
 
 .page-event .event-buy-button:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--rl-gold), var(--rl-gold)) !important;
+  background: linear-gradient(
+    135deg,
+    var(--rl-gold),
+    var(--rl-gold)
+  ) !important;
   transform: translateY(-2px) !important;
   box-shadow: 0 8px 25px rgb(var(--rl-gold-rgb) / 0.5) !important;
 }
@@ -3633,7 +3672,9 @@ button:hover {
   border-radius: 16px !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
   color: var(--rl-text) !important;
-  transition: transform 0.2s ease, border-color 0.2s ease !important;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease !important;
   overflow: hidden !important;
 }
 
@@ -3652,7 +3693,8 @@ button:hover {
 
 /* Minor text & borders inside cards */
 
-.success-card dl div, .payment-summary-card dl div {
+.success-card dl div,
+.payment-summary-card dl div {
   border-color: rgb(var(--rl-gold-rgb) / 0.1) !important;
 }
 
@@ -3711,8 +3753,10 @@ button[type="submit"]:hover,
 }
 
 /* Except buttons and their children should keep button contrast */
-button, button *,
-.MuiButton-root, .MuiButton-root * {
+button,
+button *,
+.MuiButton-root,
+.MuiButton-root * {
   color: inherit !important;
 }
 button[type="submit"],
@@ -3745,7 +3789,23 @@ button[type="submit"],
 }
 
 /* Force font-medium (500) globally */
-body, .app-main, .app-main *, h1, h2, h3, h4, h5, h6, p, span, div, a, button, li, dt, dd {
+body,
+.app-main,
+.app-main *,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+div,
+a,
+button,
+li,
+dt,
+dd {
   font-weight: 500 !important;
 }
 
@@ -3834,7 +3894,12 @@ td,
 }
 
 /* Keep headings and titles prominent (Gold/White) */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: #ffffff !important;
 }
 .payment-summary-card h2,
@@ -3953,7 +4018,9 @@ button *,
 }
 
 /* Global fix for form elements text color in dark mode */
-input, select, textarea,
+input,
+select,
+textarea,
 .culture-year select {
   color: var(--rl-text) !important;
   background-color: transparent;
@@ -4233,7 +4300,7 @@ video {
 
   /* Gallery, Cards, and Media Scaling */
   .dining-gallery img,
-.onboard-experience-card img {
+  .onboard-experience-card img {
     border-radius: 8px !important;
   }
 
@@ -4450,9 +4517,10 @@ video {
 .order-action button {
   position: relative;
   overflow: hidden;
-  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
-              box-shadow 0.28s ease,
-              background-color 0.28s ease;
+  transition:
+    transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.28s ease,
+    background-color 0.28s ease;
 }
 
 .culture-home .culture-button::after,
@@ -4490,9 +4558,10 @@ video {
 .culture-sight-card,
 .onboard-experience-card,
 .dining-gallery figure {
-  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.45s ease,
-              border-color 0.35s ease;
+  transition:
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.45s ease,
+    border-color 0.35s ease;
   will-change: transform;
 }
 
@@ -4500,8 +4569,9 @@ video {
 .onboard-experience-card:hover,
 .dining-gallery figure:hover {
   transform: translateY(-6px) scale(1.012);
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7),
-              0 0 24px rgb(var(--rl-gold-rgb) / 0.15) !important;
+  box-shadow:
+    0 20px 40px -10px rgba(0, 0, 0, 0.7),
+    0 0 24px rgb(var(--rl-gold-rgb) / 0.15) !important;
   border-color: rgb(var(--rl-gold-rgb) / 0.45) !important;
 }
 
@@ -4520,7 +4590,8 @@ video {
 
 /* 5. Gold Badge Breathing Glow */
 @keyframes badgeGlowPulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgb(var(--rl-gold-rgb) / 0.4);
   }
   50% {
@@ -4536,8 +4607,9 @@ video {
 .scroll-reveal {
   opacity: 0;
   transform: translateY(28px);
-  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
 
@@ -4547,10 +4619,18 @@ video {
 }
 
 /* Stagger delay for list items in booking & facts */
-.culture-booking ol li.scroll-reveal:nth-child(1) { transition-delay: 0.05s; }
-.culture-booking ol li.scroll-reveal:nth-child(2) { transition-delay: 0.15s; }
-.culture-booking ol li.scroll-reveal:nth-child(3) { transition-delay: 0.25s; }
-.culture-booking ol li.scroll-reveal:nth-child(4) { transition-delay: 0.35s; }
+.culture-booking ol li.scroll-reveal:nth-child(1) {
+  transition-delay: 0.05s;
+}
+.culture-booking ol li.scroll-reveal:nth-child(2) {
+  transition-delay: 0.15s;
+}
+.culture-booking ol li.scroll-reveal:nth-child(3) {
+  transition-delay: 0.25s;
+}
+.culture-booking ol li.scroll-reveal:nth-child(4) {
+  transition-delay: 0.35s;
+}
 
 /* 7. Mobile Menu Dropdown Entrance Animation */
 @keyframes luxuryMenuSlideDown {
@@ -4585,9 +4665,9 @@ video {
     transition: none !important;
   }
   .culture-sight-card:hover,
-.onboard-experience-card:hover,
-.dining-gallery figure:hover,
-.culture-button:hover {
+  .onboard-experience-card:hover,
+  .dining-gallery figure:hover,
+  .culture-button:hover {
     transform: none !important;
   }
 }
@@ -4656,7 +4736,11 @@ video {
 }
 
 .success-actions .MuiButton-contained {
-  background: linear-gradient(135deg, var(--rl-gold), var(--rl-gold)) !important;
+  background: linear-gradient(
+    135deg,
+    var(--rl-gold),
+    var(--rl-gold)
+  ) !important;
   color: var(--rl-bg) !important;
   font-weight: 700 !important;
   border: 0 !important;
@@ -4664,7 +4748,11 @@ video {
 }
 
 .success-actions .MuiButton-contained:hover {
-  background: linear-gradient(135deg, var(--rl-gold), var(--rl-gold)) !important;
+  background: linear-gradient(
+    135deg,
+    var(--rl-gold),
+    var(--rl-gold)
+  ) !important;
   box-shadow: 0 6px 24px rgb(var(--rl-gold-rgb) / 0.5) !important;
 }
 
@@ -4811,7 +4899,11 @@ video {
 
 .show-qr,
 .wallet-ticket.selected .show-qr {
-  background: linear-gradient(135deg, var(--rl-gold), var(--rl-gold)) !important;
+  background: linear-gradient(
+    135deg,
+    var(--rl-gold),
+    var(--rl-gold)
+  ) !important;
   color: var(--rl-bg) !important;
   font-weight: 700 !important;
   border: 0 !important;
@@ -4825,7 +4917,11 @@ video {
 }
 
 .access-panel .MuiButton-contained {
-  background: linear-gradient(135deg, var(--rl-gold), var(--rl-gold)) !important;
+  background: linear-gradient(
+    135deg,
+    var(--rl-gold),
+    var(--rl-gold)
+  ) !important;
   color: var(--rl-bg) !important;
   font-weight: 700 !important;
 }
@@ -5111,17 +5207,39 @@ video {
   border-color: var(--rl-gold) !important;
 }
 
-
-
 /* Purchase essentials remain next to the booking action on every viewport. */
-.booking-before-you-book { margin: 1rem 0; padding: 1rem; border: 1px solid rgb(var(--rl-gold-rgb) / .35); border-radius: 12px; }
-.booking-before-you-book h2 { font-size: 1.05rem; margin: 0 0 .6rem; }
-.booking-before-you-book p { font-size: .9rem; line-height: 1.7; margin: .5rem 0; overflow-wrap: anywhere; }
+.booking-before-you-book {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid rgb(var(--rl-gold-rgb) / 0.35);
+  border-radius: 12px;
+}
+.booking-before-you-book h2 {
+  font-size: 1.05rem;
+  margin: 0 0 0.6rem;
+}
+.booking-before-you-book p {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  margin: 0.5rem 0;
+  overflow-wrap: anywhere;
+}
 
 /* Let narrow checkout grid tracks shrink without pushing the page sideways. */
-.checkout-page .booking-layout > * { min-width: 0; }
-.checkout-page .booking-panel { width: 100%; box-sizing: border-box; overflow-wrap: anywhere; }
+.checkout-page .booking-layout > * {
+  min-width: 0;
+}
+.checkout-page .booking-panel {
+  width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+}
 @media (max-width: 600px) {
-  .checkout-page .booking-layout { grid-template-columns: minmax(0, 1fr); }
-  .checkout-page .quantity-row { flex-wrap: wrap; gap: 12px; }
+  .checkout-page .booking-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .checkout-page .quantity-row {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
 }

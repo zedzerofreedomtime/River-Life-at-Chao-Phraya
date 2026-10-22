@@ -29,7 +29,7 @@ export function PreviewTableButton({
       style={map ? { left: `${table.x}%`, top: `${table.y}%` } : undefined}
       disabled={table.status !== "available"}
       aria-pressed={selected}
-      title={`${en ? "Table" : "โต๊ะ"} ${table.id} · ${table.deck === "upper" ? en ? "Upper deck" : "ชั้นบน" : en ? "Lower deck" : "ชั้นล่าง"} · ${table.seats} ${en ? "guests" : "คน"} · ${previewStatus[state][language]}`}
+      title={`${en ? "Table" : "โต๊ะ"} ${table.id} · ${table.deck === "upper" ? (en ? "Upper deck" : "ชั้นบน") : en ? "Lower deck" : "ชั้นล่าง"} · ${table.seats} ${en ? "guests" : "คน"} · ${previewStatus[state][language]}`}
       aria-label={`${en ? "Table" : "โต๊ะ"} ${table.id}, ${table.seats} ${en ? "guests" : "คน"}, ${table.kind === "banquet" ? (en ? "long-table section (demo), " : "ช่วงโต๊ะยาว (ตัวอย่าง), ") : ""}${previewStatus[state][language]}`}
       onClick={() => onSelect(table.id)}
     >

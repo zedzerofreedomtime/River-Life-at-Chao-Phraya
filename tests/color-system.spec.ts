@@ -13,17 +13,31 @@ const routes = [
   "/auth",
   "/payment",
 ];
-test("login errors stay red instead of becoming a brand-gold message", async ({page}) => {
-  await page.route('**/auth/login', route => route.fulfill({status:401,contentType:'application/json',body:JSON.stringify({error:'Color QA: invalid credentials'})}));
-  await page.goto('/auth');
-  const dialog=page.getByRole('dialog');
-  await dialog.getByRole('textbox',{name:'อีเมล',exact:true}).fill('color-qa@example.invalid');
-  await dialog.getByRole('textbox',{name:'รหัสผ่าน',exact:true}).fill('not-a-real-password');
-  await dialog.getByRole('button',{name:'เข้าสู่ระบบ',exact:true}).click();
-  const error=dialog.locator('.MuiAlert-standardError');
+test("login errors stay red instead of becoming a brand-gold message", async ({
+  page,
+}) => {
+  await page.route("**/auth/login", (route) =>
+    route.fulfill({
+      status: 401,
+      contentType: "application/json",
+      body: JSON.stringify({ error: "Color QA: invalid credentials" }),
+    }),
+  );
+  await page.goto("/auth");
+  const dialog = page.getByRole("dialog");
+  await dialog
+    .getByRole("textbox", { name: "อีเมล", exact: true })
+    .fill("color-qa@example.invalid");
+  await dialog
+    .getByRole("textbox", { name: "รหัสผ่าน", exact: true })
+    .fill("not-a-real-password");
+  await dialog
+    .getByRole("button", { name: "เข้าสู่ระบบ", exact: true })
+    .click();
+  const error = dialog.locator(".MuiAlert-standardError");
   await expect(error).toBeVisible();
-  await expect(error).toHaveCSS('background-color','rgb(51, 31, 37)');
-  await expect(error).toHaveCSS('color','rgb(255, 218, 214)');
+  await expect(error).toHaveCSS("background-color", "rgb(51, 31, 37)");
+  await expect(error).toHaveCSS("color", "rgb(255, 218, 214)");
 });
 for (const width of [320, 390, 768, 1024, 1440]) {
   test(`shared palette and responsive navigation at ${width}px`, async ({

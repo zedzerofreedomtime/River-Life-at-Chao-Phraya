@@ -17,7 +17,14 @@ export const pagePaths = {
 } as const;
 
 export type Page = keyof typeof pagePaths;
-export const staffHome = (role: string): Page | null => role === "admin" ? "dashboard" : role === "sales" ? "sales" : role === "operator" ? "operator" : null;
+export const staffHome = (role: string): Page | null =>
+  role === "admin"
+    ? "dashboard"
+    : role === "sales"
+      ? "sales"
+      : role === "operator"
+        ? "operator"
+        : null;
 export type NavigationMenu = "events" | "help" | null;
 
 const pathPages = new Map<string, Page>(

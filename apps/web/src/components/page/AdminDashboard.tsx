@@ -281,7 +281,10 @@ export default function AdminDashboard({
             language={language}
             zones={data.zones}
             currentEmail={currentEmail}
-            onUpdated={() => { void load(); onSettingsUpdated(); }}
+            onUpdated={() => {
+              void load();
+              onSettingsUpdated();
+            }}
           />
         </>
       ) : null}

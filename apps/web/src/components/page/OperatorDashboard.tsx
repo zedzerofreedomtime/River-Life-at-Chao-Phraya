@@ -118,90 +118,94 @@ export default function OperatorDashboard({
         />
       </div>
       <div className="operator-workbench">
-      <section className="staff-panel operator-scanner">
-        <h2>{en ? "Scan a ticket" : "สแกนบัตรผู้โดยสาร"}</h2>
-        <TicketScanner
-          language={language}
-          busy={busy}
-          onScan={(code) => void check(code)}
-        />
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            void check(ticket);
-          }}
-        >
-          <label>
-            {en ? "Ticket QR code" : "รหัส QR บัตร"}
-            <input
-              value={ticket}
-              onChange={(e) => setTicket(e.target.value)}
-              autoComplete="off"
-              spellCheck={false}
-              maxLength={200}
-              placeholder={
-                en
-                  ? "Paste or scan the ticket code"
-                  : "กรอก วาง หรือใช้เครื่องสแกนรหัสบัตร"
-              }
-            />
-          </label>
-          <button type="submit" disabled={busy || !ticket.trim()}>
-            {busy
-              ? en
-                ? "Checking…"
-                : "กำลังตรวจสอบ…"
-              : en
-                ? "Confirm check-in"
-                : "ยืนยันเช็กอิน"}
-          </button>
-        </form>
-      </section>
-      <section className="staff-panel operator-passengers">
-        <h2>{en ? "Passenger list" : "รายชื่อผู้โดยสาร"}</h2>
-        <div className="staff-filter-row">
-          <label>
-            {en ? "Search passengers" : "ค้นหาผู้โดยสาร"}
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={
-                en ? "Name, booking ID or zone" : "ชื่อ รหัสการจอง หรือโซน"
-              }
-            />
-          </label>
-          <label>
-            {en ? "Boarding status" : "สถานะขึ้นเรือ"}
-            <select aria-label={en ? "Boarding status" : "สถานะขึ้นเรือ"} value={filter} onChange={(e) => setFilter(e.target.value)}>
-              <option value="">{en ? "All" : "ทั้งหมด"}</option>
-              <option value="waiting">{en ? "Waiting" : "ยังไม่ครบ"}</option>
-              <option value="complete">
-                {en ? "All checked in" : "เช็กอินครบ"}
-              </option>
-            </select>
-          </label>
-        </div>
-        <p role="status">
-          {rows.length} {en ? "matching bookings" : "รายการที่ตรงกัน"}
-        </p>
-        <div className="staff-passenger-list">
-          {rows.map((p) => (
-            <article className="staff-booking-row" key={p.id}>
-              <div>
-                <strong>{p.name}</strong>
-                <code>#{p.id}</code>
-              </div>
-              <span>
-                {en ? "Zone" : "โซน"} {p.zone_id}
-              </span>
-              <strong>
-                {p.checked_in} / {p.quantity} {en ? "checked in" : "เช็กอิน"}
-              </strong>
-            </article>
-          ))}
-        </div>
-      </section>
+        <section className="staff-panel operator-scanner">
+          <h2>{en ? "Scan a ticket" : "สแกนบัตรผู้โดยสาร"}</h2>
+          <TicketScanner
+            language={language}
+            busy={busy}
+            onScan={(code) => void check(code)}
+          />
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              void check(ticket);
+            }}
+          >
+            <label>
+              {en ? "Ticket QR code" : "รหัส QR บัตร"}
+              <input
+                value={ticket}
+                onChange={(e) => setTicket(e.target.value)}
+                autoComplete="off"
+                spellCheck={false}
+                maxLength={200}
+                placeholder={
+                  en
+                    ? "Paste or scan the ticket code"
+                    : "กรอก วาง หรือใช้เครื่องสแกนรหัสบัตร"
+                }
+              />
+            </label>
+            <button type="submit" disabled={busy || !ticket.trim()}>
+              {busy
+                ? en
+                  ? "Checking…"
+                  : "กำลังตรวจสอบ…"
+                : en
+                  ? "Confirm check-in"
+                  : "ยืนยันเช็กอิน"}
+            </button>
+          </form>
+        </section>
+        <section className="staff-panel operator-passengers">
+          <h2>{en ? "Passenger list" : "รายชื่อผู้โดยสาร"}</h2>
+          <div className="staff-filter-row">
+            <label>
+              {en ? "Search passengers" : "ค้นหาผู้โดยสาร"}
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={
+                  en ? "Name, booking ID or zone" : "ชื่อ รหัสการจอง หรือโซน"
+                }
+              />
+            </label>
+            <label>
+              {en ? "Boarding status" : "สถานะขึ้นเรือ"}
+              <select
+                aria-label={en ? "Boarding status" : "สถานะขึ้นเรือ"}
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+              >
+                <option value="">{en ? "All" : "ทั้งหมด"}</option>
+                <option value="waiting">{en ? "Waiting" : "ยังไม่ครบ"}</option>
+                <option value="complete">
+                  {en ? "All checked in" : "เช็กอินครบ"}
+                </option>
+              </select>
+            </label>
+          </div>
+          <p role="status">
+            {rows.length} {en ? "matching bookings" : "รายการที่ตรงกัน"}
+          </p>
+          <div className="staff-passenger-list">
+            {rows.map((p) => (
+              <article className="staff-booking-row" key={p.id}>
+                <div>
+                  <strong>{p.name}</strong>
+                  <code>#{p.id}</code>
+                </div>
+                <span>
+                  {en ? "Zone" : "โซน"} {p.zone_id}
+                </span>
+                <strong>
+                  {p.checked_in} / {p.quantity} {en ? "checked in" : "เช็กอิน"}
+                </strong>
+              </article>
+            ))}
+          </div>
+        </section>
       </div>
     </section>
   );

@@ -9,7 +9,9 @@ export const helpTopics = [
 ] as const;
 export type HelpTopic = (typeof helpTopics)[number];
 // Keep existing routes intact while only publishing confirmed contact details.
-export const visibleHelpTopics = ["contact"] as const satisfies readonly HelpTopic[];
+export const visibleHelpTopics = [
+  "contact",
+] as const satisfies readonly HelpTopic[];
 
 const titles: Record<HelpTopic, readonly [string, string]> = {
   contact: ["ติดต่อเรา", "Contact us"],

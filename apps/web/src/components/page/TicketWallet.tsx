@@ -221,7 +221,7 @@ export default function TicketWallet({
           <ChevronRight aria-hidden="true" size={23} />
         </button>
       </aside>
-      <main className="wallet-main">
+      <div className="wallet-main">
         <div className="wallet-title">
           <h1>{tr("บัตรของฉัน", "My tickets")}</h1>
           <Button onClick={() => void load()} disabled={busy}>
@@ -364,7 +364,13 @@ export default function TicketWallet({
                         {tr("บัตรที่", "Ticket")} {index + 1} {tr("จาก", "of")}{" "}
                         {tickets.length}
                       </small>
-                      <strong>{ticket.table_id ? `${tr("โต๊ะ", "Table")} ${ticket.table_id}` : booking.table_ids?.length ? bookingItemLabel(booking, language) : zoneName(booking.zone_id, language)}</strong>
+                      <strong>
+                        {ticket.table_id
+                          ? `${tr("โต๊ะ", "Table")} ${ticket.table_id}`
+                          : booking.table_ids?.length
+                            ? bookingItemLabel(booking, language)
+                            : zoneName(booking.zone_id, language)}
+                      </strong>
                       <em>
                         {concertTitle}
                         <br />
@@ -447,7 +453,7 @@ export default function TicketWallet({
             )}
           </>
         )}
-      </main>
+      </div>
     </section>
   );
 }
@@ -488,7 +494,13 @@ function QrDialog({
         <span>
           {tr("บัตรที่", "Ticket")} {index + 1} {tr("จาก", "of")} {count}
         </span>
-        <h2>{booking.tickets[index]?.table_id ? `${tr("โต๊ะ", "Table")} ${booking.tickets[index].table_id}` : booking.table_ids?.length ? bookingItemLabel(booking, language) : zoneName(booking.zone_id, language)}</h2>
+        <h2>
+          {booking.tickets[index]?.table_id
+            ? `${tr("โต๊ะ", "Table")} ${booking.tickets[index].table_id}`
+            : booking.table_ids?.length
+              ? bookingItemLabel(booking, language)
+              : zoneName(booking.zone_id, language)}
+        </h2>
         <p>
           {concertTitle} · {boardingPier} · {programme.departure}
         </p>
@@ -637,7 +649,13 @@ function TicketPreview({
           ? tr("เช็กอินแล้ว", "Checked in")
           : tr("ใช้งานได้", "Available")}
       </span>
-      <h2>{booking.tickets[index]?.table_id ? `${tr("โต๊ะ", "Table")} ${booking.tickets[index].table_id}` : booking.table_ids?.length ? bookingItemLabel(booking, language) : zoneName(booking.zone_id, language)}</h2>
+      <h2>
+        {booking.tickets[index]?.table_id
+          ? `${tr("โต๊ะ", "Table")} ${booking.tickets[index].table_id}`
+          : booking.table_ids?.length
+            ? bookingItemLabel(booking, language)
+            : zoneName(booking.zone_id, language)}
+      </h2>
       <p>
         {concertTitle}
         <br />

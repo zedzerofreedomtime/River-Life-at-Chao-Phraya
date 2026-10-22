@@ -1,14 +1,22 @@
 import { ArrowRight } from "lucide-react";
 import type { Language } from "../../data/i18n";
 
-export default function CultureVip({ language, onOpenContact }: { language: Language; onOpenContact: () => void }) {
+export default function CultureVip({
+  language,
+  onOpenContact,
+}: {
+  language: Language;
+  onOpenContact: () => void;
+}) {
   const en = language === "en";
   return (
     <section className="culture-vip" aria-labelledby="culture-vip-title">
       <div className="culture-container">
         <div>
           <h2 id="culture-vip-title">
-            {en ? "Planning a group concert cruise?" : "วางแผนล่องเรือชมคอนเสิร์ตเป็นกลุ่ม?"}
+            {en
+              ? "Planning a group concert cruise?"
+              : "วางแผนล่องเรือชมคอนเสิร์ตเป็นกลุ่ม?"}
           </h2>
           <p>
             {en

@@ -2,7 +2,13 @@ import { useEffect, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import { api, statusLabel, money, bookingItemLabel, type Booking } from "../../data/api";
+import {
+  api,
+  statusLabel,
+  money,
+  bookingItemLabel,
+  type Booking,
+} from "../../data/api";
 import type { Language } from "../../data/i18n";
 
 export default function MyBooking({
@@ -220,17 +226,27 @@ export default function MyBooking({
             {tr("ผู้สั่งซื้อ", "Customer")}: {booking.name} · {booking.email}
           </p>
           <Alert severity="info">
-            {isAuthenticated ? tr("รายการที่จองด้วยบัญชีนี้เปิดจากเครื่องอื่นได้โดยเข้าสู่ระบบ แล้วไปที่คำสั่งซื้อของฉัน ส่วนรายการเก่ายังใช้รหัสส่วนตัวเดิม", "Open account bookings on another device by logging in and visiting My bookings. Older bookings still use their original private code.") : tr(
-              "เก็บรหัสการจองและรหัสเข้าถึงนี้ไว้เพื่อเปิดบัตรจากเครื่องอื่น",
-              "Keep your booking ID and access code to open tickets on another device.",
-            )}
+            {isAuthenticated
+              ? tr(
+                  "รายการที่จองด้วยบัญชีนี้เปิดจากเครื่องอื่นได้โดยเข้าสู่ระบบ แล้วไปที่คำสั่งซื้อของฉัน ส่วนรายการเก่ายังใช้รหัสส่วนตัวเดิม",
+                  "Open account bookings on another device by logging in and visiting My bookings. Older bookings still use their original private code.",
+                )
+              : tr(
+                  "เก็บรหัสการจองและรหัสเข้าถึงนี้ไว้เพื่อเปิดบัตรจากเครื่องอื่น",
+                  "Keep your booking ID and access code to open tickets on another device.",
+                )}
           </Alert>
-          {!isAuthenticated && <details className="access-code">
-            <summary>
-              {tr("แสดงรหัสเข้าถึงสำหรับเก็บรักษา", "Show access code to save")}
-            </summary>
-            <code className="break-all">{token}</code>
-          </details>}
+          {!isAuthenticated && (
+            <details className="access-code">
+              <summary>
+                {tr(
+                  "แสดงรหัสเข้าถึงสำหรับเก็บรักษา",
+                  "Show access code to save",
+                )}
+              </summary>
+              <code className="break-all">{token}</code>
+            </details>
+          )}
           {booking.status === "held" && (
             <section
               className="order-action"

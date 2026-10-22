@@ -83,7 +83,7 @@
 .vessel-booking .vessel-deck-choice[aria-pressed="true"] {
   border-color: var(--vessel-gold);
   background: #29271f;
-  box-shadow: inset 0 0 0 1px rgb(var(--rl-gold-rgb) / 0.110);
+  box-shadow: inset 0 0 0 1px rgb(var(--rl-gold-rgb) / 0.11);
 }
 .vessel-booking .vessel-deck-choice:hover {
   background: #25333c;

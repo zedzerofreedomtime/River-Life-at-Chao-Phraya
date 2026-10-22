@@ -21,12 +21,7 @@ export const previewTables: PreviewTable[] = [
         deck,
         seats: 4,
         kind: deck === "upper" && i % 3 === 1 ? "banquet" : undefined,
-        x:
-          deck === "upper"
-            ? [26, 50, 74][i % 3]
-            : i % 2 === 0
-              ? 26
-              : 74,
+        x: deck === "upper" ? [26, 50, 74][i % 3] : i % 2 === 0 ? 26 : 74,
         y:
           deck === "upper"
             ? upperRows[Math.floor(i / 3)]

@@ -79,7 +79,11 @@ export function BookingFilters({
       </label>
       <label>
         {en ? "Booking status" : "สถานะการจอง"}
-        <select aria-label={en ? "Booking status" : "สถานะการจอง"} value={status} onChange={(e) => setStatus(e.target.value)}>
+        <select
+          aria-label={en ? "Booking status" : "สถานะการจอง"}
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+        >
           <option value="">{en ? "All statuses" : "ทุกสถานะ"}</option>
           {[
             "held",
