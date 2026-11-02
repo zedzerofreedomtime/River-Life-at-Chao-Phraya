@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -8,8 +8,16 @@ import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
 import ScrollToTop from "./components/shared/ScrollToTop";
 import ScrollReveal from "./components/shared/ScrollReveal";
-import EventDetail from "./components/page/EventDetail";
+import PageLoading from "./components/shared/PageLoading";
 import Home from "./components/page/Home";
+import EventDetail from "./components/page/EventDetail";
+import CruiseAdmin from "./components/cruise/CruiseAdmin";
+import {
+  CruisePayments,
+  CruiseCheckIn,
+} from "./components/cruise/CruiseOperations";
+import CruiseOrders from "./components/cruise/CruiseOrders";
+import GettingThere from "./components/page/GettingThere";
 import MyBooking from "./components/page/MyBooking";
 import Payment from "./components/page/Payment";
 import BookingSuccess from "./components/page/BookingSuccess";
@@ -37,6 +45,10 @@ import {
 } from "./data/navigation";
 import { generateMetadata, applyMetadata } from "./data/metadata";
 
+const BookingPreview = lazy(() => import("./components/cruise/BookingPreview"));
+const LiveCruiseBooking = lazy(
+  () => import("./components/cruise/LiveCruiseBooking"),
+);
 const pageFromLocation = (): Page => pageFromPath(window.location.pathname);
 const helpFromLocation = (): HelpTopic =>
   helpFromPath(window.location.pathname);
@@ -44,6 +56,8 @@ export default function App() {
   const [page, setPage] = useState<Page>(pageFromLocation);
   const [event, setEvent] = useState<EventInfo | null>(null);
   const [error, setError] = useState("");
+  const [eventLoading, setEventLoading] = useState(true);
+  const eventRequests = useRef(0);
   const [booking, setBooking] = useState<Booking | null>(null);
   const [token, setToken] = useState("");
   const [profile, setProfile] = useState(() => ({
@@ -68,8 +82,10 @@ export default function App() {
     useState<NavigationMenu>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigationRef = useRef<HTMLElement>(null);
-  const loadEvent = () =>
-    api<EventInfo>("/event")
+  const loadEvent = () => {
+    eventRequests.current += 1;
+    setEventLoading(true);
+    return api<EventInfo>("/event")
       .then((data) => {
         setEvent(data);
         setError("");
@@ -80,7 +96,12 @@ export default function App() {
             ? "Unable to connect to bookings. Please check that the service is available."
             : "เชื่อมต่อระบบจองไม่ได้ กรุณาตรวจสอบว่า API พร้อมใช้งาน",
         ),
-      );
+      )
+      .finally(() => {
+        eventRequests.current -= 1;
+        setEventLoading(eventRequests.current > 0);
+      });
+  };
   useEffect(() => {
     void loadEvent();
   }, []);
@@ -143,7 +164,7 @@ export default function App() {
   }, [openNavigationMenu]);
   const go = (next: Page) => {
     const nextPath = pagePaths[next];
-    if (window.location.pathname !== nextPath) {
+    if (window.location.pathname !== nextPath || window.location.search) {
       window.history.pushState(null, "", nextPath);
     }
     setPage(next);
@@ -207,7 +228,6 @@ export default function App() {
         logoutCustomer={logoutCustomer}
         navigationRef={navigationRef}
       />
-
       <main className={`app-main page-${page}`}>
         {(page === "tablePreview" || page === "checkout") && (
           <TablePreview
@@ -236,15 +256,50 @@ export default function App() {
         {page === "event" && event && (
           <EventDetail
             event={event}
-            onStartCheckout={() => go("tablePreview")}
+            onStartCheckout={() => go("booking")}
             language={language}
           />
+        )}
+        {page === "bookingPreview" && (
+          <Suspense
+            fallback={
+              <p role="status">
+                {en ? "Loading booking preview…" : "กำลังโหลดหน้าทดลองจอง…"}
+              </p>
+            }
+          >
+            <BookingPreview language={language} onBack={() => go("event")} />
+          </Suspense>
+        )}
+        {page === "booking" && (
+          <Suspense
+            fallback={
+              <p role="status">
+                {en ? "Loading bookings…" : "กำลังโหลดระบบจอง…"}
+              </p>
+            }
+          >
+            <LiveCruiseBooking
+              language={language}
+              authenticated={isAuthenticated}
+              onLogin={openAuthDialog}
+              onOrders={() => go("orders")}
+              onContact={() => goHelp("contact")}
+              onBack={() => go("event")}
+            />
+          </Suspense>
         )}
         {page === "home" && event && (
           <Home
             event={event}
             language={language}
             onOpenConcert={() => go("event")}
+          />
+        )}
+        {page === "gettingThere" && (
+          <GettingThere
+            language={language}
+            onContact={() => goHelp("contact")}
           />
         )}
         {page === "payment" && (
@@ -274,49 +329,88 @@ export default function App() {
           />
         )}
         {page === "orders" && (
-          <MyBooking
-            key={isAuthenticated ? "account" : "guest"}
-            isAuthenticated={isAuthenticated}
-            onLogin={openAuthDialog}
-            onAccess={rememberBooking}
-            language={language}
-            demo={event?.demo ?? false}
-            initial={booking}
-            initialToken={token}
-            onPay={(updated: Booking) => {
-              setBooking(updated);
-              go("payment");
-            }}
-            onOpenTickets={(updated?: Booking) => {
-              if (updated) setBooking(updated);
-              go("tickets");
-            }}
-          />
+          <>
+            {isAuthenticated && <CruiseOrders language={language} />}
+            <details
+              className="legacy-booking"
+              open={!isAuthenticated || !!booking}
+            >
+              <summary>
+                {en
+                  ? "Earlier bookings / demo system"
+                  : "รายการระบบเดิม / ระบบสาธิต"}
+              </summary>
+              <MyBooking
+                key={isAuthenticated ? "account" : "guest"}
+                isAuthenticated={isAuthenticated}
+                onLogin={openAuthDialog}
+                onAccess={rememberBooking}
+                language={language}
+                demo={event?.demo ?? false}
+                initial={booking}
+                initialToken={token}
+                onPay={(updated: Booking) => {
+                  setBooking(updated);
+                  go("payment");
+                }}
+                onOpenTickets={(updated?: Booking) => {
+                  if (updated) setBooking(updated);
+                  go("tickets");
+                }}
+              />
+            </details>
+          </>
         )}
+        {page === "dashboard" &&
+          isAuthenticated &&
+          profile.role === "admin" && (
+            <>
+              <CruiseAdmin language={language} />
+              <CruisePayments language={language} />
+            </>
+          )}
         {page === "tickets" && (
           <CruiseProgrammeContext.Provider value={event ?? defaultProgramme}>
-            <TicketWallet
-              onOpenHelp={() => goHelp("tickets")}
-              key={isAuthenticated ? "account" : "guest"}
-              onOpenOrders={() => go("orders")}
-              initial={booking}
-              initialToken={token}
-              language={language}
-              demo={event?.demo ?? false}
-              boardingPier={
-                event ? formatPier(event.pier, event.pier_number, language) : ""
-              }
-            />
+            {isAuthenticated && <CruiseOrders language={language} />}
+            <details
+              className="legacy-booking"
+              open={!isAuthenticated || !!booking}
+            >
+              <summary>
+                {en
+                  ? "Earlier tickets / demo system"
+                  : "ตั๋วระบบเดิม / ระบบสาธิต"}
+              </summary>
+              <TicketWallet
+                onOpenHelp={() => goHelp("tickets")}
+                key={isAuthenticated ? "account" : "guest"}
+                onOpenOrders={() => go("orders")}
+                initial={booking}
+                initialToken={token}
+                language={language}
+                demo={event?.demo ?? false}
+                boardingPier={
+                  event
+                    ? formatPier(event.pier, event.pier_number, language)
+                    : ""
+                }
+              />
+            </details>
           </CruiseProgrammeContext.Provider>
         )}
         {page === "dashboard" &&
           isAuthenticated &&
           profile.role === "admin" && (
-            <AdminDashboard
-              language={language}
-              currentEmail={profile.email}
-              onSettingsUpdated={() => void loadEvent()}
-            />
+            <details className="legacy-booking">
+              <summary>
+                {en ? "Legacy event administration" : "จัดการโปรแกรมสาธิตเดิม"}
+              </summary>
+              <AdminDashboard
+                language={language}
+                currentEmail={profile.email}
+                onSettingsUpdated={() => void loadEvent()}
+              />
+            </details>
           )}
         {page === "sales" &&
           isAuthenticated &&
@@ -332,7 +426,17 @@ export default function App() {
         {page === "operator" &&
           isAuthenticated &&
           ["operator", "admin"].includes(profile.role) && (
-            <OperatorDashboard language={language} />
+            <>
+              <CruiseCheckIn language={language} />
+              <details className="legacy-booking">
+                <summary>
+                  {en
+                    ? "Legacy / demo ticket check-in"
+                    : "เช็กอินตั๋วระบบเดิม / สาธิต"}
+                </summary>
+                <OperatorDashboard language={language} />
+              </details>
+            </>
           )}
         {["dashboard", "sales", "operator"].includes(page) && !authReady && (
           <p role="status">
@@ -412,6 +516,14 @@ export default function App() {
         />
       </Dialog>
       <ScrollToTop />
+      <PageLoading
+        route={`${page}:${page === "help" ? helpTopic : ""}`}
+        busy={
+          eventLoading ||
+          (["dashboard", "sales", "operator"].includes(page) && !authReady)
+        }
+        language={language}
+      />
       <ScrollReveal />
       <Footer language={language} />
     </>

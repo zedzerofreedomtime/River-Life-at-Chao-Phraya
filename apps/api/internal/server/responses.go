@@ -19,6 +19,10 @@ func fail(c *gin.Context, err error) {
 		code = 409
 		msg = err.Error()
 	}
+	if errors.Is(err, service.ErrInvalidSailing) {
+		code = 400
+		msg = err.Error()
+	}
 	if errors.Is(err, service.ErrMemberAlreadyExists) {
 		code = 409
 		msg = err.Error()

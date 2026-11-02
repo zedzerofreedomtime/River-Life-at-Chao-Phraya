@@ -28,8 +28,8 @@ services:
       REDIS_URL: redis://redis:6379/0
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in .env}
       UPLOAD_DIR: /data/uploads
-      COOKIE_SECURE: "false"
-      DEMO_MODE: "true"
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      DEMO_MODE: ${DEMO_MODE:-true}
       WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
@@ -42,7 +42,11 @@ services:
       SMTP_PASSWORD: ${SMTP_PASSWORD:-}
       SMTP_FROM: ${SMTP_FROM:-}
       GIN_MODE: release
+      TRUSTED_PROXIES: "${API_PROXY_IP:-172.29.237.254}/32"
+      CONTACT_SHEETS_URL: ${CONTACT_SHEETS_URL:-}
+      CONTACT_SHEETS_KEY: ${CONTACT_SHEETS_KEY:-}
     ports: ["127.0.0.1:8088:8080"]
+    networks: [default, web-api]
     volumes: ["uploads:/data/uploads"]
     depends_on:
       postgres: { condition: service_healthy }
@@ -53,6 +57,14 @@ services:
       dockerfile: apps/web/Dockerfile
     ports: ["127.0.0.1:3000:80"]
     depends_on: [api]
+    networks:
+      web-api:
+        ipv4_address: ${API_PROXY_IP:-172.29.237.254}
+networks:
+  web-api:
+    ipam:
+      config:
+        - subnet: ${API_PROXY_SUBNET:-172.29.237.0/24}
 volumes:
   postgres-data:
   redis-data:

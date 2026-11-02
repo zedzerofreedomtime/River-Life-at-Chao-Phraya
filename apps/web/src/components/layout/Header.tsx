@@ -197,7 +197,13 @@ export default function Header({
                 {en ? "Home" : "หน้าแรก"}
               </button>
               <button
-                className={page === "event" ? "active" : ""}
+                className={
+                  page === "event" ||
+                  page === "bookingPreview" ||
+                  page === "booking"
+                    ? "active"
+                    : ""
+                }
                 onClick={() => {
                   setMobileMenuOpen(false);
                   go("event");
@@ -216,20 +222,11 @@ export default function Header({
                 {en ? "Contact us" : "ติดต่อเรา"}
               </button>
               <button
+                className={page === "gettingThere" ? "active" : ""}
                 onClick={() => {
                   setOpenNavigationMenu(null);
                   setMobileMenuOpen(false);
-                  go("event");
-                  window.history.replaceState(
-                    null,
-                    "",
-                    "/concert#event-boarding",
-                  );
-                  requestAnimationFrame(() =>
-                    document
-                      .getElementById("event-boarding")
-                      ?.scrollIntoView({ block: "start" }),
-                  );
+                  go("gettingThere");
                 }}
               >
                 {en ? "Getting there" : "การเดินทาง"}

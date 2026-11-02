@@ -3,6 +3,9 @@ package server
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
+	"image"
+	_ "image/jpeg"
+	_ "image/png"
 	"io"
 	"net/http"
 	"os"
@@ -159,6 +162,10 @@ func (s *Server) bookingRoutes(api *gin.RouterGroup) {
 			return
 		}
 		defer input.Close()
+		if !validReceiptImage(input, ext) {
+			c.JSON(400, gin.H{"error": "กรุณาอัปโหลดภาพ PNG หรือ JPEG ที่สมบูรณ์ ขนาดภาพไม่เกิน 16 ล้านพิกเซล"})
+			return
+		}
 		path := filepath.Join(s.UploadDir, service.Token()+ext)
 		output, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
 		if err != nil {
@@ -184,4 +191,23 @@ func (s *Server) bookingRoutes(api *gin.RouterGroup) {
 		}
 		c.JSON(http.StatusOK, b)
 	})
+}
+
+func validReceiptImage(input io.ReadSeeker, ext string) bool {
+	config, format, err := image.DecodeConfig(input)
+	// Bound decoded allocation before decoding attacker-controlled image data.
+	if err != nil || config.Width < 1 || config.Height < 1 || int64(config.Width)*int64(config.Height) > 16_000_000 {
+		return false
+	}
+	if (ext == ".png" && format != "png") || ((ext == ".jpg" || ext == ".jpeg") && format != "jpeg") {
+		return false
+	}
+	if _, err = input.Seek(0, io.SeekStart); err != nil {
+		return false
+	}
+	if _, _, err = image.Decode(input); err != nil {
+		return false
+	}
+	_, err = input.Seek(0, io.SeekStart)
+	return err == nil
 }

@@ -22,6 +22,7 @@ for (const width of [390, 1440])
       ),
     ).toHaveCount(0);
     await page.locator(".event-buy-button").click();
-    await expect(page).toHaveURL(/table-preview/);
+    await expect(page).toHaveURL(/\/booking$/);
+    await expect(page.locator(".booking-preview")).toBeVisible();
     expect(errors).toEqual([]);
   });

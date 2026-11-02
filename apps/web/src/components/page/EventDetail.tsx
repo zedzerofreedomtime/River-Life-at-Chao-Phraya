@@ -130,7 +130,7 @@ export default function EventDetail({
                 className="event-buy-button"
                 onClick={() => onStartCheckout()}
               >
-                {en ? "Choose tables · demo" : "เลือกโต๊ะ · ทดลอง"}
+                {en ? "Choose sailing & tables" : "เลือกรอบและโต๊ะ"}
                 <ArrowRight aria-hidden="true" size={21} />
               </button>
             </div>

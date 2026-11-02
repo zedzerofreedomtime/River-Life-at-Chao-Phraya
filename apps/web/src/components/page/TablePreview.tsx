@@ -34,12 +34,14 @@ import "../../VesselBooking.css";
 const loadCatalogue = () => api<TableCatalogue>("/tables");
 
 export default function TablePreview({
+  initialGuests = 4,
   language,
   onBack,
   isAuthenticated,
   onRequireLogin,
   onBooked,
 }: {
+  initialGuests?: number;
   language: Language;
   onBack: () => void;
   isAuthenticated: boolean;
@@ -48,7 +50,7 @@ export default function TablePreview({
 }) {
   const en = language === "en";
   const [deck, setDeck] = useState<PreviewDeck>("upper");
-  const [guests, setGuests] = useState(4);
+  const [guests, setGuests] = useState(initialGuests);
   const [selected, setSelected] = useState<string[]>([]);
   const [review, setReview] = useState(false);
   const [catalogue, setCatalogue] = useState<TableCatalogue | null>(null);

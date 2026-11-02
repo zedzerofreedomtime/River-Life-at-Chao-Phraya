@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.use({ baseURL: process.env.TEST_BASE_URL || "http://localhost:3000" });
 
-test("experience cards advance, pause on interaction, and open the performance film", async ({
+test("experience cards advance, pause on interaction, and open performance photos", async ({
   page,
 }) => {
   await page.goto("/");
@@ -14,16 +14,18 @@ test("experience cards advance, pause on interaction, and open the performance f
   );
   await page.mouse.move(0, 0);
   await expect(carousel.locator(".mj-carousel-slide").nth(1)).toBeVisible({
-    timeout: 5000,
+    timeout: 8000,
   });
   await carousel.getByRole("button", { name: "หนุมาน", exact: true }).click();
-  await page.waitForTimeout(3300);
+  await page.waitForTimeout(5500);
   await expect(carousel.locator(".mj-carousel-slide").nth(1)).toBeVisible();
   await carousel
-    .getByRole("button", { name: "ชมคลิปการแสดงหนุมาน", exact: true })
+    .getByRole("button", { name: "เปิดแกลเลอรีการแสดงหนุมาน", exact: true })
     .click();
   await expect(page.getByRole("dialog")).toBeVisible();
-  await page.getByRole("button", { name: "ปิดวิดีโอ", exact: true }).click();
+  await page
+    .getByRole("button", { name: "ปิดแกลเลอรีการแสดง", exact: true })
+    .click();
   await expect(page.getByRole("dialog")).not.toBeVisible();
   await carousel
     .getByRole("button", { name: "ประสบการณ์ถัดไป", exact: true })
@@ -45,7 +47,7 @@ test("reduced motion disables automatic experience slides", async ({
   await carousel.evaluate((e) =>
     e.scrollIntoView({ block: "center", behavior: "instant" }),
   );
-  await page.waitForTimeout(3300);
+  await page.waitForTimeout(5500);
   await expect(carousel.locator(".mj-carousel-slide").first()).toBeVisible();
   await carousel
     .getByRole("button", { name: "มื้อค่ำพร้อมวิว", exact: true })

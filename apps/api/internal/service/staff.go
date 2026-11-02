@@ -141,7 +141,9 @@ func (s *Service) SetRole(ctx context.Context, actor, target, role string) error
 		return err
 	}
 	if role != RoleSales && role != RoleAdmin {
-		if _, err = tx.Exec(ctx, "UPDATE bookings SET sales_token_hash='' WHERE sales_user_id=$1", target); err != nil {
+		// The original creation token also belongs to the salesperson. Customer
+		// account_token_hash is independent and must survive staff revocation.
+		if _, err = tx.Exec(ctx, "UPDATE bookings SET sales_token_hash='',token_hash='' WHERE sales_user_id=$1", target); err != nil {
 			return err
 		}
 	}

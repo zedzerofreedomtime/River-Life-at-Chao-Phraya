@@ -70,6 +70,9 @@ func (s *Server) setUserSession(c *gin.Context, userID string, expectedVersion .
 	return nil
 }
 func validEmail(value string) (string, bool) {
+	if len(value) > 254 {
+		return "", false
+	}
 	v := strings.ToLower(strings.TrimSpace(value))
 	a, err := mail.ParseAddress(v)
 	return v, err == nil && a.Address == v

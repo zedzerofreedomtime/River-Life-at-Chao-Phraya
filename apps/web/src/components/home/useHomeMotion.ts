@@ -13,13 +13,22 @@ export default function useHomeMotion(root: RefObject<HTMLDivElement | null>) {
       ".culture-section-heading",
       ".onboard-experience-card",
       ".culture-calendar-layout",
+      ".home-final-cta > *",
     ];
     const elements = [
       ...scope.querySelectorAll<HTMLElement>(selectors.join(",")),
     ];
+    const siblingOrder = new Map<Element | null, number>();
     elements.forEach((element) => {
       element.dataset.homeReveal = "";
       element.classList.remove("scroll-reveal", "is-revealed");
+      // Stagger siblings locally; do not accumulate delays down the whole page.
+      const index = siblingOrder.get(element.parentElement) ?? 0;
+      siblingOrder.set(element.parentElement, index + 1);
+      element.style.setProperty(
+        "--home-reveal-delay",
+        `${Math.min(index, 3) * 85}ms`,
+      );
     });
     const preference = matchMedia("(prefers-reduced-motion: reduce)");
     let mode = "";
@@ -90,6 +99,7 @@ export default function useHomeMotion(root: RefObject<HTMLDivElement | null>) {
       scope.removeEventListener("focusin", revealFocus);
       elements.forEach((element) => {
         delete element.dataset.homeReveal;
+        element.style.removeProperty("--home-reveal-delay");
         element.classList.remove("mj-visible");
       });
       delete scope.dataset.homeMotion;

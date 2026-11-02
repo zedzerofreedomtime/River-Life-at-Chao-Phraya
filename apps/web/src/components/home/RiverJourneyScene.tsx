@@ -17,7 +17,9 @@ export default function RiverJourneyScene({
   const scene = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
+  const images = useRef<(HTMLImageElement | null)[]>([]);
   const [active, setActive] = useState(0);
+  const [imageIndex, setImageIndex] = useState(0);
   const [reading, setReading] = useState<number | null>(null);
   const readingPlace = reading === null ? null : riverLandmarks[reading];
   const [shortViewport, setShortViewport] = useState(
@@ -26,6 +28,24 @@ export default function RiverJourneyScene({
   const place = riverLandmarks[active];
   const side = landmarkSide(place.bank, "upstream");
   const pinned = motion !== "off" && !shortViewport;
+
+  useEffect(() => {
+    const image = images.current[active];
+    if (!image) return;
+    let cancelled = false;
+    // Keep the last decoded photograph visible while the next one is loading.
+    void image
+      .decode()
+      .then(() => {
+        if (!cancelled) setImageIndex(active);
+      })
+      .catch(() => {
+        /* Keep the previous photograph if this asset fails. */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [active]);
 
   useEffect(() => {
     const query = matchMedia("(max-height: 650px)");
@@ -51,6 +71,10 @@ export default function RiverJourneyScene({
         ),
       );
       stage.current.style.setProperty("--rj-progress", String(progress));
+      stage.current.style.setProperty(
+        "--rj-drift",
+        `${(((progress * riverLandmarks.length) % 1) - 0.5) * 12}px`,
+      );
     };
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(update);
@@ -132,11 +156,14 @@ export default function RiverJourneyScene({
             {riverLandmarks.map((item, index) => (
               <img
                 key={item.id}
+                ref={(element) => {
+                  images.current[index] = element;
+                }}
                 src={item.image}
                 alt=""
                 loading="lazy"
                 decoding="async"
-                className={index === active ? "is-active" : ""}
+                className={index === imageIndex ? "is-active" : ""}
                 style={{ objectPosition: item.position }}
               />
             ))}

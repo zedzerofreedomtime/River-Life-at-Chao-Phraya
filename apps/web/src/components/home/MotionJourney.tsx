@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import IconButton from "@mui/material/IconButton";
-import { ArrowDown, ArrowRight, Pause, Play, X } from "lucide-react";
+import { ArrowRight, Images } from "lucide-react";
 import type { Language } from "../../data/i18n";
 import MotionOpening from "./MotionOpening";
 import ExperienceCarousel from "./ExperienceCarousel";
+import ExperiencePhotoGallery from "./ExperiencePhotoGallery";
 import RiverJourneyScene from "./RiverJourneyScene";
 import { editorialPhotos } from "../../data/editorialPhotos";
+import { foodGalleryPhotos } from "../../data/foodGalleryPhotos";
+import { hanumanGalleryPhotos } from "../../data/hanumanGalleryPhotos";
+import { musicGalleryPhotos } from "../../data/musicGalleryPhotos";
 import "../../EditorialPhotos.css";
 
 export default function MotionJourney({
@@ -21,8 +23,10 @@ export default function MotionJourney({
 }) {
   const en = language === "en";
   const root = useRef<HTMLDivElement>(null);
-  const performance = useRef<HTMLVideoElement>(null);
-  const [filmOpen, setFilmOpen] = useState(false);
+  const [showOpen, setShowOpen] = useState(false);
+  const [foodOpen, setFoodOpen] = useState(false);
+  const [musicOpen, setMusicOpen] = useState(false);
+  const [riversideOpen, setRiversideOpen] = useState(false);
   const [reduced, setReduced] = useState(
     () => matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
@@ -40,16 +44,12 @@ export default function MotionJourney({
       behavior: effectiveMode === "off" ? "instant" : "smooth",
       block: "start",
     });
-  const closeFilm = () => {
-    performance.current?.pause();
-    setFilmOpen(false);
-  };
   return (
     <div className="motion-journey" ref={root} data-motion={effectiveMode}>
       <MotionOpening
         language={language}
         motion={effectiveMode}
-        suspended={filmOpen}
+        suspended={showOpen || foodOpen || musicOpen || riversideOpen}
         onExplore={() => jump("life-on-board")}
         onBook={onBook}
       />
@@ -92,13 +92,20 @@ export default function MotionJourney({
           </div>
           <ExperienceCarousel
             language={language}
-            suspended={filmOpen}
+            suspended={showOpen || foodOpen || musicOpen || riversideOpen}
             motion={effectiveMode}
           >
             <figure id="mj-gallery-0" className="mj-dining">
-              <div className="mj-frame">
+              <button
+                type="button"
+                className="mj-frame"
+                onClick={() => setFoodOpen(true)}
+                aria-label={
+                  en ? "Open dining gallery" : "เปิดแกลเลอรีอาหารบนเรือ"
+                }
+              >
                 <img
-                  src={editorialPhotos.seafood.src}
+                  src={foodGalleryPhotos[0].src}
                   alt={
                     en
                       ? "Food photographed on Unicorn Cruise"
@@ -109,41 +116,44 @@ export default function MotionJourney({
                   style={{ objectPosition: editorialPhotos.seafood.position }}
                   loading="lazy"
                 />
-              </div>
+              </button>
               <figcaption>
                 <span>01 / {en ? "Dining" : "มื้ออาหาร"}</span>
                 <p>
                   {en ? "A taste of the evening." : "เติมรสชาติให้ค่ำคืนพิเศษ"}
                 </p>
-                <a href="/#spaces-on-board">
-                  {en ? "View onboard photos" : "ดูภาพบรรยากาศบนเรือ"}
+                <Button onClick={() => setFoodOpen(true)}>
+                  {en ? "View onboard dining" : "ดูไลน์อาหารบนเรือ"}
                   <ArrowRight size={16} />
-                </a>
+                </Button>
               </figcaption>
             </figure>
             <figure id="mj-gallery-1" className="mj-hanuman">
               <button
                 className="mj-frame mj-portrait"
-                onClick={() => setFilmOpen(true)}
+                type="button"
+                onClick={() => setShowOpen(true)}
                 aria-label={
-                  en ? "Watch Hanuman performance" : "ชมคลิปการแสดงหนุมาน"
+                  en
+                    ? "Open Hanuman photo gallery"
+                    : "เปิดแกลเลอรีการแสดงหนุมาน"
                 }
               >
                 <img
-                  src="/images/experiences/hanuman-hq.webp"
+                  src={hanumanGalleryPhotos[0].src}
                   style={{ objectPosition: "50% 34%" }}
                   alt={
                     en
                       ? "Hanuman performer entertaining guests"
                       : "การแสดงหนุมานท่ามกลางผู้ร่วมเดินทาง"
                   }
-                  width="1280"
-                  height="640"
+                  width={hanumanGalleryPhotos[0].width}
+                  height={hanumanGalleryPhotos[0].height}
                   loading="lazy"
                 />
                 <span className="mj-watch">
-                  <Play size={18} />
-                  {en ? "Watch performance" : "ชมการแสดง"}
+                  <Images size={18} />
+                  {en ? "View 5 performance photos" : "ดูภาพการแสดง 5 รูป"}
                 </span>
               </button>
               <figcaption>
@@ -153,35 +163,63 @@ export default function MotionJourney({
                     ? "Culture, brought to life."
                     : "สีสันแห่งวัฒนธรรมที่มีชีวิต"}
                 </p>
+                <Button
+                  onClick={() => setShowOpen(true)}
+                  endIcon={<ArrowRight size={16} />}
+                >
+                  {en ? "View performance photos" : "ดูภาพการแสดง"}
+                </Button>
               </figcaption>
             </figure>
             <figure id="mj-gallery-2" className="mj-music">
-              <div className="mj-frame">
+              <button
+                type="button"
+                className="mj-frame"
+                onClick={() => setMusicOpen(true)}
+                aria-label={
+                  en ? "Open live music gallery" : "เปิดแกลเลอรีดนตรีบนเรือ"
+                }
+              >
                 <img
-                  src={editorialPhotos.evening.src}
-                  alt={
-                    en
-                      ? "Evening tables and the stage on the upper deck"
-                      : "โต๊ะและเวทีบนดาดฟ้าเรือยามค่ำ"
-                  }
-                  width={editorialPhotos.evening.width}
-                  height={editorialPhotos.evening.height}
-                  style={{ objectPosition: editorialPhotos.evening.position }}
+                  src={musicGalleryPhotos[0].src}
+                  alt={en ? musicGalleryPhotos[0].en : musicGalleryPhotos[0].th}
+                  width={musicGalleryPhotos[0].width}
+                  height={musicGalleryPhotos[0].height}
+                  style={{ objectPosition: "50% 40%" }}
                   loading="lazy"
                 />
-              </div>
+                <span className="mj-watch">
+                  <Images size={18} />
+                  {en ? "View music photos" : "ดูภาพดนตรีบนเรือ"}
+                </span>
+              </button>
               <figcaption>
                 <span>03 / {en ? "Live music" : "คอนเสิร์ตบนเรือ"}</span>
                 <p>
                   {en ? "The river has a rhythm." : "ให้เสียงเพลงพาคุณล่องไป"}
                 </p>
+                <Button
+                  onClick={() => setMusicOpen(true)}
+                  endIcon={<ArrowRight size={16} />}
+                >
+                  {en ? "View music photos" : "ดูภาพดนตรีบนเรือ"}
+                </Button>
                 <Button onClick={onBook} endIcon={<ArrowRight size={16} />}>
                   {en ? "Explore the sailing" : "ดูรายละเอียดรอบล่องเรือ"}
                 </Button>
               </figcaption>
             </figure>
             <figure className="mj-detail">
-              <div className="mj-frame">
+              <button
+                type="button"
+                className="mj-frame"
+                onClick={() => setRiversideOpen(true)}
+                aria-label={
+                  en
+                    ? "Open riverside dining gallery"
+                    : "เปิดแกลเลอรีมื้อค่ำพร้อมวิว"
+                }
+              >
                 <img
                   src={editorialPhotos.table.src}
                   alt={
@@ -194,7 +232,11 @@ export default function MotionJourney({
                   style={{ objectPosition: editorialPhotos.table.position }}
                   loading="lazy"
                 />
-              </div>
+                <span className="mj-watch">
+                  <Images size={18} />
+                  {en ? "View riverside photos" : "ดูภาพมื้อค่ำพร้อมวิว"}
+                </span>
+              </button>
               <figcaption>
                 <span>04 / {en ? "Riverside dining" : "มื้อค่ำพร้อมวิว"}</span>
                 <p>
@@ -202,6 +244,12 @@ export default function MotionJourney({
                     ? "One unforgettable night."
                     : "อีกหนึ่งค่ำคืนที่อยากจดจำ"}
                 </p>
+                <Button
+                  onClick={() => setRiversideOpen(true)}
+                  endIcon={<ArrowRight size={16} />}
+                >
+                  {en ? "View riverside photos" : "ดูภาพมื้อค่ำพร้อมวิว"}
+                </Button>
                 <Button onClick={onBook} endIcon={<ArrowRight size={16} />}>
                   {en ? "Explore the sailing" : "ดูรายละเอียดรอบล่องเรือ"}
                 </Button>
@@ -211,36 +259,34 @@ export default function MotionJourney({
         </section>
         <RiverJourneyScene language={language} motion={effectiveMode} />
       </section>
-      <Dialog
-        open={filmOpen}
-        onClose={closeFilm}
-        fullWidth
-        maxWidth="lg"
-        aria-labelledby="mj-film-title"
-      >
-        <div className="mj-film-heading">
-          <h2 id="mj-film-title">
-            {en ? "Onboard performances" : "การแสดงบนเรือ"}
-          </h2>
-          <IconButton
-            onClick={closeFilm}
-            aria-label={en ? "Close film" : "ปิดวิดีโอ"}
-          >
-            <X />
-          </IconButton>
-        </div>
-        {filmOpen ? (
-          <video
-            ref={performance}
-            className="mj-performance"
-            src="/videos/riverlife-performances-hq.mp4"
-            poster="/images/experiences/hanuman-hq.webp"
-            controls
-            playsInline
-            preload="metadata"
-          />
-        ) : null}
-      </Dialog>
+      {foodOpen && (
+        <ExperiencePhotoGallery
+          kind="food"
+          language={language}
+          onClose={() => setFoodOpen(false)}
+        />
+      )}
+      {showOpen && (
+        <ExperiencePhotoGallery
+          kind="hanuman"
+          language={language}
+          onClose={() => setShowOpen(false)}
+        />
+      )}
+      {musicOpen && (
+        <ExperiencePhotoGallery
+          kind="music"
+          language={language}
+          onClose={() => setMusicOpen(false)}
+        />
+      )}
+      {riversideOpen && (
+        <ExperiencePhotoGallery
+          kind="riverside"
+          language={language}
+          onClose={() => setRiversideOpen(false)}
+        />
+      )}
     </div>
   );
 }

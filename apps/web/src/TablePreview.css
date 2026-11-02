@@ -766,6 +766,33 @@
 .preview-selected {
   min-height: 80px;
 }
+@media (prefers-reduced-motion: no-preference) {
+  .preview-selected > div {
+    animation: preview-selection-arrive 240ms ease-out both;
+  }
+  .table-preview
+    :is(
+      .preview-table,
+      .vessel-table-button,
+      .vessel-guest-stepper button,
+      .preview-checkout
+    ) {
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease,
+      box-shadow 180ms ease;
+  }
+}
+@keyframes preview-selection-arrive {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
 .preview-selected > p {
   color: #aebdcc;
   font-size: 14px;

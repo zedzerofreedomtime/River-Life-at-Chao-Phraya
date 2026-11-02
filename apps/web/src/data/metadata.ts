@@ -37,6 +37,38 @@ export function generateMetadata({
   const defaultImage = `${baseUrl}/images/river-life-culture-hero-v5.webp`;
 
   switch (page) {
+    case "booking":
+      return {
+        title: en
+          ? "Book Unicorn Cruise | River Life"
+          : "จองโต๊ะ Unicorn Cruise | River Life",
+        description: en
+          ? "Choose a verified sailing, tables and dining extras."
+          : "เลือกรอบเดินทาง โต๊ะ และบริการเสริมที่รับรองแล้ว",
+        url: `${baseUrl}/booking`,
+      };
+    case "bookingPreview":
+      return {
+        title: en
+          ? "Try booking with dining extras | River Life"
+          : "ทดลองจองเรือและบริการเสริม | River Life",
+        description: en
+          ? "Preview vessel, table and optional dining selection."
+          : "ทดลองเลือกเรือ โต๊ะ และอาหารหรือไวน์เพิ่มเติม",
+        robots: "noindex, nofollow",
+        url: `${baseUrl}/booking-preview`,
+      };
+    case "gettingThere":
+      return {
+        title: en
+          ? "Getting there · Four vessels | River Life"
+          : "การเดินทาง · เรือทั้ง 4 ลำ | River Life",
+        description: en
+          ? "Departure piers and sailing times for Alangka, VIVA, Unicorn and The Legacy."
+          : "เลือกเรืออลังกา วีว่า ยูนิคอน และเดอะเลกาซี่ เพื่อดูท่าเรือและเวลาล่องเรือ",
+        url: `${baseUrl}/getting-there`,
+        image: `${baseUrl}/images/boat/river-life-four-vessels.png`,
+      };
     case "tablePreview":
       return {
         title: en

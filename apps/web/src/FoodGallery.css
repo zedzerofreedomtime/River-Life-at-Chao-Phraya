@@ -1,0 +1,135 @@
+.food-gallery-dialog .MuiDialog-paper {
+  overflow-y: auto !important;
+  background: var(--cinema-surface);
+  color: var(--rl-text);
+  max-height: calc(100dvh - 48px);
+}
+.food-gallery-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+}
+.food-gallery-header span {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--rl-gold);
+}
+.food-gallery-header h2 {
+  margin: 6px 0 0;
+  font-size: 24px;
+  line-height: 1.5;
+}
+.food-gallery-dialog .MuiIconButton-root {
+  color: var(--rl-gold);
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+.food-gallery-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #080e19;
+  min-height: 180px;
+  height: min(48dvh, 460px);
+  touch-action: pan-y;
+}
+.food-gallery-stage img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.food-gallery-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  gap: 12px;
+}
+.food-gallery-navigation p {
+  display: grid;
+  gap: 4px;
+  text-align: center;
+  margin: 0;
+  line-height: 1.5;
+}
+.food-gallery-navigation p span {
+  font-size: 12px;
+  color: var(--cinema-muted);
+}
+.food-gallery-thumbnails {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+  padding: 0 24px 6px;
+  overflow-x: auto;
+}
+.food-gallery-thumbnails button {
+  width: 76px;
+  height: 52px;
+  flex: 0 0 76px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  padding: 0;
+  overflow: hidden;
+  background: #080e19;
+  cursor: pointer;
+}
+.food-gallery-thumbnails button[aria-pressed="true"] {
+  border-color: var(--rl-gold);
+}
+.food-gallery-thumbnails img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.food-gallery-dialog button:focus-visible {
+  outline: 3px solid var(--rl-gold);
+  outline-offset: 2px;
+}
+.food-gallery-note {
+  padding: 0 24px;
+  margin: 12px 0 20px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--cinema-muted);
+  text-align: center;
+}
+.motion-home .mj-dining button.mj-frame {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+@media (max-width: 600px) {
+  .food-gallery-dialog .MuiDialog-paper {
+    margin: 12px;
+    width: calc(100% - 24px);
+    max-height: calc(100dvh - 24px);
+  }
+  .food-gallery-header {
+    padding: 16px;
+  }
+  .food-gallery-header h2 {
+    font-size: 21px;
+  }
+  .food-gallery-thumbnails {
+    justify-content: flex-start;
+    padding: 0 16px 6px;
+  }
+  .food-gallery-note {
+    padding: 0 16px;
+  }
+  .food-gallery-stage {
+    height: 42dvh;
+  }
+  .food-gallery-stage[data-photo-format="landscape"] {
+    aspect-ratio: 1200 / 624;
+    height: auto;
+    min-height: 0;
+  }
+}

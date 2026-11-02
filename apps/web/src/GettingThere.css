@@ -1,0 +1,238 @@
+.getting-there {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 64px 24px 88px;
+  color: var(--rl-text);
+}
+.getting-there-heading {
+  margin-bottom: 32px;
+  max-width: 740px;
+}
+.getting-there-heading > span,
+.vessel-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  color: var(--rl-gold);
+}
+.getting-there-heading h1 {
+  font-size: clamp(32px, 4vw, 52px);
+  margin: 14px 0;
+  line-height: 1.3;
+}
+.getting-there-heading p,
+.vessel-arrival-note {
+  color: var(--cinema-muted);
+  line-height: 1.8;
+}
+.vessel-picker {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.getting-there .vessel-choice {
+  display: block;
+  padding: 0;
+  text-align: left;
+  overflow: hidden;
+  border: 1px solid var(--cinema-line);
+  border-radius: 12px;
+  background: var(--cinema-surface);
+  color: var(--rl-text);
+  min-width: 0;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    transform 0.2s;
+}
+.getting-there .vessel-choice[aria-pressed="true"] {
+  border-color: var(--rl-gold);
+  box-shadow: 0 0 0 1px var(--rl-gold);
+}
+.getting-there .vessel-choice:hover {
+  transform: translateY(-3px);
+  border-color: var(--rl-gold);
+}
+.getting-there :is(button, a):focus-visible {
+  outline: 3px solid var(--rl-gold);
+  outline-offset: 4px;
+}
+.vessel-photo {
+  display: block;
+  overflow: hidden;
+  position: relative;
+  aspect-ratio: 1.55;
+  background-color: #122131;
+}
+.vessel-photo svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.getting-there .vessel-map-link,
+.getting-there .vessel-map-link * {
+  color: #080e19 !important;
+}
+.vessel-choice-label {
+  display: flex;
+  gap: 12px;
+  padding: 18px 14px;
+  align-items: start;
+}
+.vessel-choice-label > small {
+  color: var(--rl-gold);
+  font-size: 11px;
+  line-height: 2;
+}
+.vessel-choice-label > span {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.vessel-choice-label strong {
+  font-size: 18px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.vessel-choice-label span span {
+  color: var(--cinema-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.vessel-arrival {
+  display: grid;
+  grid-template-columns: 1.08fr 1fr;
+  overflow: hidden;
+  border: 1px solid var(--cinema-line);
+  border-radius: 16px;
+  background: var(--cinema-surface);
+}
+.vessel-arrival > .vessel-photo {
+  height: 100%;
+  min-height: 430px;
+  aspect-ratio: auto;
+}
+.vessel-arrival-info {
+  padding: 36px;
+  min-width: 0;
+}
+.vessel-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 0.08em;
+}
+.vessel-arrival-info h2 {
+  font-size: clamp(25px, 3vw, 36px);
+  line-height: 1.4;
+  margin: 16px 0 4px;
+}
+.vessel-arrival-name {
+  color: var(--cinema-muted);
+  margin: 0 0 28px;
+}
+.vessel-arrival-info dl {
+  display: grid;
+  gap: 22px;
+  margin: 0 0 28px;
+}
+.vessel-arrival-info dt {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: var(--cinema-muted);
+  font-size: 14px;
+}
+.vessel-arrival-info dd {
+  margin: 8px 0 0 30px;
+  font-size: 22px;
+  line-height: 1.5;
+}
+.vessel-arrival-info dd small {
+  display: block;
+  font-size: 12px;
+  color: var(--cinema-muted);
+  margin-top: 3px;
+}
+.getting-there .vessel-map-link {
+  display: inline-flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 20px;
+  background: var(--rl-gold);
+  color: #080e19;
+  border: 0;
+  border-radius: 7px;
+  text-decoration: none;
+  cursor: pointer;
+  font: inherit;
+}
+.vessel-arrival-note {
+  font-size: 12px;
+  margin: 20px 0 0;
+}
+@media (max-width: 850px) {
+  .vessel-picker {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .vessel-arrival-info {
+    padding: 28px;
+  }
+  .vessel-arrival > .vessel-photo {
+    min-height: 380px;
+  }
+}
+@media (max-width: 600px) {
+  .getting-there {
+    padding: 32px 16px 56px;
+  }
+  .getting-there-heading {
+    margin-bottom: 24px;
+  }
+  .getting-there-heading p {
+    font-size: 14px;
+  }
+  .vessel-picker {
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .vessel-choice-label {
+    padding: 12px;
+    gap: 8px;
+  }
+  .vessel-choice-label strong {
+    font-size: 16px;
+  }
+  .vessel-choice-label span span {
+    font-size: 10px;
+  }
+  .vessel-arrival {
+    grid-template-columns: 1fr;
+  }
+  .vessel-arrival > .vessel-photo {
+    aspect-ratio: 1.55;
+    min-height: 0;
+    height: auto;
+  }
+  .vessel-arrival-info {
+    padding: 24px;
+  }
+  .vessel-arrival-info dd {
+    font-size: 21px;
+  }
+  .getting-there .vessel-map-link {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .getting-there .vessel-choice {
+    transition: none;
+  }
+  .getting-there .vessel-choice:hover {
+    transform: none;
+  }
+}

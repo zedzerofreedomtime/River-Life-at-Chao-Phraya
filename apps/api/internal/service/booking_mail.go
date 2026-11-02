@@ -23,12 +23,14 @@ import (
 )
 
 type BookingProgram struct {
-	Title       string  `json:"title"`
-	SailingDate *string `json:"sailing_date"`
-	Boarding    string  `json:"boarding"`
-	Departure   string  `json:"departure"`
-	Pier        string  `json:"pier"`
-	PierNumber  int     `json:"pier_number"`
+	Title        string  `json:"title"`
+	SailingDate  *string `json:"sailing_date"`
+	Boarding     string  `json:"boarding"`
+	Departure    string  `json:"departure"`
+	Pier         string  `json:"pier"`
+	PierNumber   int     `json:"pier_number"`
+	FullPier     string  `json:"full_pier,omitempty"`
+	ExtraDetails string  `json:"extra_details,omitempty"`
 }
 
 type BookingMailSender interface {
@@ -78,6 +80,12 @@ func bookingMessage(sender string, b Booking, p BookingProgram, kind string, dem
 		guests = b.Quantity
 	}
 	details := fmt.Sprintf("ผู้จอง / Name: %s\nรหัสการจอง / Booking: %s\nงาน / Event: %s\nวันที่ / Date: %s\nขึ้นเรือ / Boarding: %s · ออกเรือ / Departure: %s (Asia/Bangkok)\nท่าเรือ / Pier: %s %d\nโต๊ะ / Tables: %s\nผู้ร่วมเดินทาง / Guests: %d\nยอดรวม / Total: THB %.2f\n", b.Name, b.ID, p.Title, sailing, p.Boarding, p.Departure, p.Pier, p.PierNumber, seats, guests, float64(b.Total)/100)
+	if p.FullPier != "" {
+		details = strings.Replace(details, "ท่าเรือ / Pier: "+fmt.Sprintf("%s %d", p.Pier, p.PierNumber), "ท่าเรือ / Pier: "+p.FullPier, 1)
+	}
+	if p.ExtraDetails != "" {
+		details += p.ExtraDetails
+	}
 	notice := ""
 	if demo {
 		notice = "รายการทดลอง / DEMO — ไม่ใช่สิทธิ์ขึ้นเรือจริง / Not valid for boarding.\n"

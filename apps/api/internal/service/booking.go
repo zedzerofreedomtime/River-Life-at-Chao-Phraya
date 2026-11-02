@@ -227,7 +227,7 @@ func (s *Service) SubmitAttachment(ctx context.Context, id, token, path string, 
 		marketing_consent_at=CASE WHEN $4 THEN now() ELSE NULL END,
 		marketing_consent_version=CASE WHEN $4 THEN $5 ELSE '' END,
 		marketing_consent_language=CASE WHEN $4 THEN $6 ELSE '' END
-		WHERE id=$1 AND (token_hash=$2 OR account_token_hash=$2 OR sales_token_hash=$2) AND status='held' AND expires_at>now()
+		WHERE id=$1 AND (account_token_hash=$2 OR ((token_hash=$2 OR sales_token_hash=$2) AND (sales_user_id IS NULL OR EXISTS(SELECT 1 FROM users WHERE users.id=bookings.sales_user_id AND role IN ('sales','admin'))))) AND status='held' AND expires_at>now()
 		AND NOT EXISTS(SELECT 1 FROM stripe_checkouts WHERE booking_id=$1) RETURNING quantity,table_ids`, id, Hash(token), path, marketingConsent, MarketingConsentVersion, language).Scan(&quantity, &tableIDs)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return ErrConflict
@@ -255,7 +255,7 @@ func (s *Service) SubmitAttachment(ctx context.Context, id, token, path string, 
 }
 
 func (s *Service) Get(ctx context.Context, id, token string, admin bool) (Booking, error) {
-	b, err := scan(s.DB.QueryRow(ctx, "SELECT "+columns+" FROM bookings WHERE id=$1 AND ($2 OR token_hash=$3 OR account_token_hash=$3 OR sales_token_hash=$3)", id, admin, Hash(token)))
+	b, err := scan(s.DB.QueryRow(ctx, "SELECT "+columns+" FROM bookings WHERE id=$1 AND ($2 OR account_token_hash=$3 OR ((token_hash=$3 OR sales_token_hash=$3) AND (sales_user_id IS NULL OR EXISTS(SELECT 1 FROM users WHERE users.id=bookings.sales_user_id AND role IN ('sales','admin')))))", id, admin, Hash(token)))
 	if err != nil {
 		return b, err
 	}

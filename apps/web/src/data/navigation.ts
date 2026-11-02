@@ -3,6 +3,7 @@ import { helpTopics, type HelpTopic } from "./help";
 export const pagePaths = {
   home: "/",
   event: "/concert",
+  gettingThere: "/getting-there",
   checkout: "/checkout",
   payment: "/payment",
   success: "/success",
@@ -14,6 +15,8 @@ export const pagePaths = {
   operator: "/operator",
   help: "/help/faq",
   tablePreview: "/table-preview",
+  bookingPreview: "/booking-preview",
+  booking: "/booking",
 } as const;
 
 export type Page = keyof typeof pagePaths;
