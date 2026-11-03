@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
 import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
 import { X } from "lucide-react";
 import Header from "./components/layout/Header";
@@ -63,6 +68,9 @@ export default function App() {
   const [authDialogOpen, setAuthDialogOpen] = useState(
     () => pageFromLocation() === "auth",
   );
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const [logoutBusy, setLogoutBusy] = useState(false);
+  const [logoutError, setLogoutError] = useState("");
   const [helpTopic, setHelpTopic] = useState<HelpTopic>(helpFromLocation);
   const [openNavigationMenu, setOpenNavigationMenu] =
     useState<NavigationMenu>(null);
@@ -171,22 +179,43 @@ export default function App() {
     sessionStorage.setItem("riverlife.booking.id", data.id);
     sessionStorage.setItem("riverlife.booking.token", accessToken);
   };
-  const logoutCustomer = () => {
-    sessionStorage.removeItem("riverlife.booking.id");
-    sessionStorage.removeItem("riverlife.booking.token");
-    setBooking(null);
-    setToken("");
-    void api<void>("/auth/logout", { method: "POST" }).catch(() => undefined);
-    setIsAuthenticated(false);
-    sessionStorage.removeItem("riverlife.profile.name");
-    sessionStorage.removeItem("riverlife.profile.email");
-    sessionStorage.removeItem("riverlife.profile.role");
-    setProfile({
-      name: "ผู้ใช้งาน River Life",
-      email: "ยังไม่ได้เข้าสู่ระบบ",
-      role: "user",
-    });
-    go("home");
+  const requestLogout = () => {
+    setLogoutError("");
+    setLogoutDialogOpen(true);
+  };
+  const closeLogoutDialog = () => {
+    if (!logoutBusy) setLogoutDialogOpen(false);
+  };
+  const logoutCustomer = async () => {
+    if (logoutBusy) return;
+    setLogoutBusy(true);
+    setLogoutError("");
+    try {
+      await api<void>("/auth/logout", { method: "POST" });
+      sessionStorage.removeItem("riverlife.booking.id");
+      sessionStorage.removeItem("riverlife.booking.token");
+      setBooking(null);
+      setToken("");
+      setIsAuthenticated(false);
+      sessionStorage.removeItem("riverlife.profile.name");
+      sessionStorage.removeItem("riverlife.profile.email");
+      sessionStorage.removeItem("riverlife.profile.role");
+      setProfile({
+        name: "ผู้ใช้งาน River Life",
+        email: "ยังไม่ได้เข้าสู่ระบบ",
+        role: "user",
+      });
+      setLogoutDialogOpen(false);
+      go("home");
+    } catch {
+      setLogoutError(
+        language === "en"
+          ? "Unable to log out. Please try again."
+          : "ออกจากระบบไม่สำเร็จ กรุณาลองอีกครั้ง",
+      );
+    } finally {
+      setLogoutBusy(false);
+    }
   };
   const en = language === "en";
   return (
@@ -204,7 +233,7 @@ export default function App() {
         go={go}
         goHelp={goHelp}
         openAuthDialog={openAuthDialog}
-        logoutCustomer={logoutCustomer}
+        logoutCustomer={requestLogout}
         navigationRef={navigationRef}
       />
 
@@ -410,6 +439,71 @@ export default function App() {
             go(destination);
           }}
         />
+      </Dialog>
+      <Dialog
+        open={logoutDialogOpen}
+        onClose={closeLogoutDialog}
+        disableEscapeKeyDown={logoutBusy}
+        aria-labelledby="logout-dialog-title"
+        aria-describedby="logout-dialog-description"
+        slotProps={{ paper: { role: "alertdialog", "aria-busy": logoutBusy } }}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle id="logout-dialog-title">
+          {en ? "Log out" : "ออกจากระบบ"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="logout-dialog-description" aria-live="polite">
+            {logoutBusy
+              ? en
+                ? "Logging out. Please wait…"
+                : "กำลังออกจากระบบ กรุณารอสักครู่…"
+              : en
+                ? "Do you want to log out?"
+                : "คุณต้องการออกจากระบบหรือไม่?"}
+          </DialogContentText>
+          {logoutError && (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              {logoutError}
+            </Alert>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
+          <Button
+            variant="outlined"
+            onClick={closeLogoutDialog}
+            disabled={logoutBusy}
+            autoFocus
+          >
+            {en ? "Cancel" : "ยกเลิก"}
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => void logoutCustomer()}
+            disabled={logoutBusy}
+            sx={{
+              "&&.Mui-disabled": { color: "#080e19 !important" },
+            }}
+            startIcon={
+              logoutBusy ? (
+                <CircularProgress
+                  size={18}
+                  color="inherit"
+                  aria-hidden="true"
+                />
+              ) : undefined
+            }
+          >
+            {logoutBusy
+              ? en
+                ? "Logging out…"
+                : "กำลังออกจากระบบ…"
+              : en
+                ? "OK"
+                : "ตกลง"}
+          </Button>
+        </DialogActions>
       </Dialog>
       <ScrollToTop />
       <ScrollReveal />

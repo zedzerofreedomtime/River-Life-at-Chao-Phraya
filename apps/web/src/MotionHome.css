@@ -227,7 +227,7 @@
   color: var(--mj-ink);
 }
 .motion-home :is(h1, h2, h3, p, button, a, span) {
-  font-family: "DM Sans", "Kanit", sans-serif;
+  font-family: "DM Sans", Thonburi, Tahoma, "Noto Sans Thai", sans-serif;
 }
 .motion-home .mj-gutter {
   padding-inline: clamp(24px, 5vw, 100px);

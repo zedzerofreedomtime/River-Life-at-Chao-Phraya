@@ -1,38 +1,42 @@
-/* Thai UI copy uses font-semibold. Explicit English passages keep their own
-   hierarchy; font files already include Kanit 600. */
+/* Thai type hierarchy: display headings, clear controls, and quiet reading text. */
+:root[lang="th"] body {
+  font-weight: 400;
+}
+
+:root[lang="th"] body :is(h1, .page-title) {
+  font-weight: 700 !important;
+}
+
+:root[lang="th"] body :is(h2, h3, h4, h5, h6) {
+  font-weight: 600 !important;
+}
+
 :root[lang="th"]
   body
-  :is(
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6,
-    p,
-    span,
-    div,
-    a,
-    button,
-    li,
-    dt,
-    dd,
-    label,
-    strong,
-    em,
-    i,
-    figcaption,
-    caption,
-    legend,
-    b,
-    small,
-    input,
-    textarea,
-    select,
-    option,
-    th,
-    td,
-    summary
-  ):not(:lang(en)) {
+  :is(p, li, dt, dd, figcaption, td, input, textarea, select, option) {
+  font-weight: 400 !important;
+}
+
+:root[lang="th"] body :is(label, a, small, caption, legend) {
+  font-weight: 500 !important;
+}
+
+:root[lang="th"] body :is(button, th) {
+  font-weight: 600 !important;
+}
+
+:root[lang="th"] body :is(strong, b) {
+  font-weight: 700 !important;
+}
+
+/* Navigation has the same readable weight in Thai and English. */
+.market-header .ticket-nav > button,
+.market-header .ticket-nav-dropdown > button,
+.market-header .market-tools button,
+.market-header .market-tools button span,
+.river-mobile-drawer .ticket-nav > button,
+.river-mobile-drawer .ticket-nav-dropdown > button,
+.river-mobile-drawer .mobile-menu-tools button,
+.river-mobile-drawer .mobile-menu-tools button span {
   font-weight: 600 !important;
 }

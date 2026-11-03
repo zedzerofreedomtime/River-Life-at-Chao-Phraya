@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 :root {
-  font-family: "DM Sans", "DM Sans", "Kanit", Arial, sans-serif;
+  font-family: "DM Sans", Thonburi, Tahoma, "Noto Sans Thai", sans-serif;
   color: var(--rl-text);
   background: #050507; /* Sleeker true dark from reference */
   font-synthesis: none;
@@ -10,8 +10,7 @@
   --customer-gold: var(--rl-gold); /* Refined luxury gold */
   --customer-border: rgba(255, 255, 255, 0.08); /* Minimalist border */
   --customer-radius: 12px;
-  --heading-font:
-    "DM Sans", "DM Sans", "Kanit", sans-serif; /* No more serifs */
+  --heading-font: "DM Sans", Thonburi, Tahoma, "Noto Sans Thai", sans-serif;
   --page-title-size: clamp(30px, 3vw, 40px);
   --section-title-size: clamp(26px, 2.3vw, 32px);
 }
@@ -3788,27 +3787,6 @@ button[type="submit"],
   padding: 16px 20px !important;
 }
 
-/* Force font-medium (500) globally */
-body,
-.app-main,
-.app-main *,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p,
-span,
-div,
-a,
-button,
-li,
-dt,
-dd {
-  font-weight: 500 !important;
-}
-
 /* Fix Nav Button Hover/Active States */
 .market-header nav button:hover,
 .market-tools button:hover,
@@ -3845,11 +3823,6 @@ dd {
   background: rgb(var(--rl-gold-rgb) / 0.15) !important;
   color: var(--rl-gold) !important;
   transform: none !important;
-}
-
-/* Force font-medium globally across all components (including header, footer, modals, popovers) */
-* {
-  font-weight: 500 !important;
 }
 
 /* ==========================================================================
@@ -3980,9 +3953,9 @@ button *,
   background: transparent !important;
 }
 
-/* Force DM Sans and Kanit globally for all text */
+/* DM Sans handles Latin text; Thai glyphs use the Thonburi style from the reference. */
 * {
-  font-family: "DM Sans", "DM Sans", "Kanit", sans-serif !important;
+  font-family: "DM Sans", Thonburi, Tahoma, "Noto Sans Thai", sans-serif !important;
 }
 
 /* Push content down for all pages except home and event, because the header is now fixed and floats above. */

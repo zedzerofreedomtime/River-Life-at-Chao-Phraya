@@ -25,7 +25,7 @@ const theme = createTheme({
     text: { primary: "#f5f6f8", secondary: "#b3c0d0" },
   },
   typography: {
-    fontFamily: '"DM Sans", "Kanit", sans-serif',
+    fontFamily: '"DM Sans", Thonburi, Tahoma, "Noto Sans Thai", sans-serif',
     button: { textTransform: "none", fontWeight: 600 },
   },
   shape: { borderRadius: 8 },
