@@ -20,4 +20,5 @@ type Server struct {
 	OTPMailer           service.OTPMailer
 	DemoOTP             bool
 	BookingEmailEnabled bool
+	TrustedProxies      []string
 }

@@ -122,9 +122,10 @@ test("mobile list, zoom and English copy stay usable without horizontal page ove
   await expect(page).toHaveURL(/\/concert$/);
   await page
     .getByRole("button", {
-      name: "Choose tables · demo",
+      name: "Choose sailing & tables",
       exact: true,
     })
     .click();
-  await expect(page).toHaveURL(/\/table-preview$/);
+  await expect(page).toHaveURL(/\/booking$/);
+  await expect(page.locator(".booking-preview")).toBeVisible();
 });

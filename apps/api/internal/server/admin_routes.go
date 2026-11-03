@@ -26,6 +26,10 @@ func (s *Server) adminRoutes(api *gin.RouterGroup) {
 		c.Status(http.StatusNoContent)
 	})
 	api.POST("/admin/login", s.limiter(5), func(c *gin.Context) {
+		if c.ContentType() != "application/json" {
+			c.AbortWithStatusJSON(415, gin.H{"error": "ต้องส่งข้อมูลแบบ JSON"})
+			return
+		}
 		var in struct {
 			Password string `json:"password"`
 			Remember bool   `json:"remember"`

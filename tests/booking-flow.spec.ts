@@ -104,7 +104,7 @@ test("real demo booking: file validation, confirmation, persisted tickets and re
     .check();
   const input = page.locator('input[type="file"]');
   const png = Buffer.from(
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jQfQAAAAASUVORK5CYII=",
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAEUlEQVR4nGJiYGBgAAQAAP//AA8AA/6P688AAAAASUVORK5CYII=",
     "base64",
   );
   // A valid selection must also be cleared when replaced with an invalid one.
@@ -161,6 +161,8 @@ test("real demo booking: file validation, confirmation, persisted tickets and re
     .getByRole("button", { name: "เปิด QR Ticket", exact: true })
     .click();
   await page.reload();
+  // Reloaded authenticated accounts put earlier tickets in a collapsed disclosure.
+  await page.locator("details.legacy-booking:not([open]) > summary").click();
   await expect(page.locator(".wallet-ticket")).toHaveCount(4);
   await expect(page.locator("main")).toHaveCount(1);
   for (const width of [1440, 390]) {

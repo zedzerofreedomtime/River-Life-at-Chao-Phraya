@@ -44,7 +44,7 @@ export default function CultureStory({
           {en ? "Explore our boat" : "ทำความรู้จักเรือของเรา"}
           <ArrowRight size={18} aria-hidden="true" />
         </a>
-        <a className="culture-text-link" href="/concert#event-boarding">
+        <a className="culture-text-link" href="/getting-there">
           {en
             ? "Getting to " + event.pier + " · Pier " + event.pier_number
             : "การเดินทางไป " +

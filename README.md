@@ -2,6 +2,8 @@
 
 React + TypeScript + Tailwind CSS + MUI · Go Gin · PostgreSQL · Redis.
 
+The cinematic homepage is retained. `/booking` now uses verified Unicorn sailings, server-priced tables and optional food/wine; `/booking-preview` remains a separate demonstration. New sailing data stays in draft until approved. See [cruise system](docs/cruise-system.md) for administration, manual payment verification, ticket/email delivery and remaining launch requirements. No sale dates, prices or inventory are invented or automatically published.
+
 ## Run locally
 
 1. Install Docker Desktop (Linux containers), Node.js 24+ and Git.

@@ -2,6 +2,51 @@
   position: relative;
   scroll-margin-top: 0;
 }
+@media (prefers-reduced-motion: no-preference) {
+  .motion-home .rj-scene .rj-story-area .rj-copy {
+    animation: none;
+  }
+  .motion-home
+    .rj-copy
+    > :is(
+      .rj-era,
+      h3,
+      .rj-side,
+      .rj-history,
+      .rj-read-more,
+      .rj-view,
+      .rj-source
+    ) {
+    animation: rj-copy-arrive 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .motion-home .rj-copy > h3 {
+    animation-delay: 50ms;
+  }
+  .motion-home .rj-copy > .rj-side {
+    animation-delay: 90ms;
+  }
+  .motion-home .rj-copy > :is(.rj-history, .rj-read-more) {
+    animation-delay: 130ms;
+  }
+  .motion-home .rj-copy > :is(.rj-view, .rj-source) {
+    animation-delay: 180ms;
+  }
+}
+@media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
+  .motion-home .rj-scene .rj-images img.is-active {
+    transform: translate3d(0, var(--rj-drift, 0px), 0) scale(1.035);
+  }
+}
+@keyframes rj-copy-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
 .rj-anchor {
   position: absolute;
   top: 0;

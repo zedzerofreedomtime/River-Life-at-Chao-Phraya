@@ -63,6 +63,9 @@ func main() {
 		webOrigin = "http://localhost:3000"
 	}
 	app := &server.Server{Service: bookingService, Redis: cache, UploadDir: uploadDir, AdminPassword: password, CookieSecure: os.Getenv("COOKIE_SECURE") == "true", Demo: demo, WebOrigin: webOrigin, GoogleClientID: os.Getenv("GOOGLE_CLIENT_ID"), GoogleClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET")}
+	if proxies := strings.TrimSpace(os.Getenv("TRUSTED_PROXIES")); proxies != "" {
+		app.TrustedProxies = strings.FieldsFunc(proxies, func(r rune) bool { return r == ',' || r == ' ' })
+	}
 	mode := os.Getenv("OTP_DELIVERY_MODE")
 	if mode == "" {
 		mode = "smtp"
@@ -117,6 +120,7 @@ func main() {
 	}
 	if app.BookingEmailEnabled {
 		go service.RunBookingEmails(ctx, db, *smtpMailer, demo)
+		go service.RunCruiseEmails(ctx, bookingService, *smtpMailer)
 	} else {
 		slog.Warn("booking email delivery disabled; queued messages will wait for SMTP configuration")
 	}

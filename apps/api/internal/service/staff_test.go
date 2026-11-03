@@ -141,6 +141,9 @@ func TestStaffBookingAndBoarding(t *testing.T) {
 	if _, err = s.Get(ctx, b.ID, salesToken, false); !errors.Is(err, pgx.ErrNoRows) {
 		t.Fatal("revoked staff credential still works")
 	}
+	if _, err = s.Get(ctx, b.ID, token, false); !errors.Is(err, pgx.ErrNoRows) {
+		t.Fatal("original sales credential survived demotion")
+	}
 	if _, _, err = s.SalesAccess(ctx, b.ID, sale); !errors.Is(err, pgx.ErrNoRows) {
 		t.Fatal("revoked salesperson recovered credential")
 	}

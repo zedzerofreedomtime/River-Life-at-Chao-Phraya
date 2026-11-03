@@ -9,12 +9,18 @@ import (
 func (s *Server) Router() *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Recovery())
-	_ = r.SetTrustedProxies(nil)
+	if err := r.SetTrustedProxies(s.TrustedProxies); err != nil {
+		panic("invalid trusted proxy configuration")
+	}
+	r.RemoteIPHeaders = []string{"X-Forwarded-For"}
 	r.Use(requestSecurity())
 
 	api := r.Group("/api/v1")
 	s.paymentRoutes(api)
 	s.publicRoutes(api)
+	s.cruiseRoutes(api)
+	s.cruiseImageRoutes(api)
+	s.contactRoutes(api)
 	s.bookingRoutes(api)
 	s.authRoutes(api)
 	s.passwordResetRoutes(api)

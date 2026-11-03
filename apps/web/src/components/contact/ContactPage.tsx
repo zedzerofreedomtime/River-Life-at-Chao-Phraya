@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ArrowUpRight, MessageCircle, Send, ShieldCheck } from "lucide-react";
 import type { Language } from "../../data/i18n";
@@ -25,8 +25,9 @@ const subjectLabels = {
 
 export default function ContactPage({ language }: { language: Language }) {
   const en = language === "en";
-  const [draft, setDraft] = useState("");
-  const [copyStatus, setCopyStatus] = useState<"" | "copied" | "failed">("");
+  const [sending, setSending] = useState(false);
+  const [delivery, setDelivery] = useState<"" | "sent" | "failed">("");
+  const requestId = useRef(crypto.randomUUID());
   const {
     register,
     handleSubmit,
@@ -51,24 +52,25 @@ export default function ContactPage({ language }: { language: Language }) {
     email: en ? "Email" : "อีเมล",
     phone: en ? "Phone number (optional)" : "เบอร์โทรศัพท์ (ไม่บังคับ)",
   };
-  function prepare(values: Values) {
-    const subject =
-      subjectLabels[language][
-        subjects.indexOf(values.subject as (typeof subjects)[number])
-      ];
-    setDraft(
-      [
-        `River Life · ${subject}`,
-        `${en ? "Name" : "ชื่อ"}: ${values.firstName.trim()} ${values.lastName.trim()}`,
-        `Email: ${values.email.trim()}`,
-        ...(values.phone.trim()
-          ? [`${en ? "Phone" : "โทร"}: ${values.phone.trim()}`]
-          : []),
-        "",
-        values.message.trim(),
-      ].join("\n"),
-    );
-    setCopyStatus("");
+  async function prepare(values: Values) {
+    if (sending || delivery === "sent") return;
+    setSending(true);
+    setDelivery("");
+    try {
+      const response = await fetch("/api/v1/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...values, id: requestId.current }),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.ok || result.id !== requestId.current)
+        throw new Error("save failed");
+      setDelivery("sent");
+    } catch {
+      setDelivery("failed");
+    } finally {
+      setSending(false);
+    }
   }
   return (
     <section className="rl-contact-page" aria-labelledby="help-title">
@@ -133,8 +135,8 @@ export default function ContactPage({ language }: { language: Language }) {
           noValidate
           onSubmit={handleSubmit(prepare)}
           onChange={() => {
-            setDraft("");
-            setCopyStatus("");
+            if (delivery) requestId.current = crypto.randomUUID();
+            setDelivery("");
           }}
         >
           <div className="rl-contact-fields">
@@ -259,62 +261,37 @@ export default function ContactPage({ language }: { language: Language }) {
           <div className="rl-contact-submit">
             <p>
               {en
-                ? "Prepare your message, then send it in LINE. Nothing is sent automatically."
-                : "ตรวจสอบข้อความ แล้วกดส่งใน LINE อีกครั้ง ระบบไม่ส่งข้อความอัตโนมัติ"}
+                ? "Send your enquiry directly to the River Life team."
+                : "ส่งข้อมูลถึงทีม River Life ได้โดยตรง"}
             </p>
-            <button type="submit">
-              {en ? "Prepare message" : "เตรียมข้อความ"}
+            <button type="submit" disabled={sending || delivery === "sent"}>
+              {sending
+                ? en
+                  ? "Sending…"
+                  : "กำลังส่ง…"
+                : delivery === "sent"
+                  ? en
+                    ? "Sent"
+                    : "ส่งแล้ว"
+                  : en
+                    ? "Send message"
+                    : "ส่งข้อความ"}
               <Send size={18} aria-hidden="true" />
             </button>
           </div>
-          {draft && (
-            <div
-              className="rl-contact-draft"
-              role="region"
-              aria-label={en ? "Message preview" : "ตัวอย่างข้อความ"}
+          {delivery && (
+            <p
+              role={delivery === "failed" ? "alert" : "status"}
+              className={delivery === "failed" ? "rl-contact-error" : ""}
             >
-              <h3>{en ? "Ready to send in LINE" : "พร้อมส่งต่อใน LINE"}</h3>
-              <p>
-                {en
-                  ? "Your message has not been sent. Open LINE and press send, or copy it into the chat."
-                  : "ข้อความยังไม่ได้ส่ง เปิด LINE แล้วกดส่ง หรือคัดลอกข้อความไปวางในแชท"}
-              </p>
-              <pre>{draft}</pre>
-              <div>
-                <a
-                  href={`https://line.me/R/oaMessage/%40480xbltt/?${encodeURIComponent(draft)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {en ? "Open LINE to send" : "เปิด LINE เพื่อส่งข้อความ"}
-                  <ArrowUpRight size={16} aria-hidden="true" />
-                </a>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    try {
-                      await navigator.clipboard.writeText(draft);
-                      setCopyStatus("copied");
-                    } catch {
-                      setCopyStatus("failed");
-                    }
-                  }}
-                >
-                  {en ? "Copy message" : "คัดลอกข้อความ"}
-                </button>
-              </div>
-              <span role="status">
-                {copyStatus === "copied"
-                  ? en
-                    ? "Message copied"
-                    : "คัดลอกข้อความแล้ว"
-                  : copyStatus === "failed"
-                    ? en
-                      ? "Please select and copy the preview above."
-                      : "กรุณาเลือกและคัดลอกข้อความจากตัวอย่างด้านบน"
-                    : ""}
-              </span>
-            </div>
+              {delivery === "sent"
+                ? en
+                  ? "Message received. Our team will contact you using the details provided."
+                  : "รับข้อความเรียบร้อยแล้ว ทีมงานจะติดต่อกลับตามข้อมูลที่คุณระบุ"
+                : en
+                  ? "Could not confirm delivery. Please retry; your information is still here."
+                  : "ยังยืนยันการส่งไม่ได้ กรุณาลองใหม่ ข้อมูลที่กรอกยังอยู่ครบ"}
+            </p>
           )}
         </form>
       </div>

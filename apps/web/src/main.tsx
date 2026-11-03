@@ -11,6 +11,7 @@ import "./styles.css";
 import "./Cinematic.css";
 import "./ColorSystem.css";
 import "./Typography.css";
+import "./CruiseApp.css";
 const theme = createTheme({
   palette: {
     mode: "dark",

@@ -4,7 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"net/http"
+	"net/url"
 	"riverlife/api/internal/service"
+	"strings"
 )
 
 var limitScript = redis.NewScript(`local n=redis.call('INCR',KEYS[1]);if n==1 then redis.call('EXPIRE',KEYS[1],60) end;return n`)
@@ -81,6 +83,19 @@ func requestSecurity() gin.HandlerFunc {
 		c.Header("X-Content-Type-Options", "nosniff")
 		c.Header("Cache-Control", "no-store")
 		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 6<<20)
+		if c.Request.Method != http.MethodGet && c.Request.Method != http.MethodHead && c.Request.Method != http.MethodOptions {
+			// Login has no session yet: SameSite cookies alone do not prevent login CSRF.
+			origin := c.GetHeader("Origin")
+			foreign := c.GetHeader("Sec-Fetch-Site") == "cross-site"
+			if origin != "" {
+				u, err := url.Parse(origin)
+				foreign = foreign || err != nil || u == nil || (u.Scheme != "https" && u.Scheme != "http") || !strings.EqualFold(u.Host, c.Request.Host) || (c.Request.TLS != nil && u.Scheme != "https")
+			}
+			if foreign {
+				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "คำขอข้ามเว็บไซต์ไม่ได้รับอนุญาต"})
+				return
+			}
+		}
 		c.Next()
 	}
 }

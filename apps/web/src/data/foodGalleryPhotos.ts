@@ -1,0 +1,73 @@
+// Real buffet photos supplied by the user and the authorised Unicorn Cruise page.
+export const foodGalleryPhotos = [
+  {
+    src: "/images/food-gallery/buffet-01-v2.webp",
+    width: 1536,
+    height: 1536,
+    th: "ไลน์บุฟเฟต์บนเรือ",
+    en: "Onboard buffet line",
+  },
+  {
+    src: "/images/food-gallery/buffet-02-v2.webp",
+    width: 1108,
+    height: 1108,
+    th: "ถาดกุ้งและหอยแมลงภู่",
+    en: "Prawn and mussel buffet",
+  },
+  {
+    src: "/images/food-gallery/buffet-03-v2.webp",
+    width: 1108,
+    height: 1108,
+    th: "ซีฟู้ด",
+    en: "Seafood",
+  },
+  {
+    src: "/images/food-gallery/buffet-04-v2.webp",
+    width: 1322,
+    height: 1108,
+    th: "แซลมอนเต็มถาด",
+    en: "Salmon buffet platter",
+  },
+  {
+    src: "/images/food-gallery/buffet-05-v2.webp",
+    width: 1296,
+    height: 1086,
+    th: "ซูชิหลากหลายหน้า",
+    en: "Assorted sushi platters",
+  },
+  {
+    src: "/images/food-gallery/buffet-06-v2.webp",
+    width: 1108,
+    height: 1108,
+    th: "ปูอัดและยำ",
+    en: "Crab sticks and Thai salad",
+  },
+  {
+    src: "/images/food-gallery/buffet-07-v2.webp",
+    width: 1322,
+    height: 1108,
+    th: "ผัดไทยกุ้ง",
+    en: "Prawn pad Thai",
+  },
+  {
+    src: "/images/food-gallery/buffet-08-v2.webp",
+    width: 1477,
+    height: 1108,
+    th: "หอยแมลงภู่ผัดสมุนไพร",
+    en: "Mussels with herbs and vegetables",
+  },
+  {
+    src: "/images/food-gallery/buffet-09-v2.webp",
+    width: 1477,
+    height: 1108,
+    th: "ผัดผักรวม",
+    en: "Mixed vegetables",
+  },
+  {
+    src: "/images/food-gallery/buffet-10-v2.webp",
+    width: 1322,
+    height: 1108,
+    th: "อาหารร้อนจากไลน์บุฟเฟต์",
+    en: "Hot buffet selection",
+  },
+] as const;

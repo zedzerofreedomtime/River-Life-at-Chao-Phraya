@@ -3,7 +3,6 @@ package server
 import (
 	"bytes"
 	"context"
-	"crypto/subtle"
 	"encoding/json"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -96,11 +95,16 @@ func (s *Server) authRoutes(api *gin.RouterGroup) {
 			return
 		}
 		var challenge otpChallenge
-		if json.Unmarshal(raw, &challenge) != nil || subtle.ConstantTimeCompare([]byte(challenge.CodeHash), []byte(service.Hash(in.Code))) != 1 {
+		if json.Unmarshal(raw, &challenge) != nil {
 			c.AbortWithStatusJSON(401, gin.H{"error": "รหัส OTP หมดอายุหรือไม่ถูกต้อง"})
 			return
 		}
-		consumed, err := s.Redis.Eval(c.Request.Context(), `if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]) end return 0`, []string{key}, string(raw)).Int()
+		// Bind the attempt counter to this exact challenge, not to a caller's IP.
+		consumed, err := s.Redis.Eval(c.Request.Context(), `if redis.call('GET',KEYS[1])~=ARGV[1] then return 0 end
+local attempts=KEYS[1]..':attempts:'..ARGV[4]
+local n=redis.call('INCR',attempts);redis.call('EXPIRE',attempts,600)
+if ARGV[2]~=ARGV[3] then if n>=5 then redis.call('DEL',KEYS[1]) end return 0 end
+redis.call('DEL',KEYS[1],attempts);return 1`, []string{key}, string(raw), challenge.CodeHash, service.Hash(in.Code), service.Hash(string(raw))).Int()
 		if err != nil {
 			fail(c, err)
 			return
@@ -121,11 +125,15 @@ func (s *Server) authRoutes(api *gin.RouterGroup) {
 		c.JSON(200, user)
 	})
 	api.POST("/auth/login", s.limiter(10), func(c *gin.Context) {
+		if c.ContentType() != "application/json" {
+			c.AbortWithStatusJSON(415, gin.H{"error": "ต้องส่งข้อมูลแบบ JSON"})
+			return
+		}
 		var in struct {
 			Email    string `json:"email"`
 			Password string `json:"password"`
 		}
-		if c.ShouldBindJSON(&in) != nil || len(in.Password) == 0 {
+		if c.ShouldBindJSON(&in) != nil || len(in.Password) == 0 || len(in.Password) > 72 {
 			bad(c)
 			return
 		}
@@ -179,20 +187,26 @@ func (s *Server) authRoutes(api *gin.RouterGroup) {
 			return
 		}
 		state := service.Token()
-		if err := s.Redis.Set(c.Request.Context(), "riverlife:google-state:"+service.Hash(state), "1", 10*time.Minute).Err(); err != nil {
+		binding := service.Token()
+		if err := s.Redis.Set(c.Request.Context(), "riverlife:google-state:"+service.Hash(state), service.Hash(binding), 10*time.Minute).Err(); err != nil {
 			fail(c, err)
 			return
 		}
+		c.SetSameSite(http.SameSiteLaxMode)
+		c.SetCookie("riverlife_oauth", binding, 600, "/api/v1/auth/google", "", s.CookieSecure, true)
 		q := url.Values{"client_id": {s.GoogleClientID}, "redirect_uri": {s.googleCallbackURL()}, "response_type": {"code"}, "scope": {"openid email profile"}, "state": {state}, "prompt": {"select_account"}}
 		c.Redirect(http.StatusFound, "https://accounts.google.com/o/oauth2/v2/auth?"+q.Encode())
 	})
 	api.GET("/auth/google/callback", func(c *gin.Context) {
 		state, code := c.Query("state"), c.Query("code")
 		key := "riverlife:google-state:" + service.Hash(state)
-		if state == "" || code == "" || s.Redis.Del(c.Request.Context(), key).Val() != 1 {
+		binding, _ := c.Cookie("riverlife_oauth")
+		if state == "" || code == "" || binding == "" || s.Redis.Eval(c.Request.Context(), `if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]) end return 0`, []string{key}, service.Hash(binding)).Val() != int64(1) {
 			c.Redirect(http.StatusFound, strings.TrimRight(s.WebOrigin, "/")+"/auth?error=google")
 			return
 		}
+		c.SetSameSite(http.SameSiteLaxMode)
+		c.SetCookie("riverlife_oauth", "", -1, "/api/v1/auth/google", "", s.CookieSecure, true)
 		form := url.Values{"code": {code}, "client_id": {s.GoogleClientID}, "client_secret": {s.GoogleClientSecret}, "redirect_uri": {s.googleCallbackURL()}, "grant_type": {"authorization_code"}}
 		response, err := http.Post("https://oauth2.googleapis.com/token", "application/x-www-form-urlencoded", bytes.NewBufferString(form.Encode()))
 		if err != nil {

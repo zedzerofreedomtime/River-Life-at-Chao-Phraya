@@ -106,8 +106,9 @@
   opacity: 0;
   transform: translateY(24px);
   transition:
-    opacity 0.65s ease,
-    transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 0.7s ease,
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--home-reveal-delay, 0ms);
 }
 .motion-home[data-home-motion]:not([data-home-motion="off"])
   [data-home-reveal].mj-visible {
@@ -961,6 +962,55 @@ button.mj-frame:hover img {
     gap: 6px;
   }
 }
+/* Small, composited transitions keep navigation immediate on touch screens. */
+@media (prefers-reduced-motion: no-preference) {
+  .motion-home
+    :is(.MuiButton-root, .cruise-photo-open, .rj-arrow, .rj-read-more) {
+    transition:
+      transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 220ms ease,
+      border-color 220ms ease;
+  }
+  .motion-home :is(.MuiButton-root, .rj-arrow, .rj-read-more):active {
+    transform: scale(0.97);
+  }
+  .motion-home :is(.MuiButton-endIcon, .rj-read-more > svg) {
+    transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .motion-home .mj-intro.mj-visible > :is(h2, p) {
+    animation: home-copy-arrive 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .motion-home .mj-intro.mj-visible > p {
+    animation-delay: 110ms;
+  }
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .motion-home
+    :is(.MuiButton-root, .cruise-photo-open, .rj-arrow):not(:disabled):hover {
+    transform: translateY(-3px);
+  }
+  .motion-home
+    :is(.MuiButton-root:hover .MuiButton-endIcon, .rj-read-more:hover > svg) {
+    transform: translateX(4px);
+  }
+  .motion-home .cruise-onboard-gallery .cruise-photo-open img {
+    transition: transform 850ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .motion-home .cruise-onboard-gallery .cruise-photo-open:hover img {
+    transform: scale(1.035);
+  }
+}
+@keyframes home-copy-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .motion-home *,
   .mj-loader {

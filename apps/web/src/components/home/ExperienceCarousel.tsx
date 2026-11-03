@@ -24,11 +24,17 @@ export default function ExperienceCarousel({
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const [touching, setTouching] = useState(false);
+  const [interaction, setInteraction] = useState(0);
   const [visible, setVisible] = useState(false);
   const [tabVisible, setTabVisible] = useState(!document.hidden);
   const playing =
     !paused &&
     !hovered &&
+    !focused &&
+    !touching &&
+    slides.length > 1 &&
     visible &&
     tabVisible &&
     !suspended &&
@@ -50,13 +56,13 @@ export default function ExperienceCarousel({
     if (!playing) return;
     const timer = setTimeout(
       () => setCurrent((value) => (value + 1) % slides.length),
-      3000,
+      5000,
     );
     return () => clearTimeout(timer);
-  }, [playing, current, slides.length]);
+  }, [playing, current, slides.length, interaction]);
   const choose = (index: number) => {
-    setPaused(true);
     setCurrent((index + slides.length) % slides.length);
+    setInteraction((value) => value + 1);
   };
   return (
     <div
@@ -66,14 +72,28 @@ export default function ExperienceCarousel({
       role="region"
       aria-roledescription={en ? "carousel" : "สไลด์"}
       aria-label={en ? "Onboard experiences" : "ประสบการณ์บนเรือ"}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocusCapture={() => setPaused(true)}
+      onPointerEnter={(event) => {
+        if (event.pointerType === "mouse") setHovered(true);
+      }}
+      onPointerLeave={(event) => {
+        if (event.pointerType === "mouse") setHovered(false);
+      }}
+      onFocusCapture={(event) =>
+        setFocused(event.target.matches(":focus-visible"))
+      }
+      onBlurCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget))
+          setFocused(false);
+      }}
       onPointerDown={(event) => {
-        if (event.pointerType === "touch") touchStart.current = event.clientX;
+        if (event.pointerType === "touch") {
+          touchStart.current = event.clientX;
+          setTouching(true);
+        }
       }}
       onPointerCancel={() => {
         touchStart.current = null;
+        setTouching(false);
       }}
       onPointerUp={(event) => {
         if (
@@ -82,6 +102,7 @@ export default function ExperienceCarousel({
         )
           choose(current + (event.clientX < touchStart.current ? 1 : -1));
         touchStart.current = null;
+        setTouching(false);
       }}
     >
       <div
