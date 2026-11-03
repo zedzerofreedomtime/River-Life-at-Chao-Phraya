@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import { api } from "../../data/api";
 import type { Language } from "../../data/i18n";
 import PasswordReset from "./PasswordReset";
+import "../../Auth.css";
 
 export type AuthUser = {
   id: string;
@@ -38,6 +39,32 @@ export default function Auth({
   const [busy, setBusy] = useState(false);
   const isSignup = mode === "signup";
   const [resetOpen, setResetOpen] = useState(false);
+  const [googleReady, setGoogleReady] = useState<boolean | null>(null);
+  useEffect(() => {
+    let stopped = false;
+    void api<{ configured: boolean }>("/auth/google/status")
+      .then(({ configured }) => {
+        if (!stopped) setGoogleReady(configured);
+      })
+      .catch(() => {
+        if (!stopped) setGoogleReady(false);
+      });
+    return () => {
+      stopped = true;
+    };
+  }, []);
+  const googleFailed =
+    new URLSearchParams(window.location.search).get("error") === "google";
+  const startGoogle = () => {
+    if (!googleReady || busy) return;
+    const returnTo =
+      window.location.pathname === "/auth"
+        ? "/orders"
+        : window.location.pathname;
+    window.location.assign(
+      `/api/v1/auth/google/start?return_to=${encodeURIComponent(returnTo)}`,
+    );
+  };
 
   const switchMode = (next: Mode) => {
     setMode(next);
@@ -195,7 +222,7 @@ export default function Auth({
 
   return (
     <section
-      className={`auth-page content-panel${modal ? " auth-modal-content" : ""}`}
+      className={`auth-page${modal ? " auth-modal-content" : " content-panel"}`}
     >
       <div
         className="auth-tabs"
@@ -234,10 +261,10 @@ export default function Auth({
                   : "สมัครสมาชิกสำเร็จ"
                 : en
                   ? "Join River Life"
-                  : "สมัครสมาชิก River Life"
+                  : "สร้างบัญชีของคุณ"
             : en
-              ? "Welcome to River Life"
-              : "เข้าสู่ระบบ River Life"}
+              ? "Welcome back"
+              : "ยินดีต้อนรับกลับ"}
         </h1>
         <p>
           {isSignup
@@ -257,6 +284,61 @@ export default function Auth({
               : "กรอกอีเมลและรหัสผ่านเพื่อเข้าสู่ระบบ"}
         </p>
       </div>
+      {(!isSignup || signupStep === "details") && (
+        <div className="auth-google">
+          <Button
+            fullWidth
+            variant="outlined"
+            type="button"
+            disabled={!googleReady || busy}
+            onClick={startGoogle}
+            startIcon={
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 48 48"
+                aria-hidden="true"
+              >
+                <path
+                  fill="#4285F4"
+                  d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11a9.4 9.4 0 0 1-4.1 6.2v5.2h6.7c3.9-3.6 6-8.8 6-15.1Z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M24 44c5.5 0 10.1-1.8 13.5-4.9l-6.7-5.2c-1.8 1.2-4.1 1.9-6.8 1.9-5.3 0-9.8-3.6-11.4-8.4H5.7v5.4A20.4 20.4 0 0 0 24 44Z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M12.6 27.4a12.3 12.3 0 0 1 0-7.8v-5.4H5.7a20.4 20.4 0 0 0 0 18.6l6.9-5.4Z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M24 11.2c3 0 5.6 1 7.7 3l5.8-5.8A19.6 19.6 0 0 0 24 3 20.4 20.4 0 0 0 5.7 14.2l6.9 5.4c1.6-4.8 6.1-8.4 11.4-8.4Z"
+                />
+              </svg>
+            }
+          >
+            {en ? "Continue with Google" : "ดำเนินการต่อด้วย Google"}
+          </Button>
+          {googleReady === false && (
+            <p>
+              {en
+                ? "Google sign-in is currently unavailable. Please use email."
+                : "Google ยังไม่พร้อมใช้งาน กรุณาใช้อีเมลเข้าสู่ระบบ"}
+            </p>
+          )}
+          {googleFailed && (
+            <Alert severity="error">
+              {en
+                ? "Google sign-in was cancelled or unsuccessful. Please try again."
+                : "เข้าสู่ระบบ Google ไม่สำเร็จหรือถูกยกเลิก กรุณาลองอีกครั้ง"}
+            </Alert>
+          )}
+          <div className="auth-method-divider">
+            <span>{en ? "or continue with email" : "หรือใช้อีเมล"}</span>
+          </div>
+        </div>
+      )}
       <form
         className="auth-form"
         onSubmit={(event) => {

@@ -6,6 +6,10 @@ The cinematic homepage is retained. `/booking` now uses verified Unicorn sailing
 
 ## Run locally
 
+Google sign-in is available alongside email login once a Google OAuth Web client is configured. See [Google login setup](docs/google-login.md).
+
+The current cruise reservation flow uses **Omise PromptPay sandbox** when configured. See [Omise sandbox setup](docs/omise-sandbox.md) for account keys, webhooks, test payments and reconciliation. Existing Stripe code remains a legacy opt-in integration.
+
 1. Install Docker Desktop (Linux containers), Node.js 24+ and Git.
 2. Copy `.env.example` to `.env` and replace both passwords. Staff password must be at least 16 characters. Do not commit `.env`.
 3. `docker compose up -d --build`

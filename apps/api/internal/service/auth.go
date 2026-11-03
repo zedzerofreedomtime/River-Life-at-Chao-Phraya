@@ -35,15 +35,27 @@ func (s *Service) UpsertUser(ctx context.Context, email, name, provider, subject
 	}
 	defer tx.Rollback(ctx)
 	var user User
+	// A provider's stable subject owns the identity, even if its email changes.
+	err = tx.QueryRow(ctx, `SELECT u.id,u.name,u.email,u.role FROM auth_identities i JOIN users u ON u.id=i.user_id WHERE i.provider=$1 AND i.provider_subject=$2`, provider, subject).Scan(&user.ID, &user.Name, &user.Email, &user.Role)
+	if err == nil {
+		return user, tx.Commit(ctx)
+	}
+	if !errors.Is(err, pgx.ErrNoRows) {
+		return User{}, err
+	}
 	err = tx.QueryRow(ctx, `INSERT INTO users(id,email,name) VALUES($1,$2,$3)
 		ON CONFLICT(email) DO UPDATE SET name=CASE WHEN EXCLUDED.name<>'' THEN EXCLUDED.name ELSE users.name END, updated_at=now()
 		RETURNING id,name,email,role`, Token(), email, name).Scan(&user.ID, &user.Name, &user.Email, &user.Role)
 	if err != nil {
 		return User{}, err
 	}
-	if _, err = tx.Exec(ctx, `INSERT INTO auth_identities(provider,provider_subject,user_id) VALUES($1,$2,$3)
-		ON CONFLICT(provider,provider_subject) DO UPDATE SET user_id=EXCLUDED.user_id`, provider, subject, user.ID); err != nil {
+	var linked string
+	if err = tx.QueryRow(ctx, `INSERT INTO auth_identities(provider,provider_subject,user_id) VALUES($1,$2,$3)
+		ON CONFLICT(provider,provider_subject) DO UPDATE SET provider_subject=EXCLUDED.provider_subject RETURNING user_id`, provider, subject, user.ID).Scan(&linked); err != nil {
 		return User{}, err
+	}
+	if linked != user.ID {
+		return User{}, ErrInvalidCredentials
 	}
 	return user, tx.Commit(ctx)
 }

@@ -94,7 +94,7 @@ func TestSecurityOAuthBrowserBinding(t *testing.T) {
 	cache := securityCache(t)
 	r := (&Server{Redis: cache, GoogleClientID: "test", GoogleClientSecret: "test", WebOrigin: "https://river.test"}).Router()
 	start := httptest.NewRecorder()
-	r.ServeHTTP(start, httptest.NewRequest("GET", "https://river.test/api/v1/auth/google/start", nil))
+	r.ServeHTTP(start, httptest.NewRequest("GET", "https://river.test/api/v1/auth/google/start?return_to=/booking", nil))
 	u, _ := url.Parse(start.Header().Get("Location"))
 	state := u.Query().Get("state")
 	if state == "" {
@@ -248,6 +248,10 @@ func TestSecurityOAuthBoundBrowserSucceedsOnce(t *testing.T) {
 	}
 	if session == nil || calls != 2 {
 		t.Fatalf("valid login failed: %d calls=%d", w.Code, calls)
+	}
+	// The default return path remains within this application's origin.
+	if w.Header().Get("Location") != "https://river.test/orders" {
+		t.Fatal("unsafe return path", w.Header().Get("Location"))
 	}
 	req := httptest.NewRequest("GET", "https://river.test/api/v1/auth/me", nil)
 	req.AddCookie(session)

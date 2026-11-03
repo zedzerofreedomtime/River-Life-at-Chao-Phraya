@@ -17,8 +17,11 @@ import (
 
 func TestRouteInventory(t *testing.T) {
 	want := map[string]bool{
-		"GET /api/v1/cruise-images/:name":true,
-		"POST /api/v1/dashboard/admin/cruises/images":true,
+		"POST /api/v1/me/cruise-reservations/:id/checkout":                      true,
+		"POST /api/v1/me/cruise-reservations/:id/payment-status":                true,
+		"POST /api/v1/payments/omise/webhook":                                   true,
+		"GET /api/v1/cruise-images/:name":                                       true,
+		"POST /api/v1/dashboard/admin/cruises/images":                           true,
 		"GET /api/v1/cruise-checkout/config":                                    true,
 		"GET /api/v1/me/cruise-reservations/:id":                                true,
 		"GET /api/v1/dashboard/admin/cruises/reservations":                      true,

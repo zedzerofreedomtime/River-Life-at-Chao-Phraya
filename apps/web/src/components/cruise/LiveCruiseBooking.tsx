@@ -1,3 +1,4 @@
+import OmisePayment from "./OmisePayment";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, Info, Ship } from "lucide-react";
 import { api, money } from "../../data/api";
@@ -211,10 +212,16 @@ export default function LiveCruiseBooking({
         </div>
         <p>
           {t(
-            "ยังไม่ได้ชำระเงินและยังไม่มีตั๋วขึ้นเรือ ขณะนี้ยังไม่เปิดรับชำระผ่าน Payment Gateway ติดต่อทีมงานก่อนชำระเงิน และรอการตรวจสอบยอดจริง",
-            "This is an unpaid hold, not a boarding ticket. Online payment is not connected. Contact the team before paying and wait for verified payment confirmation.",
+            "ยังไม่ได้ชำระเงินและยังไม่มีตั๋วขึ้นเรือ หากเปิดใช้ Sandbox ให้ใช้ QR ทดสอบด้านล่างและรอผลยืนยันจากระบบ",
+            "This is an unpaid hold, not a boarding ticket. Use the test QR below when sandbox is configured and wait for payment verification.",
           )}
         </p>
+        <OmisePayment
+          key={result.id}
+          id={result.id}
+          language={language}
+          onPaid={onOrders}
+        />
         <div className="bp-actions">
           <button className="bp-secondary" onClick={onContact}>
             {t("ติดต่อทีมงาน", "Contact the team")}
@@ -734,7 +741,7 @@ export default function LiveCruiseBooking({
             <small className="bp-summary-hint">
               {t(
                 "พักโต๊ะ 15 นาที · ยังไม่เปิดชำระผ่าน Gateway",
-                "15-minute hold · Gateway payment not connected",
+                "15-minute hold · Omise sandbox when configured",
               )}
             </small>
           </aside>

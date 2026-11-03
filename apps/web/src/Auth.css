@@ -1,0 +1,148 @@
+/* Account access has its own compact layout instead of page-heading styles. */
+.auth-dialog .MuiDialog-paper {
+  width: 460px;
+  max-width: calc(100% - 32px);
+  max-height: calc(100% - 32px);
+  margin: 16px;
+  overflow-y: auto;
+  border: 1px solid #314052;
+  border-radius: 20px !important;
+  box-shadow: 0 32px 100px #0009;
+}
+.auth-dialog .auth-dialog-banner {
+  min-height: 72px;
+  padding: 0 22px 0 30px;
+  background: #0c1520 !important;
+}
+.auth-dialog .auth-dialog-banner span {
+  font:
+    500 19px/1.2 "DM Sans",
+    sans-serif;
+  letter-spacing: 0.22em;
+  color: #dcc08e;
+}
+.auth-dialog .auth-page.auth-modal-content {
+  padding: 26px 30px 30px;
+  background: #121e2c !important;
+}
+.auth-dialog .auth-page .auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  margin: 0 0 28px;
+  border: 1px solid #2d3b4c;
+  border-radius: 12px;
+  background: #0b1521;
+}
+.auth-dialog .auth-page .auth-tabs button {
+  min-height: 42px;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 8px;
+  color: #aab7c8;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.auth-dialog .auth-page .auth-tabs button.active {
+  background: #273547;
+  color: #f4dfb8;
+  box-shadow: 0 2px 6px #0002;
+  border: 0;
+}
+.auth-page .orders-heading {
+  margin: 0 0 24px;
+  text-align: center;
+}
+.auth-page .orders-heading h1 {
+  margin: 0 0 9px;
+  font-size: 28px !important;
+  line-height: 1.4;
+  letter-spacing: -0.025em;
+}
+.auth-page .orders-heading p {
+  margin: 0;
+  color: #b4c0cf;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.auth-page .auth-google > .MuiButton-root {
+  min-height: 48px;
+  gap: 8px;
+  padding: 11px 16px;
+  border: 1px solid #d9dfe6 !important;
+  border-radius: 10px;
+  background: #f7f8fa !important;
+  color: #243042 !important;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.auth-page .auth-google > .MuiButton-root:hover {
+  background: #e8edf3 !important;
+}
+.auth-page .auth-google > .MuiButton-root.Mui-disabled {
+  opacity: 0.5;
+}
+.auth-page .auth-google > p {
+  font-size: 13px;
+  line-height: 1.7;
+}
+.auth-page .auth-method-divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 22px 0;
+  color: #95a5b8;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.auth-method-divider::before,
+.auth-method-divider::after {
+  content: "";
+  height: 1px;
+  background: #304052;
+  flex: 1;
+}
+.auth-page .auth-form {
+  gap: 18px;
+}
+.auth-page .auth-form .MuiOutlinedInput-root {
+  border-radius: 10px;
+  min-height: 48px;
+}
+.auth-page .auth-form .MuiButton-contained {
+  min-height: 48px;
+  margin-top: 2px;
+  border-radius: 10px !important;
+  font-size: 15px;
+}
+.auth-page .auth-form > .MuiButton-text {
+  justify-self: center;
+  min-height: 32px;
+  margin-top: -6px;
+  font-size: 13px;
+}
+.auth-page :is(button, a, input):focus-visible {
+  outline: 2px solid #e4c78f;
+  outline-offset: 3px;
+}
+@media (max-width: 520px) {
+  .auth-dialog .MuiDialog-paper {
+    max-width: calc(100% - 24px);
+    margin: 12px;
+    border-radius: 16px !important;
+  }
+  .auth-dialog .auth-dialog-banner {
+    min-height: 62px;
+    padding: 0 14px 0 22px;
+  }
+  .auth-dialog .auth-page.auth-modal-content {
+    padding: 22px 22px 26px;
+  }
+  .auth-page .orders-heading h1 {
+    font-size: 25px !important;
+  }
+  .auth-dialog .auth-page .auth-tabs {
+    margin-bottom: 22px;
+  }
+}

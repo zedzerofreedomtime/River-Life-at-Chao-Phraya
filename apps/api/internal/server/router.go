@@ -19,6 +19,7 @@ func (s *Server) Router() *gin.Engine {
 	s.paymentRoutes(api)
 	s.publicRoutes(api)
 	s.cruiseRoutes(api)
+	s.omiseRoutes(api)
 	s.cruiseImageRoutes(api)
 	s.contactRoutes(api)
 	s.bookingRoutes(api)

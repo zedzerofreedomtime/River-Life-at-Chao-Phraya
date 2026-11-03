@@ -192,3 +192,13 @@ CREATE OR REPLACE TRIGGER booking_confirmation_emails AFTER UPDATE OF status ON 
 -- Additive: existing bookings remain whole-table bookings; no invented seat prices.
 ALTER TABLE sailing_tables ADD COLUMN IF NOT EXISTS seat_price INTEGER NOT NULL DEFAULT 0 CHECK(seat_price >= 0);
 ALTER TABLE cruise_reservations ADD COLUMN IF NOT EXISTS seat_ids TEXT[] NOT NULL DEFAULT '{}';
+
+-- Omise sandbox checkout attempts survive retries and ambiguous network failures.
+ALTER TABLE cruise_payments DROP CONSTRAINT IF EXISTS cruise_payments_provider_check;
+ALTER TABLE cruise_payments ADD CONSTRAINT cruise_payments_provider_check CHECK(provider IN ('manual','omise'));
+ALTER TABLE cruise_payments ALTER COLUMN actor_id DROP NOT NULL;
+ALTER TABLE cruise_admin_audit ALTER COLUMN actor_id DROP NOT NULL;
+CREATE TABLE IF NOT EXISTS omise_checkouts (
+ reservation_id text PRIMARY KEY REFERENCES cruise_reservations(id),
+ charge_id text UNIQUE, created_at timestamptz NOT NULL DEFAULT now()
+);

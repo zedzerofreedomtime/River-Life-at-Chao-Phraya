@@ -109,7 +109,14 @@ func main() {
 		slog.Error("OTP_DELIVERY_MODE must be smtp or demo")
 		os.Exit(1)
 	}
-	if key := os.Getenv("STRIPE_SECRET_KEY"); key != "" {
+	if key := os.Getenv("OMISE_SECRET_KEY"); key != "" {
+		if !demo || !strings.HasPrefix(key, "skey_test_") {
+			slog.Error("Omise requires DEMO_MODE=true and a test secret key")
+			os.Exit(1)
+		}
+		app.CruisePayments = &service.CruisePayments{Bookings: bookingService, Client: &service.OmiseClient{Secret: key}}
+	}
+	if key := os.Getenv("STRIPE_SECRET_KEY"); key != "" && os.Getenv("PAYMENT_PROVIDER") == "stripe" {
 		if !demo || !strings.HasPrefix(key, "sk_test_") {
 			slog.Error("Stripe integration currently supports demo mode and test keys only")
 			os.Exit(1)

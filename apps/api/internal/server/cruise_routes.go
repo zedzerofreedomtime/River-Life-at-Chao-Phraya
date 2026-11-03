@@ -7,7 +7,7 @@ import (
 
 func (s *Server) cruiseRoutes(api *gin.RouterGroup) {
 	api.GET("/cruise-checkout/config", func(c *gin.Context) {
-		c.JSON(200, gin.H{"payment_gateway_enabled": false, "email_delivery_enabled": s.BookingEmailEnabled})
+		c.JSON(200, gin.H{"payment_gateway_enabled": s.CruisePayments != nil, "provider": "omise", "sandbox": true, "email_delivery_enabled": s.BookingEmailEnabled})
 	})
 	api.GET("/me/cruise-reservations/:id", s.limiter(120), func(c *gin.Context) {
 		c.Header("Cache-Control", "no-store")

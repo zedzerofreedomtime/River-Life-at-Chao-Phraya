@@ -35,7 +35,7 @@ func TestCruiseOperationsRequireStaffLogin(t *testing.T) {
 func TestCruiseCheckoutDoesNotAdvertiseGateway(t *testing.T) {
 	w := httptest.NewRecorder()
 	(&Server{}).Router().ServeHTTP(w, httptest.NewRequest("GET", "/api/v1/cruise-checkout/config", nil))
-	if w.Code != 200 || w.Body.String() != "{\"email_delivery_enabled\":false,\"payment_gateway_enabled\":false}" {
+	if w.Code != 200 || w.Body.String() != "{\"email_delivery_enabled\":false,\"payment_gateway_enabled\":false,\"provider\":\"omise\",\"sandbox\":true}" {
 		t.Fatalf("unexpected checkout config %d %s", w.Code, w.Body.String())
 	}
 }

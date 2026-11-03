@@ -111,7 +111,10 @@ func (s *Service) CruiseReservationDetail(ctx context.Context, id, user string) 
 
 // Staff-verified bank payment only. Customer input never marks an order paid.
 func (s *Service) ConfirmCruisePayment(ctx context.Context, id, actor, reference string, amount int) (CruiseReservationDetail, error) {
-	reference = strings.ToUpper(strings.TrimSpace(reference))
+	return s.confirmCruisePayment(ctx, id, actor, strings.ToUpper(strings.TrimSpace(reference)), amount, "manual")
+}
+
+func (s *Service) confirmCruisePayment(ctx context.Context, id, actor, reference string, amount int, provider string) (CruiseReservationDetail, error) {
 	if len(reference) < 8 || len(reference) > 100 || strings.ContainsAny(reference, "\r\n") || amount < 1 {
 		return CruiseReservationDetail{}, ErrConflict
 	}
@@ -120,11 +123,15 @@ func (s *Service) ConfirmCruisePayment(ctx context.Context, id, actor, reference
 		return CruiseReservationDetail{}, err
 	}
 	defer tx.Rollback(ctx)
-	var role string
-	if err = tx.QueryRow(ctx, `SELECT role FROM users WHERE id=$1`, actor).Scan(&role); err != nil {
-		return CruiseReservationDetail{}, err
-	}
-	if role != RoleAdmin {
+	if provider == "manual" {
+		var role string
+		if err = tx.QueryRow(ctx, `SELECT role FROM users WHERE id=$1`, actor).Scan(&role); err != nil {
+			return CruiseReservationDetail{}, err
+		}
+		if role != RoleAdmin {
+			return CruiseReservationDetail{}, ErrConflict
+		}
+	} else if provider != "omise" {
 		return CruiseReservationDetail{}, ErrConflict
 	}
 	var sailing, user string
@@ -146,6 +153,15 @@ func (s *Service) ConfirmCruisePayment(ctx context.Context, id, actor, reference
 	if total != amount {
 		return CruiseReservationDetail{}, ErrConflict
 	}
+	if provider == "manual" {
+		var gatewayPending bool
+		if err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM omise_checkouts WHERE reservation_id=$1)`, id).Scan(&gatewayPending); err != nil {
+			return CruiseReservationDetail{}, err
+		}
+		if gatewayPending {
+			return CruiseReservationDetail{}, ErrConflict
+		}
+	}
 	if status == "confirmed" {
 		var existing string
 		if err = tx.QueryRow(ctx, `SELECT reference FROM cruise_payments WHERE reservation_id=$1`, id).Scan(&existing); err != nil {
@@ -160,7 +176,7 @@ func (s *Service) ConfirmCruisePayment(ctx context.Context, id, actor, reference
 	if status != "held" || !expires.After(time.Now()) {
 		return CruiseReservationDetail{}, ErrConflict
 	}
-	tag, err := tx.Exec(ctx, `INSERT INTO cruise_payments(reservation_id,provider,reference,amount,actor_id) VALUES($1,'manual',$2,$3,$4) ON CONFLICT DO NOTHING`, id, reference, amount, actor)
+	tag, err := tx.Exec(ctx, `INSERT INTO cruise_payments(reservation_id,provider,reference,amount,actor_id) VALUES($1,$5,$2,$3,NULLIF($4,'')) ON CONFLICT DO NOTHING`, id, reference, amount, actor, provider)
 	if err != nil {
 		return CruiseReservationDetail{}, err
 	}
@@ -208,6 +224,9 @@ func (s *Service) ConfirmCruisePayment(ctx context.Context, id, actor, reference
 	loc := time.FixedZone("Asia/Bangkok", 7*3600)
 	date := snapshot.Departure.In(loc).Format("2006-01-02")
 	program := BookingProgram{Title: snapshot.Vessel + " · " + snapshot.Title, SailingDate: &date, Boarding: snapshot.Boarding.In(loc).Format("15:04"), Departure: snapshot.Departure.In(loc).Format("15:04"), FullPier: snapshot.Pier}
+	if provider == "omise" {
+		program.Title = "[TEST · Omise sandbox] " + program.Title
+	}
 	var notes string
 	var requests []string
 	var tableTotal, extraTotal int
@@ -251,7 +270,7 @@ func (s *Service) ConfirmCruisePayment(ctx context.Context, id, actor, reference
 			return CruiseReservationDetail{}, err
 		}
 	}
-	if _, err = tx.Exec(ctx, `INSERT INTO cruise_admin_audit(actor_id,sailing_id,action) VALUES($1,$2,$3)`, actor, sailing, "confirm-payment:"+id); err != nil {
+	if _, err = tx.Exec(ctx, `INSERT INTO cruise_admin_audit(actor_id,sailing_id,action) VALUES(NULLIF($1,''),$2,$3)`, actor, sailing, provider+":confirm-payment:"+id); err != nil {
 		return CruiseReservationDetail{}, err
 	}
 	if err = tx.Commit(ctx); err != nil {

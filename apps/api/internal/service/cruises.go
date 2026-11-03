@@ -561,12 +561,24 @@ func (s *Service) CruiseReservations(ctx context.Context, user string) ([]Cruise
 	return out, rows.Err()
 }
 func (s *Service) CancelCruiseReservation(ctx context.Context, id, user string) error {
-	tag, err := s.DB.Exec(ctx, `UPDATE cruise_reservations SET status='cancelled' WHERE id=$1 AND user_id=$2 AND status='held'`, id, user)
+	tx, err := s.DB.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+	var locked string
+	if err = tx.QueryRow(ctx, `SELECT id FROM cruise_reservations WHERE id=$1 AND user_id=$2 FOR UPDATE`, id, user).Scan(&locked); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return ErrConflict
+		}
+		return err
+	}
+	tag, err := tx.Exec(ctx, `UPDATE cruise_reservations SET status='cancelled' WHERE id=$1 AND user_id=$2 AND status='held' AND NOT EXISTS(SELECT 1 FROM omise_checkouts o WHERE o.reservation_id=cruise_reservations.id)`, id, user)
 	if err != nil {
 		return err
 	}
 	if tag.RowsAffected() != 1 {
 		return ErrConflict
 	}
-	return nil
+	return tx.Commit(ctx)
 }

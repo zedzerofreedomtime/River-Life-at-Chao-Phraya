@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/gin-gonic/gin"
+	"io"
 	"net/http"
 	"net/url"
 	"riverlife/api/internal/service"
@@ -188,7 +189,12 @@ redis.call('DEL',KEYS[1],attempts);return 1`, []string{key}, string(raw), challe
 		}
 		state := service.Token()
 		binding := service.Token()
+		returnTo := googleReturnPath(c.Query("return_to"))
 		if err := s.Redis.Set(c.Request.Context(), "riverlife:google-state:"+service.Hash(state), service.Hash(binding), 10*time.Minute).Err(); err != nil {
+			fail(c, err)
+			return
+		}
+		if err := s.Redis.Set(c.Request.Context(), "riverlife:google-state:"+service.Hash(state)+":return", returnTo, 10*time.Minute).Err(); err != nil {
 			fail(c, err)
 			return
 		}
@@ -198,6 +204,10 @@ redis.call('DEL',KEYS[1],attempts);return 1`, []string{key}, string(raw), challe
 		c.Redirect(http.StatusFound, "https://accounts.google.com/o/oauth2/v2/auth?"+q.Encode())
 	})
 	api.GET("/auth/google/callback", func(c *gin.Context) {
+		if s.GoogleClientID == "" || s.GoogleClientSecret == "" {
+			c.Redirect(http.StatusFound, strings.TrimRight(s.WebOrigin, "/")+"/auth?error=google")
+			return
+		}
 		state, code := c.Query("state"), c.Query("code")
 		key := "riverlife:google-state:" + service.Hash(state)
 		binding, _ := c.Cookie("riverlife_oauth")
@@ -207,8 +217,13 @@ redis.call('DEL',KEYS[1],attempts);return 1`, []string{key}, string(raw), challe
 		}
 		c.SetSameSite(http.SameSiteLaxMode)
 		c.SetCookie("riverlife_oauth", "", -1, "/api/v1/auth/google", "", s.CookieSecure, true)
+		returnTo := googleReturnPath(s.Redis.GetDel(c.Request.Context(), key+":return").Val())
+		ctx, cancel := context.WithTimeout(c.Request.Context(), 15*time.Second)
+		defer cancel()
 		form := url.Values{"code": {code}, "client_id": {s.GoogleClientID}, "client_secret": {s.GoogleClientSecret}, "redirect_uri": {s.googleCallbackURL()}, "grant_type": {"authorization_code"}}
-		response, err := http.Post("https://oauth2.googleapis.com/token", "application/x-www-form-urlencoded", bytes.NewBufferString(form.Encode()))
+		tokenRequest, _ := http.NewRequestWithContext(ctx, http.MethodPost, "https://oauth2.googleapis.com/token", bytes.NewBufferString(form.Encode()))
+		tokenRequest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		response, err := http.DefaultClient.Do(tokenRequest)
 		if err != nil {
 			fail(c, err)
 			return
@@ -217,11 +232,11 @@ redis.call('DEL',KEYS[1],attempts);return 1`, []string{key}, string(raw), challe
 		var tokens struct {
 			AccessToken string `json:"access_token"`
 		}
-		if response.StatusCode != 200 || json.NewDecoder(response.Body).Decode(&tokens) != nil || tokens.AccessToken == "" {
+		if response.StatusCode != 200 || json.NewDecoder(io.LimitReader(response.Body, 1<<20)).Decode(&tokens) != nil || tokens.AccessToken == "" {
 			c.Redirect(http.StatusFound, strings.TrimRight(s.WebOrigin, "/")+"/auth?error=google")
 			return
 		}
-		req, _ := http.NewRequestWithContext(c.Request.Context(), http.MethodGet, "https://openidconnect.googleapis.com/v1/userinfo", nil)
+		req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "https://openidconnect.googleapis.com/v1/userinfo", nil)
 		req.Header.Set("Authorization", "Bearer "+tokens.AccessToken)
 		infoResponse, err := http.DefaultClient.Do(req)
 		if err != nil {
@@ -235,7 +250,11 @@ redis.call('DEL',KEYS[1],attempts);return 1`, []string{key}, string(raw), challe
 			Name          string `json:"name"`
 			EmailVerified bool   `json:"email_verified"`
 		}
-		if infoResponse.StatusCode != 200 || json.NewDecoder(infoResponse.Body).Decode(&info) != nil || info.Subject == "" || !info.EmailVerified {
+		if infoResponse.StatusCode != 200 || json.NewDecoder(io.LimitReader(infoResponse.Body, 1<<20)).Decode(&info) != nil || info.Subject == "" || !info.EmailVerified {
+			c.Redirect(http.StatusFound, strings.TrimRight(s.WebOrigin, "/")+"/auth?error=google")
+			return
+		}
+		if _, ok := validEmail(info.Email); !ok {
 			c.Redirect(http.StatusFound, strings.TrimRight(s.WebOrigin, "/")+"/auth?error=google")
 			return
 		}
@@ -244,6 +263,15 @@ redis.call('DEL',KEYS[1],attempts);return 1`, []string{key}, string(raw), challe
 			c.Redirect(http.StatusFound, strings.TrimRight(s.WebOrigin, "/")+"/auth?error=google")
 			return
 		}
-		c.Redirect(http.StatusFound, strings.TrimRight(s.WebOrigin, "/")+"/")
+		c.Redirect(http.StatusFound, strings.TrimRight(s.WebOrigin, "/")+returnTo)
 	})
+}
+
+// Only known local destinations can survive the OAuth round trip.
+func googleReturnPath(value string) string {
+	switch value {
+	case "/", "/booking", "/orders", "/tickets", "/table-preview", "/payment", "/concert":
+		return value
+	}
+	return "/orders"
 }

@@ -1,3 +1,4 @@
+import OmisePayment from "./OmisePayment";
 import { useEffect, useState } from "react";
 import { api, money, statusLabel } from "../../data/api";
 import { QRCodeSVG } from "qrcode.react";
@@ -101,6 +102,17 @@ export default function CruiseOrders({ language }: { language: Language }) {
             </p>
           )}
           <small>{r.id}</small>
+          {r.status === "held" && (
+            <OmisePayment
+              key={r.id}
+              id={r.id}
+              language={language}
+              onPaid={() => {
+                void load();
+                void open(r.id);
+              }}
+            />
+          )}
           <button disabled={!!busy} onClick={() => void open(r.id)}>
             {en ? "Details / tickets" : "รายละเอียด / ตั๋ว"}
           </button>
