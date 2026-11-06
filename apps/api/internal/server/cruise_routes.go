@@ -1,13 +1,58 @@
 package server
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"riverlife/api/internal/service"
+	"strconv"
 )
 
 func (s *Server) cruiseRoutes(api *gin.RouterGroup) {
+	s.managementRoutes(api)
+	sales := api.Group("/dashboard/sales/cruises", s.requireRoles(service.RoleSales, service.RoleAdmin))
+	sales.GET("/reservations", func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		actor, _ := s.userID(c)
+		items, err := s.Service.SalesCruiseReservations(c.Request.Context(), actor)
+		if err != nil {
+			fail(c, err)
+			return
+		}
+		c.JSON(200, items)
+	})
+	sales.POST("/reservations", s.limiter(20), func(c *gin.Context) {
+		var in struct {
+			service.ReserveCruiseInput
+			CustomerEmail string `json:"customer_email" binding:"required,email,max=200"`
+		}
+		key := c.GetHeader("Idempotency-Key")
+		if c.ShouldBindJSON(&in) != nil || len(key) < 16 || len(key) > 100 {
+			bad(c)
+			return
+		}
+		actor, _ := s.userID(c)
+		item, err := s.Service.SalesReserveCruise(c.Request.Context(), in.ReserveCruiseInput, in.CustomerEmail, actor, key)
+		if err != nil {
+			fail(c, err)
+			return
+		}
+		c.JSON(201, item)
+	})
 	api.GET("/cruise-checkout/config", func(c *gin.Context) {
-		c.JSON(200, gin.H{"payment_gateway_enabled": s.CruisePayments != nil, "provider": "omise", "sandbox": true, "email_delivery_enabled": s.BookingEmailEnabled})
+		c.Header("Cache-Control", "no-store")
+		config := gin.H{"payment_gateway_enabled": s.CruisePayments != nil, "provider": "omise", "sandbox": true, "email_delivery_enabled": s.BookingEmailEnabled}
+		if s.CruisePayments != nil {
+			ctx, cancel := paymentContext(c)
+			defer cancel()
+			methods, err := s.CruisePayments.Methods(ctx)
+			config["payment_methods"] = methods.Methods
+			if err == nil {
+				config["public_key"] = methods.PublicKey
+			} else {
+				config["methods_unavailable"] = true
+			}
+		}
+		c.JSON(200, config)
 	})
 	api.GET("/me/cruise-reservations/:id", s.limiter(120), func(c *gin.Context) {
 		c.Header("Cache-Control", "no-store")
@@ -88,6 +133,25 @@ func (s *Server) cruiseRoutes(api *gin.RouterGroup) {
 	admin := api.Group("/dashboard/admin/cruises", s.requireRole(service.RoleAdmin))
 	admin.GET("/reservations", func(c *gin.Context) {
 		c.Header("Cache-Control", "no-store")
+
+		if c.Request.URL.Query().Has("limit") || c.Request.URL.Query().Has("cursor") {
+			limit, err := strconv.Atoi(c.DefaultQuery("limit", "25"))
+			if err != nil || limit < 1 || limit > 100 {
+				bad(c)
+				return
+			}
+			page, err := s.Service.AdminCruiseReservationPage(c.Request.Context(), limit, c.Query("cursor"))
+			if errors.Is(err, service.ErrConflict) {
+				bad(c)
+				return
+			}
+			if err != nil {
+				fail(c, err)
+				return
+			}
+			c.JSON(200, page)
+			return
+		}
 		v, err := s.Service.AdminCruiseReservations(c.Request.Context())
 		if err != nil {
 			fail(c, err)

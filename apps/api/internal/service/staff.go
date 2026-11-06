@@ -53,7 +53,7 @@ func (s *Service) SalesAccess(ctx context.Context, id, userID string) (Booking, 
 	}
 	defer tx.Rollback(ctx)
 	var actor string
-	if err = tx.QueryRow(ctx, "SELECT id FROM users WHERE id=$1 AND role IN ('sales','admin') FOR SHARE", userID).Scan(&actor); err != nil {
+	if err = tx.QueryRow(ctx, "SELECT id FROM users WHERE id=$1 AND role IN ('sales','admin','owner') AND NOT suspended FOR SHARE", userID).Scan(&actor); err != nil {
 		return Booking{}, "", err
 	}
 	access := Token()
@@ -117,7 +117,7 @@ func (s *Service) SetRole(ctx context.Context, actor, target, role string) error
 		return ErrConflict
 	}
 	switch role {
-	case RoleUser, RoleSales, RoleOperator, RoleAdmin:
+	case RoleUser, RoleSales, RoleOperator, RoleAdmin, RoleOwner:
 	default:
 		return ErrConflict
 	}
@@ -133,14 +133,21 @@ func (s *Service) SetRole(ctx context.Context, actor, target, role string) error
 	if err = tx.QueryRow(ctx, "SELECT role FROM users WHERE id=$1 FOR UPDATE", actor).Scan(&actorRole); err != nil {
 		return err
 	}
-	if actorRole != RoleAdmin {
+	if actorRole != RoleAdmin && actorRole != RoleOwner {
+		return ErrConflict
+	}
+	var targetRole string
+	if err = tx.QueryRow(ctx, "SELECT role FROM users WHERE id=$1 FOR UPDATE", target).Scan(&targetRole); err != nil {
+		return err
+	}
+	if targetRole == RoleOwner || (actorRole != RoleOwner && (targetRole == RoleAdmin || role == RoleAdmin || role == RoleOwner)) {
 		return ErrConflict
 	}
 	var id string
-	if err = tx.QueryRow(ctx, "UPDATE users SET role=$2,updated_at=now() WHERE id=$1 RETURNING id", target, role).Scan(&id); err != nil {
+	if err = tx.QueryRow(ctx, "UPDATE users SET role=$2,auth_version=auth_version+1,updated_at=now() WHERE id=$1 RETURNING id", target, role).Scan(&id); err != nil {
 		return err
 	}
-	if role != RoleSales && role != RoleAdmin {
+	if role != RoleSales && role != RoleAdmin && role != RoleOwner {
 		// The original creation token also belongs to the salesperson. Customer
 		// account_token_hash is independent and must survive staff revocation.
 		if _, err = tx.Exec(ctx, "UPDATE bookings SET sales_token_hash='',token_hash='' WHERE sales_user_id=$1", target); err != nil {

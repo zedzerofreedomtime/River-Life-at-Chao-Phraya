@@ -1,0 +1,252 @@
+{
+  "ok": true,
+  "objects": {
+    "SM_BowPanel_Cyan": {
+      "tris": 216,
+      "verts": 614,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_BowPanel_Pearl": {
+      "tris": 52,
+      "verts": 84,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_Branding_Cyan": {
+      "tris": 928,
+      "verts": 2659,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_BrandText_Port": {
+      "tris": 992,
+      "verts": 1064,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_BrandText_Starboard": {
+      "tris": 992,
+      "verts": 1064,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_Cabin_Cyan": {
+      "tris": 432,
+      "verts": 1190,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_Cabin_Dark": {
+      "tris": 24,
+      "verts": 48,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_Cabin_Glass": {
+      "tris": 24,
+      "verts": 48,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_Cabin_Pearl": {
+      "tris": 144,
+      "verts": 288,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_Cabin_Silver": {
+      "tris": 480,
+      "verts": 1021,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_Hull_Champagne": {
+      "tris": 448,
+      "verts": 1168,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_Hull_Cyan": {
+      "tris": 184,
+      "verts": 494,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_Hull_Dark": {
+      "tris": 448,
+      "verts": 1168,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_Hull_Pearl": {
+      "tris": 220,
+      "verts": 388,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_LowerFloor_Champagne": {
+      "tris": 240,
+      "verts": 480,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_LowerFloor_Wood": {
+      "tris": 108,
+      "verts": 160,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_Stairs_Dark": {
+      "tris": 288,
+      "verts": 576,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_Stairs_Pearl": {
+      "tris": 312,
+      "verts": 624,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_Stairs_Silver": {
+      "tris": 400,
+      "verts": 804,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_UpperFloor_Cyan": {
+      "tris": 448,
+      "verts": 1170,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_UpperFloor_Floor": {
+      "tris": 196,
+      "verts": 256,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_UpperFloor_Grout": {
+      "tris": 240,
+      "verts": 480,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_UpperFloor_Pearl": {
+      "tris": 224,
+      "verts": 320,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_UpperRails_Silver": {
+      "tris": 3192,
+      "verts": 6294,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_UpperStage_Cyan": {
+      "tris": 40,
+      "verts": 88,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_UpperStage_Dark": {
+      "tris": 48,
+      "verts": 96,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_UpperStage_Screen": {
+      "tris": 12,
+      "verts": 24,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    },
+    "SM_UpperStage_Silver": {
+      "tris": 300,
+      "verts": 696,
+      "materials": 1,
+      "modifiers": [],
+      "uv_maps": 1,
+      "shape_keys": 0
+    }
+  },
+  "total_tris": 11632,
+  "total_verts": 23366,
+  "draw_calls_est": 28,
+  "unique_materials": 11,
+  "textures": [],
+  "texture_vram_mb_uncompressed": 0.0,
+  "bones": 0,
+  "kind": "prop",
+  "budget": {
+    "name": "web",
+    "limits": {
+      "char_tris": 30000,
+      "prop_tris": 10000,
+      "materials": 2,
+      "tex": 2048,
+      "bones": 100
+    },
+    "over": [
+      "tris 11632 > 10000",
+      "materials 11 > 2 (merge/atlas)"
+    ],
+    "pass": false
+  }
+}

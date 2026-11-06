@@ -1,0 +1,23 @@
+{
+  "exterior": {
+    "file": "unicorn-exterior.glb",
+    "bytes": 1556568,
+    "mesh_objects": 40,
+    "triangles": 21388,
+    "materials": 12
+  },
+  "upper": {
+    "file": "unicorn-upper.glb",
+    "bytes": 837000,
+    "mesh_objects": 28,
+    "triangles": 11632,
+    "materials": 11
+  },
+  "lower": {
+    "file": "unicorn-lower.glb",
+    "bytes": 318908,
+    "mesh_objects": 17,
+    "triangles": 3944,
+    "materials": 8
+  }
+}

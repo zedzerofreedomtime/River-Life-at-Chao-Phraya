@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api, money, statusLabel } from "../../data/api";
 import {
   sailingDate,
@@ -17,10 +17,35 @@ export function CruisePayments({ language }: { language: Language }) {
     [reference, setReference] = useState(""),
     [amount, setAmount] = useState(""),
     [verified, setVerified] = useState(false);
-  const load = () =>
-    api<CruiseReservationDetail[]>(
-      "/dashboard/admin/cruises/reservations",
-    ).then(setOrders);
+  const [gatewayID, setGatewayID] = useState("");
+  const [chargeID, setChargeID] = useState("");
+  const [gatewayMessage, setGatewayMessage] = useState("");
+  const [cursor, setCursor] = useState("");
+  const [nextCursor, setNextCursor] = useState("");
+  const [previous, setPrevious] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const requestVersion = useRef(0);
+  async function load(target = cursor, history = previous) {
+    const version = ++requestVersion.current;
+    setLoading(true);
+    try {
+      const page = await api<{
+        items: CruiseReservationDetail[];
+        next_cursor: string;
+      }>(
+        "/dashboard/admin/cruises/reservations?limit=25&cursor=" +
+          encodeURIComponent(target),
+      );
+      if (version !== requestVersion.current) return;
+      setOrders(page.items);
+      setCursor(target);
+      setPrevious(history);
+      setNextCursor(page.next_cursor);
+      setError("");
+    } finally {
+      if (version === requestVersion.current) setLoading(false);
+    }
+  }
   useEffect(() => {
     void load().catch(() =>
       setError(t("โหลดรายการไม่ได้", "Unable to load reservations")),
@@ -51,6 +76,36 @@ export function CruisePayments({ language }: { language: Language }) {
       setBusy(false);
     }
   }
+  async function reconcile(e: React.FormEvent) {
+    e.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setError("");
+    setGatewayMessage("");
+    try {
+      const result = await api<{ status: string }>(
+        `/dashboard/admin/cruises/reservations/${encodeURIComponent(gatewayID)}/reconcile-payment`,
+        {
+          method: "POST",
+          body: JSON.stringify({ charge_id: chargeID.trim() }),
+        },
+      );
+      setGatewayMessage(
+        result.status === "review_required"
+          ? t(
+              "ต้องตรวจสอบกับลูกค้าและ Omise ต่อ ห้ามออกตั๋วหรือรับเงินซ้ำ",
+              "Further review required. Do not issue tickets or collect payment again.",
+            )
+          : t("ตรวจสถานะจาก Omise แล้ว: ", "Verified Omise status: ") +
+              result.status,
+      );
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Unable to reconcile");
+    } finally {
+      setBusy(false);
+    }
+  }
   return (
     <section className="rx-admin">
       <h2>
@@ -58,8 +113,8 @@ export function CruisePayments({ language }: { language: Language }) {
       </h2>
       <p>
         {t(
-          "ยังไม่มี Payment Gateway ยืนยันได้เฉพาะเมื่อเจ้าหน้าที่ตรวจพบยอดเงินจริงแล้ว ระบบจะออกตั๋วและเข้าคิวอีเมล 2 ฉบับ ห้ามใช้หน้าจอนี้จำลองการชำระเงินจริง",
-          "No gateway is connected. Confirm only after verifying actual funds. This issues tickets and queues two emails. Do not simulate payment here.",
+          "Omise ใช้ Sandbox เท่านั้น รายการผ่าน Gateway ต้องตรวจจาก Omise ห้ามยืนยันยอดเอง ส่วนรายการโอนธนาคารต้องตรวจยอดเงินจริงก่อนออกตั๋ว",
+          "Omise is sandbox-only. Reconcile gateway orders against Omise; never manually confirm them. Verify actual funds before confirming a separate bank-transfer order.",
         )}
       </p>
       {error && <p role="alert">{error}</p>}
@@ -75,6 +130,46 @@ export function CruisePayments({ language }: { language: Language }) {
       {orders.length === 0 && (
         <p>{t("ยังไม่มีรายการจอง", "No reservations yet")}</p>
       )}
+      <nav
+        aria-label={t("หน้ารายการจอง", "Reservation pages")}
+        style={{
+          display: "flex",
+          gap: 12,
+          alignItems: "center",
+          marginBlock: 16,
+        }}
+      >
+        <button
+          className="btn"
+          disabled={loading || busy || previous.length === 0}
+          onClick={() =>
+            void load(
+              previous[previous.length - 1],
+              previous.slice(0, -1),
+            ).catch(() =>
+              setError(t("โหลดรายการไม่ได้", "Unable to load reservations")),
+            )
+          }
+        >
+          {t("ก่อนหน้า", "Previous")}
+        </button>
+        <span aria-live="polite">
+          {loading
+            ? t("กำลังโหลด…", "Loading…")
+            : t("หน้า ", "Page ") + (previous.length + 1)}
+        </span>
+        <button
+          className="btn"
+          disabled={loading || busy || !nextCursor}
+          onClick={() =>
+            void load(nextCursor, [...previous, cursor]).catch(() =>
+              setError(t("โหลดรายการไม่ได้", "Unable to load reservations")),
+            )
+          }
+        >
+          {t("ถัดไป", "Next")}
+        </button>
+      </nav>
       {orders.map((order) => (
         <article key={order.id} className="rx-info">
           <h3>{order.title}</h3>
@@ -123,7 +218,32 @@ export function CruisePayments({ language }: { language: Language }) {
                   : t("รอส่ง / กำลังลองใหม่", "Queued / retrying")}
             </p>
           ))}
-          {order.status === "held" && (
+          {order.payment && (
+            <div>
+              <p>
+                Omise: {order.payment.status || "unknown"} ·{" "}
+                {order.payment.charge_id ||
+                  t("ยังไม่ทราบ Charge ID", "Charge ID unknown")}
+              </p>
+              {order.payment.review_reason && (
+                <p role="alert">
+                  {t("ต้องตรวจสอบ: ", "Review required: ")}
+                  {order.payment.review_reason}
+                </p>
+              )}
+              <button
+                disabled={busy}
+                onClick={() => {
+                  setGatewayID(order.id);
+                  setChargeID(order.payment?.charge_id || "");
+                  setGatewayMessage("");
+                }}
+              >
+                {t("ตรวจรายการกับ Omise", "Reconcile with Omise")}
+              </button>
+            </div>
+          )}
+          {order.status === "held" && !order.payment && (
             <button
               onClick={() => {
                 setId(order.id);
@@ -137,6 +257,34 @@ export function CruisePayments({ language }: { language: Language }) {
           )}
         </article>
       ))}
+      {gatewayID && (
+        <form className="rx-info" onSubmit={reconcile}>
+          <h3>{t("ตรวจรายการ Omise Sandbox", "Reconcile Omise Sandbox")}</h3>
+          <p>{gatewayID}</p>
+          <p>
+            {t(
+              "ค้นหารายการใน Omise ด้วย metadata.reservation_id ก่อนกรอก Charge ID ระบบจะตรวจเจ้าของ ยอดเงิน และสถานะจริง ไม่สร้างการจ่ายใหม่ และไม่ออกตั๋วให้รายการหมดเวลา",
+              "Find the charge by metadata.reservation_id before entering its ID. The server verifies ownership, amount and status; it never creates a new charge or tickets for an expired hold.",
+            )}
+          </p>
+          <label>
+            Omise Charge ID
+            <input
+              value={chargeID}
+              maxLength={100}
+              onChange={(e) => setChargeID(e.target.value)}
+              placeholder="chrg_test_…"
+            />
+          </label>
+          <button className="rx-primary" disabled={busy}>
+            {t("ตรวจและซิงก์สถานะ", "Verify and sync")}
+          </button>
+          <button type="button" onClick={() => setGatewayID("")}>
+            {t("ปิด", "Close")}
+          </button>
+          {gatewayMessage && <p role="status">{gatewayMessage}</p>}
+        </form>
+      )}
       {id && (
         <form onSubmit={confirm} className="rx-info">
           <h3>{t("ยืนยันยอดเงินจริง", "Confirm verified funds")}</h3>

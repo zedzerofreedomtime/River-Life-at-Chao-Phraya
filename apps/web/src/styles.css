@@ -3955,7 +3955,8 @@ button *,
 
 /* DM Sans handles Latin text; Thai glyphs use the Thonburi style from the reference. */
 * {
-  font-family: "DM Sans", Thonburi, Tahoma, "Noto Sans Thai", sans-serif !important;
+  font-family:
+    "DM Sans", Thonburi, Tahoma, "Noto Sans Thai", sans-serif !important;
 }
 
 /* Push content down for all pages except home and event, because the header is now fixed and floats above. */

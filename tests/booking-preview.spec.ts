@@ -17,6 +17,10 @@ for (const width of [390, 1440]) {
         mutations.push(r.url());
     });
     await page.goto("/booking-preview");
+    await expect(
+      page.getByRole("button", { name: /^(จองทั้งโต๊ะ|Whole table)$/ }),
+    ).toHaveCount(0);
+    await page.getByLabel(/^(จำนวนผู้ร่วมเดินทาง|Number of guests)$/).fill("4");
 
     await expect(page).toHaveURL(/\/booking-preview$/);
     const root = page.locator(".booking-preview");
@@ -30,17 +34,18 @@ for (const width of [390, 1440]) {
       .getByRole("button", { name: "โต๊ะ U06", exact: true })
       .isDisabled()
       .then((value) => expect(value).toBeTruthy());
-    await root.getByRole("button", { name: "โต๊ะ U01", exact: true }).click();
-    await page
-      .getByRole("button", { name: "เลือกโต๊ะนี้", exact: true })
-      .click();
+    for (const n of [1, 2, 3, 4])
+      await root
+        .getByRole("button", { name: `เก้าอี้ U01:${n}`, exact: true })
+        .click();
     await root.getByLabel("จำนวนผู้ร่วมเดินทาง", { exact: true }).fill("5");
     await expect(next).toBeDisabled();
     await root.getByRole("button", { name: "ชั้นล่าง", exact: true }).click();
-    await root.getByRole("button", { name: "โต๊ะ L01", exact: true }).click();
-    await page
-      .getByRole("button", { name: "เลือกโต๊ะนี้", exact: true })
-      .click();
+    for (const n of [1, 2, 3, 4])
+      await root
+        .getByRole("button", { name: `เก้าอี้ L01:${n}`, exact: true })
+        .click();
+    await root.getByLabel("จำนวนผู้ร่วมเดินทาง", { exact: true }).fill("8");
     await expect(root.getByTestId("bp-table-total")).toContainText("8,800");
     await next.click();
     await expect(
@@ -124,7 +129,7 @@ for (const width of [390, 1440]) {
     );
     expect(saved).toMatchObject({
       preview: true,
-      guests: 5,
+      guests: 8,
       sampleTotal: 8800,
       tables: ["U01", "L01"],
       extras: [],
@@ -146,6 +151,10 @@ test("English preview is Unicorn-only and keeps tables across decks", async ({
     localStorage.setItem("riverlife.language", "en"),
   );
   await page.goto("/booking-preview");
+  await expect(
+    page.getByRole("button", { name: /^(จองทั้งโต๊ะ|Whole table)$/ }),
+  ).toHaveCount(0);
+  await page.getByLabel(/^(จำนวนผู้ร่วมเดินทาง|Number of guests)$/).fill("4");
   const root = page.locator(".booking-preview");
   await expect(root.locator(".bp-current-vessel")).toContainText(
     "Unicorn Cruise",
@@ -154,10 +163,10 @@ test("English preview is Unicorn-only and keeps tables across decks", async ({
   await expect(root).not.toContainText("Legacy");
   await expect(root.locator(".bp-vessels")).toHaveCount(0);
   await root.getByLabel("Sailing date", { exact: true }).fill("2027-02-20");
-  await root.getByRole("button", { name: "Table U01", exact: true }).click();
-  await page
-    .getByRole("button", { name: "Choose this table", exact: true })
-    .click();
+  for (const n of [1, 2, 3, 4])
+    await root
+      .getByRole("button", { name: `Seat U01:${n}`, exact: true })
+      .click();
   await root.getByRole("button", { name: "Lower deck", exact: true }).click();
   await root.getByRole("button", { name: "Upper deck", exact: true }).click();
   await expect(
@@ -173,6 +182,10 @@ test("detailed plan, table details and unpriced add-on enquiries", async ({
 }) => {
   await page.setViewportSize({ width: 390, height: 950 });
   await page.goto("/booking-preview");
+  await expect(
+    page.getByRole("button", { name: /^(จองทั้งโต๊ะ|Whole table)$/ }),
+  ).toHaveCount(0);
+  await page.getByLabel(/^(จำนวนผู้ร่วมเดินทาง|Number of guests)$/).fill("4");
   const root = page.locator(".booking-preview");
   await root.getByLabel("วันที่เดินทาง", { exact: true }).fill("2027-02-20");
   await expect(root.locator(".dp-drawing")).toContainText("เวที");
@@ -181,15 +194,23 @@ test("detailed plan, table details and unpriced add-on enquiries", async ({
   await root.getByRole("button", { name: "ขยายผัง", exact: true }).click();
   await expect(root.getByLabel("ระดับการซูม")).toHaveText("120%");
   await root.getByRole("button", { name: "ดูเรือทั้งลำ", exact: true }).click();
+  await root.getByRole("button", { name: "รายการโต๊ะ", exact: true }).click();
   await root.getByRole("button", { name: "โต๊ะ U01", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "โต๊ะ U01", exact: true });
   await expect(dialog).toContainText("ริมกราบซ้าย · ใกล้เวที");
-  await expect(dialog.locator(".dp-seat-preview > span")).toHaveCount(4);
+  await expect(dialog.locator(".dp-chair-picker button")).toHaveCount(4);
   await page.keyboard.press("Escape");
   await expect(root.getByTestId("bp-table-total")).toContainText("0");
   await root.getByRole("button", { name: "รายการโต๊ะ", exact: true }).click();
   await root.getByRole("button", { name: "โต๊ะ U01", exact: true }).click();
-  await page.getByRole("button", { name: "เลือกโต๊ะนี้", exact: true }).click();
+  for (const n of [1, 2, 3, 4])
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: `เก้าอี้ U01:${n}`, exact: true })
+      .click();
+  await page
+    .getByRole("button", { name: "เลือกเรียบร้อย", exact: true })
+    .click();
   await expect(root.getByTestId("bp-table-total")).toContainText("4,800");
   await root.getByRole("button", { name: "ชั้นล่าง", exact: true }).click();
   await root.getByRole("button", { name: "ผังละเอียด", exact: true }).click();

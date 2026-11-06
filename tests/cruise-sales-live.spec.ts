@@ -91,6 +91,26 @@ test("real browser → API → PostgreSQL: draft, extras, payment verification, 
   const api = "/api/v1";
   const errors: string[] = [];
   try {
+    const listRoute = `${api}/dashboard/admin/cruises/reservations`;
+    expect((await page.request.get(`${listRoute}?limit=25`)).status()).toBe(
+      401,
+    );
+    expect((await customer.request.get(`${listRoute}?limit=25`)).status()).toBe(
+      403,
+    );
+    for (const query of [
+      "limit=0",
+      "limit=101",
+      "limit=abc",
+      "limit=25&cursor=invalid!",
+    ]) {
+      expect((await staff.request.get(`${listRoute}?${query}`)).status()).toBe(
+        400,
+      );
+    }
+    const paginated = await staff.request.get(`${listRoute}?limit=25`);
+    expect(paginated.status()).toBe(200);
+    expect(Array.isArray((await paginated.json()).items)).toBe(true);
     const unauthorized = await page.request.post(
       `${api}/dashboard/admin/cruises/reservations/nope/confirm-payment`,
       { data: {} },
@@ -200,8 +220,24 @@ test("real browser → API → PostgreSQL: draft, extras, payment verification, 
       status: "published",
       verified: false,
       tables: [
-        { id: "U01", deck: "upper", seats: 4, price: 480000, x: 280, y: 150 },
-        { id: "L01", deck: "lower", seats: 6, price: 600000, x: 280, y: 410 },
+        {
+          id: "U01",
+          deck: "upper",
+          seats: 4,
+          price: 480000,
+          seat_price: 160000,
+          x: 280,
+          y: 150,
+        },
+        {
+          id: "L01",
+          deck: "lower",
+          seats: 6,
+          price: 600000,
+          seat_price: 100000,
+          x: 280,
+          y: 410,
+        },
       ],
       extras: [
         {
@@ -251,17 +287,15 @@ test("real browser → API → PostgreSQL: draft, extras, payment verification, 
         fullPage: true,
       });
     }
+    await expect(
+      userPage.getByRole("button", { name: "จองทั้งโต๊ะ", exact: true }),
+    ).toHaveCount(0);
     await userPage.getByLabel("จำนวนผู้ร่วมเดินทาง").fill("3");
-    await userPage
-      .getByRole("button", { name: "โต๊ะ U01", exact: true })
-      .click();
-    await userPage
-      .getByRole("button", { name: "เลือกโต๊ะนี้", exact: true })
-      .click();
-    await userPage
-      .locator(".bp-summary")
-      .getByRole("button", { name: "ถัดไป", exact: true })
-      .click();
+    for (const n of [1, 2, 3])
+      await userPage
+        .getByRole("button", { name: `เก้าอี้ U01:${n}`, exact: true })
+        .click();
+    await userPage.locator(".bp-optional-extras > summary").click();
     await userPage
       .getByRole("button", { name: "เพิ่ม QA red wine", exact: true })
       .click();
@@ -282,9 +316,7 @@ test("real browser → API → PostgreSQL: draft, extras, payment verification, 
         r.url().endsWith("/cruise-reservations") &&
         r.request().method() === "POST",
     );
-    await userPage
-      .getByRole("button", { name: "ยืนยันสำรองโต๊ะ", exact: true })
-      .click();
+    await userPage.getByRole("button", { name: /^ชำระเงิน ฿/ }).click();
     const reserved = await reservedResponse;
     expect(reserved.status()).toBe(201);
     const reservation = await reserved.json();

@@ -1,5 +1,9 @@
 # Google login
 
+Current local setup (2026-11-04): `WEB_ORIGIN=http://localhost:3000` and `COOKIE_SECURE=false` for local HTTP. The previous quick-tunnel hostname no longer resolves. Google login was re-tested in the browser and returned successfully to `/booking` with the profile menu showing a signed-in session. Begin a fresh login from localhost; an old callback URL contains an expired/single-use OAuth attempt and must not be reused.
+
+For a future HTTPS deployment, use its registered origin and `COOKIE_SECURE=true`. Restart the API and reload nginx after changing the local runtime origin. The historical tunnel URL below is not a currently working destination.
+
 The login/sign-up dialog supports Google in addition to email/password. Google is enabled only when a Web application OAuth client is configured. Without credentials, the button remains disabled and email login stays available.
 
 ## Google Cloud configuration

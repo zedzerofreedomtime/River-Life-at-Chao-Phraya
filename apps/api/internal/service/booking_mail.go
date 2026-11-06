@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"context"
 	"crypto/tls"
+	_ "embed"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"html"
+	"html/template"
 	"log/slog"
 	"mime"
 	"mime/multipart"
@@ -21,6 +23,17 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	qrcode "github.com/skip2/go-qrcode"
 )
+
+//go:embed boarding_pass.html
+var boardingPassHTML string
+
+var boardingPass = template.Must(template.New("boarding-pass").Parse(boardingPassHTML))
+
+type emailPass struct {
+	Number   int
+	Location string
+	ID       string
+}
 
 type BookingProgram struct {
 	Title        string  `json:"title"`
@@ -91,28 +104,47 @@ func bookingMessage(sender string, b Booking, p BookingProgram, kind string, dem
 		notice = "รายการทดลอง / DEMO — ไม่ใช่สิทธิ์ขึ้นเรือจริง / Not valid for boarding.\n"
 	}
 	plain := title + "\n\n" + notice + details
-	body := `<!doctype html><html lang="th"><body style="margin:0;background:#f4f2ee;font-family:Arial,sans-serif;color:#13202e"><div style="max-width:640px;margin:24px auto;background:white;padding:32px"><p style="letter-spacing:4px;color:#806635">RIVER LIFE</p><h1 style="font-size:24px">` + html.EscapeString(title) + `</h1>`
-	if notice != "" {
-		body += `<p style="background:#fff0cf;padding:12px">` + html.EscapeString(notice) + `</p>`
-	}
-	body += `<p style="line-height:1.9">` + strings.ReplaceAll(html.EscapeString(details), "\n", "<br>") + `</p>`
+	var body string
 	if kind == "booking" {
+		body = `<!doctype html><html lang="th"><body style="margin:0;background:#f4f2ee;font-family:Arial,sans-serif;color:#13202e"><div style="max-width:640px;margin:24px auto;background:white;padding:32px"><p style="letter-spacing:4px;color:#806635">RIVER LIFE</p><h1 style="font-size:24px">` + html.EscapeString(title) + `</h1>`
+		if notice != "" {
+			body += `<p style="background:#fff0cf;padding:12px">` + html.EscapeString(notice) + `</p>`
+		}
+		body += `<p style="line-height:1.9">` + strings.ReplaceAll(html.EscapeString(details), "\n", "<br>") + `</p>`
 		body += `<p>ตั๋วเรือพร้อม QR จะอยู่ในอีเมลอีกฉบับ<br>Your QR tickets arrive in a separate email.</p>`
 		plain += "\nตั๋วเรือพร้อม QR จะส่งแยกอีกฉบับ / QR tickets arrive in a separate email.\n"
-	}
-	if kind == "tickets" {
+		body += `<p style="font-size:12px;color:#596573">River Life at Chao Phraya · LINE @480xbltt</p></div></body></html>`
+	} else {
 		plain += "\nแสดง QR แต่ละใบเมื่อขึ้นเรือ / Present each QR ticket at boarding.\n"
+		passes := make([]emailPass, 0, len(b.Tickets))
 		for i, t := range b.Tickets {
-			label := fmt.Sprintf("ตั๋ว / Ticket %d", i+1)
-			if t.TableID != "" {
-				label += " · " + t.TableID
+			location := t.TableID
+			if location == "" {
+				location = seats
 			}
-			body += `<div style="border-top:1px solid #ddd;padding:24px 0;text-align:center"><h2 style="font-size:18px">` + html.EscapeString(label) + fmt.Sprintf(`</h2><img src="cid:ticket-%d" width="256" height="256" alt="QR ticket %d"><p style="font-size:11px;word-break:break-all">`, i+1, i+1) + html.EscapeString(t.ID) + `</p></div>`
-			plain += label + ": " + t.ID + "\n"
+			passes = append(passes, emailPass{i + 1, location, t.ID})
+			plain += fmt.Sprintf("ตั๋ว / Ticket %d · %s: %s\n", i+1, location, t.ID)
 		}
-		body += `<p>เก็บ QR เป็นส่วนตัว และแสดงแต่ละใบให้เจ้าหน้าที่สแกนเมื่อขึ้นเรือ<br>Keep your tickets private and present each QR code at boarding.</p>`
+		pier := p.FullPier
+		if pier == "" {
+			pier = p.Pier
+			if p.PierNumber > 0 {
+				pier += fmt.Sprintf(" %d", p.PierNumber)
+			}
+		}
+		var rendered bytes.Buffer
+		err := boardingPass.Execute(&rendered, struct {
+			Booking            Booking
+			Program            BookingProgram
+			Date, Pier, Notice string
+			Passes             []emailPass
+			Total              string
+		}{b, p, sailing, pier, notice, passes, fmt.Sprintf("THB %.2f", float64(b.Total)/100)})
+		if err != nil {
+			return nil, err
+		}
+		body = rendered.String()
 	}
-	body += `<p style="font-size:12px;color:#596573">River Life at Chao Phraya · LINE @480xbltt</p></div></body></html>`
 	var out bytes.Buffer
 	related := multipart.NewWriter(&out)
 	fmt.Fprintf(&out, "From: %s\r\nTo: %s\r\nSubject: %s\r\nDate: %s\r\nMessage-ID: <%s@%s>\r\nMIME-Version: 1.0\r\nContent-Type: multipart/related; boundary=%q\r\n\r\n", from.String(), to.String(), mime.QEncoding.Encode("UTF-8", "River Life — "+title), time.Now().UTC().Format(time.RFC1123Z), Hash(b.ID+":"+kind), strings.SplitN(from.Address, "@", 2)[1], related.Boundary())

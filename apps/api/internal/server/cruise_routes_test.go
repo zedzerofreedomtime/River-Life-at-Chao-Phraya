@@ -18,8 +18,18 @@ func TestCruiseAdminRequiresLogin(t *testing.T) {
 
 func TestCruiseOperationsRequireStaffLogin(t *testing.T) {
 	for _, route := range []struct{ method, path string }{
+		{"GET", "/api/v1/dashboard/admin/management/users"},
+		{"GET", "/api/v1/dashboard/admin/management/audit"},
+		{"GET", "/api/v1/dashboard/admin/management/sales-report"},
+		{"POST", "/api/v1/dashboard/admin/management/users/test/action"},
+		{"POST", "/api/v1/dashboard/admin/management/reservations/test/resend"},
+		{"POST", "/api/v1/dashboard/admin/management/reservations/test/move-seats"},
+		{"POST", "/api/v1/dashboard/owner/cruises/reservations/test/refund"},
+		{"GET", "/api/v1/dashboard/sales/cruises/reservations"},
+		{"POST", "/api/v1/dashboard/sales/cruises/reservations"},
 		{"GET", "/api/v1/dashboard/admin/cruises/reservations"},
 		{"POST", "/api/v1/dashboard/admin/cruises/reservations/test/confirm-payment"},
+		{"POST", "/api/v1/dashboard/admin/cruises/reservations/test/reconcile-payment"},
 		{"POST", "/api/v1/dashboard/admin/cruises/images"},
 		{"GET", "/api/v1/dashboard/operator/cruises/sailings"},
 		{"POST", "/api/v1/dashboard/operator/cruises/check-in"},

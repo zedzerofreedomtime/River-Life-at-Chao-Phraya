@@ -1,0 +1,41 @@
+{
+  "generator": "Blender 5.2.2 LTS",
+  "dimensions_status": "approximate, not surveyed",
+  "design_dimensions_m": [
+    40,
+    10,
+    8.2
+  ],
+  "confirmed_upper_capacity": 250,
+  "sellable_inventory_embedded": false,
+  "floor_y_gltf": {
+    "upper": 5.25,
+    "lower": 2.55
+  },
+  "bow_axis": "-X",
+  "source": "../../../../../assets/unicorn/unicorn-cruise.blend",
+  "variants": {
+    "exterior": {
+      "file": "unicorn-exterior.glb",
+      "bytes": 1556568,
+      "mesh_objects": 40,
+      "triangles": 21388,
+      "materials": 12
+    },
+    "upper": {
+      "file": "unicorn-upper.glb",
+      "bytes": 837000,
+      "mesh_objects": 28,
+      "triangles": 11632,
+      "materials": 11
+    },
+    "lower": {
+      "file": "unicorn-lower.glb",
+      "bytes": 318908,
+      "mesh_objects": 17,
+      "triangles": 3944,
+      "materials": 8
+    }
+  },
+  "layout_notice": "Photo-informed structure. Table positions, stage direction and stairs are provisional; runtime inventory controls booking."
+}

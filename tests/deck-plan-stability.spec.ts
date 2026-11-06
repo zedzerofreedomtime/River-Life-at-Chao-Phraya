@@ -18,6 +18,9 @@ test("deck dimensions stay stable with classic scrollbars, zoom and resize", asy
   page.on("pageerror", (error) => errors.push(error.message));
   await page.setViewportSize({ width: 1440, height: 950 });
   await page.goto("/booking-preview");
+  await expect(
+    page.getByRole("button", { name: /^(จองทั้งโต๊ะ|Whole table)$/ }),
+  ).toHaveCount(0);
   await page.locator(".dp-viewport").waitFor();
   await expect(page.locator(".route-loading")).toHaveCount(0);
 
@@ -73,6 +76,9 @@ test("mobile map pans without resizing and selecting a table stays reliable", as
 }) => {
   await page.setViewportSize({ width: 390, height: 950 });
   await page.goto("/booking-preview");
+  await expect(
+    page.getByRole("button", { name: /^(จองทั้งโต๊ะ|Whole table)$/ }),
+  ).toHaveCount(0);
   const viewport = page.locator(".dp-viewport");
   await viewport.waitFor();
   await expect(page.locator(".route-loading")).toHaveCount(0);
@@ -87,13 +93,21 @@ test("mobile map pans without resizing and selecting a table stays reliable", as
   await page.mouse.up();
   expect(await viewport.evaluate((el) => el.scrollLeft)).toBeGreaterThan(100);
   const after = await viewport.locator(".dp-canvas").boundingBox();
-  expect(after!.width).toBe(before!.width);
-  expect(after!.height).toBe(before!.height);
+  // Chromium can round transformed bounds by a fraction of a layout unit.
+  // Still reject any resize of even one thousandth of a pixel during panning.
+  expect(after!.width).toBeCloseTo(before!.width, 3);
+  expect(after!.height).toBeCloseTo(before!.height, 3);
   await page.getByRole("button", { name: "โต๊ะ U01", exact: true }).click();
   await expect(
     page.getByRole("dialog", { name: "โต๊ะ U01", exact: true }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "เลือกโต๊ะนี้", exact: true }).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "เก้าอี้ U01:1", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "เลือกเรียบร้อย", exact: true })
+    .click();
   await expect(
     page.getByRole("button", { name: "โต๊ะ U01", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");

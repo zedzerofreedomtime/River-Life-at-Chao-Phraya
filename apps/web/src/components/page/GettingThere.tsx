@@ -1,50 +1,16 @@
-import { useState } from "react";
 import { ArrowUpRight, Clock3, MapPin, Ship } from "lucide-react";
 import type { Language } from "../../data/i18n";
 import "../../GettingThere.css";
 
-const vessels = [
-  {
-    id: "alangka",
-    th: "อลังกา",
-    name: "Alangka Cruise",
-    position: "top-left",
-    pierTh: "ไอคอนสยาม",
-    pierEn: "ICONSIAM",
-    hours: "19:15–21:15",
-    map: "ICONSIAM Bangkok",
-  },
-  {
-    id: "viva",
-    th: "วีว่า",
-    name: "VIVA Alangka Cruise",
-    position: "top-right",
-    pierTh: "เอเชียทีค",
-    pierEn: "Asiatique The Riverfront",
-    hours: "19:45–21:45",
-    map: "Asiatique The Riverfront Bangkok",
-  },
-  {
-    id: "unicorn",
-    th: "ยูนิคอน",
-    name: "Unicorn Cruise",
-    position: "bottom-left",
-    pierTh: "ไอคอนสยาม",
-    pierEn: "ICONSIAM",
-    hours: "19:00–21:00",
-    map: "ICONSIAM Bangkok",
-  },
-  {
-    id: "legacy",
-    th: "เดอะเลกาซี่",
-    name: "The Legacy Yacht",
-    position: "bottom-right",
-    pierTh: "รอยืนยันท่าเรือ",
-    pierEn: "Pier to be confirmed",
-    hours: null,
-    map: null,
-  },
-] as const;
+const boat = {
+  th: "ยูนิคอน",
+  name: "Unicorn Cruise",
+  position: "bottom-left",
+  pierTh: "ไอคอนสยาม",
+  pierEn: "ICONSIAM",
+  hours: "19:00–21:00",
+  map: "ICONSIAM Bangkok",
+};
 
 function VesselPhoto({ position, name }: { position: string; name: string }) {
   return (
@@ -81,9 +47,6 @@ export default function GettingThere({
   onContact: () => void;
 }) {
   const en = language === "en";
-  const [selected, setSelected] =
-    useState<(typeof vessels)[number]["id"]>("alangka");
-  const boat = vessels.find((vessel) => vessel.id === selected)!;
   return (
     <section className="getting-there" aria-labelledby="getting-there-title">
       <header className="getting-there-heading">
@@ -91,34 +54,10 @@ export default function GettingThere({
         <h1 id="getting-there-title">{en ? "Getting there" : "การเดินทาง"}</h1>
         <p>
           {en
-            ? "Choose your vessel to find its departure pier and sailing time."
-            : "เลือกเรือของคุณ เพื่อดูท่าเรือและเวลาล่องเรือให้ตรงกับรอบที่จอง"}
+            ? "Departure pier and sailing time for Unicorn Cruise."
+            : "ข้อมูลท่าเรือและเวลาล่องเรือ Unicorn Cruise ตรวจสอบรอบที่จองก่อนเดินทาง"}
         </p>
       </header>
-      <div
-        className="vessel-picker"
-        role="group"
-        aria-label={en ? "Choose your vessel" : "เลือกเรือ"}
-      >
-        {vessels.map((vessel, index) => (
-          <button
-            key={vessel.id}
-            type="button"
-            className="vessel-choice"
-            aria-pressed={selected === vessel.id}
-            onClick={() => setSelected(vessel.id)}
-          >
-            <VesselPhoto position={vessel.position} name={vessel.name} />
-            <span className="vessel-choice-label">
-              <small>0{index + 1}</small>
-              <span>
-                <strong>{en ? vessel.name : vessel.th}</strong>
-                <span>{en ? vessel.th : vessel.name}</span>
-              </span>
-            </span>
-          </button>
-        ))}
-      </div>
       <article
         className="vessel-arrival"
         aria-labelledby="vessel-arrival-title"

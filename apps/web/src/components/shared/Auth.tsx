@@ -11,7 +11,7 @@ export type AuthUser = {
   id: string;
   name: string;
   email: string;
-  role?: "user" | "sales" | "operator" | "admin";
+  role?: "user" | "sales" | "operator" | "admin" | "owner";
   authenticated?: boolean;
 };
 type Mode = "login" | "signup";

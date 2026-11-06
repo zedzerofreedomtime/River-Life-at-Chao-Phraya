@@ -99,7 +99,7 @@ func (s *Server) staffRoutes(api *gin.RouterGroup) {
 	})
 	admin.PATCH("/users/:id/role", func(c *gin.Context) {
 		var in struct {
-			Role string `json:"role" binding:"required,oneof=user sales operator admin"`
+			Role string `json:"role" binding:"required,oneof=user sales operator admin owner"`
 		}
 		if c.ShouldBindJSON(&in) != nil {
 			bad(c)

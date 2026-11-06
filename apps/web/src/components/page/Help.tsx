@@ -31,22 +31,22 @@ export default function Help({
     },
     faq: {
       th: [
-        "ต้องเข้าสู่ระบบก่อนซื้อบัตร จากนั้นเลือกโซน จำนวนบัตร และตรวจสอบยอดชำระเงิน",
+        "เลือกโซนและเก้าอี้ตามจำนวนผู้เดินทาง เพิ่มอาหารหรือไวน์ได้ตามต้องการ เข้าสู่ระบบและตรวจสอบรายการก่อนชำระเงิน",
         "หลังระบบยืนยันรายการแล้ว ดูประวัติได้ที่คำสั่งซื้อของฉัน และเปิด QR Ticket ได้ที่บัตรของฉัน การเปิดหน้าชำระเงินอย่างเดียวยังไม่ถือว่าชำระสำเร็จ",
       ],
       en: [
-        "Log in before buying, then select a zone and ticket quantity and review the total.",
+        "Choose your deck and individual seats, optionally add food or wine, then sign in and review your reservation before paying.",
         "After confirmation, view your history in My bookings and QR tickets in My tickets. Merely opening checkout does not mean payment succeeded.",
       ],
     },
     payment: {
       th: [
-        "ใช้ช่องทางที่หน้า 'ชำระเงิน' แสดง หากเป็น Stripe ให้ดำเนินการบนหน้า Checkout แล้วกลับมาตรวจสอบสถานะ หากเป็นโหมดแนบหลักฐาน ให้ใช้ไฟล์ PNG หรือ JPG ไม่เกิน 5 MB",
-        "การแนบสลิปเป็นการส่งหลักฐาน ระบบยังไม่ได้ตรวจสอบธุรกรรมธนาคารโดยอัตโนมัติ จึงไม่ควรถือว่า QR Ticket เป็นหลักฐานว่ามีการรับเงินจริง",
+        "เลือกช่องทางที่มีให้ในหน้าชำระเงินของ Omise เช่น PromptPay หรือบัตร ช่องทางที่ใช้ได้ขึ้นอยู่กับบัญชีร้านค้า ระบบจะแสดงยอดและเวลาหมดอายุให้ตรวจสอบ",
+        "หลังชำระเงิน ระบบตรวจสอบผลจากผู้ให้บริการก่อนออกตั๋ว ไม่ต้องแนบสลิป หากปิดหน้าไปสามารถกลับมาชำระต่อหรือตรวจสถานะจากรายการจองของฉัน",
       ],
       en: [
-        "Use the method shown on the payment page. For Stripe, complete Checkout and return to check your status. If receipt upload is enabled instead, use PNG or JPG up to 5 MB.",
-        "A receipt upload is evidence submission, not automatic bank verification. A QR ticket alone does not prove that funds were received.",
+        "Choose an available Omise payment method, such as PromptPay or card. Availability depends on the merchant account. Check the total and expiry before paying.",
+        "Tickets are issued after the provider confirms payment. No slip upload is needed. Resume payment or check its status from My reservations.",
       ],
     },
     refunds: {
@@ -87,18 +87,14 @@ export default function Help({
         ))}
       </nav>
       <article className="help-article">
-        {(demo && (topic === "payment" || topic === "faq")
-          ? en
-            ? [
-                "This is a demo. Do not transfer real money or use a real card. If the payment page shows Stripe Sandbox, use Stripe test payment details. Only upload a sample PNG/JPG (up to 5 MB) when the page explicitly offers sample uploads.",
-                "View booking history in My bookings. In My tickets, Available and Used tabs separate unused and checked-in tickets. A checked-in ticket cannot be used again. Demo tickets are not valid for actual boarding.",
-              ]
-            : [
-                "เว็บไซต์นี้เป็นระบบทดลอง ห้ามโอนเงินจริงหรือใช้บัตรจริง หากหน้าชำระเงินแสดง Stripe Sandbox ให้ใช้ข้อมูลชำระเงินทดสอบของ Stripe เท่านั้น ส่วนการแนบ PNG/JPG ตัวอย่างไม่เกิน 5 MB ใช้เมื่อหน้านั้นเปิดให้แนบภาพตัวอย่าง",
-                "ดูประวัติที่คำสั่งซื้อของฉัน และเปิดบัตรที่บัตรของฉัน แท็บบัตรใช้งานได้กับใช้แล้วจะแยกบัตรที่ยังไม่เช็กอินออกจากบัตรที่เช็กอินแล้ว บัตรใช้แล้วใช้ซ้ำไม่ได้ บัตรทดลองไม่ใช่สิทธิ์ขึ้นเรือจริง",
-              ]
-          : content[topic][language]
-        ).map((paragraph) => (
+        {demo && topic === "payment" && (
+          <p>
+            {en
+              ? "Sandbox payments use test details only; do not transfer real money."
+              : "หากหน้าชำระเงินแสดง Sandbox ให้ใช้ข้อมูลทดสอบเท่านั้น ไม่โอนเงินจริง"}
+          </p>
+        )}
+        {content[topic][language].map((paragraph) => (
           <p key={paragraph}>{paragraph}</p>
         ))}
       </article>

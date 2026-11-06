@@ -114,7 +114,11 @@ func main() {
 			slog.Error("Omise requires DEMO_MODE=true and a test secret key")
 			os.Exit(1)
 		}
-		app.CruisePayments = &service.CruisePayments{Bookings: bookingService, Client: &service.OmiseClient{Secret: key}}
+		client := &service.OmiseClient{Secret: key, PublicKey: os.Getenv("OMISE_PUBLIC_KEY"), ReturnOrigin: webOrigin}
+		if strings.HasPrefix(webOrigin, "https://") {
+			client.WebhookURL = strings.TrimRight(webOrigin, "/") + "/api/v1/payments/omise/webhook"
+		}
+		app.CruisePayments = &service.CruisePayments{Bookings: bookingService, Client: client}
 	}
 	if key := os.Getenv("STRIPE_SECRET_KEY"); key != "" && os.Getenv("PAYMENT_PROVIDER") == "stripe" {
 		if !demo || !strings.HasPrefix(key, "sk_test_") {

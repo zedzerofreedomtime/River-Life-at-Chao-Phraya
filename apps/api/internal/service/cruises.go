@@ -345,6 +345,10 @@ type CruiseExtraSelection struct {
 }
 
 func (s *Service) ReserveCruise(ctx context.Context, in ReserveCruiseInput, user, key string) (CruiseReservation, error) {
+	return s.reserveCruise(ctx, in, user, key, "")
+}
+
+func (s *Service) reserveCruise(ctx context.Context, in ReserveCruiseInput, user, key, actor string) (CruiseReservation, error) {
 	var out CruiseReservation
 	if len(in.SeatIDs) > 0 {
 		if len(in.Tables) != 0 || len(in.SeatIDs) != in.Guests || len(in.SeatIDs) > 200 {
@@ -395,7 +399,7 @@ func (s *Service) ReserveCruise(ctx context.Context, in ReserveCruiseInput, user
 		}
 	}
 	raw, _ := json.Marshal(in)
-	fingerprint := Hash(string(raw))
+	fingerprint := Hash(string(raw) + actor)
 	tx, err := s.DB.Begin(ctx)
 	if err != nil {
 		return out, err
@@ -520,6 +524,11 @@ func (s *Service) ReserveCruise(ctx context.Context, in ReserveCruiseInput, user
 	if err != nil {
 		return out, err
 	}
+	if actor != "" {
+		if _, err = tx.Exec(ctx, `UPDATE cruise_reservations SET sales_user_id=$1 WHERE id=$2`, actor, id); err != nil {
+			return out, err
+		}
+	}
 	for _, line := range lines {
 		if _, err = tx.Exec(ctx, `INSERT INTO cruise_reservation_items(reservation_id,extra_id,name,category,quantity,unit_price) VALUES($1,$2,$3,$4,$5,$6)`, id, line.ID, line.Name, line.Category, line.Quantity, line.UnitPrice); err != nil {
 			return out, err
@@ -533,9 +542,10 @@ func (s *Service) ReserveCruise(ctx context.Context, in ReserveCruiseInput, user
 
 const reservationColumns = `r.id,r.sailing_id,s.title,v.name,s.departure_at,s.pier,r.table_ids,r.guest_count,r.total,CASE WHEN r.status='held' AND r.expires_at<=now() THEN 'expired' ELSE r.status END,r.expires_at,r.table_total,r.extras_total,r.notes,r.requests,r.customer_name,r.customer_phone,COALESCE((SELECT jsonb_agg(jsonb_build_object('id',i.extra_id,'name',i.name,'category',i.category,'quantity',i.quantity,'unit_price',i.unit_price) ORDER BY i.extra_id) FROM cruise_reservation_items i WHERE i.reservation_id=r.id),'[]'::jsonb),r.seat_ids`
 
-func scanReservation(row pgx.Row) (r CruiseReservation, err error) {
+func scanReservation(row pgx.Row, extra ...any) (r CruiseReservation, err error) {
 	var items []byte
-	err = row.Scan(&r.ID, &r.SailingID, &r.Title, &r.Vessel, &r.Departure, &r.Pier, &r.TableIDs, &r.Guests, &r.Total, &r.Status, &r.Expires, &r.TableTotal, &r.ExtrasTotal, &r.Notes, &r.Requests, &r.CustomerName, &r.CustomerPhone, &items, &r.SeatIDs)
+	fields := []any{&r.ID, &r.SailingID, &r.Title, &r.Vessel, &r.Departure, &r.Pier, &r.TableIDs, &r.Guests, &r.Total, &r.Status, &r.Expires, &r.TableTotal, &r.ExtrasTotal, &r.Notes, &r.Requests, &r.CustomerName, &r.CustomerPhone, &items, &r.SeatIDs}
+	err = row.Scan(append(fields, extra...)...)
 	if err == nil {
 		err = json.Unmarshal(items, &r.Items)
 	}

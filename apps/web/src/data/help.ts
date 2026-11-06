@@ -16,7 +16,7 @@ export const visibleHelpTopics = [
 const titles: Record<HelpTopic, readonly [string, string]> = {
   contact: ["ติดต่อเรา", "Contact us"],
   faq: ["ช่วยเหลือ / คำถามที่พบบ่อย", "Help & FAQ"],
-  payment: ["การชำระเงินและแนบสลิป", "Payments & slip upload"],
+  payment: ["การชำระเงิน", "Payments"],
   refunds: ["การเลื่อนงาน / คืนเงิน", "Postponement & refunds"],
   tickets: ["เงื่อนไขการใช้บัตร", "Ticket terms"],
 };

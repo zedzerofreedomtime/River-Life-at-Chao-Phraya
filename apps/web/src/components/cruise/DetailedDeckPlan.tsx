@@ -1,8 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import {
+  Component,
+  lazy,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import Dialog from "@mui/material/Dialog";
 import {
   ArrowLeft,
   ArrowRight,
+  Box,
   Check,
   ChevronRight,
   Expand,
@@ -22,6 +31,22 @@ import {
 } from "../../data/bookingPreviewPlan";
 import "../../DetailedDeckPlan.css";
 
+const UnicornBooking3D = lazy(() => import("./UnicornBooking3D"));
+
+// A failed optional 3D chunk must not remove the guest's booking form or selection.
+class VesselViewBoundary extends Component<
+  { children: ReactNode; fallback: ReactNode },
+  { failed: boolean }
+> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children;
+  }
+}
+
 export default function DetailedDeckPlan({
   deck,
   language,
@@ -39,7 +64,7 @@ export default function DetailedDeckPlan({
 }) {
   const en = language === "en";
   const t = (th: string, english: string) => (en ? english : th);
-  const [view, setView] = useState<"map" | "list">("map");
+  const [view, setView] = useState<"map" | "list" | "3d">("map");
   const [zoom, setZoom] = useState(1);
   const [detail, setDetail] = useState<PreviewTable | null>(null);
   const [width, setWidth] = useState(760);
@@ -94,18 +119,39 @@ export default function DetailedDeckPlan({
               : t("ชั้นล่าง · ห้องปรับอากาศ", "Lower deck · Air-conditioned")}
           </h3>
           <p>
-            {t(
-              "แตะโต๊ะเพื่อเลือกเก้าอี้ หรือเลือกจองทั้งโต๊ะ",
-              "Tap a table to choose individual chairs or book the whole table",
-            )}
+            {seatMode
+              ? t(
+                  "กดหมายเลขเก้าอี้เพื่อเลือกที่นั่ง · แตะโต๊ะเพื่อดูรายละเอียด",
+                  "Select a numbered chair · Tap a table for details",
+                )
+              : t("แตะโต๊ะเพื่อดูรายละเอียด", "Tap a table for details")}
           </p>
         </div>
         <div className="dp-availability">
           <strong>
-            {tables.filter((table) => !table.unavailable).length}
-            <small> / {tables.length}</small>
+            {seatMode
+              ? tables.reduce(
+                  (sum, table) =>
+                    sum +
+                    (table.unavailable || !table.seatPrice
+                      ? 0
+                      : (table.availableSeats?.length ?? table.seats)),
+                  0,
+                )
+              : tables.filter((table) => !table.unavailable).length}
+            <small>
+              {" "}
+              /{" "}
+              {seatMode
+                ? tables.reduce((sum, table) => sum + table.seats, 0)
+                : tables.length}
+            </small>
           </strong>
-          <span>{t("โต๊ะว่างในชั้นนี้", "available on this deck")}</span>
+          <span>
+            {seatMode
+              ? t("ที่นั่งว่างในชั้นนี้", "seats available on this deck")
+              : t("โต๊ะว่างในชั้นนี้", "tables available on this deck")}
+          </span>
         </div>
       </div>
       <div className="dp-toolbar">
@@ -120,6 +166,10 @@ export default function DetailedDeckPlan({
           >
             <List size={16} />
             {t("รายการโต๊ะ", "Table list")}
+          </button>
+          <button aria-pressed={view === "3d"} onClick={() => setView("3d")}>
+            <Box size={16} />
+            {t("เรือ 3D", "Vessel 3D")}
           </button>
         </div>
         {view === "map" && (
@@ -398,7 +448,17 @@ export default function DetailedDeckPlan({
                             width="20"
                             height="16"
                             rx="4"
-                            fill={isSelected(table.id) ? "#d9b879" : "#e0eaf1"}
+                            fill={
+                              (
+                                seatMode
+                                  ? selected.includes(
+                                      `${table.id}:${index + 1}`,
+                                    )
+                                  : isSelected(table.id)
+                              )
+                                ? "#d9b879"
+                                : "#e0eaf1"
+                            }
                             stroke="#94a9bd"
                           />
                           <text
@@ -414,6 +474,43 @@ export default function DetailedDeckPlan({
                   </g>
                 ))}
               </svg>
+              {seatMode &&
+                tables.flatMap((table) =>
+                  Array.from({ length: table.seats }, (_, index) => {
+                    const perSide = Math.ceil(table.seats / 2),
+                      side = index < perSide ? 0 : 1;
+                    const count =
+                      side === 0 ? perSide : Math.floor(table.seats / 2);
+                    const x =
+                        count === 1
+                          ? 0
+                          : -27 + ((index % perSide) * 54) / (count - 1),
+                      y = side === 0 ? -44 : 44;
+                    const id = `${table.id}:${index + 1}`;
+                    const available =
+                      !table.unavailable &&
+                      (table.seatPrice ?? 0) > 0 &&
+                      (!table.availableSeats ||
+                        table.availableSeats.includes(id));
+                    return (
+                      <button
+                        type="button"
+                        className="dp-chair-button"
+                        key={id}
+                        style={{
+                          left: `${(table.x + x) / 10}%`,
+                          top: `${(table.y + y) / 5.8}%`,
+                        }}
+                        aria-label={`${t("เก้าอี้", "Seat")} ${id}`}
+                        aria-pressed={selected.includes(id)}
+                        disabled={!available}
+                        onClick={() => onToggle(id)}
+                      >
+                        {index + 1}
+                      </button>
+                    );
+                  }),
+                )}
               {tables.map((table) => (
                 <button
                   className="dp-table"
@@ -445,6 +542,43 @@ export default function DetailedDeckPlan({
             )}
           </p>
         </>
+      ) : view === "3d" ? (
+        <VesselViewBoundary
+          fallback={
+            <div className="dp-map-help" role="alert">
+              <p>
+                {t(
+                  "เปิดมุมมอง 3D ไม่สำเร็จ รายการที่เลือกยังอยู่ครบ",
+                  "The 3D view could not be opened. Your selections are preserved.",
+                )}
+              </p>
+              <div className="dp-view">
+                <button type="button" onClick={() => setView("map")}>
+                  <Map size={16} />
+                  {t("กลับไปเลือกในผัง", "Use the deck plan")}
+                </button>
+              </div>
+            </div>
+          }
+        >
+          <Suspense
+            fallback={
+              <p role="status" className="dp-map-help">
+                {t("กำลังเปิดมุมมองเรือ 3D…", "Opening the 3D vessel…")}
+              </p>
+            }
+          >
+            <UnicornBooking3D
+              deck={deck}
+              tables={tables}
+              selected={selected}
+              onToggle={onToggle}
+              seatMode={seatMode}
+              language={language}
+              onFallback={() => setView("map")}
+            />
+          </Suspense>
+        </VesselViewBoundary>
       ) : (
         <div className="dp-list">
           {tables.map((table) => (
@@ -497,7 +631,11 @@ export default function DetailedDeckPlan({
       </div>
       {selected.length > 0 && (
         <div className="dp-selection">
-          <strong>{t("โต๊ะที่เลือก", "Selected tables")}</strong>
+          <strong>
+            {seatMode
+              ? t("ที่นั่งที่เลือก", "Selected seats")
+              : t("โต๊ะที่เลือก", "Selected tables")}
+          </strong>
           {selected.map((id) => (
             <button
               key={id}
@@ -623,7 +761,9 @@ export default function DetailedDeckPlan({
                 </div>
                 <div>
                   <dt>{t("บุฟเฟ่ต์", "Buffet")}</dt>
-                  <dd>{t("รวมในค่าโต๊ะแล้ว", "Included")}</dd>
+                  <dd>
+                    {t("รวมในค่าที่นั่งแล้ว", "Included in the seat price")}
+                  </dd>
                 </div>
               </dl>
               <div className="dp-detail-price">

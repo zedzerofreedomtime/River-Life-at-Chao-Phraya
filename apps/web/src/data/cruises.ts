@@ -1,3 +1,15 @@
+// Operational fixture markers stay in stored data and staff screens. Customer
+// copy is independent of them; checkout still identifies the sandbox provider.
+export function cruiseDisplayText(value: string): string {
+  return value
+    .replace(/^\[DEMO\]\s*/i, "")
+    .replace(/\s*(?:—|·)\s*Omise Sandbox\s*\/\s*ไม่ใช่รอบขายจริง$/, "")
+    .replace(
+      /\s*—\s*(?:วัน เวลา ผัง และราคาเป็นตัวอย่าง|ตัวอย่าง ไม่เปิดขาย|ท่าและเวลาเป็นตัวอย่าง)$/,
+      "",
+    );
+}
+
 export type Vessel = {
   id: string;
   name: string;
@@ -71,6 +83,12 @@ export type CruiseReservation = {
   }[];
 };
 export type CruiseReservationDetail = CruiseReservation & {
+  payment?: {
+    charge_id: string;
+    status: string;
+    review_reason: string;
+    checked_at: string | null;
+  };
   email: string;
   tickets: {
     id: string;

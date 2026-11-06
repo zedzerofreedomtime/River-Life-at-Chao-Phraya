@@ -108,12 +108,12 @@ export default function BookingPreview({
   language: Language;
   onBack: () => void;
 }) {
-  const [seatMode, setSeatMode] = useState(false);
+  const seatMode = true;
   const en = language === "en";
   const t = (th: string, english: string) => (en ? english : th);
   const [step, setStep] = useState<Step>(0);
   const [date, setDate] = useState("");
-  const [guests, setGuests] = useState(4);
+  const [guests, setGuests] = useState(1);
   const [deck, setDeck] = useState<Deck>("upper");
   const [selected, setSelected] = useState<string[]>([]);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -377,7 +377,7 @@ export default function BookingPreview({
                 </div>
                 <div className="bp-table-heading">
                   <h2 className="bp-section-title">
-                    {t("เลือกโต๊ะของคุณ", "Choose your tables")}
+                    {t("เลือกที่นั่งของคุณ", "Choose your seats")}
                   </h2>
                   <div className="bp-decks" aria-label={t("ชั้นเรือ", "Deck")}>
                     <button
@@ -396,34 +396,10 @@ export default function BookingPreview({
                 </div>
                 <p className="bp-muted">
                   {t(
-                    "ผังและราคาเพื่อทดลองเท่านั้น · 1 โต๊ะ รองรับ 4 คน · เลือกได้หลายโต๊ะ",
-                    "Sample plan and prices · 4 guests per table · Select multiple tables",
+                    "ผังและราคาเพื่อทดลองเท่านั้น · เลือกเก้าอี้ได้ตามจำนวนผู้เดินทาง",
+                    "Sample plan and prices · Choose one chair per guest",
                   )}
                 </p>
-                <div
-                  className="bp-decks"
-                  aria-label={t("รูปแบบการจอง", "Booking mode")}
-                >
-                  <button
-                    aria-pressed={!seatMode}
-                    onClick={() => {
-                      setSeatMode(false);
-                      setSelected([]);
-                    }}
-                  >
-                    {t("จองทั้งโต๊ะ", "Whole table")}
-                  </button>
-                  <button
-                    aria-pressed={seatMode}
-                    onClick={() => {
-                      setSeatMode(true);
-                      setSelected([]);
-                      setGuests(1);
-                    }}
-                  >
-                    {t("เลือกเป็นรายเก้าอี้", "Individual chairs")}
-                  </button>
-                </div>
                 {seatMode && (
                   <p>
                     {t(
@@ -455,8 +431,8 @@ export default function BookingPreview({
                     : guests > chosen.length * 4) && (
                     <p className="bp-error" role="alert">
                       {t(
-                        "ที่นั่งยังไม่พอ กรุณาเลือกโต๊ะเพิ่ม",
-                        "Please choose more tables for your group.",
+                        "กรุณาเลือกเก้าอี้ให้ตรงจำนวนผู้เดินทาง",
+                        "Choose one chair per guest.",
                       )}
                     </p>
                   )}
@@ -466,7 +442,7 @@ export default function BookingPreview({
                     <strong>
                       {t(
                         "บุฟเฟ่ต์รวมอยู่ในค่าที่นั่งแล้ว",
-                        "Buffet is included in your table price",
+                        "Buffet is included in your seat price",
                       )}
                     </strong>
                     <p>
@@ -813,7 +789,7 @@ export default function BookingPreview({
               </dd>
             </div>
             <div>
-              <dt>{t("โต๊ะที่เลือก", "Tables")}</dt>
+              <dt>{t("ที่นั่งที่เลือก", "Seats")}</dt>
               <dd>
                 {selected.length
                   ? selected.join(", ")

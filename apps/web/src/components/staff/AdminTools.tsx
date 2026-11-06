@@ -3,7 +3,7 @@ import Alert from "@mui/material/Alert";
 import { api, type Zone } from "../../data/api";
 import type { Language } from "../../data/i18n";
 import { useStaffData } from "./StaffTools";
-type Member = { id: string; name: string; email: string; role: string };
+
 type Program = {
   title: string;
   date: string | null;
@@ -17,7 +17,6 @@ type Program = {
 export default function AdminTools({
   language,
   zones,
-  currentEmail,
   onUpdated,
 }: {
   language: Language;
@@ -26,17 +25,12 @@ export default function AdminTools({
   onUpdated: () => void;
 }) {
   const en = language === "en";
-  const {
-    data: members,
-    reload: reloadMembers,
-    error: memberError,
-  } = useStaffData<Member[]>("/dashboard/admin/users");
+
   const {
     data: program,
     reload: reloadProgram,
     error: programError,
   } = useStaffData<Program>("/dashboard/admin/program");
-  const [query, setQuery] = useState("");
   return (
     <>
       <section className="staff-panel">
@@ -77,42 +71,6 @@ export default function AdminTools({
             }}
           />
         )}
-      </section>
-      <section className="staff-panel">
-        <h2>
-          {en ? "Member and staff roles" : "จัดการสิทธิ์สมาชิกและพนักงาน"}
-        </h2>
-        <p>
-          {en
-            ? "Latest 200 accounts. Staff register an account first, then an admin assigns a role. You cannot change your own role."
-            : "แสดง 200 บัญชีล่าสุด ให้พนักงานสมัครบัญชีก่อน แล้วแอดมินกำหนดสิทธิ์ ไม่สามารถเปลี่ยนสิทธิ์ของตัวเองได้"}
-        </p>
-        {memberError && <Alert severity="error">{memberError}</Alert>}
-        <label>
-          {en ? "Search members" : "ค้นหาสมาชิก"}
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </label>
-        <div className="staff-booking-list">
-          {members
-            ?.filter((u) =>
-              `${u.name} ${u.email} ${u.role}`
-                .toLocaleLowerCase()
-                .includes(query.toLocaleLowerCase()),
-            )
-            .map((u) => (
-              <RoleEditor
-                key={u.id}
-                member={u}
-                self={u.email === currentEmail}
-                language={language}
-                onSaved={() => void reloadMembers()}
-              />
-            ))}
-        </div>
       </section>
     </>
   );
@@ -320,67 +278,6 @@ function ProgramEditor({
       <button type="submit" disabled={busy}>
         {en ? "Save programme" : "บันทึกโปรแกรม"}
       </button>
-    </form>
-  );
-}
-function RoleEditor({
-  member,
-  self,
-  language,
-  onSaved,
-}: {
-  member: Member;
-  self: boolean;
-  language: Language;
-  onSaved: () => void;
-}) {
-  const en = language === "en";
-  const [role, setRole] = useState(member.role),
-    [busy, setBusy] = useState(false),
-    [error, setError] = useState("");
-  useEffect(() => setRole(member.role), [member.role]);
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    if (busy || self || role === member.role) return;
-    setBusy(true);
-    setError("");
-    try {
-      await api(
-        `/dashboard/admin/users/${encodeURIComponent(member.id)}/role`,
-        { method: "PATCH", body: JSON.stringify({ role }) },
-      );
-      onSaved();
-    } catch (cause) {
-      setError((cause as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  }
-  return (
-    <form className="staff-booking-row" onSubmit={submit}>
-      <div>
-        <strong>{member.name}</strong>
-        <small>{member.email}</small>
-        {self && <small>{en ? "Your account" : "บัญชีของคุณ"}</small>}
-      </div>
-      <label>
-        {en ? "Role" : "สิทธิ์"}
-        <select
-          aria-label={en ? "Role" : "สิทธิ์"}
-          value={role}
-          disabled={self || busy}
-          onChange={(e) => setRole(e.target.value)}
-        >
-          <option value="user">User</option>
-          <option value="sales">Sales</option>
-          <option value="operator">Operator</option>
-          <option value="admin">Admin</option>
-        </select>
-      </label>
-      <button type="submit" disabled={self || busy || role === member.role}>
-        {en ? "Save role" : "บันทึกสิทธิ์"}
-      </button>
-      {error && <Alert severity="error">{error}</Alert>}
     </form>
   );
 }

@@ -202,3 +202,19 @@ CREATE TABLE IF NOT EXISTS omise_checkouts (
  reservation_id text PRIMARY KEY REFERENCES cruise_reservations(id),
  charge_id text UNIQUE, created_at timestamptz NOT NULL DEFAULT now()
 );
+ALTER TABLE omise_checkouts ADD COLUMN IF NOT EXISTS provider_status text NOT NULL DEFAULT '';
+ALTER TABLE omise_checkouts ADD COLUMN IF NOT EXISTS review_reason text NOT NULL DEFAULT '';
+ALTER TABLE omise_checkouts ADD COLUMN IF NOT EXISTS checked_at timestamptz;
+
+CREATE INDEX IF NOT EXISTS cruise_reservations_created_id ON cruise_reservations(created_at DESC, id DESC);
+ALTER TABLE cruise_reservations ADD COLUMN IF NOT EXISTS sales_user_id text REFERENCES users(id);
+CREATE INDEX IF NOT EXISTS cruise_reservations_sales_created ON cruise_reservations(sales_user_id, created_at DESC);
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS suspended boolean NOT NULL DEFAULT false;
+DO $$ DECLARE c record; BEGIN FOR c IN SELECT conname FROM pg_constraint WHERE conrelid='users'::regclass AND contype='c' AND pg_get_constraintdef(oid) LIKE '%role%' LOOP EXECUTE format('ALTER TABLE users DROP CONSTRAINT %I',c.conname); END LOOP; END $$;
+ALTER TABLE users ADD CONSTRAINT users_role_check CHECK(role IN ('user','sales','operator','admin','owner'));
+CREATE TABLE IF NOT EXISTS cruise_refunds (
+ reservation_id text PRIMARY KEY REFERENCES cruise_reservations(id),
+ actor_id text NOT NULL REFERENCES users(id), reason text NOT NULL,
+ status text NOT NULL DEFAULT 'review', reference text NOT NULL DEFAULT '', created_at timestamptz NOT NULL DEFAULT now()
+);

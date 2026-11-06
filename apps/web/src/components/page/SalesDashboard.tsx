@@ -1,13 +1,6 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import Alert from "@mui/material/Alert";
-import {
-  api,
-  money,
-  newToken,
-  zoneLabel,
-  type Booking,
-  type Zone,
-} from "../../data/api";
+import { api, money, type Booking, type Zone } from "../../data/api";
 import type { Language } from "../../data/i18n";
 import {
   BookingFilters,
@@ -35,10 +28,6 @@ export default function SalesDashboard({
     zones: Zone[];
     demo: boolean;
   }>("/dashboard/sales");
-  const [name, setName] = useState(""),
-    [email, setEmail] = useState(""),
-    [zone, setZone] = useState("A"),
-    [quantity, setQuantity] = useState(1);
   const [query, setQuery] = useState(""),
     [status, setStatus] = useState(""),
     [busy, setBusy] = useState(false);
@@ -47,46 +36,6 @@ export default function SalesDashboard({
     token: string;
     shareable?: boolean;
   } | null>(null);
-  const attempt = useRef<{
-    fingerprint: string;
-    key: string;
-    token: string;
-  } | null>(null);
-  const currentZone = data?.zones.find((z) => z.id === zone);
-  async function create(event: React.FormEvent) {
-    event.preventDefault();
-    if (busy || !currentZone || quantity > currentZone.available) return;
-    setBusy(true);
-    setError("");
-    const body = JSON.stringify({
-      name: name.trim(),
-      email: email.trim(),
-      zone_id: zone,
-      quantity,
-    });
-    const request =
-      attempt.current?.fingerprint === body
-        ? attempt.current
-        : { fingerprint: body, key: crypto.randomUUID(), token: newToken() };
-    attempt.current = request;
-    try {
-      const booking = await api<Booking>(
-        "/dashboard/sales/bookings",
-        { method: "POST", headers: { "Idempotency-Key": request.key }, body },
-        request.token,
-      );
-      setSelected({ booking, token: request.token, shareable: true });
-      attempt.current = null;
-      setName("");
-      setEmail("");
-      setQuantity(1);
-      await reload();
-    } catch (cause) {
-      setError((cause as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  }
   async function open(id: string) {
     setBusy(true);
     setError("");
@@ -109,11 +58,11 @@ export default function SalesDashboard({
       <div className="staff-heading">
         <div>
           <span>RIVER LIFE · SALES</span>
-          <h1>{en ? "Sales workspace" : "พื้นที่ทำงานฝ่ายขาย"}</h1>
+          <h1>{en ? "Previous zone reservations" : "รายการจองโซนเดิม"}</h1>
           <p>
             {en
-              ? "Create customer reservations and follow your own sales."
-              : "จองแทนลูกค้าและติดตามรายการที่คุณรับผิดชอบ"}
+              ? "Access previous bookings. Create new reservations using the seat picker above."
+              : "เปิดดูรายการเก่าได้ สร้างรายการใหม่ด้วยผังเก้าอี้ด้านบน"}
           </p>
         </div>
         <button onClick={() => void reload()} disabled={loading}>
@@ -153,85 +102,6 @@ export default function SalesDashboard({
           )}
         />
       </div>
-      <form className="staff-panel" onSubmit={create}>
-        <h2>{en ? "Book for a customer" : "สร้างรายการแทนลูกค้า"}</h2>
-        <p>
-          {en
-            ? "An existing customer account with this email can see the booking. Otherwise keep the booking and private code for the customer. Booking reserves a zone, not a specific table."
-            : "หากอีเมลมีบัญชีลูกค้าแล้ว รายการจะแสดงในบัญชีนั้น หากยังไม่มีบัญชีให้เก็บรหัสรายการและรหัสส่วนตัวส่งให้ลูกค้า จองแบบโซน ไม่ระบุโต๊ะ"}
-        </p>
-        <div className="staff-form-grid">
-          <label>
-            {en ? "Customer name" : "ชื่อลูกค้า"}
-            <input
-              required
-              maxLength={120}
-              minLength={2}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </label>
-          <label>
-            {en ? "Customer email" : "อีเมลลูกค้า"}
-            <input
-              required
-              type="email"
-              maxLength={200}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </label>
-          <label>
-            {en ? "Zone" : "โซน"}
-            <select
-              aria-label={en ? "Zone" : "โซน"}
-              value={zone}
-              onChange={(e) => {
-                setZone(e.target.value);
-                setQuantity(1);
-              }}
-            >
-              {data?.zones.map((z) => (
-                <option key={z.id} value={z.id} disabled={z.available < 1}>
-                  {zoneLabel(z, language)} · {z.available}{" "}
-                  {en ? "available" : "ว่าง"} · {money(z.price)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            {en ? "Guests" : "จำนวนผู้ร่วมเดินทาง"}
-            <input
-              required
-              type="number"
-              min={1}
-              max={Math.min(10, currentZone?.available ?? 10)}
-              value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-            />
-          </label>
-        </div>
-        <div className="staff-form-actions">
-          <strong>
-            {en ? "Demo total" : "ยอดรวมทดสอบ"}:{" "}
-            {money((currentZone?.price ?? 0) * quantity)}
-          </strong>
-          <button
-            type="submit"
-            disabled={
-              busy || !data || !currentZone || currentZone.available < quantity
-            }
-          >
-            {busy
-              ? en
-                ? "Saving…"
-                : "กำลังบันทึก…"
-              : en
-                ? "Create reservation"
-                : "สร้างรายการจอง"}
-          </button>
-        </div>
-      </form>
       {selected && (
         <section
           className="staff-panel"

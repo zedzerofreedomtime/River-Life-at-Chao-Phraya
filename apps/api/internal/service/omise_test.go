@@ -82,6 +82,9 @@ func TestOmiseHTTPAndValidation(t *testing.T) {
 		}
 		if r.Method == "POST" {
 			_ = r.ParseForm()
+			if r.Form.Get("webhook_endpoints[]") != "https://qa.example.test/api/v1/payments/omise/webhook" {
+				t.Error("missing charge-specific webhook")
+			}
 			if r.Form.Get("source[type]") != "promptpay" || r.Form.Get("amount") != "480000" || r.Form.Get("metadata[reservation_id]") != "reservation" {
 				t.Error("invalid charge parameters")
 			}
@@ -89,13 +92,17 @@ func TestOmiseHTTPAndValidation(t *testing.T) {
 		_ = json.NewEncoder(w).Encode(testOmiseCharge())
 	}))
 	defer srv.Close()
-	client := OmiseClient{Secret: "skey_test_fixture", BaseURL: srv.URL, HTTP: srv.Client()}
+	client := OmiseClient{Secret: "skey_test_fixture", BaseURL: srv.URL, HTTP: srv.Client(), WebhookURL: "https://qa.example.test/api/v1/payments/omise/webhook"}
 	c, err := client.Create(context.Background(), "reservation", 480000, time.Now().Add(time.Minute))
 	if err != nil {
 		t.Fatal(err)
 	}
 	if err = validateOmiseCharge(c, "reservation", 480000); err != nil {
 		t.Fatal(err)
+	}
+	client.WebhookURL = "http://qa.example.test/webhook"
+	if _, err = client.Create(context.Background(), "reservation", 480000, time.Now()); err == nil {
+		t.Fatal("insecure webhook accepted")
 	}
 	for _, mutate := range []func(*OmiseCharge){func(c *OmiseCharge) { c.Livemode = true }, func(c *OmiseCharge) { c.Amount-- }, func(c *OmiseCharge) { c.Currency = "usd" }, func(c *OmiseCharge) { c.Metadata = map[string]string{} }, func(c *OmiseCharge) { c.RefundedAmount = 1 }, func(c *OmiseCharge) { c.Source.Type = "card" }} {
 		invalid := testOmiseCharge()
@@ -191,7 +198,39 @@ func TestOmiseCruiseLifecycle(t *testing.T) {
 	if _, err = p.Checkout(ctx, r.ID, "member"); err == nil {
 		t.Fatal("missing timeout")
 	}
-	if _, err = p.Checkout(ctx, r.ID, "member"); err == nil || gateway.creates != 2 {
-		t.Fatal("ambiguous create was retried", err)
+	if next, e := p.Checkout(ctx, r.ID, "member"); e != nil || next.Status != "review_required" || gateway.creates != 2 {
+		t.Fatal("ambiguous create was retried or hidden", e)
+	}
+	if _, err = p.Reconcile(ctx, r.ID, gateway.charge.ID, "member"); err == nil {
+		t.Fatal("non-admin reconciliation allowed")
+	}
+	// A charge from another reservation must never be attached.
+	if _, err = p.Reconcile(ctx, r.ID, gateway.charge.ID, "staff"); err == nil {
+		t.Fatal("foreign charge linked")
+	}
+	gateway.charge.ID = "chrg_test_recovered"
+	gateway.charge.Metadata = map[string]string{"reservation_id": r.ID}
+	gateway.charge.Status = "pending"
+	gateway.charge.Paid = false
+	if next, e := p.Reconcile(ctx, r.ID, gateway.charge.ID, "staff"); e != nil || next.Status != "pending" {
+		t.Fatal("valid lost response could not be reconciled", e)
+	}
+	// Inventory can be reserved by someone else after the hold. Late money must
+	// remain reviewable without issuing tickets or rejecting webhooks forever.
+	if _, err = s.DB.Exec(ctx, `UPDATE cruise_reservations SET expires_at=now()-interval '1 minute' WHERE id=$1`, r.ID); err != nil {
+		t.Fatal(err)
+	}
+	reserve("U02")
+	gateway.charge.Status = "successful"
+	gateway.charge.Paid = true
+	for i := 0; i < 2; i++ {
+		next, e := p.Status(ctx, r.ID, "member")
+		if e != nil || next.Status != "review_required" || next.ReviewReason != "paid_after_hold" {
+			t.Fatal("late payment not held for review", e)
+		}
+	}
+	detail, err = s.CruiseReservationDetail(ctx, r.ID, "member")
+	if err != nil || len(detail.Tickets) != 0 || len(detail.Emails) != 0 || detail.Payment == nil || detail.Payment.ReviewReason != "paid_after_hold" {
+		t.Fatal("late payment issued fulfillment or lost review", err)
 	}
 }

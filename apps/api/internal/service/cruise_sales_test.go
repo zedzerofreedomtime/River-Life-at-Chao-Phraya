@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/jackc/pgx/v5"
+	"reflect"
 	"strings"
 	"sync"
 	"testing"
@@ -106,6 +107,10 @@ func TestCruiseSalesExtrasPaymentTicketsAndEmails(t *testing.T) {
 	if confirmed.Status != "confirmed" || len(confirmed.Tickets) != 3 || len(confirmed.Emails) != 2 {
 		t.Fatal("confirmation incomplete", confirmed)
 	}
+	page, err := s.AdminCruiseReservationPage(ctx, 25, "")
+	if err != nil || len(page.Items) != 1 || !reflect.DeepEqual(page.Items[0], confirmed) {
+		t.Fatalf("admin batch detail differs: %v, got %+v want %+v", err, page.Items, confirmed)
+	}
 	again, err := s.ConfirmCruisePayment(ctx, r.ID, "staff", "TEST-PAY-0001", r.Total)
 	if err != nil || again.Tickets[0].ID != confirmed.Tickets[0].ID {
 		t.Fatal("confirmation retry duplicated tickets", err)
@@ -206,6 +211,14 @@ func TestCruiseSalesExtrasPaymentTicketsAndEmails(t *testing.T) {
 	detail, err := s.CruiseReservationDetail(ctx, r.ID, "member")
 	if err != nil {
 		t.Fatal(err)
+	}
+	if len(detail.Tickets) != len(confirmed.Tickets) {
+		t.Fatal("email retry changed ticket count")
+	}
+	for i := range detail.Tickets {
+		if detail.Tickets[i].ID != confirmed.Tickets[i].ID || detail.Tickets[i].TableID != confirmed.Tickets[i].TableID {
+			t.Fatal("email retry issued or moved a ticket")
+		}
 	}
 	for _, mail := range detail.Emails {
 		if mail.SentAt == nil {

@@ -21,7 +21,7 @@ import (
 func TestBookingMessages(t *testing.T) {
 	date := "2026-12-01"
 	b := Booking{ID: "booking-test", Name: "<script>unsafe</script>", Email: "customer@example.test", Quantity: 2, Total: 12300, Tickets: []Ticket{{ID: strings.Repeat("a", 64), TableID: "U01"}, {ID: strings.Repeat("b", 64), TableID: "U01"}}, TableIDs: []string{"U01"}, GuestCount: 2}
-	p := BookingProgram{Title: "River Life", SailingDate: &date, Boarding: "18:45", Departure: "19:00", Pier: "ICONSIAM", PierNumber: 4}
+	p := BookingProgram{Title: "River Life", SailingDate: &date, Boarding: "18:45", Departure: "19:00", Pier: "ICONSIAM", PierNumber: 4, ExtraDetails: "อาหารพิเศษ × 1: THB 23.00"}
 	for _, kind := range []string{"booking", "tickets"} {
 		raw, err := bookingMessage("River Life <sender@example.test>", b, p, kind, true)
 		if err != nil {
@@ -50,6 +50,11 @@ func TestBookingMessages(t *testing.T) {
 		}
 		htmlPart, _ := alt.NextPart()
 		markup, _ := io.ReadAll(base64.NewDecoder(base64.StdEncoding, htmlPart))
+		for _, value := range []string{date, "18:45", "19:00", "U01", "THB 123.00", p.ExtraDetails} {
+			if !strings.Contains(string(markup), value) || !strings.Contains(string(text), value) {
+				t.Errorf("%s HTML/plain missing %q", kind, value)
+			}
+		}
 		if strings.Contains(string(markup), "<script>") || !strings.Contains(string(markup), "&lt;script&gt;") {
 			t.Fatal("HTML escaping failed")
 		}

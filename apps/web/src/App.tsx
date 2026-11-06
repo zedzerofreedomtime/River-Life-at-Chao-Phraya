@@ -1,3 +1,4 @@
+import AdminManagement from "./components/staff/AdminManagement";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
@@ -38,7 +39,9 @@ import {
 import type { Language } from "./data/i18n";
 import { api, formatPier, type Booking, type EventInfo } from "./data/api";
 import Help from "./components/page/Help";
-import TablePreview from "./components/page/TablePreview";
+const CruiseSalesDashboard = lazy(
+  () => import("./components/cruise/CruiseSalesDashboard"),
+);
 import type { HelpTopic } from "./data/help";
 import {
   pagePaths,
@@ -156,9 +159,13 @@ export default function App() {
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
   useEffect(() => {
-    if (page !== "checkout") return;
-    window.history.replaceState(null, "", pagePaths.tablePreview);
-    setPage("tablePreview");
+    if (page !== "checkout" && page !== "tablePreview") return;
+    window.history.replaceState(
+      null,
+      "",
+      pagePaths.booking + window.location.search,
+    );
+    setPage("booking");
   }, [page]);
   useEffect(() => {
     if (!openNavigationMenu) return;
@@ -258,18 +265,6 @@ export default function App() {
         navigationRef={navigationRef}
       />
       <main className={`app-main page-${page}`}>
-        {(page === "tablePreview" || page === "checkout") && (
-          <TablePreview
-            language={language}
-            isAuthenticated={isAuthenticated}
-            onRequireLogin={openAuthDialog}
-            onBooked={(data, accessToken) => {
-              rememberBooking(data, accessToken);
-              go("payment");
-            }}
-            onBack={() => go("event")}
-          />
-        )}
         {error && (
           <Alert
             severity="error"
@@ -300,7 +295,9 @@ export default function App() {
             <BookingPreview language={language} onBack={() => go("event")} />
           </Suspense>
         )}
-        {page === "booking" && (
+        {(page === "booking" ||
+          page === "checkout" ||
+          page === "tablePreview") && (
           <Suspense
             fallback={
               <p role="status">
@@ -311,6 +308,7 @@ export default function App() {
             <LiveCruiseBooking
               language={language}
               authenticated={isAuthenticated}
+              accountName={isAuthenticated ? profile.name : ""}
               onLogin={openAuthDialog}
               onOrders={() => go("orders")}
               onContact={() => goHelp("contact")}
@@ -392,9 +390,14 @@ export default function App() {
         )}
         {page === "dashboard" &&
           isAuthenticated &&
-          profile.role === "admin" && (
+          ["admin", "owner"].includes(profile.role) && (
             <>
               <CruiseAdmin language={language} />
+              <AdminManagement
+                language={language}
+                role={profile.role}
+                currentEmail={profile.email}
+              />
               <CruisePayments language={language} />
             </>
           )}
@@ -429,7 +432,7 @@ export default function App() {
         )}
         {page === "dashboard" &&
           isAuthenticated &&
-          profile.role === "admin" && (
+          ["admin", "owner"].includes(profile.role) && (
             <details className="legacy-booking">
               <summary>
                 {en ? "Legacy event administration" : "จัดการโปรแกรมสาธิตเดิม"}
@@ -443,18 +446,34 @@ export default function App() {
           )}
         {page === "sales" &&
           isAuthenticated &&
-          ["sales", "admin"].includes(profile.role) && (
-            <SalesDashboard
-              language={language}
-              onOpen={(b, t, destination) => {
-                rememberBooking(b, t);
-                go(destination);
-              }}
-            />
+          ["sales", "admin", "owner"].includes(profile.role) && (
+            <>
+              <Suspense
+                fallback={
+                  <p role="status">
+                    {en ? "Loading sales…" : "กำลังโหลดฝ่ายขาย…"}
+                  </p>
+                }
+              >
+                <CruiseSalesDashboard language={language} />
+              </Suspense>
+              <details className="legacy-booking">
+                <summary>
+                  {en ? "Previous zone reservations" : "รายการจองโซนเดิม"}
+                </summary>{" "}
+                <SalesDashboard
+                  language={language}
+                  onOpen={(b, t, destination) => {
+                    rememberBooking(b, t);
+                    go(destination);
+                  }}
+                />
+              </details>
+            </>
           )}
         {page === "operator" &&
           isAuthenticated &&
-          ["operator", "admin"].includes(profile.role) && (
+          ["operator", "admin", "owner"].includes(profile.role) && (
             <>
               <CruiseCheckIn language={language} />
               <details className="legacy-booking">
@@ -474,13 +493,13 @@ export default function App() {
         )}
         {authReady &&
           ((page === "dashboard" &&
-            (!isAuthenticated || profile.role !== "admin")) ||
+            (!isAuthenticated || !["admin", "owner"].includes(profile.role))) ||
             (page === "sales" &&
               (!isAuthenticated ||
-                !["sales", "admin"].includes(profile.role))) ||
+                !["sales", "admin", "owner"].includes(profile.role))) ||
             (page === "operator" &&
               (!isAuthenticated ||
-                !["operator", "admin"].includes(profile.role)))) && (
+                !["operator", "admin", "owner"].includes(profile.role)))) && (
             <Alert severity="error">
               {en
                 ? "You do not have access to this staff workspace."

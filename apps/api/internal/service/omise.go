@@ -9,14 +9,22 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 )
 
 // OmiseClient is deliberately sandbox-only. Card details never reach this API.
 type OmiseClient struct {
-	Secret  string
-	HTTP    *http.Client
-	BaseURL string
+	Secret       string
+	HTTP         *http.Client
+	BaseURL      string
+	WebhookURL   string
+	PublicKey    string
+	ReturnOrigin string
+	methodsMu    sync.Mutex
+	methodsCache OmiseMethods
+	methodsError error
+	methodsUntil time.Time
 }
 type OmiseCharge struct {
 	ID             string            `json:"id"`
@@ -27,7 +35,11 @@ type OmiseCharge struct {
 	Currency       string            `json:"currency"`
 	RefundedAmount int               `json:"refunded_amount"`
 	Metadata       map[string]string `json:"metadata"`
-	Source         struct {
+	AuthorizeURI   string            `json:"authorize_uri"`
+	Card           *struct {
+		ID string `json:"id"`
+	} `json:"card"`
+	Source struct {
 		Type          string `json:"type"`
 		ScannableCode struct {
 			Image struct {
@@ -74,7 +86,15 @@ func (o *OmiseClient) request(ctx context.Context, method, path string, form url
 	return out, nil
 }
 func (o *OmiseClient) Create(ctx context.Context, id string, amount int, expiry time.Time) (OmiseCharge, error) {
-	return o.request(ctx, "POST", "/charges", url.Values{"amount": {fmt.Sprint(amount)}, "currency": {"thb"}, "source[type]": {"promptpay"}, "metadata[reservation_id]": {id}, "description": {"River Life reservation " + id}, "expires_at": {expiry.UTC().Format(time.RFC3339)}})
+	form := url.Values{"amount": {fmt.Sprint(amount)}, "currency": {"thb"}, "source[type]": {"promptpay"}, "metadata[reservation_id]": {id}, "description": {"River Life reservation " + id}, "expires_at": {expiry.UTC().Format(time.RFC3339)}}
+	if o.WebhookURL != "" {
+		u, err := url.Parse(o.WebhookURL)
+		if err != nil || u.Scheme != "https" || u.Hostname() == "" || u.User != nil || u.RawQuery != "" || u.Fragment != "" {
+			return OmiseCharge{}, errors.New("invalid Omise webhook URL")
+		}
+		form.Set("webhook_endpoints[]", o.WebhookURL)
+	}
+	return o.request(ctx, "POST", "/charges", form)
 }
 func (o *OmiseClient) Retrieve(ctx context.Context, id string) (OmiseCharge, error) {
 	if !strings.HasPrefix(id, "chrg_test_") || strings.ContainsAny(id, "/?#\\") {
@@ -83,7 +103,17 @@ func (o *OmiseClient) Retrieve(ctx context.Context, id string) (OmiseCharge, err
 	return o.request(ctx, "GET", "/charges/"+url.PathEscape(id), nil)
 }
 func validateOmiseCharge(c OmiseCharge, id string, amount int) error {
-	if c.Livemode || !strings.HasPrefix(c.ID, "chrg_test_") || c.Metadata["reservation_id"] != id || c.Amount != amount || !strings.EqualFold(c.Currency, "thb") || c.Source.Type != "promptpay" || c.RefundedAmount != 0 {
+	method := c.Source.Type
+	if method == "card" {
+		return errors.New("Omise card source is invalid")
+	}
+	if c.Card != nil {
+		if !strings.HasPrefix(c.Card.ID, "card_test_") || method != "" {
+			return errors.New("Omise card charge is invalid")
+		}
+		method = "card"
+	}
+	if c.Livemode || !strings.HasPrefix(c.ID, "chrg_test_") || c.Metadata["reservation_id"] != id || c.Amount != amount || !strings.EqualFold(c.Currency, "thb") || !supportedOmiseMethod(method) || c.RefundedAmount != 0 || (c.Metadata["payment_method"] != "" && c.Metadata["payment_method"] != method) {
 		return errors.New("Omise charge does not match reservation")
 	}
 	return nil

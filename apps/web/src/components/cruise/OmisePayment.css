@@ -1,0 +1,97 @@
+.omise-payment {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 600px;
+  margin: 24px auto;
+  padding: 24px;
+  border: 1px solid #455568;
+  border-radius: 16px;
+  background: #111f2d;
+  text-align: center;
+  font-weight: 600;
+}
+.omise-payment h3 {
+  margin: 0 0 12px;
+}
+.omise-payment p {
+  line-height: 1.7;
+  margin: 12px 0;
+}
+.omise-payment img {
+  display: block;
+  box-sizing: content-box;
+  max-width: calc(100% - 24px);
+  height: auto;
+  padding: 12px;
+  margin: 20px auto;
+  border-radius: 12px;
+  background: white;
+}
+.omise-payment button {
+  border: 1px solid #e5c78f;
+  border-radius: 8px;
+  padding: 12px 18px;
+  background: #e5c78f;
+  color: #07111c !important;
+  font: inherit;
+  cursor: pointer;
+  order: 2;
+}
+.bp-checkout {
+  padding-top: 24px;
+}
+.bp-optional-extras {
+  margin-top: 24px;
+  border-top: 1px solid #455568;
+  padding-top: 20px;
+}
+.bp-optional-extras > summary {
+  cursor: pointer;
+  padding: 12px 0;
+  color: #e5c78f;
+  font-weight: 600;
+}
+.bp-checkout h1 {
+  margin: 0 0 8px;
+}
+.bp-checkout > p {
+  margin: 8px 0;
+}
+.bp-checkout .bp-success-receipt {
+  padding: 12px;
+  margin: 12px auto;
+}
+.bp-checkout .bp-success-receipt p {
+  margin: 4px 0;
+}
+.bp-checkout .omise-payment {
+  margin: 12px auto;
+  padding: 16px;
+}
+.bp-checkout .omise-payment img {
+  margin: 8px auto;
+}
+.omise-payment button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.omise-payment [role="alert"] {
+  color: #ffbeb8;
+}
+.cruise-payment-page {
+  max-width: 1160px;
+  text-align: left;
+}
+.cruise-payment-page .omise-payment {
+  max-width: none;
+  margin: 20px 0 0;
+  padding: 20px 0;
+  border: 0;
+  background: transparent;
+}
+.cruise-payment-page .bp-actions {
+  margin-top: 24px;
+}

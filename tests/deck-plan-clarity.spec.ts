@@ -9,6 +9,9 @@ for (const width of [390, 1440]) {
   }) => {
     await page.setViewportSize({ width, height: 950 });
     await page.goto("/booking-preview");
+    await expect(
+      page.getByRole("button", { name: /^(จองทั้งโต๊ะ|Whole table)$/ }),
+    ).toHaveCount(0);
     await expect(page.locator(".dp-deck-banner h3")).toHaveText(
       "ชั้นบน · ดาดฟ้ากลางแจ้ง",
     );
@@ -16,7 +19,7 @@ for (const width of [390, 1440]) {
     await expect(page.locator(".dp-deck-banner h3")).toHaveText(
       "ชั้นล่าง · ห้องปรับอากาศ",
     );
-    await expect(page.locator(".dp-availability strong")).toContainText("7");
+    await expect(page.locator(".dp-availability strong")).toContainText("28");
     const table = page.getByRole("button", { name: "โต๊ะ L01", exact: true });
     const contrast = () =>
       table.evaluate((el) => {
@@ -41,7 +44,11 @@ for (const width of [390, 1440]) {
     ).toBeGreaterThanOrEqual(17);
     await table.click();
     await page
-      .getByRole("button", { name: "เลือกโต๊ะนี้", exact: true })
+      .getByRole("dialog")
+      .getByRole("button", { name: "เก้าอี้ L01:1", exact: true })
+      .click();
+    await page
+      .getByRole("button", { name: "เลือกเรียบร้อย", exact: true })
       .click();
     await expect(table).toHaveAttribute("aria-pressed", "true");
     expect(await contrast()).toBeGreaterThanOrEqual(4.5);

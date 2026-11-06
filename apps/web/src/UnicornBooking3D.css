@@ -1,0 +1,341 @@
+.unicorn-3d {
+  color: #eaf0f4;
+  font-weight: 600;
+  background: #101c28;
+}
+.u3d-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #334758;
+}
+.u3d-mode,
+.u3d-camera {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.unicorn-3d button {
+  font: inherit;
+  cursor: pointer;
+}
+.u3d-controls button,
+.u3d-fallback button,
+.u3d-whole {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 11px;
+  border: 1px solid #506679;
+  border-radius: 7px;
+  color: #e8eff5;
+  background: #172736;
+  font-size: 12px;
+}
+.u3d-controls button:hover {
+  background: #253d4d;
+}
+.u3d-mode button[aria-pressed="true"] {
+  background: #e8ce99;
+  color: #172a39 !important;
+  border-color: #e8ce99;
+}
+.u3d-mode button[aria-pressed="true"] svg {
+  color: #172a39 !important;
+}
+.u3d-stage {
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(
+    ellipse at 45% 38%,
+    #2a4b5b 0,
+    #102735 65%,
+    #0d1e2b 100%
+  );
+}
+.u3d-canvas {
+  height: 500px;
+  width: 100%;
+}
+.u3d-canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+}
+.u3d-canvas canvas:active {
+  cursor: grabbing;
+}
+.u3d-title {
+  position: absolute;
+  top: 22px;
+  left: 22px;
+  display: grid;
+  gap: 8px;
+  pointer-events: none;
+  text-shadow: 0 1px 12px #0c253d;
+}
+.u3d-title span {
+  font-size: 10px;
+  letter-spacing: 0.23em;
+  color: #efd39b !important;
+}
+.u3d-title strong {
+  font-size: 17px;
+  color: #fff !important;
+}
+.u3d-loading,
+.u3d-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  background: #143240f2;
+  color: #fff;
+  text-align: center;
+}
+.u3d-loading svg,
+.u3d-fallback svg {
+  color: #efd39b !important;
+}
+.u3d-fallback p {
+  max-width: 320px;
+  margin: 0 !important;
+  font-size: 13px !important;
+  color: #d6e2eb !important;
+}
+.u3d-canvas-help {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 13px;
+  border: 1px solid #708c9870;
+  border-radius: 20px;
+  background: #102936e8;
+  color: #edf5f8;
+  white-space: nowrap;
+  font-size: 11px;
+  pointer-events: none;
+}
+.u3d-caption {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 13px 17px;
+  border-bottom: 1px solid #334758;
+}
+.u3d-caption svg {
+  color: #c3d0dc !important;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.u3d-caption p {
+  margin: 0 !important;
+  font-size: 11px !important;
+  line-height: 1.7;
+  color: #c3d0dc !important;
+}
+.u3d-picker {
+  padding: 18px;
+}
+.u3d-picker-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+.u3d-picker-heading label {
+  display: grid;
+  gap: 7px;
+  font-size: 12px;
+  color: #c6d3dc;
+}
+.u3d-picker-heading select {
+  padding: 9px 34px 9px 12px;
+  min-height: 43px;
+  border: 1px solid #62778a;
+  background: #192b3a;
+  border-radius: 6px;
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+}
+.u3d-price {
+  display: grid;
+  gap: 6px;
+  text-align: right;
+}
+.u3d-price span {
+  font-size: 11px;
+  color: #c6d3dc !important;
+}
+.u3d-price strong {
+  font-size: 22px;
+  color: #efd39b !important;
+}
+.u3d-seats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+  gap: 10px;
+}
+.u3d-focus {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 42px;
+  margin: 0 0 15px;
+  padding: 8px 12px;
+  border: 1px solid #809aaa;
+  border-radius: 7px;
+  background: #213a4b;
+  color: #eaf3f8;
+  font-size: 12px !important;
+}
+.u3d-focus:hover {
+  background: #2b4c60;
+}
+.u3d-seats button {
+  display: grid;
+  justify-content: center;
+  gap: 7px;
+  min-height: 64px;
+  padding: 10px 8px;
+  border: 1px solid #6fbdba;
+  border-radius: 9px;
+  background: #173f44;
+  color: #f3f8f9;
+}
+.u3d-seats button > span {
+  color: #f3f8f9 !important;
+  font-size: 15px;
+}
+.u3d-seats small {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #d5eeee;
+}
+.u3d-seats button[aria-pressed="true"] {
+  background: #edc573;
+  border-color: #ffe6b4;
+  color: #172a39;
+  box-shadow: 0 0 0 2px #edc57333;
+}
+.u3d-seats button[aria-pressed="true"] > span,
+.u3d-seats button[aria-pressed="true"] small,
+.u3d-seats button[aria-pressed="true"] svg {
+  color: #172a39 !important;
+}
+.u3d-seats button:disabled {
+  background: #25333e;
+  border: 1px dashed #708392;
+  cursor: not-allowed;
+}
+.u3d-seats button:disabled > span,
+.u3d-seats button:disabled small {
+  color: #b2c0ca !important;
+}
+.unicorn-3d button:focus-visible,
+.unicorn-3d select:focus-visible {
+  outline: 3px solid #f3d497;
+  outline-offset: 3px;
+}
+.u3d-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 17px;
+  margin-top: 15px;
+  font-size: 11px;
+  color: #c6d3dc;
+}
+.u3d-key span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.u3d-key i {
+  width: 10px;
+  height: 10px;
+  background: #2f7e80;
+  border: 1px solid #7bbdbb;
+  border-radius: 3px;
+}
+.u3d-key i.chosen {
+  background: #edc573;
+  border-color: #edc573;
+}
+.u3d-key i.blocked {
+  background: #9ca8ae;
+  border-style: dashed;
+  border-color: #c5d1d7;
+}
+.u3d-picked {
+  min-height: 17px;
+  margin: 10px 0 0 !important;
+  color: #efd39b !important;
+  font-size: 11px !important;
+}
+.u3d-whole {
+  background: #e8ce99;
+  color: #172a39;
+  width: 100%;
+}
+.u3d-whole:disabled {
+  background: #36434e;
+  color: #c5d1d7;
+  cursor: not-allowed;
+}
+@media (max-width: 600px) {
+  .u3d-controls {
+    padding: 10px;
+    gap: 8px;
+  }
+  .u3d-camera {
+    margin-left: auto;
+  }
+  .u3d-controls button {
+    padding: 7px 9px;
+    font-size: 11px;
+  }
+  .u3d-canvas {
+    height: 360px;
+  }
+  .u3d-title {
+    top: 16px;
+    left: 15px;
+  }
+  .u3d-title strong {
+    font-size: 14px;
+  }
+  .u3d-canvas-help {
+    width: calc(100% - 22px);
+    text-align: center;
+    white-space: normal;
+    font-size: 10px;
+  }
+  .u3d-picker {
+    padding: 14px;
+  }
+  .u3d-seats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .u3d-picker-heading {
+    gap: 12px;
+  }
+  .u3d-price strong {
+    font-size: 19px;
+  }
+}

@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: demo
+      POSTGRES_DB: company_demo
+      POSTGRES_PASSWORD: company-demo-local-only
+    volumes: [company-demo-db:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U demo]
+      interval: 2s
+      retries: 30
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 2s
+      retries: 30
+  api:
+    image: riverlife-company-demo-api:local
+    build: ../apps/api
+    environment:
+      DATABASE_URL: postgres://demo:company-demo-local-only@postgres:5432/company_demo?sslmode=disable
+      REDIS_URL: redis://redis:6379/0
+      ADMIN_PASSWORD: company-demo-admin-only-2026
+      DEMO_MODE: "true"
+      OTP_DELIVERY_MODE: demo
+      BOOKING_EMAIL_MODE: disabled
+      COOKIE_SECURE: "false"
+      WEB_ORIGIN: http://127.0.0.1:3320
+      UPLOAD_DIR: /tmp/uploads
+      GIN_MODE: release
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+  web:
+    image: riverlife-company-demo-web:local
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+    ports: ["127.0.0.1:3320:80"]
+    depends_on: [api]
+volumes:
+  company-demo-db:

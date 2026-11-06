@@ -151,9 +151,9 @@ export default function Header({
           aria-label={en ? "Main menu" : "เมนูหลัก"}
         >
           {isAuthenticated &&
-          ["admin", "sales", "operator"].includes(profile.role) ? (
+          ["owner", "admin", "sales", "operator"].includes(profile.role) ? (
             <>
-              {profile.role === "admin" && (
+              {["admin", "owner"].includes(profile.role) && (
                 <button
                   className="active"
                   onClick={() => {
@@ -164,7 +164,7 @@ export default function Header({
                   {strings.nav.dashboard}
                 </button>
               )}
-              {["sales", "admin"].includes(profile.role) && (
+              {["sales", "admin", "owner"].includes(profile.role) && (
                 <button
                   className={page === "sales" ? "active" : ""}
                   onClick={() => go("sales")}
@@ -172,7 +172,7 @@ export default function Header({
                   {en ? "Sales" : "ฝ่ายขาย"}
                 </button>
               )}
-              {["operator", "admin"].includes(profile.role) && (
+              {["operator", "admin", "owner"].includes(profile.role) && (
                 <button
                   className={page === "operator" ? "active" : ""}
                   onClick={() => go("operator")}

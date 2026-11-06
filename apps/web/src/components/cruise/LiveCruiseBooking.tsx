@@ -1,9 +1,11 @@
 import OmisePayment from "./OmisePayment";
+import CruiseBookingComplete from "./CruiseBookingComplete";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, Info, Ship } from "lucide-react";
-import { api, money } from "../../data/api";
+import { api, ApiError, money } from "../../data/api";
 import {
   sailingDate,
+  cruiseDisplayText,
   type Sailing,
   type CruiseReservation,
 } from "../../data/cruises";
@@ -16,27 +18,42 @@ import "../../BookingPreview.css";
 export default function LiveCruiseBooking({
   language,
   authenticated,
+  accountName = "",
   onLogin,
   onOrders,
   onContact,
   onBack,
+  salesCustomer,
+  onSalesReserved,
 }: {
   language: Language;
   authenticated: boolean;
+  accountName?: string;
   onLogin: () => void;
   onOrders: () => void;
   onContact: () => void;
   onBack: () => void;
+  salesCustomer?: { email: string };
+  onSalesReserved?: (reservation: CruiseReservation) => void;
 }) {
-  const [seatMode, setSeatMode] = useState(false);
+  const seatMode = true;
   const en = language === "en";
   const t = (th: string, english: string) => (en ? english : th);
   const [sailings, setSailings] = useState<Sailing[]>([]),
     [loading, setLoading] = useState(true),
     [error, setError] = useState("");
-  const [sailingId, setSailingId] = useState(""),
+  const [loadError, setLoadError] = useState("");
+  const [sailingId, setSailingId] = useState(() => {
+      const linked = new URLSearchParams(window.location.search).get("sailing");
+      if (linked) return linked;
+      try {
+        return sessionStorage.getItem("riverlife.cruise.sailing") ?? "";
+      } catch {
+        return "";
+      }
+    }),
     [selected, setSelected] = useState<string[]>([]),
-    [guests, setGuests] = useState(4),
+    [guests, setGuests] = useState(1),
     [deck, setDeck] = useState<"upper" | "lower">("upper"),
     [step, setStep] = useState(0);
   const [quantities, setQuantities] = useState<Record<string, number>>({}),
@@ -48,8 +65,54 @@ export default function LiveCruiseBooking({
   const [busy, setBusy] = useState(false),
     [result, setResult] = useState<CruiseReservation | null>(null),
     [now, setNow] = useState(Date.now());
+  const [paymentVerified, setPaymentVerified] = useState(false);
+  const [existingHold, setExistingHold] = useState<CruiseReservation | null>(
+    null,
+  );
+  const returnPayment = new URLSearchParams(window.location.search).get(
+    "payment",
+  );
+  useEffect(() => {
+    if (!authenticated || !returnPayment || salesCustomer) return;
+    let stopped = false;
+    void api<CruiseReservation>(
+      `/me/cruise-reservations/${encodeURIComponent(returnPayment)}`,
+    )
+      .then((saved) => {
+        if (stopped) return;
+        setResult(saved);
+        setNow(Date.now());
+        if (saved.status === "confirmed") setPaymentVerified(true);
+      })
+      .catch(() => {
+        if (!stopped)
+          setError(
+            t(
+              "โหลดรายการชำระเงินไม่ได้ กรุณาเปิดรายการจองของฉัน",
+              "Unable to resume payment. Open My reservations.",
+            ),
+          );
+      });
+    return () => {
+      stopped = true;
+    };
+  }, [authenticated, returnPayment]);
   const heading = useRef<HTMLHeadingElement>(null);
   const attempt = useRef<{ body: string; key: string } | null>(null);
+  const selectionInitialized = useRef(false);
+  const nameEdited = useRef(false);
+  useEffect(() => {
+    if (!nameEdited.current) setName(accountName.slice(0, 60));
+  }, [accountName]);
+  useEffect(() => {
+    try {
+      if (sailingId)
+        sessionStorage.setItem("riverlife.cruise.sailing", sailingId);
+      else sessionStorage.removeItem("riverlife.cruise.sailing");
+    } catch {
+      /* Booking remains usable when browser storage is unavailable. */
+    }
+  }, [sailingId]);
   useEffect(() => {
     let stopped = false;
     const load = () =>
@@ -57,12 +120,24 @@ export default function LiveCruiseBooking({
         .then((data) => {
           if (!stopped) {
             setSailings(data);
-            setError("");
+            if (!selectionInitialized.current) {
+              selectionInitialized.current = true;
+              // Preserve an explicit/previous sailing. With one option, guests
+              // can choose chairs immediately; polling never switches sailings.
+              setSailingId((previous) =>
+                data.some((item) => item.id === previous)
+                  ? previous
+                  : data.length === 1
+                    ? data[0].id
+                    : "",
+              );
+            }
+            setLoadError("");
           }
         })
         .catch(() => {
           if (!stopped) {
-            setError(
+            setLoadError(
               t(
                 "โหลดรอบเรือไม่ได้ กรุณาลองใหม่",
                 "Unable to load sailings. Please retry.",
@@ -83,6 +158,8 @@ export default function LiveCruiseBooking({
   }, [en]);
   useEffect(() => {
     if (!result) return;
+    window.scrollTo({ top: 0, behavior: "instant" });
+    heading.current?.focus({ preventScroll: true });
     const timer = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(timer);
   }, [result]);
@@ -154,79 +231,224 @@ export default function LiveCruiseBooking({
       requests: [...requests].sort(),
       customer_name: name.trim(),
       customer_phone: phone.trim(),
+      ...(salesCustomer ? { customer_email: salesCustomer.email } : {}),
     });
     if (attempt.current?.body !== body)
       attempt.current = { body, key: crypto.randomUUID() };
     setBusy(true);
     setError("");
     try {
-      const saved = await api<CruiseReservation>("/cruise-reservations", {
-        method: "POST",
-        headers: { "Idempotency-Key": attempt.current.key },
-        body,
-      });
+      const saved = await api<CruiseReservation>(
+        salesCustomer
+          ? "/dashboard/sales/cruises/reservations"
+          : "/cruise-reservations",
+        {
+          method: "POST",
+          headers: { "Idempotency-Key": attempt.current.key },
+          body,
+        },
+      );
+      if (salesCustomer && onSalesReserved) {
+        onSalesReserved(saved);
+        return;
+      }
       setResult(saved);
       setNow(Date.now());
+    } catch (e) {
+      if (salesCustomer) {
+        setError(
+          t(
+            "สร้างรายการไม่สำเร็จ ตรวจสอบว่าลูกค้ามีบัญชีแล้ว ไม่มีรายการค้างชำระ และที่นั่ง/ราคายังพร้อมขาย แล้วลองใหม่",
+            "Unable to reserve. Check the customer account, unpaid holds and current availability/prices, then retry.",
+          ),
+        );
+        return;
+      }
+      if (e instanceof ApiError && e.status === 409) {
+        // A customer-wide unpaid hold is different from a chair being sold.
+        // Keep the new selection until the customer chooses how to resolve it.
+        try {
+          const reservations = await api<CruiseReservation[]>(
+            "/me/cruise-reservations",
+          );
+          const held = Array.isArray(reservations)
+            ? reservations.find(
+                (item) =>
+                  item.status === "held" &&
+                  Date.parse(item.expires_at) > Date.now(),
+              )
+            : undefined;
+          if (held) {
+            setExistingHold(held);
+            setError(
+              t(
+                "คุณมีรายการจองเดิมรอชำระเงิน กรุณาชำระรายการเดิม หรือยกเลิกรายการเดิมก่อนจองใหม่",
+                "You have an unpaid reservation. Continue its payment or cancel it before making a new reservation.",
+              ),
+            );
+            heading.current?.focus({ preventScroll: true });
+            window.scrollTo({ top: 0, behavior: "instant" });
+            return;
+          }
+        } catch {
+          setError(
+            t(
+              "ตรวจรายการจองค้างไม่ได้ กรุณาลองอีกครั้ง หรือเปิดรายการจองของฉัน",
+              "Unable to check existing reservations. Retry or open My reservations.",
+            ),
+          );
+          return;
+        }
+        // A rejected reservation did not acquire inventory. Refresh before allowing
+        // a new selection, while retaining the guest's contact details and extras.
+        move(0);
+        attempt.current = null;
+        try {
+          const data = await api<Sailing[]>("/sailings?vessel=unicorn");
+          setSailings(data);
+          setLoadError("");
+          const current = data.find((item) => item.id === sailingId);
+          setSelected((previous) =>
+            previous.filter((id) =>
+              current?.tables.some((table) =>
+                seatMode
+                  ? (table.available_seats ?? []).includes(id)
+                  : table.id === id && table.available,
+              ),
+            ),
+          );
+          setError(
+            t(
+              "สำรองไม่สำเร็จ ข้อมูลที่นั่ง ราคา หรือเงื่อนไขการจองอาจเปลี่ยนแปลง อัปเดตผังล่าสุดแล้ว กรุณาเลือกที่นั่งว่างและตรวจรายการอีกครั้ง",
+              "Reservation could not be completed. Availability, prices or booking limits may have changed. The plan is updated; choose an available seat and review again.",
+            ),
+          );
+        } catch {
+          setSelected([]);
+          setLoadError(
+            t(
+              "อัปเดตผังไม่ได้ กรุณาลองโหลดใหม่",
+              "Unable to refresh availability. Please reload.",
+            ),
+          );
+        }
+        return;
+      }
+      setError(
+        e instanceof Error
+          ? e.message
+          : t("สำรองที่นั่งไม่สำเร็จ", "Unable to reserve"),
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function cancelExistingHold() {
+    if (!existingHold || busy) return;
+    setBusy(true);
+    setError("");
+    try {
+      await api(
+        `/me/cruise-reservations/${encodeURIComponent(existingHold.id)}/cancel`,
+        { method: "POST" },
+      );
+      setExistingHold(null);
+      attempt.current = null;
+      setSailings(await api<Sailing[]>("/sailings?vessel=unicorn"));
     } catch (e) {
       setError(
         e instanceof Error
           ? e.message
-          : t("สำรองโต๊ะไม่สำเร็จ", "Unable to reserve"),
+          : t("ยกเลิกไม่สำเร็จ", "Unable to cancel"),
       );
     } finally {
       setBusy(false);
     }
   }
   if (result) {
+    if (paymentVerified)
+      return (
+        <CruiseBookingComplete
+          id={result.id}
+          language={language}
+          onOrders={onOrders}
+        />
+      );
     const remaining = Math.max(
       0,
       Math.floor((new Date(result.expires_at).getTime() - now) / 1000),
     );
     return (
-      <section className="booking-preview bp-success">
-        <Check size={45} />
-        <h1>
-          {remaining > 0
-            ? t(
-                "สำรองโต๊ะแล้ว · รอการชำระเงิน",
-                "Tables held · payment pending",
-              )
-            : t("หมดเวลาสำรองโต๊ะแล้ว", "Your table hold has expired")}
-        </h1>
-        <p>
-          {result.title} ·{" "}
-          {(result.seat_ids?.length ? result.seat_ids : result.table_ids).join(
-            ", ",
-          )}
-        </p>
-        <div className="bp-success-receipt">
-          <strong>{money(result.total)}</strong>
+      <section className="booking-preview bp-success flow-page payment-page cruise-payment-page">
+        <div className="flow-heading">
+          <h1 ref={heading} tabIndex={-1}>
+            {remaining > 0
+              ? t("ชำระเงิน", "Payment")
+              : t("หมดเวลาสำรองที่นั่งแล้ว", "Your seat hold has expired")}
+          </h1>
           <p>
-            {t("รหัสรายการ", "Reservation")}: {result.id}
-          </p>
-          <p>
-            {t("เวลาสำรองที่เหลือ", "Time remaining")}:{" "}
-            {Math.floor(remaining / 60)}:
-            {String(remaining % 60).padStart(2, "0")}
+            {t(
+              "เลือกวิธีชำระเงินบนหน้าของ Omise",
+              "Choose your payment method on Omise",
+            )}
           </p>
         </div>
-        <p>
-          {t(
-            "ยังไม่ได้ชำระเงินและยังไม่มีตั๋วขึ้นเรือ หากเปิดใช้ Sandbox ให้ใช้ QR ทดสอบด้านล่างและรอผลยืนยันจากระบบ",
-            "This is an unpaid hold, not a boarding ticket. Use the test QR below when sandbox is configured and wait for payment verification.",
-          )}
-        </p>
-        <OmisePayment
-          key={result.id}
-          id={result.id}
-          language={language}
-          onPaid={onOrders}
-        />
+        <div className="payment-layout">
+          <article className="payment-instructions">
+            <div className="payment-section-title">
+              <span>{t("ช่องทางการชำระเงิน", "Payment method")}</span>
+              <h2>Omise Checkout · Sandbox</h2>
+            </div>
+            <p>
+              {t(
+                "ชำระผ่านช่องทางที่เลือก ระบบตรวจสอบให้อัตโนมัติ และออกตั๋วหลังยืนยันยอดสำเร็จ",
+                "Pay using your selected method. Payment is checked automatically; tickets follow verified payment.",
+              )}
+            </p>
+            <OmisePayment
+              key={result.id}
+              id={result.id}
+              language={language}
+              autoStart={remaining > 0}
+              method="all"
+              amount={result.total}
+              resume={!!returnPayment}
+              onPaid={() => setPaymentVerified(true)}
+            />
+          </article>
+          <aside className="payment-summary-card">
+            <h2>{t("สรุปคำสั่งซื้อ", "Order summary")}</h2>
+            <div className="payment-order-summary">
+              <span>{t("รหัสคำสั่งซื้อ", "Order ID")}</span>
+              <b>{result.id}</b>
+              <span>{t("ที่นั่ง", "Seats")}</span>
+              <b>
+                {(result.seat_ids?.length
+                  ? result.seat_ids
+                  : result.table_ids
+                ).join(", ")}
+              </b>
+              <span>{t("รอบเรือ", "Sailing")}</span>
+              <b>{cruiseDisplayText(result.title)}</b>
+              <span>{t("วันเดินทาง", "Departure")}</span>
+              <b>{sailingDate(result.departure_at, en)}</b>
+            </div>
+            <div className="payment-total">
+              <span>{t("ยอดชำระ", "Total")}</span>
+              <strong>{money(result.total)}</strong>
+            </div>
+            <p className="payment-summary-note">
+              {t("เวลาสำรองที่เหลือ", "Time remaining")}:{" "}
+              {Math.floor(remaining / 60)}:
+              {String(remaining % 60).padStart(2, "0")}
+            </p>
+          </aside>
+        </div>
         <div className="bp-actions">
           <button className="bp-secondary" onClick={onContact}>
             {t("ติดต่อทีมงาน", "Contact the team")}
           </button>
-          <button className="bp-primary" onClick={onOrders}>
+          <button className="bp-secondary" onClick={onOrders}>
             {t("ดูรายการจองของฉัน", "My reservations")}
             <ArrowRight size={18} />
           </button>
@@ -234,13 +456,14 @@ export default function LiveCruiseBooking({
       </section>
     );
   }
-  if (!loading && !error && sailings.length === 0) {
+  if (!loading && !loadError && sailings.length === 0) {
     return <BookingPreview language={language} onBack={onBack} />;
   }
   const stages = [
-    t("เลือกรอบและโต๊ะ", "Sailing & tables"),
-    t("เติมเต็มมื้อพิเศษ", "Dining extras"),
-    t("ตรวจสอบและสำรอง", "Review & reserve"),
+    t("เลือกโซนและที่นั่ง", "Zone & seats"),
+    t("คอนเฟิร์ม", "Confirm"),
+    t("จ่ายเงิน", "Payment"),
+    t("เรียบร้อย", "Complete"),
   ];
   return (
     <section className="booking-preview">
@@ -255,11 +478,13 @@ export default function LiveCruiseBooking({
         {stages.map((label, index) => (
           <button
             key={label}
-            aria-current={step === index ? "step" : undefined}
-            disabled={index > step}
-            onClick={() => move(index)}
+            aria-current={(step === 0 ? 0 : 1) === index ? "step" : undefined}
+            disabled={index > (step === 0 ? 0 : 1)}
+            onClick={() => move(index === 0 ? 0 : 2)}
           >
-            <span>{index < step ? <Check size={16} /> : index + 1}</span>
+            <span>
+              {index < (step === 0 ? 0 : 1) ? <Check size={16} /> : index + 1}
+            </span>
             <strong>{label}</strong>
           </button>
         ))}
@@ -268,8 +493,8 @@ export default function LiveCruiseBooking({
         <div>
           <h1 ref={heading} tabIndex={-1}>
             {step === 0
-              ? t("จองโต๊ะบน Unicorn Cruise", "Book Unicorn Cruise")
-              : stages[step]}
+              ? t("จองที่นั่งบน Unicorn Cruise", "Book Unicorn Cruise")
+              : t("ตรวจสอบและคอนเฟิร์ม", "Review & confirm")}
           </h1>
           <p>
             {t(
@@ -284,9 +509,74 @@ export default function LiveCruiseBooking({
           {error}
         </p>
       )}
+      {existingHold && (
+        <div
+          className="bp-review-block"
+          aria-label={t("รายการรอชำระเดิม", "Existing unpaid reservation")}
+        >
+          <h2>{t("รายการรอชำระเดิม", "Existing unpaid reservation")}</h2>
+          <p>
+            {(existingHold.seat_ids?.length
+              ? existingHold.seat_ids
+              : existingHold.table_ids
+            ).join(", ")}
+            {" · "}
+            {money(existingHold.total)}
+          </p>
+          <p>
+            {t("หมดเวลาสำรอง", "Hold expires")}:{" "}
+            {sailingDate(existingHold.expires_at, en)}
+          </p>
+          <div className="bp-actions">
+            <button
+              className="bp-primary"
+              disabled={busy}
+              onClick={() => {
+                if (Date.parse(existingHold.expires_at) <= Date.now()) {
+                  setExistingHold(null);
+                  setError(
+                    t(
+                      "รายการเดิมหมดเวลาแล้ว กรุณาลองจองอีกครั้ง",
+                      "The previous hold expired. Please retry your reservation.",
+                    ),
+                  );
+                  return;
+                }
+                setResult(existingHold);
+                setNow(Date.now());
+                setExistingHold(null);
+                setError("");
+              }}
+            >
+              {t("ชำระรายการเดิม", "Pay existing reservation")}
+            </button>
+            <button
+              className="bp-secondary"
+              disabled={busy}
+              onClick={() => void cancelExistingHold()}
+            >
+              {t(
+                "ยกเลิกรายการเดิมเพื่อจองใหม่",
+                "Cancel previous reservation to book again",
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+      {loadError && (
+        <p className="bp-error" role="alert">
+          {loadError}{" "}
+          <button
+            className="bp-text-button"
+            onClick={() => window.location.reload()}
+          >
+            {t("โหลดใหม่", "Reload")}
+          </button>
+        </p>
+      )}
       {loading ? (
         <p role="status">{t("กำลังโหลดรอบเรือ…", "Loading sailings…")}</p>
-      ) : error ? null : (
+      ) : loadError && sailings.length === 0 ? null : (
         <div className="bp-layout">
           <div className="bp-content">
             {step === 0 && (
@@ -298,7 +588,7 @@ export default function LiveCruiseBooking({
                     <p>
                       {t(
                         "บุฟเฟ่ต์รวมในค่าที่นั่ง",
-                        "Buffet included in table price",
+                        "Buffet included in seat price",
                       )}
                     </p>
                   </div>
@@ -324,7 +614,8 @@ export default function LiveCruiseBooking({
                     </option>
                     {sailings.map((s) => (
                       <option value={s.id} key={s.id}>
-                        {s.title} · {sailingDate(s.departure_at, en)}
+                        {cruiseDisplayText(s.title)} ·{" "}
+                        {sailingDate(s.departure_at, en)}
                       </option>
                     ))}
                   </select>
@@ -332,7 +623,8 @@ export default function LiveCruiseBooking({
                 {sailing && (
                   <>
                     <p>
-                      {sailing.pier} · {t("ขึ้นเรือ", "Boarding")}{" "}
+                      {cruiseDisplayText(sailing.pier)} ·{" "}
+                      {t("ขึ้นเรือ", "Boarding")}{" "}
                       {sailingDate(sailing.boarding_at, en)}
                     </p>
                     <label className="bp-notes" htmlFor="sale-guests">
@@ -348,7 +640,7 @@ export default function LiveCruiseBooking({
                       />
                     </label>
                     <div className="bp-table-heading">
-                      <h2>{t("เลือกโต๊ะ", "Choose tables")}</h2>
+                      <h2>{t("เลือกที่นั่ง", "Choose seats")}</h2>
                       <div className="bp-decks">
                         {(["upper", "lower"] as const).map((value) => (
                           <button
@@ -365,34 +657,10 @@ export default function LiveCruiseBooking({
                     </div>
                     <p className="bp-muted">
                       {t(
-                        "เลือกทั้งโต๊ะหรือรายเก้าอี้ · ตรวจราคาในรายละเอียดก่อนจอง",
-                        "Choose a whole table or individual chairs · Check the price before booking",
+                        "เลือกเก้าอี้ที่ต้องการ · คิดราคาตามจำนวนที่นั่ง",
+                        "Choose your chairs · Pay per seat",
                       )}
                     </p>
-                    <div
-                      className="bp-decks"
-                      aria-label={t("รูปแบบการจอง", "Booking mode")}
-                    >
-                      <button
-                        aria-pressed={!seatMode}
-                        onClick={() => {
-                          setSeatMode(false);
-                          setSelected([]);
-                        }}
-                      >
-                        {t("จองทั้งโต๊ะ", "Whole table")}
-                      </button>
-                      <button
-                        aria-pressed={seatMode}
-                        onClick={() => {
-                          setSeatMode(true);
-                          setSelected([]);
-                          setGuests(1);
-                        }}
-                      >
-                        {t("เลือกเป็นรายเก้าอี้", "Individual chairs")}
-                      </button>
-                    </div>
                     {seatMode && (
                       <p>
                         {t(
@@ -432,8 +700,8 @@ export default function LiveCruiseBooking({
                     {chosen.length > 0 && !valid && (
                       <p className="bp-error" role="alert">
                         {t(
-                          "กรุณาเลือกที่นั่งให้เพียงพอ หรือเลือกโต๊ะที่ยังว่าง",
-                          "Choose enough seats and available tables",
+                          "กรุณาเลือกเก้าอี้ว่างให้ตรงจำนวนผู้เดินทาง",
+                          "Choose available chairs to match your guest count",
                         )}
                       </p>
                     )}
@@ -441,8 +709,14 @@ export default function LiveCruiseBooking({
                 )}
               </>
             )}
-            {step === 1 && (
-              <>
+            {step === 0 && sailing && (
+              <details className="bp-optional-extras">
+                <summary>
+                  {t(
+                    "เพิ่มอาหารพิเศษ / ไวน์ (ไม่บังคับ)",
+                    "Special food / wine (optional)",
+                  )}
+                </summary>
                 <div className="bp-included">
                   <Info size={21} />
                   <div>
@@ -514,10 +788,13 @@ export default function LiveCruiseBooking({
                           style={item.image ? undefined : { display: "block" }}
                         >
                           {item.image && (
-                            <img src={item.image} alt={item.name} />
+                            <img
+                              src={item.image}
+                              alt={cruiseDisplayText(item.name)}
+                            />
                           )}
                           <div className="bp-extra-body">
-                            <h2>{item.name}</h2>
+                            <h2>{cruiseDisplayText(item.name)}</h2>
                             <p>{item.description}</p>
                             <strong>{money(item.price)}</strong>
                             <p>
@@ -525,7 +802,7 @@ export default function LiveCruiseBooking({
                             </p>
                             <div className="bp-quantity">
                               <button
-                                aria-label={`${t("ลด", "Remove")} ${item.name}`}
+                                aria-label={`${t("ลด", "Remove")} ${cruiseDisplayText(item.name)}`}
                                 disabled={!quantities[item.id]}
                                 onClick={() =>
                                   setQuantities((prev) => ({
@@ -541,7 +818,7 @@ export default function LiveCruiseBooking({
                               </button>
                               <output>{quantities[item.id] ?? 0}</output>
                               <button
-                                aria-label={`${t("เพิ่ม", "Add")} ${item.name}`}
+                                aria-label={`${t("เพิ่ม", "Add")} ${cruiseDisplayText(item.name)}`}
                                 disabled={
                                   (quantities[item.id] ?? 0) >=
                                   Math.min(10, item.remaining)
@@ -585,43 +862,28 @@ export default function LiveCruiseBooking({
                     onChange={(e) => setNotes(e.target.value)}
                   />
                 </label>
-                <div className="bp-actions">
-                  <button className="bp-secondary" onClick={() => move(0)}>
-                    {t("ย้อนกลับ", "Back")}
-                  </button>
-                  <button
-                    className="bp-text-button"
-                    onClick={() => {
-                      setQuantities({});
-                      setRequests([]);
-                      move(2);
-                    }}
-                  >
-                    {t("ข้ามโดยไม่เพิ่มรายการ", "Continue without extras")}
-                  </button>
-                </div>
-              </>
+              </details>
             )}
             {step === 2 && (
               <>
                 <div className="bp-review-block">
                   <h2>
-                    {t("ตรวจสอบรายการก่อนสำรอง", "Review before reserving")}
+                    {t("ตรวจสอบรายการก่อนชำระเงิน", "Review before payment")}
                   </h2>
                   <p>
-                    {sailing?.title} ·{" "}
+                    {sailing ? cruiseDisplayText(sailing.title) : ""} ·{" "}
                     {sailingDate(sailing?.departure_at ?? null, en)}
                   </p>
                   <p>
                     {selected.join(", ")} · {guests} {t("คน", "guests")}
                   </p>
                   <button className="bp-text-button" onClick={() => move(0)}>
-                    {t("แก้ไขโต๊ะ", "Edit tables")}
+                    {t("แก้ไขที่นั่ง", "Edit seats")}
                   </button>
                   <hr />
                   {selectedExtras.map((item) => (
                     <p key={item.id}>
-                      {item.name} × {quantities[item.id]} —{" "}
+                      {cruiseDisplayText(item.name)} × {quantities[item.id]} —{" "}
                       {money(item.price * quantities[item.id])}
                     </p>
                   ))}
@@ -642,7 +904,7 @@ export default function LiveCruiseBooking({
                     </p>
                   )}
                   {notes && <p>{notes}</p>}
-                  <button className="bp-text-button" onClick={() => move(1)}>
+                  <button className="bp-text-button" onClick={() => move(0)}>
                     {t("แก้ไขบริการเสริม", "Edit extras")}
                   </button>
                 </div>
@@ -653,7 +915,10 @@ export default function LiveCruiseBooking({
                       required
                       maxLength={60}
                       value={name}
-                      onChange={(e) => setName(e.target.value)}
+                      onChange={(e) => {
+                        nameEdited.current = true;
+                        setName(e.target.value);
+                      }}
                     />
                   </label>
                   <label>
@@ -667,12 +932,17 @@ export default function LiveCruiseBooking({
                   </label>
                 </div>
                 <p className="bp-muted">
-                  {t(
-                    "อีเมลยืนยันและตั๋วจะส่งไปยังอีเมลบัญชีที่เข้าสู่ระบบ หลังทีมงานตรวจสอบการชำระเงินจริงแล้ว",
-                    "After verified payment, confirmation and tickets will be sent to your signed-in account email.",
-                  )}
+                  {salesCustomer
+                    ? t(
+                        "ตั๋วจะออกหลังยืนยันการชำระเงินและส่งไปยังอีเมลบัญชีลูกค้า",
+                        "Tickets are issued after payment verification and sent to the customer's account email.",
+                      )
+                    : t(
+                        "ตั๋วจะออกหลังระบบยืนยันการชำระเงิน และส่งไปยังอีเมลบัญชีของคุณเมื่อเปิดบริการส่งอีเมล",
+                        "Tickets are issued after payment verification and sent to your account email when delivery is enabled.",
+                      )}
                 </p>
-                <button className="bp-secondary" onClick={() => move(1)}>
+                <button className="bp-secondary" onClick={() => move(0)}>
                   {t("ย้อนกลับ", "Back")}
                 </button>
               </>
@@ -695,7 +965,7 @@ export default function LiveCruiseBooking({
               {selectedExtras.map((item) => (
                 <div key={item.id}>
                   <span>
-                    {item.name} × {quantities[item.id]}
+                    {cruiseDisplayText(item.name)} × {quantities[item.id]}
                   </span>
                   <b>{money(item.price * quantities[item.id])}</b>
                 </div>
@@ -727,22 +997,32 @@ export default function LiveCruiseBooking({
               disabled={
                 !valid || busy || (step === 2 && authenticated && !name.trim())
               }
-              onClick={() => (step < 2 ? move(step + 1) : void reserve())}
+              onClick={() => (step === 0 ? move(2) : void reserve())}
             >
               {busy
                 ? t("กำลังบันทึก…", "Saving…")
                 : step === 2
                   ? authenticated
-                    ? t("ยืนยันสำรองโต๊ะ", "Reserve tables")
-                    : t("เข้าสู่ระบบเพื่อสำรองโต๊ะ", "Sign in to reserve")
+                    ? salesCustomer
+                      ? t(
+                          `สำรองให้ลูกค้า ${money(total)}`,
+                          `Reserve for customer ${money(total)}`,
+                        )
+                      : t(`ชำระเงิน ${money(total)}`, `Pay ${money(total)}`)
+                    : t("เข้าสู่ระบบเพื่อสำรองที่นั่ง", "Sign in to reserve")
                   : t("ถัดไป", "Continue")}
               <ArrowRight size={18} />
             </button>
             <small className="bp-summary-hint">
-              {t(
-                "พักโต๊ะ 15 นาที · ยังไม่เปิดชำระผ่าน Gateway",
-                "15-minute hold · Omise sandbox when configured",
-              )}
+              {salesCustomer
+                ? t(
+                    "สำรองที่นั่ง 15 นาที ลูกค้าชำระจากบัญชีของตัวเองก่อนหมดเวลา",
+                    "Seats are held for 15 minutes. The customer pays from their own account before expiry.",
+                  )
+                : t(
+                    "กดชำระเงินเพื่อยอมรับยอดรวมนี้และเวลาพักที่นั่ง 15 นาที · เปิดช่องทางชำระที่เลือกให้อัตโนมัติ",
+                    "By paying you accept this total and the 15-minute hold. Your selected payment method opens automatically.",
+                  )}
             </small>
           </aside>
         </div>

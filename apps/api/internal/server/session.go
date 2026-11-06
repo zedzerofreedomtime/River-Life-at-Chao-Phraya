@@ -50,13 +50,13 @@ func (s *Server) userID(c *gin.Context) (string, bool) {
 		}
 	}
 	var current int
-	err = s.Service.DB.QueryRow(c.Request.Context(), "SELECT auth_version FROM users WHERE id=$1", id).Scan(&current)
+	err = s.Service.DB.QueryRow(c.Request.Context(), "SELECT auth_version FROM users WHERE id=$1 AND NOT suspended", id).Scan(&current)
 	return id, err == nil && current == version
 }
 func (s *Server) setUserSession(c *gin.Context, userID string, expectedVersion ...int) error {
 	t := service.Token()
 	var version int
-	if err := s.Service.DB.QueryRow(c.Request.Context(), "SELECT auth_version FROM users WHERE id=$1", userID).Scan(&version); err != nil {
+	if err := s.Service.DB.QueryRow(c.Request.Context(), "SELECT auth_version FROM users WHERE id=$1 AND NOT suspended", userID).Scan(&version); err != nil {
 		return err
 	}
 	if len(expectedVersion) > 0 && version != expectedVersion[0] {

@@ -24,45 +24,22 @@ type CruiseEmailStatus struct {
 }
 type CruiseReservationDetail struct {
 	CruiseReservation
-	Email   string              `json:"email"`
-	Tickets []CruiseTicket      `json:"tickets"`
-	Emails  []CruiseEmailStatus `json:"emails"`
+	Email   string               `json:"email"`
+	Tickets []CruiseTicket       `json:"tickets"`
+	Emails  []CruiseEmailStatus  `json:"emails"`
+	Payment *CruisePaymentReview `json:"payment,omitempty"`
+}
+type CruisePaymentReview struct {
+	ChargeID     string     `json:"charge_id"`
+	Status       string     `json:"status"`
+	ReviewReason string     `json:"review_reason"`
+	CheckedAt    *time.Time `json:"checked_at"`
 }
 type CruiseMailPayload struct {
 	Booking Booking        `json:"booking"`
 	Program BookingProgram `json:"program"`
 }
 
-func (s *Service) AdminCruiseReservations(ctx context.Context) ([]CruiseReservationDetail, error) {
-	rows, err := s.DB.Query(ctx, `SELECT r.id,r.user_id FROM cruise_reservations r ORDER BY r.created_at DESC LIMIT 100`)
-	if err != nil {
-		return nil, err
-	}
-	type identity struct{ id, user string }
-	ids := []identity{}
-	for rows.Next() {
-		var i identity
-		if err = rows.Scan(&i.id, &i.user); err != nil {
-			rows.Close()
-			return nil, err
-		}
-		ids = append(ids, i)
-	}
-	err = rows.Err()
-	rows.Close()
-	if err != nil {
-		return nil, err
-	}
-	out := []CruiseReservationDetail{}
-	for _, i := range ids {
-		detail, e := s.CruiseReservationDetail(ctx, i.id, i.user)
-		if e != nil {
-			return nil, e
-		}
-		out = append(out, detail)
-	}
-	return out, nil
-}
 func (s *Service) CruiseReservationDetail(ctx context.Context, id, user string) (CruiseReservationDetail, error) {
 	var out CruiseReservationDetail
 	var err error
@@ -71,6 +48,13 @@ func (s *Service) CruiseReservationDetail(ctx context.Context, id, user string) 
 		return out, err
 	}
 	if err = s.DB.QueryRow(ctx, `SELECT u.email FROM cruise_reservations r JOIN users u ON u.id=r.user_id WHERE r.id=$1 AND r.user_id=$2`, id, user).Scan(&out.Email); err != nil {
+		return out, err
+	}
+	var payment CruisePaymentReview
+	err = s.DB.QueryRow(ctx, `SELECT COALESCE(charge_id,''),provider_status,CASE WHEN charge_id IS NULL THEN 'creation_unknown' ELSE review_reason END,checked_at FROM omise_checkouts WHERE reservation_id=$1`, id).Scan(&payment.ChargeID, &payment.Status, &payment.ReviewReason, &payment.CheckedAt)
+	if err == nil {
+		out.Payment = &payment
+	} else if !errors.Is(err, pgx.ErrNoRows) {
 		return out, err
 	}
 	out.Tickets = []CruiseTicket{}
@@ -128,7 +112,7 @@ func (s *Service) confirmCruisePayment(ctx context.Context, id, actor, reference
 		if err = tx.QueryRow(ctx, `SELECT role FROM users WHERE id=$1`, actor).Scan(&role); err != nil {
 			return CruiseReservationDetail{}, err
 		}
-		if role != RoleAdmin {
+		if role != RoleAdmin && role != RoleOwner {
 			return CruiseReservationDetail{}, ErrConflict
 		}
 	} else if provider != "omise" {
@@ -293,14 +277,21 @@ func (s *Service) CheckInCruiseTicket(ctx context.Context, code, sailing, actor 
 	if err = tx.QueryRow(ctx, `SELECT role FROM users WHERE id=$1`, actor).Scan(&role); err != nil {
 		return out, err
 	}
-	if role != RoleAdmin && role != RoleOperator {
+	if role != RoleAdmin && role != RoleOwner && role != RoleOperator {
 		return out, ErrConflict
 	}
 	var status string
 	var boarding, departure time.Time
-	err = tx.QueryRow(ctx, `SELECT t.id,t.table_id,t.ordinal,t.checked_in_at,r.status,s.boarding_at,s.departure_at FROM cruise_tickets t JOIN cruise_reservations r ON r.id=t.reservation_id JOIN sailings s ON s.id=r.sailing_id WHERE t.id=$1 AND r.sailing_id=$2 FOR UPDATE OF t`, code, sailing).Scan(&out.ID, &out.TableID, &out.Ordinal, &out.CheckedIn, &status, &boarding, &departure)
+	err = tx.QueryRow(ctx, `SELECT t.id,t.table_id,t.ordinal,t.checked_in_at,r.status,s.boarding_at,s.departure_at FROM cruise_tickets t JOIN cruise_reservations r ON r.id=t.reservation_id JOIN sailings s ON s.id=r.sailing_id WHERE t.id=$1 AND r.sailing_id=$2 AND NOT EXISTS(SELECT 1 FROM cruise_refunds f WHERE f.reservation_id=r.id AND f.status<>'rejected') FOR UPDATE OF t`, code, sailing).Scan(&out.ID, &out.TableID, &out.Ordinal, &out.CheckedIn, &status, &boarding, &departure)
 	if err != nil {
 		return out, err
+	}
+	var refundPending bool
+	if err = tx.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM cruise_refunds f JOIN cruise_tickets t ON t.reservation_id=f.reservation_id WHERE t.id=$1 AND f.status<>'rejected')", code).Scan(&refundPending); err != nil {
+		return out, err
+	}
+	if refundPending {
+		return out, ErrConflict
 	}
 	now := time.Now()
 	if status != "confirmed" || out.CheckedIn != nil || boarding.After(now) || !departure.After(now) {

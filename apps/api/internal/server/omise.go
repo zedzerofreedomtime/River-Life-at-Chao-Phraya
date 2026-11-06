@@ -2,9 +2,33 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
+	"riverlife/api/internal/service"
 )
 
 func (s *Server) omiseRoutes(api *gin.RouterGroup) {
+	admin := api.Group("/dashboard/admin/cruises", s.requireRoles(service.RoleAdmin))
+	admin.POST("/reservations/:id/reconcile-payment", s.limiter(15), func(c *gin.Context) {
+		if s.CruisePayments == nil {
+			c.Status(503)
+			return
+		}
+		var in struct {
+			ChargeID string `json:"charge_id" binding:"max=100"`
+		}
+		if c.ShouldBindJSON(&in) != nil {
+			bad(c)
+			return
+		}
+		actor, _ := s.userID(c)
+		ctx, cancel := paymentContext(c)
+		defer cancel()
+		v, err := s.CruisePayments.Reconcile(ctx, c.Param("id"), in.ChargeID, actor)
+		if err != nil {
+			fail(c, err)
+			return
+		}
+		c.JSON(200, v)
+	})
 	for _, action := range []string{"checkout", "payment-status"} {
 		action := action
 		api.POST("/me/cruise-reservations/:id/"+action, func(c *gin.Context) {
@@ -22,13 +46,15 @@ func (s *Server) omiseRoutes(api *gin.RouterGroup) {
 			defer cancel()
 			if action == "checkout" {
 				var in struct {
-					Accepted bool `json:"terms_accepted"`
+					Accepted bool   `json:"terms_accepted"`
+					Token    string `json:"token" binding:"max=100"`
+					Source   string `json:"source" binding:"max=100"`
 				}
 				if c.ShouldBindJSON(&in) != nil || !in.Accepted {
 					bad(c)
 					return
 				}
-				v, err := s.CruisePayments.Checkout(ctx, c.Param("id"), user)
+				v, err := s.CruisePayments.Checkout(ctx, c.Param("id"), user, service.OmisePaymentInput{Token: in.Token, Source: in.Source})
 				if err != nil {
 					fail(c, err)
 					return

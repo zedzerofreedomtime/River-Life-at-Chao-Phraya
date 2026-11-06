@@ -154,6 +154,15 @@ const englishApiMessages: Record<string, string> = {
     "Availability has changed or there are not enough tickets.",
   บัตรนี้เช็กอินแล้ว: "This ticket has already been checked in.",
 };
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
 export async function api<T>(
   path: string,
   options: RequestInit = {},
@@ -178,7 +187,7 @@ export async function api<T>(
         englishApiMessages[message] ||
         (/[ก-๙]/.test(message) ? "Request failed. Please try again." : message);
     }
-    throw new Error(message);
+    throw new ApiError(message, r.status);
   }
   return r.status === 204 ? (undefined as T) : r.json();
 }

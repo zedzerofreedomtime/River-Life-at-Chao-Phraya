@@ -51,8 +51,24 @@ const sailing = {
   status: "published",
   revision: 1,
   tables: [
-    { id: "A1", deck: "upper", seats: 4, price: 800000, available: true },
-    { id: "B1", deck: "lower", seats: 2, price: 400000, available: false },
+    {
+      id: "A1",
+      deck: "upper",
+      seats: 4,
+      price: 800000,
+      seat_price: 200000,
+      available_seats: ["A1:1", "A1:2", "A1:3", "A1:4"],
+      available: true,
+    },
+    {
+      id: "B1",
+      deck: "lower",
+      seats: 2,
+      price: 400000,
+      seat_price: 200000,
+      available_seats: [],
+      available: false,
+    },
   ],
 };
 async function setup(page: Page, role = "user") {
@@ -149,8 +165,9 @@ for (const width of [390, 1440]) {
           departure_at: sailing.departure_at,
           pier: sailing.pier,
           table_ids: ["A1"],
+          seat_ids: ["A1:1", "A1:2", "A1:3"],
           guest_count: 3,
-          total: 800000,
+          total: 600000,
           status: "held",
           expires_at: new Date(Date.now() + 900000).toISOString(),
         },
@@ -158,11 +175,14 @@ for (const width of [390, 1440]) {
     });
     await page.goto("/booking");
     await page.getByLabel("เลือกรอบเดินทาง (เวลาไทย)").selectOption(sailing.id);
+    await expect(
+      page.getByRole("button", { name: "จองทั้งโต๊ะ", exact: true }),
+    ).toHaveCount(0);
     await page.getByLabel("จำนวนผู้ร่วมเดินทาง").fill("5");
-    await page.getByRole("button", { name: "โต๊ะ A1", exact: true }).click();
-    await page
-      .getByRole("button", { name: "เลือกโต๊ะนี้", exact: true })
-      .click();
+    for (const n of [1, 2, 3])
+      await page
+        .getByRole("button", { name: `เก้าอี้ A1:${n}`, exact: true })
+        .click();
     const next = page
       .locator(".bp-summary")
       .getByRole("button", { name: "ถัดไป", exact: true });
@@ -173,21 +193,17 @@ for (const width of [390, 1440]) {
     ).toBeDisabled();
     await page.getByLabel("จำนวนผู้ร่วมเดินทาง").fill("3");
     await next.click();
-    await page
-      .getByRole("button", { name: "ข้ามโดยไม่เพิ่มรายการ", exact: true })
-      .click();
     await page.getByLabel("ชื่อผู้จอง *").fill("QA Guest");
-    await page
-      .getByRole("button", { name: "ยืนยันสำรองโต๊ะ", exact: true })
-      .click();
+    await page.getByRole("button", { name: /^ชำระเงิน ฿/ }).click();
     await expect(
-      page.getByRole("heading", { name: "สำรองโต๊ะแล้ว · รอการชำระเงิน" }),
+      page.getByRole("heading", { name: "ชำระเงิน", exact: true }),
     ).toBeVisible();
     expect(received).toEqual({
       sailing_id: sailing.id,
-      table_ids: ["A1"],
+      table_ids: [],
+      seat_ids: ["A1:1", "A1:2", "A1:3"],
       guest_count: 3,
-      expected_total: 800000,
+      expected_total: 600000,
       extras: [],
       notes: "",
       requests: [],
@@ -196,7 +212,7 @@ for (const width of [390, 1440]) {
     });
     expect(key.length).toBeGreaterThan(15);
     await expect(
-      page.getByText("ยังไม่ได้ชำระเงินและยังไม่มีตั๋วขึ้นเรือ", {
+      page.getByText("ออกตั๋วหลังยืนยันยอดสำเร็จ", {
         exact: false,
       }),
     ).toBeVisible();

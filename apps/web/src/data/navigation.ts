@@ -21,7 +21,7 @@ export const pagePaths = {
 
 export type Page = keyof typeof pagePaths;
 export const staffHome = (role: string): Page | null =>
-  role === "admin"
+  ["admin", "owner"].includes(role)
     ? "dashboard"
     : role === "sales"
       ? "sales"

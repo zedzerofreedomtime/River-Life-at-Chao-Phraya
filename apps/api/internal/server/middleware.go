@@ -33,7 +33,7 @@ func (s *Server) admin(c *gin.Context) {
 			fail(c, err)
 			return
 		}
-		if user.Role != service.RoleAdmin {
+		if user.Role != service.RoleAdmin && user.Role != service.RoleOwner {
 			c.AbortWithStatusJSON(403, gin.H{"error": "ไม่มีสิทธิ์เข้าถึงข้อมูลผู้ดูแลระบบ"})
 			return
 		}
@@ -64,7 +64,7 @@ func (s *Server) requireRoles(roles ...string) gin.HandlerFunc {
 		}
 		allowed := false
 		for _, role := range roles {
-			if user.Role == role {
+			if user.Role == role || (user.Role == service.RoleOwner && role == service.RoleAdmin) {
 				allowed = true
 				break
 			}

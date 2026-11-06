@@ -121,7 +121,7 @@ export default function ProfileMenu({
             <div className="profile-actions">
               {workspace ? (
                 <>
-                  {role === "admin" && (
+                  {["admin", "owner"].includes(role) && (
                     <MenuAction
                       icon={ReceiptText}
                       onClick={() => navigate("dashboard")}
@@ -129,7 +129,7 @@ export default function ProfileMenu({
                       {language === "en" ? "Administration" : "จัดการระบบ"}
                     </MenuAction>
                   )}
-                  {["sales", "admin"].includes(role) && (
+                  {["sales", "admin", "owner"].includes(role) && (
                     <MenuAction
                       icon={ReceiptText}
                       onClick={() => navigate("sales")}
@@ -137,7 +137,7 @@ export default function ProfileMenu({
                       {language === "en" ? "Sales workspace" : "ฝ่ายขาย"}
                     </MenuAction>
                   )}
-                  {["operator", "admin"].includes(role) && (
+                  {["operator", "admin", "owner"].includes(role) && (
                     <MenuAction
                       icon={Ticket}
                       onClick={() => navigate("operator")}

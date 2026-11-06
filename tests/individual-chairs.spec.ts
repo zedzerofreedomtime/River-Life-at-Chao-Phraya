@@ -68,9 +68,9 @@ test("live booking sends a single chair and its server catalogue price (API fixt
   await page.goto("/booking");
   const root = page.locator(".booking-preview");
   await root.locator("#sale-sailing").selectOption("chair-sailing");
-  await root
-    .getByRole("button", { name: "เลือกเป็นรายเก้าอี้", exact: true })
-    .click();
+  await expect(
+    root.getByRole("button", { name: "จองทั้งโต๊ะ", exact: true }),
+  ).toHaveCount(0);
   await root.getByRole("button", { name: "โต๊ะ U01", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "เก้าอี้ U01:1", exact: true }),
@@ -82,11 +82,8 @@ test("live booking sends a single chair and its server catalogue price (API fixt
     .getByRole("button", { name: "เลือกเรียบร้อย", exact: true })
     .click();
   await root.getByRole("button", { name: "ถัดไป", exact: true }).click();
-  await root.getByRole("button", { name: "ถัดไป", exact: true }).click();
   await root.getByLabel("ชื่อผู้จอง *", { exact: true }).fill("QA Chair");
-  await root
-    .getByRole("button", { name: "ยืนยันสำรองโต๊ะ", exact: true })
-    .click();
+  await root.getByRole("button", { name: /^ชำระเงิน ฿/ }).click();
   await expect.poll(() => submitted).toBeTruthy();
   expect(submitted).toMatchObject({
     table_ids: [],
@@ -106,9 +103,9 @@ for (const width of [390, 1440]) {
     await page.goto("/booking-preview");
     const root = page.locator(".booking-preview");
     await root.getByLabel("วันที่เดินทาง", { exact: true }).fill("2027-02-20");
-    await root
-      .getByRole("button", { name: "เลือกเป็นรายเก้าอี้", exact: true })
-      .click();
+    await expect(
+      root.getByRole("button", { name: "จองทั้งโต๊ะ", exact: true }),
+    ).toHaveCount(0);
     await expect(
       root.getByLabel("จำนวนผู้ร่วมเดินทาง", { exact: true }),
     ).toHaveValue("1");

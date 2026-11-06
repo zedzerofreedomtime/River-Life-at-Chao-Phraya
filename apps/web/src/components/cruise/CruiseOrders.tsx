@@ -4,6 +4,7 @@ import { api, money, statusLabel } from "../../data/api";
 import { QRCodeSVG } from "qrcode.react";
 import {
   sailingDate,
+  cruiseDisplayText,
   type CruiseReservation,
   type CruiseReservationDetail,
 } from "../../data/cruises";
@@ -71,10 +72,10 @@ export default function CruiseOrders({ language }: { language: Language }) {
       {items.map((r) => (
         <article className="rx-info" key={r.id}>
           <h3>
-            {r.vessel} · {r.title}
+            {r.vessel} · {cruiseDisplayText(r.title)}
           </h3>
           <p>
-            {sailingDate(r.departure_at, en)} · {r.pier}
+            {sailingDate(r.departure_at, en)} · {cruiseDisplayText(r.pier)}
           </p>
           <p>
             {(r.seat_ids?.length ? r.seat_ids : r.table_ids).join(", ")} ·{" "}
@@ -107,6 +108,7 @@ export default function CruiseOrders({ language }: { language: Language }) {
               key={r.id}
               id={r.id}
               language={language}
+              amount={r.total}
               onPaid={() => {
                 void load();
                 void open(r.id);
@@ -130,7 +132,7 @@ export default function CruiseOrders({ language }: { language: Language }) {
               </p>
               {detail.items?.map((item) => (
                 <p key={item.id}>
-                  {item.name} × {item.quantity} ·{" "}
+                  {cruiseDisplayText(item.name)} × {item.quantity} ·{" "}
                   {money(item.quantity * item.unit_price)}
                 </p>
               ))}
@@ -186,10 +188,17 @@ export default function CruiseOrders({ language }: { language: Language }) {
                       >
                         <h4>UNICORN CRUISE</h4>
                         <p>{sailingDate(detail.departure_at, en)}</p>
-                        <p>{detail.pier}</p>
+                        <p>{cruiseDisplayText(detail.pier)}</p>
                         <strong>
-                          {en ? "Table" : "โต๊ะ"} {ticket.table_id} ·{" "}
-                          {ticket.ordinal}/{detail.guest_count}
+                          {detail.seat_ids?.length
+                            ? en
+                              ? "Seat"
+                              : "ที่นั่ง"
+                            : en
+                              ? "Table"
+                              : "โต๊ะ"}{" "}
+                          {ticket.table_id} · {ticket.ordinal}/
+                          {detail.guest_count}
                         </strong>
                         <div className="cruise-ticket-qr">
                           <QRCodeSVG

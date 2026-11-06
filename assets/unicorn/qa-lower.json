@@ -1,0 +1,432 @@
+{
+  "ok": true,
+  "pass": true,
+  "errors": [],
+  "warnings": [
+    "SM_Hull_Champagne: duplicate verts=584 loose verts=0",
+    "SM_Hull_Cyan: duplicate verts=247 loose verts=0",
+    "SM_Hull_Dark: duplicate verts=584 loose verts=0",
+    "SM_Hull_Pearl: duplicate verts=194 loose verts=0",
+    "SM_LowerCutWindows_Cyan: duplicate verts=36 loose verts=0",
+    "SM_LowerCutWindows_Glass: duplicate verts=24 loose verts=0",
+    "SM_LowerCutWindows_Pearl: duplicate verts=48 loose verts=0",
+    "SM_LowerCutWindows_Silver: duplicate verts=216 loose verts=0",
+    "SM_LowerFixtures_Cyan: duplicate verts=44 loose verts=0",
+    "SM_LowerFixtures_Dark: duplicate verts=156 loose verts=0",
+    "SM_LowerFixtures_Screen: duplicate verts=12 loose verts=0",
+    "SM_LowerFixtures_Silver: duplicate verts=880 loose verts=0",
+    "SM_LowerFloor_Champagne: duplicate verts=240 loose verts=0",
+    "SM_LowerFloor_Wood: duplicate verts=80 loose verts=0",
+    "SM_Stairs_Dark: duplicate verts=288 loose verts=0",
+    "SM_Stairs_Pearl: duplicate verts=312 loose verts=0",
+    "SM_Stairs_Silver: duplicate verts=402 loose verts=0",
+    "hidden back-to-back faces: SM_Stairs_Dark<->SM_Stairs_Pearl (96 pairs) - delete to save tris",
+    "hidden back-to-back faces: SM_LowerFloor_Champagne<->SM_LowerFloor_Wood (44 pairs) - delete to save tris",
+    "hidden back-to-back faces: SM_LowerFixtures_Dark<->SM_LowerFloor_Wood (14 pairs) - delete to save tris",
+    "hidden back-to-back faces: SM_Hull_Pearl<->SM_LowerFixtures_Dark (4 pairs) - delete to save tris"
+  ],
+  "ground_z": 0.0,
+  "zfighting": [],
+  "floating": [],
+  "back_to_back": [
+    {
+      "where": "SM_Stairs_Dark<->SM_Stairs_Pearl",
+      "tri_pairs": 96
+    },
+    {
+      "where": "SM_LowerFloor_Champagne<->SM_LowerFloor_Wood",
+      "tri_pairs": 44
+    },
+    {
+      "where": "SM_LowerFixtures_Dark<->SM_LowerFloor_Wood",
+      "tri_pairs": 14
+    },
+    {
+      "where": "SM_Hull_Pearl<->SM_LowerFixtures_Dark",
+      "tri_pairs": 4
+    }
+  ],
+  "enclosed": [],
+  "objects": {
+    "SM_Hull_Champagne": {
+      "verts": 1168,
+      "faces": 448,
+      "tris": 448,
+      "ngons": 0,
+      "boundary_edges": 1168,
+      "nonmanifold_edges": 0,
+      "wire_edges": 0,
+      "loose_verts": 0,
+      "degenerate_faces": 0,
+      "zero_length_edges": 0,
+      "inconsistent_normals_edges": 0,
+      "duplicate_verts": 584,
+      "islands": 360,
+      "inside_out_islands": 0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "materials": 1
+    },
+    "SM_Hull_Cyan": {
+      "verts": 494,
+      "faces": 184,
+      "tris": 184,
+      "ngons": 0,
+      "boundary_edges": 496,
+      "nonmanifold_edges": 0,
+      "wire_edges": 0,
+      "loose_verts": 0,
+      "degenerate_faces": 0,
+      "zero_length_edges": 0,
+      "inconsistent_normals_edges": 0,
+      "duplicate_verts": 247,
+      "islands": 154,
+      "inside_out_islands": 0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "materials": 1
+    },
+    "SM_Hull_Dark": {
+      "verts": 1168,
+      "faces": 448,
+      "tris": 448,
+      "ngons": 0,
+      "boundary_edges": 1168,
+      "nonmanifold_edges": 0,
+      "wire_edges": 0,
+      "loose_verts": 0,
+      "degenerate_faces": 0,
+      "zero_length_edges": 0,
+      "inconsistent_normals_edges": 0,
+      "duplicate_verts": 584,
+      "islands": 360,
+      "inside_out_islands": 0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "materials": 1
+    },
+    "SM_Hull_Pearl": {
+      "verts": 388,
+      "faces": 220,
+      "tris": 220,
+      "ngons": 0,
+      "boundary_edges": 388,
+      "nonmanifold_edges": 0,
+      "wire_edges": 0,
+      "loose_verts": 0,
+      "degenerate_faces": 0,
+      "zero_length_edges": 0,
+      "inconsistent_normals_edges": 0,
+      "duplicate_verts": 194,
+      "islands": 84,
+      "inside_out_islands": 0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "materials": 1
+    },
+    "SM_LowerCutWindows_Cyan": {
+      "verts": 72,
+      "faces": 40,
+      "tris": 40,
+      "ngons": 0,
+      "boundary_edges": 72,
+      "nonmanifold_edges": 0,
+      "wire_edges": 0,
+      "loose_verts": 0,
+      "degenerate_faces": 0,
+      "zero_length_edges": 0,
+      "inconsistent_normals_edges": 0,
+      "duplicate_verts": 36,
+      "islands": 16,
+      "inside_out_islands": 0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "materials": 1
+    },
+    "SM_LowerCutWindows_Glass": {
+      "verts": 48,
+      "faces": 24,
+      "tris": 24,
+      "ngons": 0,
+      "boundary_edges": 48,
+      "nonmanifold_edges": 0,
+      "wire_edges": 0,
+      "loose_verts": 0,
+      "degenerate_faces": 0,
+      "zero_length_edges": 0,
+      "inconsistent_normals_edges": 0,
+      "duplicate_verts": 24,
+      "islands": 12,
+      "inside_out_islands": 0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "materials": 1
+    },
+    "SM_LowerCutWindows_Pearl": {
+      "verts": 96,
+      "faces": 48,
+      "tris": 48,
+      "ngons": 0,
+      "boundary_edges": 96,
+      "nonmanifold_edges": 0,
+      "wire_edges": 0,
+      "loose_verts": 0,
+      "degenerate_faces": 0,
+      "zero_length_edges": 0,
+      "inconsistent_normals_edges": 0,
+      "duplicate_verts": 48,
+      "islands": 24,
+      "inside_out_islands": 0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "materials": 1
+    },
+    "SM_LowerCutWindows_Silver": {
+      "verts": 432,
+      "faces": 216,
+      "tris": 216,
+      "ngons": 0,
+      "boundary_edges": 432,
+      "nonmanifold_edges": 0,
+      "wire_edges": 0,
+      "loose_verts": 0,
+      "degenerate_faces": 0,
+      "zero_length_edges": 0,
+      "inconsistent_normals_edges": 0,
+      "duplicate_verts": 216,
+      "islands": 108,
+      "inside_out_islands": 0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "materials": 1
+    },
+    "SM_LowerFixtures_Cyan": {
+      "verts": 88,
+      "faces": 40,
+      "tris": 40,
+      "ngons": 0,
+      "boundary_edges": 88,
+      "nonmanifold_edges": 0,
+      "wire_edges": 0,
+      "loose_verts": 0,
+      "degenerate_faces": 0,
+      "zero_length_edges": 0,
+      "inconsistent_normals_edges": 0,
+      "duplicate_verts": 44,
+      "islands": 24,
+      "inside_out_islands": 0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "materials": 1
+    },
+    "SM_LowerFixtures_Dark": {
+      "verts": 312,
+      "faces": 156,
+      "tris": 156,
+      "ngons": 0,
+      "boundary_edges": 312,
+      "nonmanifold_edges": 0,
+      "wire_edges": 0,
+      "loose_verts": 0,
+      "degenerate_faces": 0,
+      "zero_length_edges": 0,
+      "inconsistent_normals_edges": 0,
+      "duplicate_verts": 156,
+      "islands": 78,
+      "inside_out_islands": 0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "materials": 1
+    },
+    "SM_LowerFixtures_Screen": {
+      "verts": 24,
+      "faces": 12,
+      "tris": 12,
+      "ngons": 0,
+      "boundary_edges": 24,
+      "nonmanifold_edges": 0,
+      "wire_edges": 0,
+      "loose_verts": 0,
+      "degenerate_faces": 0,
+      "zero_length_edges": 0,
+      "inconsistent_normals_edges": 0,
+      "duplicate_verts": 12,
+      "islands": 6,
+      "inside_out_islands": 0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "materials": 1
+    },
+    "SM_LowerFixtures_Silver": {
+      "verts": 1760,
+      "faces": 760,
+      "tris": 760,
+      "ngons": 0,
+      "boundary_edges": 1780,
+      "nonmanifold_edges": 0,
+      "wire_edges": 0,
+      "loose_verts": 0,
+      "degenerate_faces": 0,
+      "zero_length_edges": 0,
+      "inconsistent_normals_edges": 0,
+      "duplicate_verts": 880,
+      "islands": 490,
+      "inside_out_islands": 0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "materials": 1
+    },
+    "SM_LowerFloor_Champagne": {
+      "verts": 480,
+      "faces": 240,
+      "tris": 240,
+      "ngons": 0,
+      "boundary_edges": 480,
+      "nonmanifold_edges": 0,
+      "wire_edges": 0,
+      "loose_verts": 0,
+      "degenerate_faces": 0,
+      "zero_length_edges": 0,
+      "inconsistent_normals_edges": 0,
+      "duplicate_verts": 240,
+      "islands": 120,
+      "inside_out_islands": 0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "materials": 1
+    },
+    "SM_LowerFloor_Wood": {
+      "verts": 160,
+      "faces": 108,
+      "tris": 108,
+      "ngons": 0,
+      "boundary_edges": 160,
+      "nonmanifold_edges": 0,
+      "wire_edges": 0,
+      "loose_verts": 0,
+      "degenerate_faces": 0,
+      "zero_length_edges": 0,
+      "inconsistent_normals_edges": 0,
+      "duplicate_verts": 80,
+      "islands": 26,
+      "inside_out_islands": 0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "materials": 1
+    },
+    "SM_Stairs_Dark": {
+      "verts": 576,
+      "faces": 288,
+      "tris": 288,
+      "ngons": 0,
+      "boundary_edges": 576,
+      "nonmanifold_edges": 0,
+      "wire_edges": 0,
+      "loose_verts": 0,
+      "degenerate_faces": 0,
+      "zero_length_edges": 0,
+      "inconsistent_normals_edges": 0,
+      "duplicate_verts": 288,
+      "islands": 144,
+      "inside_out_islands": 0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "materials": 1
+    },
+    "SM_Stairs_Pearl": {
+      "verts": 624,
+      "faces": 312,
+      "tris": 312,
+      "ngons": 0,
+      "boundary_edges": 624,
+      "nonmanifold_edges": 0,
+      "wire_edges": 0,
+      "loose_verts": 0,
+      "degenerate_faces": 0,
+      "zero_length_edges": 0,
+      "inconsistent_normals_edges": 0,
+      "duplicate_verts": 312,
+      "islands": 156,
+      "inside_out_islands": 0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "materials": 1
+    },
+    "SM_Stairs_Silver": {
+      "verts": 804,
+      "faces": 400,
+      "tris": 400,
+      "ngons": 0,
+      "boundary_edges": 808,
+      "nonmanifold_edges": 0,
+      "wire_edges": 0,
+      "loose_verts": 0,
+      "degenerate_faces": 0,
+      "zero_length_edges": 0,
+      "inconsistent_normals_edges": 0,
+      "duplicate_verts": 402,
+      "islands": 200,
+      "inside_out_islands": 0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "materials": 1
+    }
+  },
+  "round_trip_dimensions_blender_m": [
+    40.0,
+    10.13,
+    6.274
+  ],
+  "bytes": 318908
+}

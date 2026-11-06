@@ -16,6 +16,7 @@ const (
 	RoleSales    = "sales"
 	RoleOperator = "operator"
 	RoleAdmin    = "admin"
+	RoleOwner    = "owner"
 )
 
 type User struct {
@@ -93,7 +94,7 @@ func (s *Service) AuthenticateEmailPassword(ctx context.Context, email, password
 	email = strings.ToLower(strings.TrimSpace(email))
 	var user User
 	var passwordHash string
-	err := s.DB.QueryRow(ctx, "SELECT id,name,email,role,password_hash,auth_version FROM users WHERE email=$1", email).Scan(&user.ID, &user.Name, &user.Email, &user.Role, &passwordHash, &user.AuthVersion)
+	err := s.DB.QueryRow(ctx, "SELECT id,name,email,role,password_hash,auth_version FROM users WHERE email=$1 AND NOT suspended", email).Scan(&user.ID, &user.Name, &user.Email, &user.Role, &passwordHash, &user.AuthVersion)
 	if err != nil || passwordHash == "" || bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password)) != nil {
 		return User{}, ErrInvalidCredentials
 	}

@@ -1,0 +1,35 @@
+{
+  "ok": true,
+  "units": {
+    "system": "METRIC",
+    "scale_length": 1.0,
+    "length": "METERS",
+    "warn": null
+  },
+  "objects": 52,
+  "issues": {
+    "rotated": [
+      "SM_BrandText_Port",
+      "SM_BrandText_Starboard"
+    ],
+    "origin_far": [
+      "SM_UpperStage_Dark",
+      "SM_UpperStage_Screen",
+      "SM_UpperStage_Silver",
+      "SM_UpperStage_Cyan",
+      "SM_LowerFixtures_Screen",
+      "SM_LowerFixtures_Cyan",
+      "SM_Wheelhouse_Pearl",
+      "SM_Wheelhouse_Glass",
+      "SM_Wheelhouse_Cyan"
+    ]
+  },
+  "images": {
+    "missing": [],
+    "packed": 0,
+    "absolute_paths": []
+  },
+  "orphans": 0,
+  "linked_libraries": [],
+  "fixed": []
+}

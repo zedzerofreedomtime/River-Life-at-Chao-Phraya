@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;background:#edf1ef;color:#162d34;font-family:Tahoma,Arial,sans-serif">
+<div style="max-width:540px;margin:0 auto;padding:20px 12px">
+{{range .Passes}}
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:20px;border:1px solid #cad5d1;border-radius:14px;background:white;border-spacing:0">
+<tr><td colspan="2" bgcolor="#102f38" style="padding:20px 24px;color:#f5dc9d;border-radius:13px 13px 0 0;border-bottom:4px solid #c7a466;font-size:19px;letter-spacing:4px;font-weight:600">RIVER LIFE</td></tr>
+<tr><td colspan="2" style="padding:21px 24px 0;font-size:12px;color:#506668;letter-spacing:1px">BOARDING PASS &nbsp;·&nbsp; {{.Number}} / {{len $.Passes}}</td></tr>
+<tr><td colspan="2" style="padding:5px 24px 16px"><h1 style="margin:0;font-size:27px;line-height:1.4;font-weight:600">บัตรโดยสารขึ้นเรือ</h1><p style="margin:5px 0 0">{{$.Program.Title}}</p></td></tr>
+{{if $.Notice}}<tr><td colspan="2" bgcolor="#fff2d3" style="padding:10px 24px">{{$.Notice}}</td></tr>{{end}}
+<tr><td width="56%" valign="top" style="padding:12px 8px 10px 24px"><small>ผู้จอง / Booked by</small><br><strong>{{$.Booking.Name}}</strong></td><td valign="top" style="padding:12px 16px 10px 0"><small>ที่นั่ง / Seat</small><br><strong style="font-size:22px">{{.Location}}</strong></td></tr>
+<tr><td valign="top" style="padding:8px 8px 12px 24px"><small>วันเดินทาง / Date</small><br><strong>{{$.Date}}</strong></td><td valign="top" style="padding:8px 16px 12px 0"><small>ท่าเรือ / Pier</small><br><strong>{{$.Pier}}</strong></td></tr>
+<tr><td style="padding:4px 8px 18px 24px"><small>ขึ้นเรือ / Boarding</small><br><strong>{{$.Program.Boarding}}</strong></td><td style="padding:4px 16px 18px 0"><small>ออกเรือ / Departure</small><br><strong>{{$.Program.Departure}}</strong></td></tr>
+<tr><td colspan="2" align="center" style="border-top:2px dashed #a3b7b5;padding:16px 12px"><img src="cid:ticket-{{.Number}}" width="208" height="208" alt="QR สำหรับขึ้นเรือ ใบที่ {{.Number}}" style="display:block;margin:auto"><p style="margin:8px 0;font-weight:600">แสดง QR นี้ให้เจ้าหน้าที่เมื่อขึ้นเรือ</p><small style="color:#506668">รหัสตั๋ว / Ticket ID</small><br><span style="font:11px monospace;word-break:break-all">{{.ID}}</span></td></tr>
+<tr><td colspan="2" bgcolor="#e6efec" style="padding:12px 24px;font-size:12px;color:#304f52;border-radius:0 0 13px 13px">รหัสการจอง &nbsp; {{$.Booking.ID}}</td></tr>
+</table>{{end}}
+<div style="background:white;border:1px solid #cad5d1;border-radius:14px;padding:20px 24px;margin-bottom:20px">
+<h2 style="margin:0 0 12px;font-size:18px;font-weight:600">สรุปการจอง / Booking summary</h2>
+<p style="margin:0 0 12px">ยอดรวมทั้งการจอง / Booking total: <strong>{{.Total}}</strong></p>
+{{if .Program.ExtraDetails}}<div style="white-space:pre-line;font-size:14px;line-height:1.8">{{.Program.ExtraDetails}}</div>{{end}}
+</div>
+<p style="font-size:13px;line-height:1.7;color:#465e60">เวลาทั้งหมดเป็นเวลาประเทศไทย กรุณาเก็บ QR แต่ละใบไว้เป็นส่วนตัว<br>River Life at Chao Phraya · LINE @480xbltt</p>
+</div></body></html>
