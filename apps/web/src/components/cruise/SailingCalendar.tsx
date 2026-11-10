@@ -293,7 +293,7 @@ export default function SailingCalendar({
                   type="button"
                   onClick={onOpenConcert}
                 >
-                  {en ? "View sailing & tables" : "ดูรอบล่องเรือและโต๊ะ"}
+                  {en ? "View sailing & seats" : "ดูรอบล่องเรือและที่นั่ง"}
                   <ArrowRight size={18} aria-hidden="true" />
                 </button>
               </div>

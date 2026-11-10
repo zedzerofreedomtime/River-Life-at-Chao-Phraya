@@ -1,4 +1,5 @@
 import { ArrowUpRight, Clock3, MapPin, Ship } from "lucide-react";
+import { type EventInfo } from "../../data/api";
 import type { Language } from "../../data/i18n";
 import "../../GettingThere.css";
 
@@ -42,7 +43,9 @@ function VesselPhoto({ position, name }: { position: string; name: string }) {
 export default function GettingThere({
   language,
   onContact,
+  event,
 }: {
+  event: EventInfo | null;
   language: Language;
   onContact: () => void;
 }) {
@@ -76,7 +79,7 @@ export default function GettingThere({
                 <MapPin size={20} aria-hidden="true" />
                 {en ? "Departure pier" : "จุดขึ้นเรือ"}
               </dt>
-              <dd>{en ? boat.pierEn : boat.pierTh}</dd>
+              <dd>{en ? "ICONSIAM, Pier 4" : "ไอคอนสยาม ท่าเรือที่ 4"}</dd>
             </div>
             <div>
               <dt>
@@ -84,10 +87,14 @@ export default function GettingThere({
                 {en ? "Sailing time · Bangkok" : "เวลาล่องเรือ · เวลาไทย"}
               </dt>
               <dd>
-                {boat.hours ?? (en ? "Time to be confirmed" : "รอยืนยันเวลา")}
-                {boat.hours && (
+                {en
+                  ? "Check-in 18:45 · Cruise 19:00–21:00"
+                  : "เช็กอิน 18:45 น. · ล่องเรือ 19:00–21:00 น."}
+                {event?.sailing_id && (
                   <small>
-                    {en ? "Departure – return" : "ออกเรือ – กลับถึงท่า"}
+                    {en
+                      ? "Times apply to the listed sailing only"
+                      : "เวลาสำหรับรอบที่แสดงเท่านั้น"}
                   </small>
                 )}
               </dd>
@@ -115,8 +122,8 @@ export default function GettingThere({
           )}
           <p className="vessel-arrival-note">
             {en
-              ? "Check your booking confirmation for the check-in time and exact boarding point."
-              : "ตรวจสอบเวลาเช็กอินและจุดนัดพบจากรายละเอียดการจองของคุณอีกครั้ง"}
+              ? "The map locates ICONSIAM. Head to riverside Pier 4 for Unicorn Cruise and check in 15 minutes before departure."
+              : "แผนที่ระบุตำแหน่ง ICONSIAM ให้ไปยังท่าเรือที่ 4 ริมแม่น้ำ เพื่อขึ้น Unicorn Cruise และเช็กอินก่อนเรือออก 15 นาที"}
           </p>
         </div>
       </article>

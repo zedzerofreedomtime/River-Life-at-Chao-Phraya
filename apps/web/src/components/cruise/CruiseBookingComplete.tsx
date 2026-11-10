@@ -76,6 +76,13 @@ export default function CruiseBookingComplete({
             {detail.tickets.map((ticket) => (
               <article className="cruise-boarding-ticket" key={ticket.id}>
                 <h2>UNICORN CRUISE</h2>
+                {detail.payment?.charge_id.startsWith("chrg_test_") && (
+                  <strong>
+                    {en
+                      ? "TEST TICKET · Not valid for travel"
+                      : "ตั๋วทดสอบ · ใช้เดินทางจริงไม่ได้"}
+                  </strong>
+                )}
                 <p>{detail.pier}</p>
                 <strong>
                   {en ? "Seat" : "ที่นั่ง"} {ticket.table_id} · {ticket.ordinal}

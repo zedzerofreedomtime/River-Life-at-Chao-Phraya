@@ -1,3 +1,5 @@
+import { sailingEvent } from "./data/sailingEvent";
+import type { Sailing } from "./data/cruises";
 import AdminManagement from "./components/staff/AdminManagement";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import Alert from "@mui/material/Alert";
@@ -96,9 +98,12 @@ export default function App() {
   const loadEvent = () => {
     eventRequests.current += 1;
     setEventLoading(true);
-    return api<EventInfo>("/event")
-      .then((data) => {
-        setEvent(data);
+    return Promise.all([
+      api<EventInfo>("/event"),
+      api<Sailing[]>("/sailings?vessel=unicorn"),
+    ])
+      .then(([data, sailings]) => {
+        setEvent(sailingEvent(data, sailings[0]));
         setError("");
       })
       .catch(() =>
@@ -280,7 +285,15 @@ export default function App() {
         {page === "event" && event && (
           <EventDetail
             event={event}
-            onStartCheckout={() => go("booking")}
+            onStartCheckout={() => {
+              go("booking");
+              if (event.sailing_id)
+                window.history.replaceState(
+                  null,
+                  "",
+                  `/booking?sailing=${encodeURIComponent(event.sailing_id)}`,
+                );
+            }}
             language={language}
           />
         )}
@@ -325,6 +338,7 @@ export default function App() {
         )}
         {page === "gettingThere" && (
           <GettingThere
+            event={event}
             language={language}
             onContact={() => goHelp("contact")}
           />

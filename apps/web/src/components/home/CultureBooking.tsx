@@ -5,36 +5,39 @@ export default function CultureBooking({ language }: { language: Language }) {
   const steps = en
     ? [
         [
-          "Choose a sailing",
-          "Pick the date and explore what is included in that sailing.",
+          "Choose sailing & seats",
+          "Choose a sailing, deck and individual seats. Buffet is included; food and wine extras are optional.",
         ],
         [
-          "Choose your tables",
-          "Select tables on the deck plan and enter your party size. The current layout is a demonstration, not a reservation.",
+          "Review & confirm",
+          "Check the sailing, seat codes, extras and total. Your account name is filled in for you.",
         ],
         [
-          "Review your selection",
-          "Review tables and guest count. Real payment is not enabled for this prototype.",
+          "Pay",
+          "Select an available Omise method. Sandbox uses test payment only; do not transfer real money.",
         ],
         [
-          "Board at the pier",
-          "Bring your QR ticket at the stated boarding time.",
+          "Receive your tickets",
+          "Tickets follow provider confirmation. Test tickets are marked and are not valid for travel.",
         ],
       ]
     : [
         [
-          "เลือกรอบล่องเรือ",
-          "เลือกวันและดูรายละเอียดประสบการณ์ที่รวมในรอบนั้น",
+          "เลือกรอบและเก้าอี้",
+          "เลือกรอบ โซน และเก้าอี้ บุฟเฟต์รวมในค่าที่นั่ง อาหารพิเศษและไวน์เลือกเพิ่มได้",
         ],
         [
-          "เลือกโต๊ะและจำนวนคน",
-          "เลือกโต๊ะจากผังเรือและระบุจำนวนผู้ร่วมเดินทาง ขณะนี้เป็นผังสาธิต ยังไม่ใช่การจองจริง",
+          "ตรวจสอบและคอนเฟิร์ม",
+          "ตรวจรอบ รหัสที่นั่ง บริการเสริม และยอดรวม ระบบกรอกชื่อจากบัญชีให้",
         ],
         [
-          "ตรวจสอบรายการโต๊ะ",
-          "ตรวจโต๊ะและจำนวนคน ต้นแบบนี้ยังไม่เปิดรับชำระเงินจริง",
+          "ชำระเงิน",
+          "เลือกช่องทาง Omise ที่มีให้ โหมด Sandbox ใช้ชำระทดสอบเท่านั้น ไม่โอนเงินจริง",
         ],
-        ["พบกันที่ท่าเรือ", "นำ QR Ticket มาแสดงตามเวลาขึ้นเรือของรอบที่จอง"],
+        [
+          "รับตั๋ว",
+          "รับตั๋วหลังระบบยืนยันการชำระเงิน ตั๋วทดสอบมีข้อความกำกับและใช้เดินทางจริงไม่ได้",
+        ],
       ];
 
   return (

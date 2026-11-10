@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { api } from "../../data/api";
+import { api, ApiError } from "../../data/api";
 import type { Language } from "../../data/i18n";
 import {
   loadOmiseCard,
@@ -76,7 +76,7 @@ export default function OmisePayment({
   useEffect(() => {
     if (enabled && autoStart && !started.current) {
       started.current = true;
-      void (resume ? refresh() : begin());
+      void (resume ? refresh(true) : begin());
     }
   }, [enabled, autoStart, resume]);
   useEffect(() => {
@@ -225,11 +225,12 @@ export default function OmisePayment({
       setError((e as Error).message);
     }
   }
-  async function refresh() {
+  async function refresh(startIfMissing = false) {
     if (inFlight.current) return;
     inFlight.current = true;
     setBusy(true);
     setError("");
+    let missing = false;
     try {
       const next = await api<Checkout>(
         `/me/cruise-reservations/${encodeURIComponent(id)}/payment-status`,
@@ -239,11 +240,14 @@ export default function OmisePayment({
       setNow(Date.now());
       if (next.status === "successful") paidCallback.current();
     } catch (e) {
-      setError((e as Error).message);
+      if (startIfMissing && e instanceof ApiError && e.status === 404)
+        missing = true;
+      else setError((e as Error).message);
     } finally {
       inFlight.current = false;
       setBusy(false);
     }
+    if (missing) await begin();
   }
   return (
     <div className="omise-payment" aria-label="Omise payment">

@@ -27,6 +27,10 @@ func fail(c *gin.Context, err error) {
 		code = 409
 		msg = err.Error()
 	}
+	var checkIn *service.CheckInError
+	if errors.As(err, &checkIn) {
+		msg = checkIn.Message
+	}
 	if code == 500 {
 		slog.Error("request failed", "error", err)
 	}

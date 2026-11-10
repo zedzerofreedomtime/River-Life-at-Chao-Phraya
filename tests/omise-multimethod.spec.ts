@@ -8,6 +8,7 @@ async function setup(
   page: Page,
   kind: "card" | "bank" | "cancel" | "invalid",
   liveSdk = false,
+  direct = false,
 ) {
   const expiry = new Date(Date.now() + 600000).toISOString();
   let charges = 0,
@@ -106,6 +107,10 @@ async function setup(
       };
     } else if (path.endsWith("/payment-status")) {
       statusReads++;
+      if (direct && charges === 0) {
+        await route.fulfill({ status: 404, json: { error: "ไม่พบรายการ" } });
+        return;
+      }
       json = {
         status: "successful",
         qr_url: "",
@@ -140,7 +145,19 @@ async function setup(
       body: "<h1>Sandbox bank authorization fixture</h1>",
     }),
   );
-  await page.goto("/booking");
+  await page.goto(direct ? "/booking?payment=multi" : "/booking");
+  if (direct)
+    return {
+      get charges() {
+        return charges;
+      },
+      get statusReads() {
+        return statusReads;
+      },
+      get detailReads() {
+        return detailReads;
+      },
+    };
   await page
     .getByRole("button", { name: "เก้าอี้ U01:1", exact: true })
     .click();
@@ -281,4 +298,13 @@ test("missing hosted checkout configuration cannot silently force a PromptPay ch
   await expect(
     page.getByRole("img", { name: "QR PromptPay ทดสอบจาก Omise" }),
   ).toHaveCount(0);
+});
+
+test("sales payment link opens checkout when no prior charge exists", async ({
+  page,
+}) => {
+  const state = await setup(page, "card", false, true);
+  await expect.poll(() => state.charges).toBe(1);
+  expect(state.statusReads).toBe(1);
+  await expect(page.getByRole("alert")).toHaveCount(0);
 });

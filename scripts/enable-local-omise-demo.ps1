@@ -22,8 +22,8 @@ BEGIN;
 INSERT INTO sailings(id,vessel_id,title,departure_at,boarding_at,pier,status,verified,extras)
 VALUES (:'sailing_id','unicorn','[DEMO] Unicorn — Omise Sandbox / ไม่ใช่รอบขายจริง',
  ((now() AT TIME ZONE 'Asia/Bangkok')::date + 7 + time '19:00') AT TIME ZONE 'Asia/Bangkok',
- ((now() AT TIME ZONE 'Asia/Bangkok')::date + 7 + time '18:30') AT TIME ZONE 'Asia/Bangkok',
- '[DEMO] ICONSIAM — วัน เวลา ผัง และราคาเป็นตัวอย่าง','published',true,
+ ((now() AT TIME ZONE 'Asia/Bangkok')::date + 7 + time '18:45') AT TIME ZONE 'Asia/Bangkok',
+ 'ICONSIAM ท่าเรือที่ 4','published',true,
  '[{"id":"demo-seafood","name":"[DEMO] ซีฟู้ดจานพิเศษ","category":"food","description":"รายการและราคาทดสอบเท่านั้น","image":"/images/food-gallery/buffet-02-v2.webp","price":60000,"stock":100,"enabled":true},{"id":"demo-wine","name":"[DEMO] ไวน์แดง","category":"wine","description":"รายการและราคาทดสอบเท่านั้น","image":"/images/booking/wine-preview.png","price":140000,"stock":100,"enabled":true}]'::jsonb);
 INSERT INTO sailing_tables(sailing_id,id,deck,seats,price,seat_price,x,y)
 SELECT :'sailing_id', prefix || lpad(i::text,2,'0'), deck,4,price,seat_price,

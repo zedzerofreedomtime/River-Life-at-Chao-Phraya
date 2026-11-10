@@ -92,12 +92,13 @@ export default function CultureHero({ language }: { language: Language }) {
       </video>
       <div className="cinema-hero-shade" />
       <div className="cinema-hero-copy">
-        <h1 id="culture-home-title" lang="en">
-          Symphony of
-          <br className="cinema-mobile-break" /> the Chao Phraya
+        <h1 id="culture-home-title" lang={en ? "en" : "th"}>
+          {en ? "Symphony of the Chao Phraya" : "ค่ำคืนพิเศษบนเจ้าพระยา"}
         </h1>
-        <p className="cinema-tagline" lang="en">
-          A River of Culture. A Night of Music.
+        <p className="cinema-tagline" lang={en ? "en" : "th"}>
+          {en
+            ? "A River of Culture. A Night of Music."
+            : "ล่องเรือ ชมคอนเสิร์ต และอิ่มอร่อยกับบุฟเฟต์บน Unicorn Cruise"}
         </p>
         <div className="cinema-actions">
           <a className="cinema-button" href="#life-on-board">

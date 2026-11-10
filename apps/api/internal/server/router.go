@@ -13,7 +13,7 @@ func (s *Server) Router() *gin.Engine {
 		panic("invalid trusted proxy configuration")
 	}
 	r.RemoteIPHeaders = []string{"X-Forwarded-For"}
-	r.Use(requestSecurity())
+	r.Use(requestSecurity(s.WebOrigin))
 
 	api := r.Group("/api/v1")
 	s.paymentRoutes(api)

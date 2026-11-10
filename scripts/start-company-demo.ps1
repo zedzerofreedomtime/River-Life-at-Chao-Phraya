@@ -42,7 +42,7 @@ if (!($existing | Where-Object { $_.title -like '[[]DEMO[]]*' -and $_.status -eq
     )
     $demoSailing=@{
         vessel_id='unicorn'; title='[DEMO] Unicorn Cruise — ตัวอย่าง ไม่เปิดขาย';status='published';verified=$true
-        departure_at=$departure.ToString('o');boarding_at=$departure.AddMinutes(-30).ToString('o');pier='[DEMO] ICONSIAM — ท่าและเวลาเป็นตัวอย่าง'
+        departure_at=$departure.ToString('o');boarding_at=$departure.AddMinutes(-15).ToString('o');pier='ICONSIAM ท่าเรือที่ 4'
         tables=$demoTables
         extras=@(
             @{id='demo-seafood';name='[DEMO] ซีฟู้ดจานพิเศษ';category='food';description='ตัวอย่างเพื่อสาธิต ไม่ใช่เมนูหรือราคาที่เรือยืนยัน';image='/images/food-gallery/buffet-02-v2.webp';price=60000;stock=20;enabled=$true},

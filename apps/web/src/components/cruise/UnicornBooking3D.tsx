@@ -925,7 +925,7 @@ export default function UnicornBooking3D(props: Props) {
               }}
             >
               {selected.includes(activeTable.id)
-                ? t("นำโต๊ะออก", "Remove table")
+                ? t("นำที่นั่งออก", "Remove seat")
                 : t("เลือกทั้งโต๊ะ", "Choose whole table")}{" "}
               {activeTable.id}
             </button>

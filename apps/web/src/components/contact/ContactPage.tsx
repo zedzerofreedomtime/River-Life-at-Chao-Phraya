@@ -1,3 +1,4 @@
+import PolicyLinks from "../shared/PolicyLinks";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ArrowUpRight, MessageCircle, Send, ShieldCheck } from "lucide-react";
@@ -130,6 +131,7 @@ export default function ContactPage({ language }: { language: Language }) {
               : "ไม่ส่งรหัสผ่าน รหัส OTP หรือข้อมูลบัตรชำระเงินเต็มชุดผ่านข้อความ"}
           </p>
         </aside>
+        <PolicyLinks language={language} />
         <form
           className="rl-contact-form"
           noValidate

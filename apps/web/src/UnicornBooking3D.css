@@ -334,6 +334,11 @@
   }
   .u3d-picker-heading {
     gap: 12px;
+    flex-wrap: wrap;
+  }
+  .u3d-price {
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
   .u3d-price strong {
     font-size: 19px;

@@ -552,8 +552,8 @@ export default function CruiseAdmin({ language }: { language: Language }) {
           </label>
           <p>
             {en
-              ? "Sailings with reservations cannot be edited. Payment collection is not enabled."
-              : "รอบที่มีรายการสำรองแล้วจะแก้ข้อมูลไม่ได้ ระบบยังไม่เปิดรับชำระเงิน"}
+              ? "Sailings with reservations cannot be edited. Omise currently uses Sandbox only."
+              : "รอบที่มีรายการสำรองแล้วจะแก้ข้อมูลไม่ได้ ช่องทาง Omise ปัจจุบันใช้ Sandbox เท่านั้น"}
           </p>
           <button className="rx-primary" disabled={busy} type="submit">
             {busy

@@ -19,6 +19,18 @@ export default function Help({
   const en = language === "en";
   if (topic === "contact") return <ContactPage language={language} />;
   const content: Record<HelpTopic, { th: string[]; en: string[] }> = {
+    privacy: {
+      th: [
+        "ระบบใช้ชื่อ อีเมล เบอร์โทร (ถ้าระบุ) และรายการจอง เพื่อจัดการบัญชี ติดต่อ ออกตั๋ว และส่งข้อมูลการจอง ฟอร์มติดต่อส่งข้อมูลให้ทีมงานผ่าน Google Sheets",
+        "การชำระเงินดำเนินการผ่าน Omise และสามารถเข้าสู่ระบบผ่าน Google ได้ตามที่เลือก หากต้องการสอบถามหรือขอจัดการข้อมูล ให้ติดต่อทีมงานผ่านหน้าติดต่อเรา",
+        "ผู้ประกอบการยังต้องยืนยันรายละเอียดผู้ควบคุมข้อมูล ระยะเวลาเก็บข้อมูล และช่องทางใช้สิทธิก่อนเปิดขายจริง ข้อความนี้อธิบายการทำงานปัจจุบัน ยังไม่ใช่นโยบายฉบับอนุมัติ",
+      ],
+      en: [
+        "Name, email, optional phone and reservation details are used for accounts, communication, bookings and ticket delivery. Contact submissions are shared with the team through Google Sheets.",
+        "Payments are processed through Omise; Google sign-in is optional. Contact the team via Contact us for questions or data requests.",
+        "The operator must confirm the data controller, retention period and rights request process before live sales. This explains current operation and is not an approved privacy policy.",
+      ],
+    },
     contact: {
       th: [
         "สำหรับการสอบถามโต๊ะ VIP โปรดระบุวันล่องเรือ จำนวนผู้ร่วมเดินทาง และพื้นที่ที่ต้องการ โต๊ะว่างและราคาต้องได้รับการยืนยันก่อนชำระเงิน",
@@ -62,11 +74,13 @@ export default function Help({
     tickets: {
       th: [
         "QR Ticket ใช้สำหรับรายการจองที่ระบุเท่านั้น โปรดแสดงบัตรเมื่อเจ้าหน้าที่ขอตรวจ",
-        "ผู้มาหลังเวลาขึ้นเรือที่กำหนดอาจถูกจัดเป็น No-show ตามเงื่อนไขที่แสดงก่อนซื้อ โปรดตรวจสอบเวลาจากรายละเอียดงานอีกครั้ง",
+        "ตรวจสอบวัน เวลาขึ้นเรือ และรหัสเก้าอี้ก่อนยืนยัน บุฟเฟต์รวมในค่าที่นั่ง อาหารพิเศษและไวน์คิดเพิ่มเฉพาะรายการที่เลือก",
+        "นโยบายเด็ก การมาสาย การยกเลิก เลื่อนรอบ และสภาพอากาศ ยังต้องได้รับการยืนยันจากผู้จัดก่อนเปิดขายจริง กรุณาสอบถามทีมงาน ไม่มีการรับประกันคืนเงินหรือเลื่อนรอบจากข้อความหน้านี้",
       ],
       en: [
         "A QR ticket is valid only for its booking. Present it when staff ask to check it.",
-        "Arriving after the stated boarding time may be treated as a no-show under the terms shown before purchase. Please recheck the time on the event page.",
+        "Check the date, boarding time and seat codes before confirming. Buffet is included; optional food and wine are charged only when selected.",
+        "Child, late arrival, cancellation, rescheduling and weather policies require organizer approval before live sales. Contact the team. This page does not guarantee refunds or rescheduling.",
       ],
     },
   };

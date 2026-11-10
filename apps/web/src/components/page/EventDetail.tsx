@@ -1,6 +1,7 @@
 import { ArrowRight, CalendarDays, Clock3, MapPin, Ticket } from "lucide-react";
 import {
   formatEventDate,
+  money,
   formatPier,
   localizeEventTitle,
   type EventInfo,
@@ -16,11 +17,7 @@ export default function EventDetail({
   language: Language;
 }) {
   const en = language === "en";
-  const date = event.date_is_preview
-    ? en
-      ? "Date to be announced"
-      : "วันล่องเรือรอประกาศ"
-    : formatEventDate(event.date, language);
+  const date = formatEventDate(event.date, language);
   const details = [
     {
       icon: CalendarDays,
@@ -36,15 +33,19 @@ export default function EventDetail({
     },
     {
       icon: Ticket,
-      label: en ? "Table pricing" : "ราคาจองโต๊ะ",
-      value: en ? "To be announced by River Life" : "รอประกาศจาก River Life",
+      label: en ? "Seat fare" : "ราคาต่อที่นั่ง",
+      value: event.zones.length
+        ? `${money(Math.min(...event.zones.map((z) => z.price)))} / ${en ? "seat, from" : "ที่นั่ง เริ่มต้น"}`
+        : en
+          ? "To be announced"
+          : "รอประกาศ",
     },
     {
       icon: Ticket,
-      label: en ? "Table plan" : "ผังโต๊ะ",
+      label: en ? "Seating plan" : "ผังที่นั่ง",
       value: en
-        ? "Proposed layout · pending approval"
-        : "แบบเสนอ · รอเรือรับรอง",
+        ? "Choose individual seats from the sailing plan"
+        : "เลือกเก้าอี้จากผังของรอบที่จอง",
     },
     {
       icon: MapPin,
@@ -96,8 +97,8 @@ export default function EventDetail({
                 <h2>{en ? "Before you book" : "รายละเอียดก่อนจอง"}</h2>
                 <p>
                   {en
-                    ? "Included: river cruise and on-board concert. Final dining and drink inclusions will be confirmed for each sailing."
-                    : "สิ่งที่รวม: ล่องเรือและคอนเสิร์ตบนเรือ รายละเอียดอาหารและเครื่องดื่มที่รวมในบัตรจะยืนยันตามรอบ"}
+                    ? "Included: river cruise, buffet and on-board concert. Optional food and wine are charged separately as shown in checkout."
+                    : "สิ่งที่รวม: ล่องเรือ บุฟเฟต์ และคอนเสิร์ตบนเรือ อาหารพิเศษและไวน์ที่เลือกเพิ่มคิดราคาแยกตามรายการก่อนชำระเงิน"}
                 </p>
                 <p>
                   {en
@@ -106,8 +107,8 @@ export default function EventDetail({
                 </p>
                 <p>
                   {en
-                    ? "Choose tables directly. The proposed layout places the stage at the bow; the operator must approve the actual plan before sales open."
-                    : "เลือกจองเป็นโต๊ะโดยตรง ผังเสนอให้เวทีอยู่ด้านหัวเรือ ต้องให้ผู้ประกอบการรับรองผังจริงก่อนเปิดขาย"}
+                    ? "Choose individual seats. Other guests may share your table. Check seat codes and the sailing before confirming."
+                    : "เลือกจองเป็นรายเก้าอี้ อาจร่วมโต๊ะกับผู้เดินทางอื่น ตรวจรหัสที่นั่งและรอบก่อนยืนยัน"}
                 </p>
                 {event.date_is_preview && (
                   <p>
@@ -128,9 +129,10 @@ export default function EventDetail({
               </p>
               <button
                 className="event-buy-button"
+                disabled={!event.sailing_id}
                 onClick={() => onStartCheckout()}
               >
-                {en ? "Choose sailing & tables" : "เลือกรอบและโต๊ะ"}
+                {en ? "Choose seats for this sailing" : "เลือกที่นั่งรอบนี้"}
                 <ArrowRight aria-hidden="true" size={21} />
               </button>
             </div>

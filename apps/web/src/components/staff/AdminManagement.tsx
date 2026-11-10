@@ -351,6 +351,14 @@ export default function AdminManagement({
           >
             {t("ย้ายเก้าอี้", "Move seats")}
           </button>
+          {role !== "owner" && (
+            <p>
+              {t(
+                "การคืนเงินต้องให้ Owner ดำเนินการ แอดมินดูประวัติคืนเงินด้านล่างได้ กรุณาส่งรหัสรายการและเหตุผลให้ Owner",
+                "Only the Owner can issue refunds. Admins can review refund history below; send the reservation ID and reason to the Owner.",
+              )}
+            </p>
+          )}
           {role === "owner" && (
             <>
               <p>

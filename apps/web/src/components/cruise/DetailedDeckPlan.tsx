@@ -640,7 +640,7 @@ export default function DetailedDeckPlan({
             <button
               key={id}
               onClick={() => onToggle(id)}
-              aria-label={`${t("นำโต๊ะออก", "Remove table")} ${id}`}
+              aria-label={`${t("นำที่นั่งออก", "Remove seat")} ${id}`}
             >
               {id}
               <X size={13} />

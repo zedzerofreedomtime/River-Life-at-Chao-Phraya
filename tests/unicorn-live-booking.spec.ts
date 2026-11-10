@@ -82,6 +82,15 @@ test("3D booking keeps server chair availability, price and reservation IDs", as
     "ready",
     { timeout: 30000 },
   );
+  await page.setViewportSize({ width: 320, height: 720 });
+  const priceBox = await page.locator(".u3d-price strong").boundingBox();
+  const pickerBox = await page.locator(".u3d-picker").boundingBox();
+  expect(
+    priceBox &&
+      pickerBox &&
+      priceBox.x + priceBox.width <= pickerBox.x + pickerBox.width,
+  ).toBeTruthy();
+  await page.setViewportSize({ width: 1280, height: 720 });
   await expect(
     root.getByRole("button", { name: "จองทั้งโต๊ะ", exact: true }),
   ).toHaveCount(0);

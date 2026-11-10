@@ -28,6 +28,7 @@ export default function PhotoGallery({
 }) {
   const en = language === "en";
   const dialog = useRef<HTMLDialogElement>(null);
+  const trigger = useRef<HTMLElement | null>(null);
   const [selected, setSelected] = useState(0);
   const photo = photos[selected];
   const move = (direction: number) =>
@@ -44,7 +45,8 @@ export default function PhotoGallery({
               className="cruise-photo-open"
               data-photo-format={item.format}
               aria-label={`${en ? "View photo: " : "ดูภาพ: "}${en ? item.en : item.th}`}
-              onClick={() => {
+              onClick={(event) => {
+                trigger.current = event.currentTarget;
                 setSelected(index);
                 dialog.current?.showModal();
               }}
@@ -72,11 +74,29 @@ export default function PhotoGallery({
       </div>
       <dialog
         ref={dialog}
+        aria-modal="true"
+        onClose={() => trigger.current?.focus()}
         className="cruise-photo-dialog"
         aria-label={
           viewerLabel ?? (en ? "Cruise photo viewer" : "ภาพบรรยากาศบนเรือ")
         }
         onKeyDown={(event) => {
+          if (event.key === "Tab") {
+            const buttons = Array.from(
+              dialog.current?.querySelectorAll<HTMLButtonElement>(
+                "button:not([disabled])",
+              ) ?? [],
+            );
+            const first = buttons[0],
+              last = buttons[buttons.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+              event.preventDefault();
+              last?.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+              event.preventDefault();
+              first?.focus();
+            }
+          }
           if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
             event.preventDefault();
             move(event.key === "ArrowLeft" ? -1 : 1);

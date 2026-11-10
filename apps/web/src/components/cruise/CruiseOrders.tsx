@@ -11,6 +11,11 @@ import {
 import type { Language } from "../../data/i18n";
 export default function CruiseOrders({ language }: { language: Language }) {
   const en = language === "en";
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
   const [detail, setDetail] = useState<CruiseReservationDetail | null>(null);
   async function open(id: string) {
     setBusy(id);
@@ -96,14 +101,21 @@ export default function CruiseOrders({ language }: { language: Language }) {
                     ? "Cancelled"
                     : "ยกเลิกแล้ว"}
           </p>
-          {r.status === "held" && (
+          {r.status === "held" && Date.parse(r.expires_at) > now && (
             <p>
               {en ? "Hold expires" : "หมดเวลาสำรอง"}:{" "}
               {sailingDate(r.expires_at, en)}
             </p>
           )}
           <small>{r.id}</small>
-          {r.status === "held" && (
+          {r.status === "held" && Date.parse(r.expires_at) <= now && (
+            <p role="status">
+              {en
+                ? "Hold expired. Start a new booking."
+                : "หมดเวลาสำรองแล้ว กรุณาเริ่มจองใหม่"}
+            </p>
+          )}
+          {r.status === "held" && Date.parse(r.expires_at) > now && (
             <OmisePayment
               key={r.id}
               id={r.id}
@@ -187,6 +199,13 @@ export default function CruiseOrders({ language }: { language: Language }) {
                         key={ticket.id}
                       >
                         <h4>UNICORN CRUISE</h4>
+                        {detail.payment?.charge_id.startsWith("chrg_test_") && (
+                          <strong>
+                            {en
+                              ? "TEST TICKET · Not valid for travel"
+                              : "ตั๋วทดสอบ · ใช้เดินทางจริงไม่ได้"}
+                          </strong>
+                        )}
                         <p>{sailingDate(detail.departure_at, en)}</p>
                         <p>{cruiseDisplayText(detail.pier)}</p>
                         <strong>
@@ -227,7 +246,7 @@ export default function CruiseOrders({ language }: { language: Language }) {
               </button>
             </div>
           )}
-          {r.status === "held" && (
+          {r.status === "held" && Date.parse(r.expires_at) > now && (
             <button disabled={busy !== ""} onClick={() => cancel(r.id)}>
               {en ? "Cancel hold" : "ยกเลิกการสำรอง"}
             </button>

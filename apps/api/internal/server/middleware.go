@@ -78,7 +78,7 @@ func (s *Server) requireRoles(roles ...string) gin.HandlerFunc {
 }
 
 // requestSecurity applies the same response headers and body limit to every route.
-func requestSecurity() gin.HandlerFunc {
+func requestSecurity(webOrigins ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("X-Content-Type-Options", "nosniff")
 		c.Header("Cache-Control", "no-store")
@@ -89,7 +89,15 @@ func requestSecurity() gin.HandlerFunc {
 			foreign := c.GetHeader("Sec-Fetch-Site") == "cross-site"
 			if origin != "" {
 				u, err := url.Parse(origin)
-				foreign = foreign || err != nil || u == nil || (u.Scheme != "https" && u.Scheme != "http") || !strings.EqualFold(u.Host, c.Request.Host) || (c.Request.TLS != nil && u.Scheme != "https")
+				// External proxies rewrite Host. Trust only explicitly configured origins,
+				// never caller-controlled forwarding headers or a wildcard domain.
+				configured := false
+				for _, allowed := range webOrigins {
+					if allowed != "" && origin == strings.TrimRight(allowed, "/") {
+						configured = true
+					}
+				}
+				foreign = foreign || err != nil || u == nil || (u.Scheme != "https" && u.Scheme != "http") || (!strings.EqualFold(u.Host, c.Request.Host) && !configured) || (c.Request.TLS != nil && u.Scheme != "https")
 			}
 			if foreign {
 				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "คำขอข้ามเว็บไซต์ไม่ได้รับอนุญาต"})

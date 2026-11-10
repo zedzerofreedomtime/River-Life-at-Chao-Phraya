@@ -9,6 +9,13 @@ import (
 	"time"
 )
 
+type sandboxMailCapture struct{ marked bool }
+
+func (m *sandboxMailCapture) SendBookingMail(_ context.Context, _ Booking, _ BookingProgram, _ string, demo bool) error {
+	m.marked = demo
+	return nil
+}
+
 func TestCruiseChairEmailSnapshotAndRetry(t *testing.T) {
 	s := isolatedTableService(t)
 	ctx := context.Background()
@@ -84,4 +91,16 @@ func TestCruiseChairEmailSnapshotAndRetry(t *testing.T) {
 			t.Fatal("email not sent")
 		}
 	}
+	// Retry a sandbox email without changing the already-issued ticket identity.
+	if _, err = s.DB.Exec(ctx, "INSERT INTO omise_checkouts(reservation_id,charge_id) VALUES($1,'chrg_test_mail_audit')", r.ID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = s.DB.Exec(ctx, "UPDATE cruise_emails SET sent_at=NULL,next_attempt_at=now() WHERE reservation_id=$1 AND kind='tickets'", r.ID); err != nil {
+		t.Fatal(err)
+	}
+	marked := &sandboxMailCapture{}
+	if worked, err := DeliverNextCruiseEmail(ctx, s, marked); err != nil || !worked || !marked.marked {
+		t.Fatal("sandbox email missing test marker", err)
+	}
+
 }

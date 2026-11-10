@@ -1,0 +1,5 @@
+services:
+  api:
+    environment:
+      WEB_ORIGIN: https://river-life-at-chao-phraya.vercel.app
+      COOKIE_SECURE: 'true'

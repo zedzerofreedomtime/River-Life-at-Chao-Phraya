@@ -263,10 +263,19 @@ func (s *Service) confirmCruisePayment(ctx context.Context, id, actor, reference
 	return s.CruiseReservationDetail(ctx, id, user)
 }
 
+// CheckInError retains error classification while giving authenticated staff an actionable reason.
+type CheckInError struct {
+	Message string
+	Cause   error
+}
+
+func (e *CheckInError) Error() string { return e.Message }
+func (e *CheckInError) Unwrap() error { return e.Cause }
+
 func (s *Service) CheckInCruiseTicket(ctx context.Context, code, sailing, actor string) (CruiseTicket, error) {
 	var out CruiseTicket
 	if !strings.HasPrefix(code, "RLC1.") || len(code) != 69 || sailing == "" {
-		return out, ErrConflict
+		return out, &CheckInError{"รหัสตั๋วไม่ถูกต้อง", ErrConflict}
 	}
 	tx, err := s.DB.Begin(ctx)
 	if err != nil {
@@ -283,6 +292,9 @@ func (s *Service) CheckInCruiseTicket(ctx context.Context, code, sailing, actor 
 	var status string
 	var boarding, departure time.Time
 	err = tx.QueryRow(ctx, `SELECT t.id,t.table_id,t.ordinal,t.checked_in_at,r.status,s.boarding_at,s.departure_at FROM cruise_tickets t JOIN cruise_reservations r ON r.id=t.reservation_id JOIN sailings s ON s.id=r.sailing_id WHERE t.id=$1 AND r.sailing_id=$2 AND NOT EXISTS(SELECT 1 FROM cruise_refunds f WHERE f.reservation_id=r.id AND f.status<>'rejected') FOR UPDATE OF t`, code, sailing).Scan(&out.ID, &out.TableID, &out.Ordinal, &out.CheckedIn, &status, &boarding, &departure)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return out, &CheckInError{"ไม่พบตั๋วที่ใช้ได้สำหรับรอบนี้ กรุณาตรวจรอบและ QR ล่าสุด", err}
+	}
 	if err != nil {
 		return out, err
 	}
@@ -294,8 +306,17 @@ func (s *Service) CheckInCruiseTicket(ctx context.Context, code, sailing, actor 
 		return out, ErrConflict
 	}
 	now := time.Now()
-	if status != "confirmed" || out.CheckedIn != nil || boarding.After(now) || !departure.After(now) {
-		return out, ErrConflict
+	if status != "confirmed" {
+		return out, &CheckInError{"รายการยังไม่ยืนยันหรือถูกยกเลิกแล้ว", ErrConflict}
+	}
+	if out.CheckedIn != nil {
+		return out, &CheckInError{"บัตรนี้เช็กอินแล้ว", ErrConflict}
+	}
+	if boarding.After(now) {
+		return out, &CheckInError{"ยังไม่ถึงเวลาเปิดเช็กอินของรอบนี้", ErrConflict}
+	}
+	if !departure.After(now) {
+		return out, &CheckInError{"ปิดเช็กอินแล้ว เรือถึงเวลาออกเดินทาง", ErrConflict}
 	}
 	if err = tx.QueryRow(ctx, `UPDATE cruise_tickets SET checked_in_at=now(),checked_in_by=$2 WHERE id=$1 RETURNING checked_in_at`, code, actor).Scan(&out.CheckedIn); err != nil {
 		return out, err
@@ -334,7 +355,13 @@ func DeliverNextCruiseEmail(ctx context.Context, s *Service, sender BookingMailS
 			return true, err
 		}
 		sendCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
-		sendErr := sender.SendBookingMail(sendCtx, payload.Booking, payload.Program, kind, false)
+		// A test provider charge must never produce an unmarked boarding ticket.
+		var sandbox bool
+		if err = tx.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM omise_checkouts WHERE reservation_id=$1 AND charge_id LIKE 'chrg_test_%')", id).Scan(&sandbox); err != nil {
+			cancel()
+			return true, err
+		}
+		sendErr := sender.SendBookingMail(sendCtx, payload.Booking, payload.Program, kind, sandbox)
 		cancel()
 		if sendErr == nil {
 			_, err = tx.Exec(ctx, `UPDATE cruise_emails SET sent_at=now(),attempts=attempts+1 WHERE reservation_id=$1 AND kind=$2`, id, kind)

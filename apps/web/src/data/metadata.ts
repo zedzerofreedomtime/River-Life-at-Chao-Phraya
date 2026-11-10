@@ -41,10 +41,10 @@ export function generateMetadata({
       return {
         title: en
           ? "Book Unicorn Cruise | River Life"
-          : "จองโต๊ะ Unicorn Cruise | River Life",
+          : "จองที่นั่ง Unicorn Cruise | River Life",
         description: en
-          ? "Choose a verified sailing, tables and dining extras."
-          : "เลือกรอบเดินทาง โต๊ะ และบริการเสริมที่รับรองแล้ว",
+          ? "Choose a sailing, individual seats and optional dining extras. Check availability and payment mode before booking."
+          : "เลือกรอบเดินทาง เก้าอี้ และบริการเสริม ตรวจสอบสถานะรอบและโหมดชำระเงินก่อนจอง",
         url: `${baseUrl}/booking`,
       };
     case "bookingPreview":
@@ -61,11 +61,11 @@ export function generateMetadata({
     case "gettingThere":
       return {
         title: en
-          ? "Getting there · Four vessels | River Life"
-          : "การเดินทาง · เรือทั้ง 4 ลำ | River Life",
+          ? "Getting there · Unicorn Cruise | River Life"
+          : "การเดินทาง · Unicorn Cruise | River Life",
         description: en
-          ? "Departure piers and sailing times for Alangka, VIVA, Unicorn and The Legacy."
-          : "เลือกเรืออลังกา วีว่า ยูนิคอน และเดอะเลกาซี่ เพื่อดูท่าเรือและเวลาล่องเรือ",
+          ? "Boarding information for Unicorn Cruise. Check your booked sailing for the exact time and meeting point."
+          : "ข้อมูลการเดินทางของ Unicorn Cruise ตรวจสอบเวลาและจุดนัดพบตามรอบที่จอง",
         url: `${baseUrl}/getting-there`,
         image: `${baseUrl}/images/boat/river-life-four-vessels.png`,
       };
@@ -87,7 +87,7 @@ export function generateMetadata({
           : "River Life — ล่องเรือแม่น้ำเจ้าพระยาพร้อมคอนเสิร์ตบนเรือ UNICORN CRUISE ทุกรอบ",
         description: en
           ? "Cruise the Chao Phraya with River Life aboard the UNICORN CRUISE. Experience breathtaking night views of Wat Arun, authentic culinary dining, and unforgettable live concert sailings."
-          : "สัมผัสเสน่ห์สายน้ำเจ้าพระยากับ River Life บนเรือ UNICORN CRUISE ชมวิววัดอรุณยามค่ำคืน ลิ้มรสอาหารเลิศรส และดื่มด่ำกับเสียงดนตรีคอนเสิร์ตสดสุดเอ็กซ์คลูซีฟ จองตั๋วออนไลน์ได้ทันที",
+          : "สัมผัสเสน่ห์สายน้ำเจ้าพระยากับ River Life บนเรือ UNICORN CRUISE ชมวิววัดอรุณยามค่ำคืน ลิ้มรสอาหารเลิศรส และดื่มด่ำกับเสียงดนตรีคอนเสิร์ตสดสุดเอ็กซ์คลูซีฟ ตรวจสอบรอบและสถานะการเปิดจองออนไลน์",
         keywords: en
           ? "Chao Phraya cruise, Bangkok dinner cruise, UNICORN CRUISE, river concerts Bangkok, Chao Phraya luxury cruise, Wat Arun night view"
           : "ล่องเรือเจ้าพระยา, ดินเนอร์แม่น้ำเจ้าพระยา, คอนเสิร์ตบนเรือ, เรือ UNICORN CRUISE, จองเรือเจ้าพระยา, ชมวิววัดอรุณ, ล่องเรือดินเนอร์หรู",

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Alert from "@mui/material/Alert";
 import { money } from "../../data/api";
 import { sailingDate, type CruiseReservation } from "../../data/cruises";
@@ -13,6 +13,11 @@ export default function CruiseSalesDashboard({
   language: Language;
 }) {
   const en = language === "en";
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
   const { data, error, loading, reload } = useStaffData<CruiseReservation[]>(
     "/dashboard/sales/cruises/reservations",
   );
@@ -108,7 +113,7 @@ export default function CruiseSalesDashboard({
           />
         </>
       )}
-      {saved && (
+      {saved && Date.parse(saved.expires_at) > now && (
         <section className="staff-panel" role="status">
           <h2>
             {en ? "Seats held for customer" : "สำรองเก้าอี้ให้ลูกค้าแล้ว"}
@@ -149,7 +154,14 @@ export default function CruiseSalesDashboard({
               </p>
             ))}
             <small>{r.id}</small>
-            {r.status === "held" && (
+            {r.status === "held" && Date.parse(r.expires_at) <= now && (
+              <p role="status">
+                {en
+                  ? "Hold expired. Start a new booking."
+                  : "หมดเวลาสำรองแล้ว กรุณาเริ่มจองใหม่"}
+              </p>
+            )}
+            {r.status === "held" && Date.parse(r.expires_at) > now && (
               <p>
                 {en ? "Customer payment link" : "ลิงก์ให้ลูกค้าชำระ"}:{" "}
                 <input

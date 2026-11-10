@@ -1,3 +1,4 @@
+import PolicyLinks from "../shared/PolicyLinks";
 import { riverLandmarkCredits } from "../../data/riverLandmarkCredits";
 import { riverLandmarks } from "../../data/riverLandmarks";
 import type { Language } from "../../data/i18n";
@@ -17,6 +18,7 @@ export default function Footer({ language }: { language: Language }) {
           ? "Prices and event details are pending confirmation"
           : "ราคาและรายละเอียดงานรอยืนยัน"}
       </span>
+      <PolicyLinks language={language} />
       <details className="footer-photo-credits">
         <summary>
           {en ? "Location photo credits" : "เครดิตภาพสถานที่ทั้ง 11 จุด"}

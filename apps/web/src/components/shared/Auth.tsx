@@ -1,3 +1,4 @@
+import PolicyLinks from "./PolicyLinks";
 import { useEffect, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
@@ -339,6 +340,7 @@ export default function Auth({
           </div>
         </div>
       )}
+      <PolicyLinks language={language} />
       <form
         className="auth-form"
         onSubmit={(event) => {

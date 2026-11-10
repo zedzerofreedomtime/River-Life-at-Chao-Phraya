@@ -1,3 +1,4 @@
+import PolicyLinks from "../shared/PolicyLinks";
 import OmisePayment from "./OmisePayment";
 import CruiseBookingComplete from "./CruiseBookingComplete";
 import { useEffect, useRef, useState } from "react";
@@ -127,9 +128,11 @@ export default function LiveCruiseBooking({
               setSailingId((previous) =>
                 data.some((item) => item.id === previous)
                   ? previous
-                  : data.length === 1
-                    ? data[0].id
-                    : "",
+                  : previous
+                    ? previous
+                    : data.length === 1
+                      ? data[0].id
+                      : "",
               );
             }
             setLoadError("");
@@ -381,6 +384,7 @@ export default function LiveCruiseBooking({
     return (
       <section className="booking-preview bp-success flow-page payment-page cruise-payment-page">
         <div className="flow-heading">
+          <PolicyLinks language={language} />
           <h1 ref={heading} tabIndex={-1}>
             {remaining > 0
               ? t("ชำระเงิน", "Payment")
@@ -405,16 +409,25 @@ export default function LiveCruiseBooking({
                 "Pay using your selected method. Payment is checked automatically; tickets follow verified payment.",
               )}
             </p>
-            <OmisePayment
-              key={result.id}
-              id={result.id}
-              language={language}
-              autoStart={remaining > 0}
-              method="all"
-              amount={result.total}
-              resume={!!returnPayment}
-              onPaid={() => setPaymentVerified(true)}
-            />
+            {remaining > 0 && result.status === "held" ? (
+              <OmisePayment
+                key={result.id}
+                id={result.id}
+                language={language}
+                autoStart={remaining > 0}
+                method="all"
+                amount={result.total}
+                resume={!!returnPayment}
+                onPaid={() => setPaymentVerified(true)}
+              />
+            ) : (
+              <p role="status">
+                {t(
+                  "รายการนี้หมดเวลาหรือยกเลิกแล้ว กรุณาเริ่มจองใหม่ ตรวจสถานะการชำระที่เริ่มไว้ก่อนหมดเวลาได้ในรายการจองของฉัน",
+                  "This hold has expired or was cancelled. Start a new booking. Check My reservations for any payment already initiated.",
+                )}
+              </p>
+            )}
           </article>
           <aside className="payment-summary-card">
             <h2>{t("สรุปคำสั่งซื้อ", "Order summary")}</h2>
@@ -489,6 +502,7 @@ export default function LiveCruiseBooking({
           </button>
         ))}
       </nav>
+      <PolicyLinks language={language} />
       <div className="bp-heading-row">
         <div>
           <h1 ref={heading} tabIndex={-1}>
@@ -498,8 +512,8 @@ export default function LiveCruiseBooking({
           </h1>
           <p>
             {t(
-              "เปิดจองเฉพาะรอบ ราคา และผังที่ทีมงานรับรองแล้ว",
-              "Only verified sailings, prices and tables are offered here",
+              "เลือกรอบและเก้าอี้จากรายการที่แสดง ตรวจสอบยอดก่อนชำระเงิน",
+              "Choose a listed sailing and individual seats. Review the total before payment.",
             )}
           </p>
         </div>
@@ -562,6 +576,14 @@ export default function LiveCruiseBooking({
             </button>
           </div>
         </div>
+      )}
+      {sailingId && !sailing && !loading && !loadError && (
+        <p role="alert">
+          {t(
+            "รอบที่เลือกไม่เปิดรับจองแล้ว กรุณาเลือกรอบใหม่ ระบบไม่ได้เปลี่ยนรอบให้คุณ",
+            "Your selected sailing is unavailable. Please choose another sailing; your selection has not been switched.",
+          )}
+        </p>
       )}
       {loadError && (
         <p className="bp-error" role="alert">
@@ -959,7 +981,7 @@ export default function LiveCruiseBooking({
             <p>{selected.join(", ") || "—"}</p>
             <div className="bp-price-rows">
               <div>
-                <span>{t("ค่าที่นั่ง", "Tables")}</span>
+                <span>{t("ค่าที่นั่ง", "Seat fare")}</span>
                 <b>{money(tableTotal)}</b>
               </div>
               {selectedExtras.map((item) => (

@@ -6,6 +6,7 @@ export type Zone = {
   available: number;
 };
 export type EventInfo = {
+  sailing_id?: string;
   title: string;
   artists?: string[];
   demo: boolean;
@@ -34,9 +35,11 @@ export const formatPier = (
   number: number,
   language: "th" | "en",
 ) =>
-  language === "en"
-    ? `${pier} Pier ${number}`
-    : `ท่าเรือ ${pier} ท่าที่ ${number}`;
+  !number
+    ? pier
+    : language === "en"
+      ? `${pier} Pier ${number}`
+      : `ท่าเรือ ${pier} ท่าที่ ${number}`;
 export const localizeEventTitle = (title: string, language: "th" | "en") =>
   title === "Concert on the River"
     ? language === "en"
@@ -152,6 +155,14 @@ const englishApiMessages: Record<string, string> = {
   อีเมลหรือรหัสผ่านไม่ถูกต้อง: "Incorrect email or password.",
   รายการเปลี่ยนแปลงหรือโควตาไม่เพียงพอ:
     "Availability has changed or there are not enough tickets.",
+  รหัสตั๋วไม่ถูกต้อง: "Invalid ticket code.",
+  "ไม่พบตั๋วที่ใช้ได้สำหรับรอบนี้ กรุณาตรวจรอบและ QR ล่าสุด":
+    "No valid ticket for this sailing. Check the sailing and latest QR.",
+  รายการยังไม่ยืนยันหรือถูกยกเลิกแล้ว:
+    "Reservation is unconfirmed or cancelled.",
+  ยังไม่ถึงเวลาเปิดเช็กอินของรอบนี้:
+    "Check-in has not opened for this sailing.",
+  "ปิดเช็กอินแล้ว เรือถึงเวลาออกเดินทาง": "Check-in has closed for departure.",
   บัตรนี้เช็กอินแล้ว: "This ticket has already been checked in.",
 };
 export class ApiError extends Error {

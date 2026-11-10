@@ -155,6 +155,9 @@ func TestCruiseSalesExtrasPaymentTicketsAndEmails(t *testing.T) {
 	if _, err = s.CheckInCruiseTicket(ctx, confirmed.Tickets[0].ID, sailing.ID, "operator"); !errors.Is(err, ErrConflict) {
 		t.Fatal("check-in before boarding", err)
 	}
+	if err.Error() != "ยังไม่ถึงเวลาเปิดเช็กอินของรอบนี้" {
+		t.Fatal("missing boarding reason", err)
+	}
 	if _, err = s.DB.Exec(ctx, `UPDATE sailings SET boarding_at=now()-interval '1 minute' WHERE id=$1`, sailing.ID); err != nil {
 		t.Fatal(err)
 	}
@@ -170,6 +173,9 @@ func TestCruiseSalesExtrasPaymentTicketsAndEmails(t *testing.T) {
 	}
 	if _, err = s.CheckInCruiseTicket(ctx, confirmed.Tickets[0].ID, sailing.ID, "operator"); !errors.Is(err, ErrConflict) {
 		t.Fatal("ticket used twice", err)
+	}
+	if err.Error() != "บัตรนี้เช็กอินแล้ว" {
+		t.Fatal("missing duplicate reason", err)
 	}
 	if _, err = s.DB.Exec(ctx, `UPDATE sailings SET departure_at=now()-interval '1 second' WHERE id=$1`, sailing.ID); err != nil {
 		t.Fatal(err)
