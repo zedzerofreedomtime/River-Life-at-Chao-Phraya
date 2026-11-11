@@ -9,6 +9,7 @@ import {
   cruiseDisplayText,
   type Sailing,
   type CruiseReservation,
+  type CruiseExtra,
 } from "../../data/cruises";
 import type { Language } from "../../data/i18n";
 import DetailedDeckPlan from "./DetailedDeckPlan";
@@ -63,6 +64,10 @@ export default function LiveCruiseBooking({
     [notes, setNotes] = useState(""),
     [name, setName] = useState(""),
     [phone, setPhone] = useState("");
+  // Keep the accepted quote even when polling removes or reprices a product.
+  const [extraQuotes, setExtraQuotes] = useState<Record<string, CruiseExtra>>(
+    {},
+  );
   const [busy, setBusy] = useState(false),
     [result, setResult] = useState<CruiseReservation | null>(null),
     [now, setNow] = useState(Date.now());
@@ -181,9 +186,17 @@ export default function LiveCruiseBooking({
         : table.price),
     0,
   );
-  const selectedExtras = products.filter(
+  const selectedExtras = Object.values(extraQuotes).filter(
     (item) => (quantities[item.id] ?? 0) > 0,
   );
+  const extraChanges = selectedExtras.flatMap((quote) => {
+    const current = products.find((item) => item.id === quote.id);
+    const unavailable =
+      !current || !current.enabled || current.remaining < quantities[quote.id];
+    return unavailable || current.price !== quote.price
+      ? [{ quote, current, unavailable }]
+      : [];
+  });
   const extrasTotal = selectedExtras.reduce(
     (sum, item) => sum + item.price * quantities[item.id],
     0,
@@ -191,6 +204,8 @@ export default function LiveCruiseBooking({
   const total = tableTotal + extrasTotal;
   const valid =
     !!sailing &&
+    !loadError &&
+    extraChanges.length === 0 &&
     chosen.length > 0 &&
     (seatMode || chosen.length === selected.length) &&
     selected.length <= (seatMode ? 200 : 30) &&
@@ -523,6 +538,54 @@ export default function LiveCruiseBooking({
           {error}
         </p>
       )}
+      {extraChanges.length > 0 && (
+        <div className="bp-review-block bp-extra-changes" role="alert">
+          <h2>
+            {t("บริการเสริมมีการเปลี่ยนแปลง", "Your extras have changed")}
+          </h2>
+          <p>
+            {t(
+              "ยังใช้ยอดเดิมจนกว่าคุณจะตรวจสอบ กรุณาจัดการรายการต่อไปนี้ก่อนชำระเงิน",
+              "Your previous total is retained. Review these changes before payment.",
+            )}
+          </p>
+          {extraChanges.map(({ quote, current, unavailable }) => (
+            <div key={quote.id}>
+              <p>
+                {cruiseDisplayText(quote.name)}:{" "}
+                {unavailable
+                  ? t(
+                      `ไม่พร้อมขายตามจำนวนที่เลือก (เหลือ ${current?.enabled ? current.remaining : 0})`,
+                      `Unavailable in the selected quantity (${current?.enabled ? current.remaining : 0} remaining)`,
+                    )
+                  : `${t("ราคาเปลี่ยนจาก", "Price changed from")} ${money(quote.price)} → ${money(current!.price)}`}
+              </p>
+              {!unavailable && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setExtraQuotes((prev) => ({
+                      ...prev,
+                      [quote.id]: current!,
+                    }))
+                  }
+                >
+                  {t("ยอมรับราคาใหม่", "Accept new price")}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() =>
+                  setQuantities((prev) => ({ ...prev, [quote.id]: 0 }))
+                }
+              >
+                {t("นำรายการออก", "Remove item")}{" "}
+                {cruiseDisplayText(quote.name)}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
       {existingHold && (
         <div
           className="bp-review-block"
@@ -628,6 +691,7 @@ export default function LiveCruiseBooking({
                       setSailingId(e.target.value);
                       setSelected([]);
                       setQuantities({});
+                      setExtraQuotes({});
                       attempt.current = null;
                     }}
                   >
@@ -732,13 +796,29 @@ export default function LiveCruiseBooking({
               </>
             )}
             {step === 0 && sailing && (
-              <details className="bp-optional-extras">
-                <summary>
-                  {t(
-                    "เพิ่มอาหารพิเศษ / ไวน์ (ไม่บังคับ)",
-                    "Special food / wine (optional)",
-                  )}
-                </summary>
+              <section
+                className="bp-optional-extras bp-flight-extras"
+                aria-labelledby="extras-heading"
+              >
+                <div className="bp-extras-heading">
+                  <div>
+                    <span className="bp-extras-eyebrow">
+                      {t("เลือกเพิ่มได้ตามใจ", "MAKE IT YOUR OWN")}
+                    </span>
+                    <h2 id="extras-heading">
+                      {t("เติมเต็มมื้อพิเศษ", "Make your evening special")}
+                    </h2>
+                    <p>
+                      {t(
+                        "อาหารพิเศษและไวน์สำหรับกลุ่มของคุณ เลือกจำนวนที่ต้องการได้เลย",
+                        "Special food and wine for your group. Choose the quantities you need.",
+                      )}
+                    </p>
+                  </div>
+                  <span className="bp-extras-optional">
+                    {t("ไม่บังคับ", "Optional")}
+                  </span>
+                </div>
                 <div className="bp-included">
                   <Info size={21} />
                   <div>
@@ -806,19 +886,28 @@ export default function LiveCruiseBooking({
                       .map((item) => (
                         <article
                           key={item.id}
-                          className="bp-extra"
+                          className={`bp-extra${quantities[item.id] ? " bp-extra-selected" : ""}`}
                           style={item.image ? undefined : { display: "block" }}
                         >
                           {item.image && (
                             <img
                               src={item.image}
                               alt={cruiseDisplayText(item.name)}
+                              loading="lazy"
                             />
                           )}
                           <div className="bp-extra-body">
                             <h2>{cruiseDisplayText(item.name)}</h2>
                             <p>{item.description}</p>
-                            <strong>{money(item.price)}</strong>
+                            <span className="bp-extras-eyebrow">
+                              {item.category === "wine"
+                                ? t("ไวน์", "Wine")
+                                : t("อาหารพิเศษ", "Special food")}
+                            </span>
+                            <strong>
+                              {money(item.price)}{" "}
+                              <small>{t("/ รายการ", "/ item")}</small>
+                            </strong>
                             <p>
                               {t("เหลือ", "Remaining")}: {item.remaining}
                             </p>
@@ -842,15 +931,21 @@ export default function LiveCruiseBooking({
                               <button
                                 aria-label={`${t("เพิ่ม", "Add")} ${cruiseDisplayText(item.name)}`}
                                 disabled={
+                                  !item.enabled ||
                                   (quantities[item.id] ?? 0) >=
-                                  Math.min(10, item.remaining)
+                                    Math.min(10, item.remaining)
                                 }
-                                onClick={() =>
+                                onClick={() => {
+                                  if (!quantities[item.id])
+                                    setExtraQuotes((prev) => ({
+                                      ...prev,
+                                      [item.id]: { ...item },
+                                    }));
                                   setQuantities((prev) => ({
                                     ...prev,
                                     [item.id]: (prev[item.id] ?? 0) + 1,
-                                  }))
-                                }
+                                  }));
+                                }}
                               >
                                 +
                               </button>
@@ -884,7 +979,46 @@ export default function LiveCruiseBooking({
                     onChange={(e) => setNotes(e.target.value)}
                   />
                 </label>
-              </details>
+                <div className="bp-extras-checkout">
+                  <div aria-live="polite">
+                    <span>
+                      {t("บริการเสริมที่เลือก", "Selected extras")} ·{" "}
+                      {selectedExtras.reduce(
+                        (sum, item) => sum + quantities[item.id],
+                        0,
+                      )}{" "}
+                      {t("รายการ", "items")}
+                    </span>
+                    <strong>+ {money(extrasTotal)}</strong>
+                    <small>
+                      {t(
+                        "คิดเพิ่มจากค่าที่นั่ง · ตรวจยอดรวมได้ก่อนชำระเงิน",
+                        "Added to your seat fare · Review your total before payment",
+                      )}
+                    </small>
+                  </div>
+                  <div className="bp-extras-actions">
+                    <button
+                      className="bp-secondary"
+                      onClick={() => {
+                        setQuantities({});
+                        setRequests([]);
+                      }}
+                      disabled={!selectedExtras.length && !requests.length}
+                    >
+                      {t("ไม่เพิ่มบริการเสริม", "No extras")}
+                    </button>
+                    <button
+                      className="bp-primary"
+                      disabled={!valid}
+                      onClick={() => move(2)}
+                    >
+                      {t("ตรวจสอบรายการ", "Review booking")}{" "}
+                      <ArrowRight size={18} />
+                    </button>
+                  </div>
+                </div>
+              </section>
             )}
             {step === 2 && (
               <>

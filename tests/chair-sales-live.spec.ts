@@ -183,7 +183,9 @@ test("single chair + food + wine → manual test confirmation → matching QR ti
       path: join(artifacts, "01-single-chair.png"),
       fullPage: true,
     });
-    await page.locator(".bp-optional-extras > summary").click();
+    await expect(
+      page.getByRole("heading", { name: "เติมเต็มมื้อพิเศษ" }),
+    ).toBeVisible();
     await page
       .getByRole("button", { name: "เพิ่ม QA seafood", exact: true })
       .click();

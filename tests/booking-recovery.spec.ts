@@ -74,7 +74,9 @@ async function review(page: Page) {
   const next = page
     .locator(".bp-summary")
     .getByRole("button", { name: "ถัดไป", exact: true });
-  await page.locator(".bp-optional-extras > summary").click();
+  await expect(
+    page.getByRole("heading", { name: "เติมเต็มมื้อพิเศษ" }),
+  ).toBeVisible();
   await page
     .getByRole("button", { name: "เพิ่ม QA food", exact: true })
     .click();
@@ -107,7 +109,9 @@ test("transient reservation failure retains review and idempotency key for retry
   });
   await review(page);
   await page.getByRole("button", { name: /^ชำระเงิน ฿/ }).click();
-  await expect(page.getByRole("alert")).toContainText("Temporary test failure");
+  await expect(page.locator(".booking-preview .bp-error")).toContainText(
+    "Temporary test failure",
+  );
   await expect(page.getByLabel("ชื่อผู้จอง *")).toHaveValue("Saved Name");
   await expect(page.locator(".bp-grand-total")).toContainText("2,700");
   await page.getByRole("button", { name: /^ชำระเงิน ฿/ }).click();
@@ -124,7 +128,9 @@ test("booking rejection preserves priced extras and contact details when changin
   );
   await review(page);
   await page.getByRole("button", { name: /^ชำระเงิน ฿/ }).click();
-  await expect(page.getByRole("alert")).toContainText("อัปเดตผังล่าสุดแล้ว");
+  await expect(page.locator(".booking-preview .bp-error")).toContainText(
+    "อัปเดตผังล่าสุดแล้ว",
+  );
   await expect(page.locator("#sale-sailing")).toBeVisible();
   await page.getByRole("button", { name: "โต๊ะ U01", exact: true }).click();
   await page
@@ -151,7 +157,9 @@ test("initial availability failure stays an error and can reload (fixtures)", as
     r.fulfill({ status: 503, json: { error: "Test offline" } }),
   );
   await page.goto("/booking");
-  await expect(page.getByRole("alert")).toContainText("โหลดรอบเรือไม่ได้");
+  await expect(
+    page.locator(".booking-preview").getByRole("alert"),
+  ).toContainText("โหลดรอบเรือไม่ได้");
   await expect(
     page.getByRole("button", { name: "โหลดใหม่", exact: true }),
   ).toBeVisible();

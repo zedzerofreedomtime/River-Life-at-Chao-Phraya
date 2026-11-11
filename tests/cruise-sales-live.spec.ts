@@ -295,7 +295,9 @@ test("real browser → API → PostgreSQL: draft, extras, payment verification, 
       await userPage
         .getByRole("button", { name: `เก้าอี้ U01:${n}`, exact: true })
         .click();
-    await userPage.locator(".bp-optional-extras > summary").click();
+    await expect(
+      userPage.getByRole("heading", { name: "เติมเต็มมื้อพิเศษ" }),
+    ).toBeVisible();
     await userPage
       .getByRole("button", { name: "เพิ่ม QA red wine", exact: true })
       .click();
